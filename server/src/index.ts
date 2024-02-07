@@ -17,18 +17,18 @@ import favicon from "serve-favicon"
 // TODO
 
 // Database Import
-// import { AppDataSource } from "./database/data-source"
+import { AppDataSource } from "./database/data-source"
 
 // Middleware Imports
 // import errorMiddleware from "./middleware/ErrorMiddleware"
 
 // Database Type Check
-// if (AppDataSource.options.type !== "postgres") throw new Error("Invalid DB_TYPE: Only 'postgres' is supported.")
+if (AppDataSource.options.type !== "mongodb") throw new Error("Invalid Database Type: Only 'mongodb' is supported.")
 
 const startServer = async () => {
     try {
         // Database Initialization
-        // await AppDataSource.initialize()
+        await AppDataSource.initialize()
 
         // Express App Initialization
         let app = express()
@@ -68,6 +68,9 @@ const startServer = async () => {
 
         // Routes
         // TODO: Add routes here
+        app.get("/", (req, res) => {
+            res.send("Hello World!")
+        })
 
         // app.use(errorMiddleware)
 
