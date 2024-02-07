@@ -20,7 +20,7 @@ import favicon from "serve-favicon"
 import { AppDataSource } from "./database/data-source"
 
 // Middleware Imports
-// import errorMiddleware from "./middleware/ErrorMiddleware"
+import errorMiddleware from "./middlewares/ErrorMiddleware"
 
 // Database Type Check
 if (AppDataSource.options.type !== "mongodb") throw new Error("Invalid Database Type: Only 'mongodb' is supported.")
@@ -41,7 +41,7 @@ const startServer = async () => {
         const corsOptions: cors.CorsOptions = {
             origin: true,
             methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-            allowedHeaders: ["Accept", "Authorization", "Content-Type", "X-Requested-With"],
+            allowedHeaders: ["Accept", "Authorization", "Content-Type"],
             credentials: true
         }
         app.use(cors(corsOptions))
@@ -72,7 +72,7 @@ const startServer = async () => {
             res.send("Hello World!")
         })
 
-        // app.use(errorMiddleware)
+        app.use(errorMiddleware)
 
         if (app.get("env") === "development") app.use(errorHandler())
 
