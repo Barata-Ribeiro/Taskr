@@ -13,11 +13,11 @@ const dataSourceOptions: DataSourceOptions & SeederOptions = {
     useUnifiedTopology: true,
     ssl: true,
     entities: [
-        path.join(__dirname, "..", "entity", "**", "*.{ts,js}"),
-        path.join(__dirname, "..", "entity", "*.{ts,js}")
+        path.join(__dirname, "..", "entities", "**", "*.{ts,js}"),
+        path.join(__dirname, "..", "entities", "*.{ts,js}")
     ],
-    migrations: [path.join(__dirname, "..", "database", "migration", "*.{ts,js}")],
-    subscribers: [path.join(__dirname, "..", "database", "subscriber", "*.{ts,js}")]
+    migrations: [path.join(__dirname, "..", "database", "migrations", "*.{ts,js}")],
+    subscribers: [path.join(__dirname, "..", "database", "subscribers", "*.{ts,js}")]
 }
 
 export const AppDataSource = new DataSource(dataSourceOptions)
