@@ -14,7 +14,7 @@ import path from "path"
 import favicon from "serve-favicon"
 
 // Route Imports
-// TODO
+// TODO: Add route imports here
 
 // Database Import
 import { AppDataSource } from "./database/data-source"
@@ -68,9 +68,6 @@ const startServer = async () => {
 
         // Routes
         // TODO: Add routes here
-        app.get("/", (req, res) => {
-            res.send("Hello World!")
-        })
 
         app.use(errorMiddleware)
 

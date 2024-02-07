@@ -6,6 +6,7 @@ import path = require("path")
 const dataSourceOptions: DataSourceOptions & SeederOptions = {
     type: "mongodb",
     url: process.env.MONGODB_URI || "mongodb://localhost:27017/test",
+    database: process.env.MONGODB_DB || "test",
     synchronize: true,
     logging: true,
     migrationsRun: true,
