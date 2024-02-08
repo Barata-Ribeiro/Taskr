@@ -21,7 +21,11 @@ const errorMiddleware = (
     const statusCode = error.status ?? 500
     const message = error.status ? error.message : "Internal Server Error"
 
-    return res.status(statusCode).json({ message })
+    return res.status(statusCode).json({
+        status: "error",
+        code: statusCode,
+        message
+    })
 }
 
 export default errorMiddleware
