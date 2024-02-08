@@ -5,3 +5,8 @@ interface RequestingDataBody {
     email: string
     password: string
 }
+
+interface UserPaginationRequest {
+    perPage: string
+    page: string
+}
