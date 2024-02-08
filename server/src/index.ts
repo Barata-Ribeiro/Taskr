@@ -51,9 +51,17 @@ const startServer = async () => {
         app.use(methodOverride())
         app.use(
             session({
+                name: "session_id",
                 resave: true,
                 saveUninitialized: true,
-                secret: process.env.SESSION_SECRET_KEY || "test"
+                secret: process.env.SESSION_SECRET_KEY || "session_secret_test_key",
+                cookie: {
+                    secure: true,
+                    httpOnly: true,
+                    domain: process.env.SESSION_DOMAIN || "http://localhost:3000",
+                    path: process.env.SESSION_PATH || "/",
+                    expires: new Date(Date.now() + 60 * 60 * 1000)
+                }
             })
         )
         app.use(cookieParser())
