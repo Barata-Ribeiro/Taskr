@@ -39,6 +39,7 @@ export class UserController {
     async getUsersWithPagination({ perPage, page }: UserPaginationRequest, _req: Request, res: Response) {
         let realPage: number
         let realTake: number
+        let total: number
 
         if (perPage) realTake = +perPage
         else {
@@ -52,16 +53,22 @@ export class UserController {
             page = "1"
         }
 
-        const queryBuilder = userRepository.createQueryBuilder("user").take(realTake).skip(realPage)
+        const userListPaginated = userRepository.find({
+            take: realTake,
+            skip: realPage
+        })
 
-        const [result, total] = await queryBuilder.getManyAndCount()
+        const paginatedUsersThroughDTO = (await userListPaginated).map((user) => UserResponseDTO.fromEntity(user))
+
+        total = paginatedUsersThroughDTO.length
+
         const hasNextPage = realPage + realTake < total
         const backendOrigin = process.env.BACKEND_ORIGIN || "http://localhost:3000"
 
         return res.status(200).json({
             status: "success",
             message: "Users retrieved successfully.",
-            data: result,
+            data: paginatedUsersThroughDTO,
             perPage: realTake,
             page: +page || 1,
             next: hasNextPage ? `${backendOrigin}/api/v1/users?perPage=${realTake}&page=${+page + 1}` : null,
