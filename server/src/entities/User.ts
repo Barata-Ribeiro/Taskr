@@ -1,5 +1,7 @@
-import { Column, CreateDateColumn, Entity, ObjectId, ObjectIdColumn, UpdateDateColumn } from "typeorm"
-import { UserRole } from "./Roles"
+import { Column, CreateDateColumn, Entity, ObjectId, ObjectIdColumn, OneToMany, UpdateDateColumn } from "typeorm"
+import { Project } from "./Project"
+import { UserRole } from "./RoleEnum"
+import { Task } from "./Task"
 
 @Entity("taskr_users")
 export class User {
@@ -24,20 +26,36 @@ export class User {
     @Column({ nullable: true })
     avatarUrl?: string
 
-    @Column({
-        type: "enum",
-        enum: UserRole,
-        default: UserRole.USER
-    })
+    @Column({ type: "enum", enum: UserRole, default: UserRole.USER })
     role: UserRole
+
+    @OneToMany(() => Project, (project) => project.creator, {
+        cascade: true,
+        lazy: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+    })
+    projects?: Project[]
+
+    @OneToMany(() => Task, (task) => task.creator, {
+        cascade: true,
+        lazy: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+    })
+    tasks?: Task[]
+
+    @OneToMany(() => Task, (task) => task.assignee, {
+        cascade: true,
+        lazy: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+    })
+    assignedTasks?: Task[]
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt: Date
 
-    @UpdateDateColumn({
-        type: "timestamp",
-        default: () => "CURRENT_TIMESTAMP",
-        onUpdate: "CURRENT_TIMESTAMP"
-    })
+    @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP" })
     updatedAt: Date
 }
