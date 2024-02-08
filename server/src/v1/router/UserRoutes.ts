@@ -1,10 +1,12 @@
 import { Router } from "express"
+import { UserController } from "../../controllers/UserController"
 
 const routes = Router()
-// TODO: Import the user controller
-// TODO: Add authentication middleware
+const userController = new UserController()
 
-routes.post("/", (req, res, next) => {})
+routes.post("/", (req, res, next) => {
+    userController.createNewUser(req, res).catch(next)
+})
 
 routes.get("/", (req, res, next) => {})
 
