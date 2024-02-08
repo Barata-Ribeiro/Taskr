@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/Barata-Ribeiro/Taskr#readme",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
@@ -54,6 +55,7 @@
     "typeorm-extension": "^3.4.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/body-parser": "^1.19.5",
     "@types/compression": "^1.7.5",
     "@types/cookie-parser": "^1.4.6",
