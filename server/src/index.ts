@@ -21,6 +21,7 @@ import { AppDataSource } from "./database/data-source"
 
 // Middleware Imports
 import errorMiddleware from "./middlewares/ErrorMiddleware"
+import SetCacheControl from "./middlewares/SetCacheControl"
 
 // Database Type Check
 if (AppDataSource.options.type !== "mongodb") throw new Error("Invalid Database Type: Only 'mongodb' is supported.")
@@ -63,6 +64,7 @@ const startServer = async () => {
         app.disable("x-powered-by")
         app.use(bodyParser.json())
         app.use(bodyParser.urlencoded({ extended: true }))
+        app.use(SetCacheControl)
         app.use(compression({ level: 6, threshold: 100 * 1000 }))
         app.use(express.static(path.join(__dirname, "public")))
 
