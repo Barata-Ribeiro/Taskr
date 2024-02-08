@@ -14,7 +14,7 @@ import path from "path"
 import favicon from "serve-favicon"
 
 // Route Imports
-// TODO: Add route imports here
+import usersRoutes from "./v1/router/UserRoutes"
 
 // Database Import
 import { AppDataSource } from "./database/data-source"
@@ -77,7 +77,15 @@ const startServer = async () => {
         app.use(express.static(path.join(__dirname, "public")))
 
         // Routes
-        // TODO: Add routes here
+        /**
+         * @api {get} /api/v1/ Welcome Route, to check if the server is running...
+         * and it'll be removed in production mode.
+         */
+        app.get("/api/v1/", (req, res, next) => {
+            res.status(200).send("Welcome to the API")
+        })
+
+        app.use("/api/v1/users", usersRoutes)
 
         app.use(errorMiddleware)
 
