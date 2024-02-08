@@ -28,14 +28,14 @@ export class Task {
     description: string
 
     @Column({ nullable: false })
-    projectId: ObjectId
+    projectId: string
 
     @ManyToOne(() => Project, (project) => project.tasks, { eager: false })
     @JoinColumn()
     project: Project
 
     @Column({ nullable: false })
-    creatorId: ObjectId
+    creatorId: string
 
     @ManyToOne(() => User, (user) => user.tasks, { eager: false })
     @JoinColumn()
@@ -54,7 +54,7 @@ export class Task {
     comments?: Comment[]
 
     @Column({ nullable: true })
-    assigneeId: ObjectId
+    assigneeId: string
 
     @ManyToOne(() => User, (user) => user.assignedTasks, { eager: false })
     @JoinColumn()

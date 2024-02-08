@@ -20,14 +20,14 @@ export class Comment {
     content: string
 
     @Column({ nullable: false })
-    taskId: ObjectId
+    taskId: string
 
     @ManyToOne(() => Task, (task) => task.comments, { eager: false })
     @JoinColumn()
     task: Task
 
     @Column({ nullable: false })
-    creatorId: ObjectId
+    creatorId: string
 
     @ManyToOne(() => User, (user) => user.tasks, { eager: false })
     @JoinColumn()

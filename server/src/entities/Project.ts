@@ -24,7 +24,7 @@ export class Project {
     description: string
 
     @Column({ nullable: false })
-    creatorId: ObjectId
+    creatorId: string
 
     @ManyToOne(() => User, (user) => user.projects, { eager: false })
     @JoinColumn()
