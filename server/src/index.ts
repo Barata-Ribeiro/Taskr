@@ -43,7 +43,7 @@ const startServer = async () => {
         const corsOptions: cors.CorsOptions = {
             origin: true,
             methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-            allowedHeaders: ["Accept", "Authorization", "Content-Type"],
+            allowedHeaders: ["Accept", "Authorization", "Content-Type", "X-Refresh-Token"],
             credentials: true
         }
         app.use(cors(corsOptions))

@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { BadRequestError } from "../middlewares/helpers/ApiErrors"
 import { AuthService } from "../services/AuthService"
+import { isMongoIdValid } from "../utils/Validity"
 
 const authService = new AuthService()
 
@@ -13,6 +14,13 @@ export class AuthController {
 
         const response = await authService.login(loginDataBody)
 
+        res.cookie("refresh_token", response.refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        })
+
         res.status(200).json({
             status: "success",
             message: "You have successfully logged in.",
@@ -23,9 +31,22 @@ export class AuthController {
         })
     }
     async refreshToken(req: Request, res: Response) {
-        // ...
+        const authenticatedUser = req.user
+        if (!authenticatedUser) throw new BadRequestError("You must be authenticated to refresh your access token.")
+        if (!isMongoIdValid(String(authenticatedUser?._id))) throw new BadRequestError("Invalid user ID.")
+
+        const refreshToken = req.headers["x-refresh-token"] as string
+        if (!refreshToken) throw new BadRequestError("You must provide a refresh token.")
+
+        const response = await authService.refreshToken(authenticatedUser._id!, refreshToken)
+
+        res.status(200).json({
+            status: "success",
+            message: "Your access token has been successfully refreshed.",
+            data: {
+                accessToken: response
+            }
+        })
     }
-    async logout(req: Request, res: Response) {
-        // ...
-    }
+    async logout(req: Request, res: Response) {}
 }
