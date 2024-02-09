@@ -1,8 +1,10 @@
 import { Request, Response } from "express"
+import { ObjectId } from "mongodb"
 import { UserResponseDTO } from "../DTOs/UserResponseDTO"
-import { BadRequestError } from "../middlewares/helpers/ApiErrors"
+import { BadRequestError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
 import { UserService } from "../services/UserService"
+import { isMongoIdValid } from "../utils/Validity"
 
 const userService = new UserService()
 
@@ -74,6 +76,22 @@ export class UserController {
             page: +page || 1,
             next: hasNextPage ? `${backendOrigin}/api/v1/users?perPage=${realTake}&page=${+page + 1}` : null,
             prev: realPage !== 0 ? `${backendOrigin}/api/v1/users?perPage=${realTake}&page=${+page - 1}` : null
+        })
+    }
+
+    async getUserById(req: Request, res: Response) {
+        const { userId } = req.params
+        if (!isMongoIdValid(userId)) throw new BadRequestError("Invalid user ID.")
+
+        const user = await userRepository.findOneBy({ _id: new ObjectId(userId) })
+        if (!user) throw new NotFoundError("User not found.")
+
+        const response = UserResponseDTO.fromEntity(user)
+
+        return res.status(200).json({
+            status: "success",
+            message: "User retrieved successfully.",
+            data: response
         })
     }
 }
