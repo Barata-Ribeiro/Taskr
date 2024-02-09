@@ -48,5 +48,21 @@ export class AuthController {
             }
         })
     }
-    async logout(req: Request, res: Response) {}
+    async logout(req: Request, res: Response) {
+        req.user = null
+        req.user_role = ""
+        req.is_admin = false
+        req.is_moderator = false
+
+        res.clearCookie("refresh_token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        })
+
+        res.status(200).json({
+            status: "success",
+            message: "You have successfully logged out."
+        })
+    }
 }
