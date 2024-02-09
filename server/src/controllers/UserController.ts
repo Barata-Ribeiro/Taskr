@@ -94,4 +94,22 @@ export class UserController {
             data: response
         })
     }
+
+    async updateOwnAccount(req: Request, res: Response) {
+        const bodyDataWithNewUserInfo = req.body as RequestingUserEditDataBody
+        if (!bodyDataWithNewUserInfo)
+            throw new BadRequestError("You cannot update your account without providing at least one field to update.")
+
+        const { _id } = req.user
+        if (!_id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!isMongoIdValid(String(_id))) throw new BadRequestError("Invalid user ID.")
+
+        const response = await userService.updateOwnAccount(_id, bodyDataWithNewUserInfo)
+
+        return res.status(200).json({
+            status: "success",
+            message: "Account updated successfully.",
+            data: response
+        })
+    }
 }

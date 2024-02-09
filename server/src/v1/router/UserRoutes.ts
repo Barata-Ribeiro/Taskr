@@ -1,5 +1,6 @@
 import { Router } from "express"
 import { UserController } from "../../controllers/UserController"
+import authMiddleware from "../../middlewares/AuthMiddleware"
 import { BadRequestError } from "../../middlewares/helpers/ApiErrors"
 
 const routes = Router()
@@ -29,8 +30,8 @@ routes.get("/:userId", (req, res, next) => {
     userController.getUserById(req, res).catch(next)
 })
 
-routes.put("/:userId", (req, res, next) => {
-    // userController.updateOwnAccount(req, res).catch(next)
+routes.put("/:userId", authMiddleware, (req, res, next) => {
+    userController.updateOwnAccount(req, res).catch(next)
 })
 
 routes.delete("/:userId", (req, res, next) => {
