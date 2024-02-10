@@ -2,7 +2,8 @@
     "ts-node": {
         "files": true,
         "compilerOptions": {
-            "module": "commonjs"
+            "module": "commonjs",
+            "resolveJsonModule": true
         }
     },
     "compilerOptions": {
@@ -20,7 +21,8 @@
         "alwaysStrict": true,
         "strictPropertyInitialization": false,
         "allowJs": false,
-        "removeComments": true
+        "removeComments": true,
+        "resolveJsonModule": true
     },
     "exclude": ["node_modules"],
     "include": ["src/**/*.ts", "package.json"]
