@@ -6,35 +6,37 @@ import {
     ManyToOne,
     ObjectId,
     ObjectIdColumn,
+    OneToMany,
     UpdateDateColumn
 } from "typeorm"
-import { Task } from "./Task"
-import { User } from "./User"
+import { Task } from "../task/Task"
+import { User } from "../user/User"
 
-@Entity("taskr_comments")
-export class Comment {
+@Entity("taskr_projects")
+export class Project {
     @ObjectIdColumn()
     _id: ObjectId
 
+    @Column({ unique: true, nullable: false })
+    name: string
+
     @Column({ nullable: false, type: "text" })
-    content: string
-
-    @Column({ nullable: false })
-    taskId: string
-
-    @ManyToOne(() => Task, (task) => task.comments, { eager: false })
-    @JoinColumn()
-    task: Task
+    description: string
 
     @Column({ nullable: false })
     creatorId: string
 
-    @ManyToOne(() => User, (user) => user.tasks, { eager: false })
+    @ManyToOne(() => User, (user) => user.projects, { eager: false })
     @JoinColumn()
     creator: User
 
-    @Column({ type: "boolean", default: false })
-    wasEdited: boolean
+    @OneToMany(() => Task, (task) => task.project, {
+        cascade: true,
+        lazy: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+    })
+    tasks: Task[]
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt: Date

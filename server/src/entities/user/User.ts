@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, ObjectId, ObjectIdColumn, OneToMany, UpdateDateColumn } from "typeorm"
-import { Project } from "./Project"
+import { Project } from "../project/Project"
+import { Task } from "../task/Task"
 import { UserRole } from "./RoleEnum"
-import { Task } from "./Task"
 
 @Entity("taskr_users")
 export class User {

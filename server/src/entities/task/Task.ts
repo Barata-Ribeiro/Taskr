@@ -9,12 +9,12 @@ import {
     OneToMany,
     UpdateDateColumn
 } from "typeorm"
-import { Comment } from "./Comment"
+import { Comment } from "../comment/Comment"
+import { Project } from "../project/Project"
+import { User } from "../user/User"
 import { TaskPriority } from "./PriorityEnum"
-import { Project } from "./Project"
 import { TaskStatus } from "./StatusEnum"
 import { Tag } from "./Tag"
-import { User } from "./User"
 
 @Entity("taskr_tasks")
 export class Task {
