@@ -1,6 +1,16 @@
-import { Column, CreateDateColumn, Entity, ObjectId, ObjectIdColumn, OneToMany, UpdateDateColumn } from "typeorm"
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToMany,
+    ObjectId,
+    ObjectIdColumn,
+    OneToMany,
+    UpdateDateColumn
+} from "typeorm"
 import { Project } from "../project/Project"
 import { Task } from "../task/Task"
+import { Team } from "../team/Team"
 import { UserRole } from "./RoleEnum"
 
 @Entity("taskr_users")
@@ -28,6 +38,12 @@ export class User {
 
     @Column({ type: "enum", enum: UserRole, default: UserRole.USER })
     role: UserRole
+
+    @OneToMany(() => Team, (team) => team.founder, {})
+    foundedTeams?: Team[]
+
+    @ManyToMany(() => Team, (team) => team.members, {})
+    teams?: Team[]
 
     @OneToMany(() => Project, (project) => project.creator, {
         cascade: true,
