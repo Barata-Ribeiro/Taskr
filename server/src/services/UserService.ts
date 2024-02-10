@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt"
 import { ObjectId, QueryFailedError } from "typeorm"
-import { UserResponseDTO } from "../DTOs/UserResponseDTO"
+import { UserResponseDTO } from "../DTOs/user/UserResponseDTO"
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
 import { isEmailValid, isPasswordStrong } from "../utils/Validity"

@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { ObjectId } from "mongodb"
-import { UserResponseDTO } from "../DTOs/UserResponseDTO"
+import { UserResponseDTO } from "../DTOs/user/UserResponseDTO"
 import { BadRequestError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
 import { UserService } from "../services/UserService"

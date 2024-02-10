@@ -1,5 +1,5 @@
-import { UserRole } from "../entities/user/RoleEnum"
-import { User } from "../entities/user/User"
+import { UserRole } from "../../entities/user/RoleEnum"
+import { User } from "../../entities/user/User"
 
 export class UserResponseDTO {
     _id: string
