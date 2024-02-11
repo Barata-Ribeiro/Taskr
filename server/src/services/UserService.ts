@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt"
 import { ObjectId, QueryFailedError } from "typeorm"
 import { UserResponseDTO } from "../DTOs/user/UserResponseDTO"
+import { AppDataSource } from "../database/data-source"
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
 import { isEmailValid, isPasswordStrong } from "../utils/Validity"
@@ -92,5 +93,19 @@ export class UserService {
         }
 
         return UserResponseDTO.fromEntity(requestingUser)
+    }
+
+    async deleteOwnAccount(_id: ObjectId): Promise<void> {
+        await AppDataSource.manager.transaction(async (transactionalEntityManager) => {
+            try {
+                const user = await userRepository.findOneBy({ _id })
+                if (!user) throw new NotFoundError("User not found.")
+
+                await transactionalEntityManager.remove(user)
+            } catch (error) {
+                console.error("Transaction failed:", error)
+                throw new InternalServerError("An error occurred during the deletion process.")
+            }
+        })
     }
 }

@@ -112,4 +112,17 @@ export class UserController {
             data: response
         })
     }
+
+    async deleteOwnAccount(req: Request, res: Response) {
+        const requestingUser = req.user.data
+        if (!requestingUser?._id) throw new BadRequestError("You must be logged in to delete your account.")
+        if (!isMongoIdValid(String(requestingUser?._id))) throw new BadRequestError("Invalid user ID.")
+
+        await userService.deleteOwnAccount(requestingUser?._id)
+
+        return res.status(200).json({
+            status: "success",
+            message: "Account deleted successfully."
+        })
+    }
 }
