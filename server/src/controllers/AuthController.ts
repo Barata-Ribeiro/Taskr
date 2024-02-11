@@ -48,10 +48,10 @@ export class AuthController {
     }
 
     async logout(req: Request, res: Response) {
-        req.user = null
-        req.user_role = ""
-        req.is_admin = false
-        req.is_moderator = false
+        req.user.data = null
+        req.user.is_admin = false
+        req.user.is_moderator = false
+        req.user.is_in_team = false
 
         res.clearCookie("refresh_token", {
             httpOnly: true,

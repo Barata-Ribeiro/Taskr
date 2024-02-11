@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express"
-import { JsonWebTokenError, JwtPayload, verify } from "jsonwebtoken"
+import { JsonWebTokenError, JwtPayload, TokenExpiredError, verify } from "jsonwebtoken"
 import { ObjectId } from "mongodb"
 import { userRepository } from "../repositories/UserRepository"
 import { NotFoundError, UnauthorizedError } from "./helpers/ApiErrors"
@@ -26,23 +26,25 @@ const authMiddleware = async (req: Request, _res: Response, next: NextFunction) 
 
         if (userFromDatabase.role === "BANNED") throw new UnauthorizedError("Your account has been banned.")
 
-        req.user = {
+        req.user.data = {
             _id: userFromDatabase._id,
             firstName: userFromDatabase.firstName ?? "",
             lastName: userFromDatabase.lastName ?? "",
             username: userFromDatabase.username,
             email: userFromDatabase.email,
             avatarUrl: userFromDatabase.avatarUrl ?? "",
+            role: userFromDatabase.role,
             createdAt: userFromDatabase.createdAt,
             updatedAt: userFromDatabase.updatedAt
         }
-        req.user_role = userFromDatabase.role
-        req.is_admin = userFromDatabase.role === "ADMIN"
-        req.is_moderator = userFromDatabase.role === "MODERATOR"
+        req.user.is_admin = userFromDatabase.role === "ADMIN"
+        req.user.is_moderator = userFromDatabase.role === "MODERATOR"
+        req.user.is_in_team = userFromDatabase.teams !== undefined && userFromDatabase.teams.length > 0
 
         next()
     } catch (error) {
-        if (error instanceof JsonWebTokenError) next(new UnauthorizedError("Invalid or expired token."))
+        if (error instanceof TokenExpiredError) next(new UnauthorizedError("Your token has expired."))
+        else if (error instanceof JsonWebTokenError) next(new UnauthorizedError("Invalid token."))
         else next(error)
     }
 }
