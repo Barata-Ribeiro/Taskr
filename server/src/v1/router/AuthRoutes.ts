@@ -8,7 +8,7 @@ const authController = new AuthController()
 routes.post("/login", (req, res, next) => {
     authController.login(req, res).catch(next)
 })
-routes.get("/refresh-token", authMiddleware, (req, res, next) => {
+routes.get("/refresh-token", (req, res, next) => {
     authController.refreshToken(req, res).catch(next)
 })
 routes.get("/logout", authMiddleware, (req, res, next) => {

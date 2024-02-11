@@ -1,7 +1,6 @@
 import { Request, Response } from "express"
 import { BadRequestError } from "../middlewares/helpers/ApiErrors"
 import { AuthService } from "../services/AuthService"
-import { isMongoIdValid } from "../utils/Validity"
 
 const authService = new AuthService()
 
@@ -14,31 +13,30 @@ export class AuthController {
 
         const response = await authService.login(loginDataBody)
 
+        // If rememberMe === true then set the expiration to 30 days, otherwise set it to 1 day
+        const REMEMBER_ME_EXPIRATION = loginDataBody.rememberMe ? 30 * 24 * 60 * 60 * 1000 : 1 * 24 * 60 * 60 * 1000
+
         res.cookie("refresh_token", response.refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
-            expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+            sameSite: "lax",
+            maxAge: REMEMBER_ME_EXPIRATION
         })
 
         res.status(200).json({
             status: "success",
             message: "You have successfully logged in.",
             data: {
-                accessToken: response.accessToken,
-                refreshToken: response.refreshToken
+                accessToken: response.accessToken
             }
         })
     }
-    async refreshToken(req: Request, res: Response) {
-        const authenticatedUser = req.user
-        if (!authenticatedUser) throw new BadRequestError("You must be authenticated to refresh your access token.")
-        if (!isMongoIdValid(String(authenticatedUser?._id))) throw new BadRequestError("Invalid user ID.")
 
+    async refreshToken(req: Request, res: Response) {
         const refreshToken = req.headers["x-refresh-token"] as string
         if (!refreshToken) throw new BadRequestError("You must provide a refresh token.")
 
-        const response = await authService.refreshToken(authenticatedUser._id!, refreshToken)
+        const response = await authService.refreshToken(refreshToken)
 
         res.status(200).json({
             status: "success",
@@ -48,6 +46,7 @@ export class AuthController {
             }
         })
     }
+
     async logout(req: Request, res: Response) {
         req.user = null
         req.user_role = ""
