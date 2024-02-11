@@ -25,7 +25,7 @@ import errorMiddleware from "./middlewares/ErrorMiddleware"
 import SetCacheControl from "./middlewares/SetCacheControl"
 
 // Database Type Check
-if (AppDataSource.options.type !== "mongodb") throw new Error("Invalid Database Type: Only 'mongodb' is supported.")
+if (AppDataSource.options.type !== "postgres") throw new Error("Invalid Database Type: Only 'postgres' is supported.")
 
 const startServer = async () => {
     try {
