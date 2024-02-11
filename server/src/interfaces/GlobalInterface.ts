@@ -13,7 +13,7 @@ declare global {
     }
     namespace JwtPayload {
         export interface JwtPayload {
-            _id: string
+            id: string
         }
     }
 }

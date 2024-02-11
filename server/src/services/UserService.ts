@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt"
-import { ObjectId, QueryFailedError } from "typeorm"
+import { QueryFailedError } from "typeorm"
 import { UserResponseDTO } from "../DTOs/user/UserResponseDTO"
 import { AppDataSource } from "../database/data-source"
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
@@ -47,13 +47,10 @@ export class UserService {
         return UserResponseDTO.fromEntity(newUser)
     }
 
-    async updateOwnAccount(
-        _id: ObjectId,
-        bodyDataWithNewUserInfo: RequestingUserEditDataBody
-    ): Promise<UserResponseDTO> {
+    async updateOwnAccount(id: string, bodyDataWithNewUserInfo: RequestingUserEditDataBody): Promise<UserResponseDTO> {
         const { firstName, lastName, username, email, password, avatarUrl } = bodyDataWithNewUserInfo
 
-        const requestingUser = await userRepository.findOneBy({ _id })
+        const requestingUser = await userRepository.findOneBy({ id })
         if (!requestingUser) throw new NotFoundError("User not found.")
 
         if (firstName) requestingUser.firstName = firstName
@@ -95,10 +92,10 @@ export class UserService {
         return UserResponseDTO.fromEntity(requestingUser)
     }
 
-    async deleteOwnAccount(_id: ObjectId): Promise<void> {
+    async deleteOwnAccount(id: string): Promise<void> {
         await AppDataSource.manager.transaction(async (transactionalEntityManager) => {
             try {
-                const user = await userRepository.findOneBy({ _id })
+                const user = await userRepository.findOneBy({ id })
                 if (!user) throw new NotFoundError("User not found.")
 
                 await transactionalEntityManager.remove(user)

@@ -1,8 +1,8 @@
 import { compare } from "bcrypt"
 import { JwtPayload, sign, verify } from "jsonwebtoken"
+import { validate } from "uuid"
 import { BadRequestError, NotFoundError, UnauthorizedError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
-import { isMongoIdValid } from "../utils/Validity"
 
 export class AuthService {
     async login(loginDataBody: LoginDataBody): Promise<LoginResponse> {
@@ -20,9 +20,9 @@ export class AuthService {
                 "The server is missing its JWT secret key. You should report this issue to the administrator."
             )
 
-        const accessToken = sign({ _id: String(user._id) }, secretKey, { expiresIn: "15m" })
+        const accessToken = sign({ id: user.id }, secretKey, { expiresIn: "15m" })
 
-        const refreshToken = sign({ _id: String(user._id) }, secretKey, {
+        const refreshToken = sign({ id: user.id }, secretKey, {
             expiresIn: loginDataBody.rememberMe ? "30d" : "1d"
         })
 
@@ -37,14 +37,14 @@ export class AuthService {
             )
 
         const payload = verify(refreshToken, secretKey) as JwtPayload
-        const { _id } = payload
+        const { id } = payload
+        if (!id) throw new NotFoundError("Id not found in token.")
+        if (!validate(id)) throw new BadRequestError("Invalid user ID.")
 
-        if (!isMongoIdValid(String(_id))) throw new BadRequestError("Invalid user ID.")
-
-        const user = await userRepository.findOneBy({ _id })
+        const user = await userRepository.findOneBy({ id })
         if (!user) throw new NotFoundError("User not found.")
 
-        const newAccessToken = sign({ _id: String(user._id) }, secretKey, {
+        const newAccessToken = sign({ id: user.id }, secretKey, {
             expiresIn: process.env.ACCESS_TOKEN_EXPIRATION ?? "15m"
         })
 

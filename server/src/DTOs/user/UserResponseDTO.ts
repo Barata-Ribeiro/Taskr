@@ -2,7 +2,7 @@ import { UserRole } from "../../entities/user/RoleEnum"
 import { User } from "../../entities/user/User"
 
 export class UserResponseDTO {
-    _id: string
+    id: string
     firstName?: string
     lastName?: string
     username: string
@@ -15,7 +15,7 @@ export class UserResponseDTO {
     static fromEntity(user: User): UserResponseDTO {
         const dto = new UserResponseDTO()
 
-        dto._id = user._id.toHexString()
+        dto.id = user.id
         dto.firstName = user.firstName ?? undefined
         dto.lastName = user.lastName ?? undefined
         dto.username = user.username

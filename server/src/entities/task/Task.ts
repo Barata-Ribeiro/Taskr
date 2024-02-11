@@ -58,8 +58,8 @@ export class Task {
     @ManyToMany(() => User, (user) => user.assignedTasks, { lazy: true })
     @JoinTable({
         name: "taskr_task_assignees",
-        joinColumn: { name: "taskId", referencedColumnName: "_id" },
-        inverseJoinColumn: { name: "userId", referencedColumnName: "_id" }
+        joinColumn: { name: "taskId", referencedColumnName: "id" },
+        inverseJoinColumn: { name: "userId", referencedColumnName: "id" }
     })
     assignees?: User[]
 
