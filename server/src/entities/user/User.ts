@@ -6,6 +6,7 @@ import {
     ObjectId,
     ObjectIdColumn,
     OneToMany,
+    OneToOne,
     UpdateDateColumn
 } from "typeorm"
 import { Project } from "../project/Project"
@@ -39,10 +40,15 @@ export class User {
     @Column({ type: "enum", enum: UserRole, default: UserRole.USER })
     role: UserRole
 
-    @OneToMany(() => Team, (team) => team.founder, {})
-    foundedTeams?: Team[]
+    @OneToOne(() => Team, (team) => team.founder, {
+        cascade: true,
+        lazy: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+    })
+    foundedTeam?: Team
 
-    @ManyToMany(() => Team, (team) => team.members, {})
+    @ManyToMany(() => Team, (team) => team.members, { eager: false })
     teams?: Team[]
 
     @OneToMany(() => Project, (project) => project.creator, {
@@ -61,12 +67,7 @@ export class User {
     })
     tasks?: Task[]
 
-    @OneToMany(() => Task, (task) => task.assignee, {
-        cascade: true,
-        lazy: true,
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE"
-    })
+    @ManyToMany(() => Task, (task) => task.assignees, { lazy: true })
     assignedTasks?: Task[]
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

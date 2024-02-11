@@ -10,6 +10,7 @@ import {
     UpdateDateColumn
 } from "typeorm"
 import { Task } from "../task/Task"
+import { Team } from "../team/Team"
 import { User } from "../user/User"
 
 @Entity("taskr_projects")
@@ -23,12 +24,13 @@ export class Project {
     @Column({ nullable: false, type: "text" })
     description: string
 
-    @Column({ nullable: false })
-    creatorId: string
-
     @ManyToOne(() => User, (user) => user.projects, { eager: false })
-    @JoinColumn()
+    @JoinColumn({ name: "creatorId" })
     creator: User
+
+    @ManyToOne(() => Team, (team) => team.projects, { eager: false })
+    @JoinColumn({ name: "teamId" })
+    team: Team
 
     @OneToMany(() => Task, (task) => task.project, {
         cascade: true,

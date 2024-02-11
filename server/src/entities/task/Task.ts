@@ -3,6 +3,8 @@ import {
     CreateDateColumn,
     Entity,
     JoinColumn,
+    JoinTable,
+    ManyToMany,
     ManyToOne,
     ObjectId,
     ObjectIdColumn,
@@ -27,18 +29,12 @@ export class Task {
     @Column({ nullable: false, type: "text" })
     description: string
 
-    @Column({ nullable: false })
-    projectId: string
-
     @ManyToOne(() => Project, (project) => project.tasks, { eager: false })
-    @JoinColumn()
+    @JoinColumn({ name: "projectId" })
     project: Project
 
-    @Column({ nullable: false })
-    creatorId: string
-
     @ManyToOne(() => User, (user) => user.tasks, { eager: false })
-    @JoinColumn()
+    @JoinColumn({ name: "creatorId" })
     creator: User
 
     @Column({ type: "enum", enum: TaskStatus, default: TaskStatus.PLANNED })
@@ -50,17 +46,28 @@ export class Task {
     @Column({ nullable: false, type: "timestamp" })
     dueDate: Date
 
-    @OneToMany(() => Comment, (comment) => comment.task)
+    @OneToMany(() => Comment, (comment) => comment.task, {
+        cascade: true,
+        lazy: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+    })
     comments?: Comment[]
 
-    @Column({ nullable: true })
-    assigneeId: string
+    @ManyToMany(() => User, (user) => user.assignedTasks, { lazy: true })
+    @JoinTable({
+        name: "taskr_task_assignees",
+        joinColumn: { name: "taskId", referencedColumnName: "_id" },
+        inverseJoinColumn: { name: "userId", referencedColumnName: "_id" }
+    })
+    assignees?: User[]
 
-    @ManyToOne(() => User, (user) => user.assignedTasks, { eager: false })
-    @JoinColumn()
-    assignee?: User
-
-    @Column({ nullable: true, type: "array" })
+    @ManyToMany(() => Tag, (tag) => tag.tasks, { cascade: true })
+    @JoinTable({
+        name: "taskr_tasks_tags",
+        joinColumn: { name: "taskId" },
+        inverseJoinColumn: { name: "tagId" }
+    })
     tags?: Tag[]
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

@@ -3,11 +3,14 @@ import {
     CreateDateColumn,
     Entity,
     JoinColumn,
+    ManyToMany,
     ManyToOne,
     ObjectId,
     ObjectIdColumn,
+    OneToMany,
     UpdateDateColumn
 } from "typeorm"
+import { Project } from "../project/Project"
 import { User } from "../user/User"
 
 @Entity("taskr_teams")
@@ -21,14 +24,19 @@ export class Team {
     @Column({ nullable: false, type: "text" })
     description: string
 
-    @Column({ nullable: false })
-    founderId: string
-
-    @ManyToOne(() => User, (user) => user.foundedTeams, { eager: false })
-    @JoinColumn()
+    @ManyToOne(() => User, (user) => user.foundedTeam, { eager: false })
+    @JoinColumn({ name: "founderId" })
     founder: User
 
-    @ManyToOne(() => User, (user) => user.teams, { eager: false })
+    @OneToMany(() => Project, (project) => project.team, {
+        cascade: true,
+        lazy: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+    })
+    projects: Project[]
+
+    @ManyToMany(() => User, (user) => user.teams, { eager: false })
     members: User[]
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

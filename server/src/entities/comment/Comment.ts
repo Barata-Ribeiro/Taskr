@@ -19,18 +19,12 @@ export class Comment {
     @Column({ nullable: false, type: "text" })
     content: string
 
-    @Column({ nullable: false })
-    taskId: string
-
     @ManyToOne(() => Task, (task) => task.comments, { eager: false })
-    @JoinColumn()
+    @JoinColumn({ name: "taskId" })
     task: Task
 
-    @Column({ nullable: false })
-    creatorId: string
-
     @ManyToOne(() => User, (user) => user.tasks, { eager: false })
-    @JoinColumn()
+    @JoinColumn({ name: "creatorId" })
     creator: User
 
     @Column({ type: "boolean", default: false })
