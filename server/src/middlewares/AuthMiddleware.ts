@@ -28,13 +28,12 @@ const authMiddleware = async (req: Request, _res: Response, next: NextFunction) 
 
         if (userFromDatabase.role === "BANNED") throw new UnauthorizedError("Your account has been banned.")
 
+        if (!req.user) req.user = { data: null, is_admin: false, is_moderator: false, is_in_team: false }
+
         req.user.data = {
             id: userFromDatabase.id,
-            firstName: userFromDatabase.firstName ?? "",
-            lastName: userFromDatabase.lastName ?? "",
             username: userFromDatabase.username,
             email: userFromDatabase.email,
-            avatarUrl: userFromDatabase.avatarUrl ?? "",
             role: userFromDatabase.role,
             createdAt: userFromDatabase.createdAt,
             updatedAt: userFromDatabase.updatedAt
