@@ -2,13 +2,13 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    Index,
     JoinColumn,
     JoinTable,
     ManyToMany,
     ManyToOne,
-    ObjectId,
-    ObjectIdColumn,
     OneToMany,
+    PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm"
 import { Comment } from "../comment/Comment"
@@ -20,10 +20,11 @@ import { Tag } from "./Tag"
 
 @Entity("taskr_tasks")
 export class Task {
-    @ObjectIdColumn()
-    _id: ObjectId
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column({ unique: true, nullable: false })
+    @Index()
     title: string
 
     @Column({ nullable: false, type: "text" })

@@ -1,10 +1,10 @@
-import { Column, CreateDateColumn, Entity, ManyToMany, ObjectId, ObjectIdColumn, UpdateDateColumn } from "typeorm"
+import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
 import { Task } from "./Task"
 
 @Entity("taskr_tags")
 export class Tag {
-    @ObjectIdColumn()
-    _id: ObjectId
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column({ unique: true, nullable: false })
     name: string

@@ -3,10 +3,9 @@ import {
     CreateDateColumn,
     Entity,
     ManyToMany,
-    ObjectId,
-    ObjectIdColumn,
     OneToMany,
     OneToOne,
+    PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm"
 import { Project } from "../project/Project"
@@ -16,8 +15,8 @@ import { UserRole } from "./RoleEnum"
 
 @Entity("taskr_users")
 export class User {
-    @ObjectIdColumn()
-    _id: ObjectId
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column({ nullable: true })
     firstName?: string
