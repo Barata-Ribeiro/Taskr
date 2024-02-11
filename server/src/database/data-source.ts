@@ -4,14 +4,12 @@ import { SeederOptions } from "typeorm-extension"
 import path = require("path")
 
 const dataSourceOptions: DataSourceOptions & SeederOptions = {
-    type: "mongodb",
-    url: process.env.MONGODB_URI || "mongodb://localhost:27017/test",
-    database: process.env.MONGODB_DB || "test",
+    type: "postgres",
+    url: process.env.POSTGRES_URI || "postgres://postgres:xxxxxxxx@xxxxxxxxx:5432/test",
+    database: process.env.POSTGRES_DB || "test",
     synchronize: true,
     logging: true,
     migrationsRun: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     ssl: true,
     entities: [
         path.join(__dirname, "..", "entities", "**", "*.{ts,js}"),

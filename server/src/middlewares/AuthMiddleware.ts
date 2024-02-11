@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import { JsonWebTokenError, JwtPayload, TokenExpiredError, verify } from "jsonwebtoken"
-import { ObjectId } from "mongodb"
+import { validate } from "uuid"
 import { userRepository } from "../repositories/UserRepository"
 import { NotFoundError, UnauthorizedError } from "./helpers/ApiErrors"
 
@@ -19,20 +19,21 @@ const authMiddleware = async (req: Request, _res: Response, next: NextFunction) 
             )
 
         const payload = verify(token, secretKey) as JwtPayload
-        const { _id } = payload
+        const { id } = payload
+        if (!id) throw new NotFoundError("Id not found in token.")
+        if (!validate(id)) throw new UnauthorizedError("Invalid id in token.")
 
-        const userFromDatabase = await userRepository.findOneBy({ _id: new ObjectId(_id) })
+        const userFromDatabase = await userRepository.findOneBy({ id })
         if (!userFromDatabase) throw new NotFoundError("User not found.")
 
         if (userFromDatabase.role === "BANNED") throw new UnauthorizedError("Your account has been banned.")
 
+        if (!req.user) req.user = { data: null, is_admin: false, is_moderator: false, is_in_team: false }
+
         req.user.data = {
-            _id: userFromDatabase._id,
-            firstName: userFromDatabase.firstName ?? "",
-            lastName: userFromDatabase.lastName ?? "",
+            id: userFromDatabase.id,
             username: userFromDatabase.username,
             email: userFromDatabase.email,
-            avatarUrl: userFromDatabase.avatarUrl ?? "",
             role: userFromDatabase.role,
             createdAt: userFromDatabase.createdAt,
             updatedAt: userFromDatabase.updatedAt

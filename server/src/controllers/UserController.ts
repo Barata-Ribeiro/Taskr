@@ -1,10 +1,9 @@
 import { Request, Response } from "express"
-import { ObjectId } from "mongodb"
+import { validate } from "uuid"
 import { UserResponseDTO } from "../DTOs/user/UserResponseDTO"
 import { BadRequestError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
 import { UserService } from "../services/UserService"
-import { isMongoIdValid } from "../utils/Validity"
 
 const userService = new UserService()
 
@@ -81,9 +80,9 @@ export class UserController {
 
     async getUserById(req: Request, res: Response) {
         const { userId } = req.params
-        if (!isMongoIdValid(userId)) throw new BadRequestError("Invalid user ID.")
+        if (!validate(userId)) throw new BadRequestError("Invalid user ID.")
 
-        const user = await userRepository.findOneBy({ _id: new ObjectId(userId) })
+        const user = await userRepository.findOneBy({ id: userId })
         if (!user) throw new NotFoundError("User not found.")
 
         const response = UserResponseDTO.fromEntity(user)
@@ -101,10 +100,10 @@ export class UserController {
             throw new BadRequestError("You cannot update your account without providing at least one field to update.")
 
         const requestingUser = req.user.data
-        if (!requestingUser?._id) throw new BadRequestError("You must be logged in to update your account.")
-        if (!isMongoIdValid(String(requestingUser?._id))) throw new BadRequestError("Invalid user ID.")
+        if (!requestingUser?.id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
 
-        const response = await userService.updateOwnAccount(requestingUser?._id, bodyDataWithNewUserInfo)
+        const response = await userService.updateOwnAccount(requestingUser?.id, bodyDataWithNewUserInfo)
 
         return res.status(200).json({
             status: "success",
@@ -115,10 +114,10 @@ export class UserController {
 
     async deleteOwnAccount(req: Request, res: Response) {
         const requestingUser = req.user.data
-        if (!requestingUser?._id) throw new BadRequestError("You must be logged in to delete your account.")
-        if (!isMongoIdValid(String(requestingUser?._id))) throw new BadRequestError("Invalid user ID.")
+        if (!requestingUser?.id) throw new BadRequestError("You must be logged in to delete your account.")
+        if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
 
-        await userService.deleteOwnAccount(requestingUser?._id)
+        await userService.deleteOwnAccount(requestingUser?.id)
 
         return res.status(200).json({
             status: "success",

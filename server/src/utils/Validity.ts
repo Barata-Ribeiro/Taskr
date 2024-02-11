@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb"
+import { validate } from "uuid"
 
 export const isEmailValid = (email: string): boolean => {
     const regex =
@@ -11,6 +11,6 @@ export const isPasswordStrong = (password: string): boolean => {
     return regex.test(password)
 }
 
-export const isMongoIdValid = (id: string): boolean => {
-    return ObjectId.isValid(id)
+export const isUUIDValid = (uuid: string): boolean => {
+    return validate(uuid)
 }

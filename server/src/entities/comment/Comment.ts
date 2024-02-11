@@ -4,8 +4,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    ObjectId,
-    ObjectIdColumn,
+    PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm"
 import { Task } from "../task/Task"
@@ -13,8 +12,8 @@ import { User } from "../user/User"
 
 @Entity("taskr_comments")
 export class Comment {
-    @ObjectIdColumn()
-    _id: ObjectId
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column({ nullable: false, type: "text" })
     content: string

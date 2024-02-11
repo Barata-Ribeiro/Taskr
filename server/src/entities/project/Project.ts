@@ -2,11 +2,11 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    Index,
     JoinColumn,
     ManyToOne,
-    ObjectId,
-    ObjectIdColumn,
     OneToMany,
+    PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm"
 import { Task } from "../task/Task"
@@ -15,10 +15,11 @@ import { User } from "../user/User"
 
 @Entity("taskr_projects")
 export class Project {
-    @ObjectIdColumn()
-    _id: ObjectId
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column({ unique: true, nullable: false })
+    @Index()
     name: string
 
     @Column({ nullable: false, type: "text" })
