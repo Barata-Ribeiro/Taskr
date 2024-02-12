@@ -50,7 +50,7 @@ export class TeamController {
         if (!requestingUser?.id) throw new BadRequestError("You must be logged in to update your account.")
         if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
 
-        const teamId = req.params.teamId
+        const { teamId } = req.params
         if (!teamId) throw new BadRequestError("Team Id is required.")
         if (!validate(teamId)) throw new BadRequestError("Invalid team ID.")
 
@@ -83,7 +83,25 @@ export class TeamController {
     }
 
     async updateTeamById(req: Request, res: Response) {
-        // ...
+        const requestingUser = req.user.data
+        if (!requestingUser?.id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
+
+        const { teamId } = req.params
+        if (!teamId) throw new BadRequestError("Team Id is required.")
+        if (!validate(teamId)) throw new BadRequestError("Invalid team ID.")
+
+        const requestingDataBody = req.body as RequestingTeamEditDataBody
+        if (!requestingDataBody)
+            throw new BadRequestError("You cannot update your team without providing at least one field to update.")
+
+        const response = await teamService.updateTeamById(teamId, requestingUser?.id, requestingDataBody)
+
+        return res.status(200).json({
+            status: "success",
+            message: "Team updated successfully.",
+            data: response
+        })
     }
 
     async deleteTeamById(req: Request, res: Response) {

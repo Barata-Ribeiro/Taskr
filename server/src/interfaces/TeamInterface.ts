@@ -7,3 +7,9 @@ interface TeamQueryRequest {
     withMembers: boolean
     withProjects: boolean
 }
+
+interface RequestingTeamEditDataBody {
+    name?: string
+    description?: string
+    userIds?: string[]
+}
