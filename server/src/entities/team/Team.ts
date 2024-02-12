@@ -4,6 +4,7 @@ import {
     Entity,
     Index,
     JoinColumn,
+    JoinTable,
     ManyToMany,
     ManyToOne,
     OneToMany,
@@ -38,6 +39,11 @@ export class Team {
     projects: Project[]
 
     @ManyToMany(() => User, (user) => user.teams, { eager: false })
+    @JoinTable({
+        name: "taskr_team_members",
+        joinColumn: { name: "teamId", referencedColumnName: "id" },
+        inverseJoinColumn: { name: "userId", referencedColumnName: "id" }
+    })
     members: User[]
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
