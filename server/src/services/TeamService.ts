@@ -1,4 +1,5 @@
 import { TeamResponseDTO } from "../DTOs/team/TeamResponseDTO"
+import { AppDataSource } from "../database/data-source"
 import { User } from "../entities/user/User"
 import { InternalServerError, NotFoundError, UnauthorizedError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
@@ -58,5 +59,22 @@ export class TeamService {
         }
 
         return TeamResponseDTO.fromEntity(team, true, false)
+    }
+
+    async deleteTeamById(teamId: string, requestingUserId: string): Promise<void> {
+        await AppDataSource.manager.transaction(async (transactionalEntityManager) => {
+            try {
+                const team = await teamRepository.findOneBy({ id: teamId })
+                if (!team) throw new NotFoundError("Team not found.")
+
+                if (team.founder.id !== requestingUserId)
+                    throw new UnauthorizedError("You are not allowed to delete this team.")
+
+                await transactionalEntityManager.remove(team)
+            } catch (error) {
+                console.error("Transaction failed:", error)
+                throw new InternalServerError("An error occurred during the deletion process.")
+            }
+        })
     }
 }

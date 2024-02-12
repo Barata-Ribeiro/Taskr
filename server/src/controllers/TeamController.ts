@@ -105,6 +105,19 @@ export class TeamController {
     }
 
     async deleteTeamById(req: Request, res: Response) {
-        // ...
+        const requestingUser = req.user.data
+        if (!requestingUser?.id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
+
+        const { teamId } = req.params
+        if (!teamId) throw new BadRequestError("Team Id is required.")
+        if (!validate(teamId)) throw new BadRequestError("Invalid team ID.")
+
+        await teamService.deleteTeamById(teamId, requestingUser?.id)
+
+        return res.status(200).json({
+            status: "success",
+            message: "Team deleted successfully."
+        })
     }
 }
