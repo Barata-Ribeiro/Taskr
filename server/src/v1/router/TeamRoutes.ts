@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { TeamController } from "../../controllers/teamController"
+import { TeamController } from "../../controllers/TeamController"
 import authMiddleware from "../../middlewares/AuthMiddleware"
 
 const routes = Router()
