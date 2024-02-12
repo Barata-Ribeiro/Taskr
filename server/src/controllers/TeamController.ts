@@ -45,12 +45,47 @@ export class TeamController {
         })
     }
 
-    async getTeamById(req: Request, res: Response) {
-        // ...
+    async getTeamById({ withMembers, withProjects }: TeamQueryRequest, req: Request, res: Response) {
+        const requestingUser = req.user.data
+        if (!requestingUser?.id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
+
+        const teamId = req.params.teamId
+        if (!teamId) throw new BadRequestError("Team Id is required.")
+        if (!validate(teamId)) throw new BadRequestError("Invalid team ID.")
+
+        let team
+
+        if (withMembers && !withProjects)
+            team = await teamRepository.findOne({
+                where: { id: teamId },
+                relations: ["founder", "members"]
+            })
+        else if (withProjects && !withMembers)
+            team = await teamRepository.findOne({
+                where: { id: teamId },
+                relations: ["founder", "projects"]
+            })
+        else if (withMembers && withProjects)
+            team = await teamRepository.findOne({
+                where: { id: teamId },
+                relations: ["founder", "members", "projects"]
+            })
+        else team = await teamRepository.findOne({ where: { id: teamId }, relations: ["founder"] })
+
+        if (!team) throw new BadRequestError("Team not found.")
+
+        return res.status(200).json({
+            status: "success",
+            message: "Team retrieved successfully.",
+            data: await TeamResponseDTO.fromEntity(team, withMembers, withProjects)
+        })
     }
+
     async updateTeamById(req: Request, res: Response) {
         // ...
     }
+
     async deleteTeamById(req: Request, res: Response) {
         // ...
     }
