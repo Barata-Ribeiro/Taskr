@@ -6,9 +6,7 @@ import { BadRequestError } from "../../middlewares/helpers/ApiErrors"
 const routes = Router()
 const userController = new UserController()
 
-routes.post("/", (req, res, next) => {
-    userController.createNewUser(req, res).catch(next)
-})
+routes.post("/", (req, res, next) => userController.createNewUser(req, res).catch(next))
 
 routes.get("/", (req, res, next) => {
     let { perPage, page } = req.query as { perPage: string; page: string }
@@ -26,16 +24,10 @@ routes.get("/", (req, res, next) => {
     else userController.getAllUsers(req, res).catch(next)
 })
 
-routes.get("/:userId", (req, res, next) => {
-    userController.getUserById(req, res).catch(next)
-})
+routes.get("/:userId", (req, res, next) => userController.getUserById(req, res).catch(next))
 
-routes.put("/:userId", authMiddleware, (req, res, next) => {
-    userController.updateOwnAccount(req, res).catch(next)
-})
+routes.put("/:userId", authMiddleware, (req, res, next) => userController.updateOwnAccount(req, res).catch(next))
 
-routes.delete("/:userId", (req, res, next) => {
-    // userController.deleteOwnAccount(req, res).catch(next)
-})
+routes.delete("/:userId", (req, res, next) => userController.deleteOwnAccount(req, res).catch(next))
 
 export default routes
