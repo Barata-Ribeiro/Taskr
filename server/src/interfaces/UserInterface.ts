@@ -1,4 +1,4 @@
-interface RequestingDataBody {
+interface RequestingUserDataBody {
     firstName?: string
     lastName?: string
     username: string

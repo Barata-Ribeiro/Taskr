@@ -9,7 +9,7 @@ const userService = new UserService()
 
 export class UserController {
     async createNewUser(req: Request, res: Response) {
-        const requestingDataBody = req.body as RequestingDataBody
+        const requestingDataBody = req.body as RequestingUserDataBody
 
         if (!requestingDataBody) throw new BadRequestError("You cannot register without providing your details.")
         if (!requestingDataBody.username) throw new BadRequestError("You must provide an username.")

@@ -7,7 +7,7 @@ import { userRepository } from "../repositories/UserRepository"
 import { isEmailValid, isPasswordStrong } from "../utils/Validity"
 
 export class UserService {
-    async createNewUser(requestingDataBody: RequestingDataBody): Promise<UserResponseDTO> {
+    async createNewUser(requestingDataBody: RequestingUserDataBody): Promise<UserResponseDTO> {
         // Check if user already exists
         const checkIfUserExistsByUsername = await userRepository.findOne({
             where: { username: requestingDataBody.username }
