@@ -15,6 +15,7 @@ import favicon from "serve-favicon"
 
 // Route Imports
 import authRoutes from "./v1/router/AuthRoutes"
+import taskRoutes from "./v1/router/TaskRoutes"
 import teamRoutes from "./v1/router/TeamRoutes"
 import usersRoutes from "./v1/router/UserRoutes"
 
@@ -82,6 +83,7 @@ const startServer = async () => {
         app.use("/api/v1/auth", authRoutes)
         app.use("/api/v1/users", usersRoutes)
         app.use("/api/v1/teams", teamRoutes)
+        app.use("/api/v1/tasks/", taskRoutes)
 
         app.use(errorMiddleware)
 
