@@ -38,7 +38,7 @@ export class Team {
     })
     projects: Project[]
 
-    @ManyToMany(() => User, (user) => user.teams, { eager: false })
+    @ManyToMany(() => User, (user) => user.teams, { lazy: true })
     @JoinTable({
         name: "taskr_team_members",
         joinColumn: { name: "teamId", referencedColumnName: "id" },

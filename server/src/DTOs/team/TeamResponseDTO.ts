@@ -19,8 +19,13 @@ export class TeamResponseDTO {
         dto.description = team.description
         dto.founderId = team.founder.id
 
-        if (withMembers)
-            dto.members = team.members ? team.members.map((member) => UserResponseDTO.fromEntity(member)) : []
+        if (withMembers) {
+            const teams = await team.members
+            if (teams) {
+                const memberDTOs = teams.map((member) => UserResponseDTO.fromEntity(member))
+                dto.members = await Promise.all(memberDTOs)
+            } else dto.members = []
+        }
 
         if (withProjects) {
             const projects = await team.projects
