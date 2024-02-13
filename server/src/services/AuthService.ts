@@ -1,5 +1,5 @@
 import { compare } from "bcrypt"
-import { JwtPayload, sign, verify } from "jsonwebtoken"
+import { JsonWebTokenError, JwtPayload, TokenExpiredError, sign, verify } from "jsonwebtoken"
 import { validate } from "uuid"
 import { BadRequestError, NotFoundError, UnauthorizedError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
@@ -36,10 +36,18 @@ export class AuthService {
                 "The server is missing its JWT secret key. You should report this issue to the administrator."
             )
 
-        const payload = verify(refreshToken, secretKey) as JwtPayload
-        const { id } = payload
-        if (!id) throw new NotFoundError("Id not found in token.")
-        if (!validate(id)) throw new BadRequestError("Invalid user ID.")
+        let id = ""
+
+        try {
+            const payload = verify(refreshToken, secretKey) as JwtPayload
+            id = payload.id
+
+            if (!id) throw new NotFoundError("Id not found in token.")
+            if (!validate(id)) throw new BadRequestError("Invalid user ID.")
+        } catch (error) {
+            if (error instanceof TokenExpiredError) throw new UnauthorizedError("Your token has expired.")
+            else if (error instanceof JsonWebTokenError) throw new UnauthorizedError("Invalid token.")
+        }
 
         const user = await userRepository.findOneBy({ id })
         if (!user) throw new NotFoundError("User not found.")
