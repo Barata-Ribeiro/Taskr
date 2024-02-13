@@ -47,7 +47,7 @@ export class User {
     })
     foundedTeam?: Team
 
-    @ManyToMany(() => Team, (team) => team.members, { eager: false })
+    @ManyToMany(() => Team, (team) => team.members, { lazy: true })
     teams?: Team[]
 
     @OneToMany(() => Project, (project) => project.creator, {
