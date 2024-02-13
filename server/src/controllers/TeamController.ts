@@ -35,7 +35,7 @@ export class TeamController {
             relations: ["founder"]
         })
 
-        let teamsData = teams.map((team) => TeamResponseDTO.fromEntity(team))
+        let teamsData = await Promise.all(teams.map((team) => TeamResponseDTO.fromEntity(team)))
 
         return res.status(200).json({
             status: "success",
@@ -79,6 +79,29 @@ export class TeamController {
             status: "success",
             message: "Team retrieved successfully.",
             data: await TeamResponseDTO.fromEntity(team, withMembers, withProjects)
+        })
+    }
+
+    async getTeamMembers(req: Request, res: Response) {
+        const requestingUser = req.user.data
+        if (!requestingUser?.id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
+
+        const { teamId } = req.params
+        if (!teamId) throw new BadRequestError("Team Id is required.")
+        if (!validate(teamId)) throw new BadRequestError("Invalid team ID.")
+
+        const team = await teamRepository.findOne({
+            where: { id: teamId },
+            relations: ["members"]
+        })
+
+        if (!team) throw new BadRequestError("Team not found.")
+
+        return res.status(200).json({
+            status: "success",
+            message: `Members of team ${team.name} retrieved successfully.`,
+            data: team.members
         })
     }
 
