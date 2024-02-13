@@ -1,6 +1,8 @@
 import { Request, Response } from "express"
 import { validate } from "uuid"
+import { ProjectResponseDTO } from "../DTOs/project/ProjectResponseDTO"
 import { TeamResponseDTO } from "../DTOs/team/TeamResponseDTO"
+import { UserResponseDTO } from "../DTOs/user/UserResponseDTO"
 import { BadRequestError } from "../middlewares/helpers/ApiErrors"
 import { teamRepository } from "../repositories/TeamRepository"
 import { TeamService } from "../services/TeamService"
@@ -95,13 +97,57 @@ export class TeamController {
             where: { id: teamId },
             relations: ["members"]
         })
-
         if (!team) throw new BadRequestError("Team not found.")
+
+        const teamMembers = await team.members
+        const teamMembersDTOs = await Promise.all(teamMembers.map((member) => UserResponseDTO.fromEntity(member)))
+        const isMember = teamMembersDTOs.some((member) => member.id === requestingUser.id)
+        if (!isMember) throw new BadRequestError("You are not a member of this team.")
+
+        const response = teamMembersDTOs.length > 0 ? [...teamMembersDTOs] : []
+        const responseMessage =
+            teamMembersDTOs.length > 0
+                ? `Members of team ${team.name} retrieved successfully.`
+                : `No members found for team ${team.name}.`
 
         return res.status(200).json({
             status: "success",
-            message: `Members of team ${team.name} retrieved successfully.`,
-            data: team.members
+            message: responseMessage,
+            data: response,
+            total_members: teamMembersDTOs.length
+        })
+    }
+
+    async getTeamProjects(req: Request, res: Response) {
+        const requestingUser = req.user.data
+        if (!requestingUser?.id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
+
+        const { teamId } = req.params
+        if (!teamId) throw new BadRequestError("Team Id is required.")
+        if (!validate(teamId)) throw new BadRequestError("Invalid team ID.")
+
+        const team = await teamRepository.findOne({
+            where: { id: teamId },
+            relations: ["projects"]
+        })
+        if (!team) throw new BadRequestError("Team not found.")
+
+        const projects = await team.projects
+        const projectDTOs = await Promise.all(projects.map((project) => ProjectResponseDTO.fromEntity(project)))
+
+        const response = projectDTOs.length > 0 ? [...projectDTOs] : []
+
+        const responseMessage =
+            projectDTOs.length > 0
+                ? `Projects of team ${team.name} retrieved successfully.`
+                : `No projects found for team ${team.name}.`
+
+        return res.status(200).json({
+            status: "success",
+            message: responseMessage,
+            data: response,
+            total_projects: projectDTOs.length
         })
     }
 

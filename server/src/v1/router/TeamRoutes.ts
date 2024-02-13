@@ -16,6 +16,12 @@ routes.get("/:teamId", authMiddleware, (req, res, next) => {
     teamController.getTeamById({ withMembers, withProjects }, req, res).catch(next)
 })
 
+routes.get("/:teamId/members", authMiddleware, (req, res, next) => teamController.getTeamMembers(req, res).catch(next))
+
+routes.get("/:teamId/projects", authMiddleware, (req, res, next) =>
+    teamController.getTeamProjects(req, res).catch(next)
+)
+
 routes.put("/:teamId", authMiddleware, (req, res, next) => teamController.updateTeamById(req, res).catch(next))
 
 routes.delete("/:teamId", authMiddleware, (req, res, next) => teamController.deleteTeamById(req, res).catch(next))
