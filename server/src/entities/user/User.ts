@@ -45,10 +45,10 @@ export class User {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
     })
-    foundedTeam?: Team
+    foundedTeam?: Promise<Team>
 
     @ManyToMany(() => Team, (team) => team.members, { lazy: true })
-    teams?: Team[]
+    teams?: Promise<Team[]>
 
     @OneToMany(() => Project, (project) => project.creator, {
         cascade: true,
@@ -58,16 +58,19 @@ export class User {
     })
     projects?: Project[]
 
+    @ManyToMany(() => Project, (project) => project.members, { lazy: true })
+    projectMemberships?: Promise<Project[]>
+
     @OneToMany(() => Task, (task) => task.creator, {
         cascade: true,
         lazy: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
     })
-    tasks?: Task[]
+    tasks?: Promise<Task[]>
 
     @ManyToMany(() => Task, (task) => task.assignees, { lazy: true })
-    assignedTasks?: Task[]
+    assignedTasks?: Promise<Task[]>
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt: Date

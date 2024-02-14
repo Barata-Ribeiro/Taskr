@@ -10,7 +10,7 @@ export class Tag {
     name: string
 
     @ManyToMany(() => Task, (task) => task.tags, { lazy: true })
-    tasks?: Task[]
+    tasks?: Promise<Task[]>
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt: Date

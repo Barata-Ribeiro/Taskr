@@ -4,6 +4,8 @@ import {
     Entity,
     Index,
     JoinColumn,
+    JoinTable,
+    ManyToMany,
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
@@ -33,13 +35,21 @@ export class Project {
     @JoinColumn({ name: "teamId" })
     team: Team
 
+    @ManyToMany(() => User, (user) => user.projectMemberships, { lazy: true })
+    @JoinTable({
+        name: "taskr_project_members",
+        joinColumn: { name: "projectId", referencedColumnName: "id" },
+        inverseJoinColumn: { name: "userId", referencedColumnName: "id" }
+    })
+    members: Promise<User[]>
+
     @OneToMany(() => Task, (task) => task.project, {
         cascade: true,
         lazy: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
     })
-    tasks: Task[]
+    tasks: Promise<Task[]>
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt: Date

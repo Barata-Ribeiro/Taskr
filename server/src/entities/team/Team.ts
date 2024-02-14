@@ -36,7 +36,7 @@ export class Team {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
     })
-    projects: Project[]
+    projects: Promise<Project[]>
 
     @ManyToMany(() => User, (user) => user.teams, { lazy: true })
     @JoinTable({
@@ -44,7 +44,7 @@ export class Team {
         joinColumn: { name: "teamId", referencedColumnName: "id" },
         inverseJoinColumn: { name: "userId", referencedColumnName: "id" }
     })
-    members: User[]
+    members: Promise<User[]>
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt: Date

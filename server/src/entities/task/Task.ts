@@ -53,7 +53,7 @@ export class Task {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
     })
-    comments?: Comment[]
+    comments?: Promise<Comment[]>
 
     @ManyToMany(() => User, (user) => user.assignedTasks, { lazy: true })
     @JoinTable({
@@ -61,15 +61,15 @@ export class Task {
         joinColumn: { name: "taskId", referencedColumnName: "id" },
         inverseJoinColumn: { name: "userId", referencedColumnName: "id" }
     })
-    assignees?: User[]
+    assignees?: Promise<User[]>
 
-    @ManyToMany(() => Tag, (tag) => tag.tasks, { cascade: true })
+    @ManyToMany(() => Tag, (tag) => tag.tasks, { cascade: true, eager: true })
     @JoinTable({
         name: "taskr_tasks_tags",
         joinColumn: { name: "taskId" },
         inverseJoinColumn: { name: "tagId" }
     })
-    tags?: Tag[]
+    tags?: Promise<Tag[]>
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt: Date
