@@ -8,6 +8,10 @@ import { isEmailValid, isPasswordStrong } from "../utils/Validity"
 
 export class UserService {
     async createNewUser(requestingDataBody: RequestingUserDataBody): Promise<UserResponseDTO> {
+        if (!requestingDataBody.username) throw new BadRequestError("You must provide an username.")
+        if (!requestingDataBody.email) throw new BadRequestError("You must provide an email.")
+        if (!requestingDataBody.password) throw new BadRequestError("You must provide a password.")
+
         const checkIfUserExistsByUsername = await userRepository.findOne({
             where: { username: requestingDataBody.username }
         })
