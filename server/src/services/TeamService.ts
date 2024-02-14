@@ -1,3 +1,4 @@
+import console from "console"
 import { validate } from "uuid"
 import { TeamResponseDTO } from "../DTOs/team/TeamResponseDTO"
 import { AppDataSource } from "../database/data-source"
@@ -12,17 +13,20 @@ import { teamRepository } from "./../repositories/TeamRepository"
 
 export class TeamService {
     async createNewTeam(id: string, requestingDataBody: RequestingTeamDataBody): Promise<TeamResponseDTO> {
-        const user = await userRepository.findOneBy({ id })
+        const user = await userRepository.findOne({
+            where: { id },
+            relations: ["teams"]
+        })
         if (!user) throw new NotFoundError("User not found.")
 
         const userTeams = await teamRepository.findOneBy({ name: requestingDataBody.name })
         if (userTeams) throw new BadRequestError("A team with this name already exists.")
 
-        const team = await teamRepository.create({
+        const team = teamRepository.create({
             name: requestingDataBody.name,
             description: requestingDataBody.description,
             founder: user,
-            members: Promise.resolve([user])
+            members: [user]
         })
 
         try {
@@ -40,9 +44,11 @@ export class TeamService {
         requestingUserId: string,
         requestingDataBody: RequestingTeamEditDataBody
     ): Promise<TeamResponseDTO> {
+        const wereUsersAdded = requestingDataBody.userIds && requestingDataBody.userIds.length > 0
+       
         const team = await teamRepository.findOne({
             where: { id: teamId },
-            relations: ["members"]
+            relations: ["founder", wereUsersAdded ? "members" : ""]
         })
         if (!team) throw new NotFoundError("Team not found.")
 
@@ -78,7 +84,7 @@ export class TeamService {
                 membersToAdd.push(userToBeAdded)
             }
 
-            team.members = Promise.resolve([...currentMembers, ...membersToAdd])
+            team.members = [...currentMembers, ...membersToAdd]
         }
 
         try {
@@ -88,13 +94,17 @@ export class TeamService {
             throw new InternalServerError("An error occurred while updating the team.")
         }
 
-        return TeamResponseDTO.fromEntity(team, true, false)
+        return TeamResponseDTO.fromEntity(team, wereUsersAdded ? true : false, false)
     }
 
     async deleteTeamById(teamId: string, requestingUserId: string): Promise<void> {
         await AppDataSource.manager.transaction(async (transactionalEntityManager) => {
             try {
-                const team = await teamRepository.findOneBy({ id: teamId })
+                const team = await teamRepository.findOne({
+                    where: { id: teamId },
+                    relations: ["founder"]
+                })
+
                 if (!team) throw new NotFoundError("Team not found.")
 
                 if (team.founder.id !== requestingUserId)
