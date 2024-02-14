@@ -22,7 +22,7 @@ export class TeamService {
             name: requestingDataBody.name,
             description: requestingDataBody.description,
             founder: user,
-            members: [user]
+            members: Promise.resolve([user])
         })
 
         try {
@@ -64,8 +64,9 @@ export class TeamService {
                 )
 
             let membersToAdd = []
+            const currentMembers = await team.members
             for (const memberId of requestingDataBody.userIds) {
-                const isAlreadyAMember = team.members.find((member) => member.id === memberId)
+                const isAlreadyAMember = currentMembers.some((member) => member.id === memberId)
                 if (isAlreadyAMember)
                     throw new BadRequestError(
                         `User with ID ${memberId} is already a member of the team. Make sure to select only members who are not already in the team.`
@@ -77,7 +78,7 @@ export class TeamService {
                 membersToAdd.push(userToBeAdded)
             }
 
-            team.members = [...team.members, ...membersToAdd]
+            team.members = Promise.resolve([...currentMembers, ...membersToAdd])
         }
 
         try {

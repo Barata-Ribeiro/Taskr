@@ -26,6 +26,8 @@ const authMiddleware = async (req: Request, _res: Response, next: NextFunction) 
         const userFromDatabase = await userRepository.findOneBy({ id })
         if (!userFromDatabase) throw new NotFoundError("User not found.")
 
+        const userTeams = await userFromDatabase.teams
+
         if (userFromDatabase.role === "BANNED") throw new UnauthorizedError("Your account has been banned.")
 
         if (!req.user) req.user = { data: null, is_admin: false, is_moderator: false, is_in_team: false }
@@ -40,7 +42,7 @@ const authMiddleware = async (req: Request, _res: Response, next: NextFunction) 
         }
         req.user.is_admin = userFromDatabase.role === "ADMIN"
         req.user.is_moderator = userFromDatabase.role === "MODERATOR"
-        req.user.is_in_team = userFromDatabase.teams !== undefined && userFromDatabase.teams.length > 0
+        req.user.is_in_team = userTeams !== undefined && userTeams.length > 0
 
         next()
     } catch (error) {
