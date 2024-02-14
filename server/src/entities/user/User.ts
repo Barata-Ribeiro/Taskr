@@ -56,7 +56,7 @@ export class User {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
     })
-    projects?: Project[]
+    projects?: Promise<Project[]>
 
     @ManyToMany(() => Project, (project) => project.members, { lazy: true })
     projectMemberships?: Promise<Project[]>

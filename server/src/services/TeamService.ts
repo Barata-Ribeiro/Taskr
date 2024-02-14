@@ -25,9 +25,10 @@ export class TeamService {
         const team = teamRepository.create({
             name: requestingDataBody.name,
             description: requestingDataBody.description,
-            founder: user,
-            members: [user]
+            founder: user
         })
+
+        team.members = Promise.resolve([user])
 
         try {
             await teamRepository.save(team)
@@ -45,7 +46,7 @@ export class TeamService {
         requestingDataBody: RequestingTeamEditDataBody
     ): Promise<TeamResponseDTO> {
         const wereUsersAdded = requestingDataBody.userIds && requestingDataBody.userIds.length > 0
-       
+
         const team = await teamRepository.findOne({
             where: { id: teamId },
             relations: ["founder", wereUsersAdded ? "members" : ""]
@@ -84,7 +85,7 @@ export class TeamService {
                 membersToAdd.push(userToBeAdded)
             }
 
-            team.members = [...currentMembers, ...membersToAdd]
+            team.members = Promise.resolve([...(await currentMembers), ...membersToAdd])
         }
 
         try {

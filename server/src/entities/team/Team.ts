@@ -38,13 +38,13 @@ export class Team {
     })
     projects: Promise<Project[]>
 
-    @ManyToMany(() => User, (user) => user.teams)
+    @ManyToMany(() => User, (user) => user.teams, { lazy: true })
     @JoinTable({
         name: "taskr_team_members",
         joinColumn: { name: "teamId", referencedColumnName: "id" },
         inverseJoinColumn: { name: "userId", referencedColumnName: "id" }
     })
-    members: User[]
+    members: Promise<User[]>
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt: Date
