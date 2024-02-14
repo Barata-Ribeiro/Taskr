@@ -36,4 +36,21 @@ export class ProjectService {
 
         return ProjectResponseDTO.fromEntity(newProject)
     }
+
+    async getProjectById(projectId: string, userId: string): Promise<ProjectResponseDTO> {
+        const user = await userRepository.findOneBy({ id: userId })
+        if (!user) throw new NotFoundError("User not found.")
+
+        const project = await projectRepository.findOne({
+            where: { id: projectId },
+            relations: ["team"]
+        })
+        if (!project) throw new NotFoundError("Project not found.")
+
+        const teamMembers = await project.team.members
+        const isUserInTeamOfProject = teamMembers.some((member) => member.id === userId)
+        if (!isUserInTeamOfProject) throw new ForbiddenError("You are not in the team of this project.")
+
+        return ProjectResponseDTO.fromEntity(project)
+    }
 }

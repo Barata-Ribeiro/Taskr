@@ -25,9 +25,39 @@ export class ProjectController {
         })
     }
 
-    async getProjectById(req: Request, res: Response) {}
+    async getProjectById(req: Request, res: Response) {
+        const requestingUser = req.user
+        if (!requestingUser?.data?.id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!validate(requestingUser?.data.id)) throw new BadRequestError("Invalid user ID.")
 
-    async updateProjectById(req: Request, res: Response) {}
+        const { projectId } = req.params
+        if (!projectId) throw new BadRequestError("Project Id is required.")
+        if (!validate(projectId)) throw new BadRequestError("Invalid project ID.")
 
-    async deleteProjectById(req: Request, res: Response) {}
+        const response = await projectService.getProjectById(projectId, requestingUser.data.id)
+
+        return res.status(200).json({
+            status: "success",
+            message: "Project retrieved successfully.",
+            data: response
+        })
+    }
+
+    async updateProjectById(req: Request, res: Response) {
+        const requestingUser = req.user
+        if (!requestingUser?.data?.id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!validate(requestingUser?.data.id)) throw new BadRequestError("Invalid user ID.")
+
+        const { projectId } = req.params
+        if (!projectId) throw new BadRequestError("Project Id is required.")
+        if (!validate(projectId)) throw new BadRequestError("Invalid project ID.")
+
+        const requestingDataBody = req.body as RequestingProjectEditDataBody
+    }
+
+    async deleteProjectById(req: Request, res: Response) {
+        const requestingUser = req.user
+        if (!requestingUser?.data?.id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!validate(requestingUser?.data.id)) throw new BadRequestError("Invalid user ID.")
+    }
 }
