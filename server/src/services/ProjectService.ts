@@ -27,6 +27,8 @@ export class ProjectService {
             team: team
         })
 
+        newProject.members = Promise.resolve([user])
+
         try {
             await projectRepository.save(newProject)
         } catch (error) {
@@ -37,7 +39,7 @@ export class ProjectService {
         return ProjectResponseDTO.fromEntity(newProject)
     }
 
-    async getProjectById(projectId: string, userId: string): Promise<ProjectResponseDTO> {
+    async getProjectById(withProjectMembers: boolean, projectId: string, userId: string): Promise<ProjectResponseDTO> {
         const user = await userRepository.findOneBy({ id: userId })
         if (!user) throw new NotFoundError("User not found.")
 
@@ -51,6 +53,6 @@ export class ProjectService {
         const isUserInTeamOfProject = teamMembers.some((member) => member.id === userId)
         if (!isUserInTeamOfProject) throw new ForbiddenError("You are not in the team of this project.")
 
-        return ProjectResponseDTO.fromEntity(project)
+        return ProjectResponseDTO.fromEntity(project, withProjectMembers)
     }
 }

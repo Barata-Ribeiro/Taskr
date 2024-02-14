@@ -7,7 +7,10 @@ const projectController = new ProjectController()
 
 routes.post("/", authMiddleware, (req, res, next) => projectController.createNewProject(req, res).catch(next))
 
-routes.get("/:projectId", authMiddleware, (req, res, next) => projectController.getProjectById(req, res).catch(next))
+routes.get("/:projectId", authMiddleware, (req, res, next) => {
+    const withProjectMembers = req.query.withMembers === "true"
+    projectController.getProjectById(withProjectMembers, req, res).catch(next)
+})
 
 routes.put("/:projectId", authMiddleware, (req, res, next) => projectController.updateProjectById(req, res).catch(next))
 

@@ -25,7 +25,7 @@ export class ProjectController {
         })
     }
 
-    async getProjectById(req: Request, res: Response) {
+    async getProjectById(withProjectMembers: boolean, req: Request, res: Response) {
         const requestingUser = req.user
         if (!requestingUser?.data?.id) throw new BadRequestError("You must be logged in to update your account.")
         if (!validate(requestingUser?.data.id)) throw new BadRequestError("Invalid user ID.")
@@ -34,12 +34,15 @@ export class ProjectController {
         if (!projectId) throw new BadRequestError("Project Id is required.")
         if (!validate(projectId)) throw new BadRequestError("Invalid project ID.")
 
-        const response = await projectService.getProjectById(projectId, requestingUser.data.id)
+        const response = await projectService.getProjectById(withProjectMembers, projectId, requestingUser.data.id)
 
         return res.status(200).json({
             status: "success",
             message: "Project retrieved successfully.",
-            data: response
+            data: {
+                ...response,
+                total_members: response.members?.length || undefined
+            }
         })
     }
 
