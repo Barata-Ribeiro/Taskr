@@ -1,7 +1,12 @@
+import { validate } from "uuid"
 import { TeamResponseDTO } from "../DTOs/team/TeamResponseDTO"
 import { AppDataSource } from "../database/data-source"
-import { User } from "../entities/user/User"
-import { InternalServerError, NotFoundError, UnauthorizedError } from "../middlewares/helpers/ApiErrors"
+import {
+    BadRequestError,
+    InternalServerError,
+    NotFoundError,
+    UnauthorizedError
+} from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
 import { teamRepository } from "./../repositories/TeamRepository"
 
@@ -9,6 +14,9 @@ export class TeamService {
     async createNewTeam(id: string, requestingDataBody: RequestingTeamDataBody): Promise<TeamResponseDTO> {
         const user = await userRepository.findOneBy({ id })
         if (!user) throw new NotFoundError("User not found.")
+
+        const userTeams = await teamRepository.findOneBy({ name: requestingDataBody.name })
+        if (userTeams) throw new BadRequestError("A team with this name already exists.")
 
         const team = await teamRepository.create({
             name: requestingDataBody.name,
@@ -40,15 +48,36 @@ export class TeamService {
 
         if (team.founder.id !== requestingUserId) throw new UnauthorizedError("You are not allowed to edit this team.")
 
-        if (requestingDataBody.name) team.name = requestingDataBody.name
+        if (requestingDataBody.name) {
+            const teamWithSameName = await teamRepository.findOneBy({ name: requestingDataBody.name })
+            if (teamWithSameName && teamWithSameName.id !== teamId)
+                throw new BadRequestError("A team with this name already exists.")
+
+            team.name = requestingDataBody.name
+        }
         if (requestingDataBody.description) team.description = requestingDataBody.description
         if (requestingDataBody.userIds) {
-            const memberPromises = requestingDataBody.userIds.map((memberId) =>
-                userRepository.findOneBy({ id: memberId })
-            )
-            const resolvedMembersPromises = await Promise.all(memberPromises)
+            const invalidUserIds = requestingDataBody.userIds.filter((id) => !validate(id))
+            if (invalidUserIds.length > 0)
+                throw new BadRequestError(
+                    `Invalid user IDs: ${invalidUserIds.join(", ")}. \n\n Please provide valid user IDs.`
+                )
 
-            team.members = resolvedMembersPromises.filter((member) => member !== null) as User[]
+            let membersToAdd = []
+            for (const memberId of requestingDataBody.userIds) {
+                const isAlreadyAMember = team.members.find((member) => member.id === memberId)
+                if (isAlreadyAMember)
+                    throw new BadRequestError(
+                        `User with ID ${memberId} is already a member of the team. Make sure to select only members who are not already in the team.`
+                    )
+
+                const userToBeAdded = await userRepository.findOneBy({ id: memberId })
+                if (!userToBeAdded) throw new NotFoundError(`User with ID ${memberId} not found.`)
+
+                membersToAdd.push(userToBeAdded)
+            }
+
+            team.members = [...team.members, ...membersToAdd]
         }
 
         try {
