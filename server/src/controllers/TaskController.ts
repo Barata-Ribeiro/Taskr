@@ -1,4 +1,6 @@
 import { Request, Response } from "express"
+import { validate } from "uuid"
+import { RequestingTaskDataBody } from "../interfaces/TaskInterface"
 import { BadRequestError } from "../middlewares/helpers/ApiErrors"
 import { TaskService } from "../services/TaskService"
 
@@ -6,15 +8,14 @@ const taskService = new TaskService()
 
 export class TaskController {
     async createNewTask(req: Request, res: Response) {
+        const requestingUser = req.user
+        if (!requestingUser?.data?.id) throw new BadRequestError("You must be logged in to update your account.")
+        if (!validate(requestingUser?.data.id)) throw new BadRequestError("Invalid user ID.")
+
         const requestingDataBody = req.body as RequestingTaskDataBody
         if (!requestingDataBody) throw new BadRequestError("You cannot create a task without providing the details.")
-        if (!requestingDataBody.title) throw new BadRequestError("You must provide a title for the task.")
-        if (!requestingDataBody.description) throw new BadRequestError("You must provide a description for the task.")
-        if (!requestingDataBody.projectId)
-            throw new BadRequestError("You must specify the project the task belongs to.")
-        if (!requestingDataBody.dueDate) throw new BadRequestError("You must specify the due date for the task.")
 
-        const response = await taskService.createNewTask(requestingDataBody)
+        const response = await taskService.createNewTask(requestingUser.data.id, requestingDataBody)
 
         return res.status(201).json({
             status: "success",
