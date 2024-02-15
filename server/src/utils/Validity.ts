@@ -1,4 +1,6 @@
 import { validate } from "uuid"
+import { TaskPriority } from "../entities/task/PriorityEnum"
+import { TaskStatus } from "../entities/task/StatusEnum"
 
 export const isEmailValid = (email: string): boolean => {
     const regex =
@@ -13,4 +15,12 @@ export const isPasswordStrong = (password: string): boolean => {
 
 export const isUUIDValid = (uuid: string): boolean => {
     return validate(uuid)
+}
+
+export const isTaskStatus = (value: any): value is TaskStatus => {
+    return Object.values(TaskStatus).includes(value)
+}
+
+export const isTaskPriority = (value: any): value is TaskPriority => {
+    return Object.values(TaskPriority).includes(value)
 }
