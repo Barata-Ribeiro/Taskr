@@ -71,5 +71,16 @@ export class ProjectController {
         const requestingUser = req.user
         if (!requestingUser?.data?.id) throw new BadRequestError("You must be logged in to update your account.")
         if (!validate(requestingUser?.data.id)) throw new BadRequestError("Invalid user ID.")
+
+        const { projectId } = req.params
+        if (!projectId) throw new BadRequestError("Project Id is required.")
+        if (!validate(projectId)) throw new BadRequestError("Invalid project ID.")
+
+        await projectService.deleteProjectById(requestingUser.data.id, projectId)
+
+        return res.status(200).json({
+            status: "success",
+            message: "Project deleted successfully."
+        })
     }
 }

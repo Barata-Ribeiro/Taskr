@@ -1,5 +1,6 @@
 import { validate } from "uuid"
 import { ProjectResponseDTO } from "../DTOs/project/ProjectResponseDTO"
+import { AppDataSource } from "../database/data-source"
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { projectRepository } from "../repositories/ProjectRepository"
 import { teamRepository } from "../repositories/TeamRepository"
@@ -108,5 +109,25 @@ export class ProjectService {
         }
 
         return ProjectResponseDTO.fromEntity(project, wereUsersAdded ? true : false)
+    }
+
+    async deleteProjectById(userId: string, projectId: string): Promise<void> {
+        await AppDataSource.manager.transaction(async (transactionalEntityManager) => {
+            try {
+                const project = await projectRepository.findOne({
+                    where: { id: projectId },
+                    relations: ["creator"]
+                })
+                if (!project) throw new NotFoundError("Project not found.")
+
+                const isUserOwnerOfProject = project.creator.id === userId
+                if (!isUserOwnerOfProject) throw new ForbiddenError("You are not the owner of this project.")
+
+                await transactionalEntityManager.remove(project)
+            } catch (error) {
+                console.error("Transaction failed:", error)
+                throw new InternalServerError("An error occurred during the deletion process.")
+            }
+        })
     }
 }
