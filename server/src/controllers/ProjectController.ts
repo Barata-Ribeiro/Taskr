@@ -56,6 +56,15 @@ export class ProjectController {
         if (!validate(projectId)) throw new BadRequestError("Invalid project ID.")
 
         const requestingDataBody = req.body as RequestingProjectEditDataBody
+        if (!requestingDataBody) throw new BadRequestError("You cannot update a project without providing the details.")
+
+        const response = await projectService.updateProjectById(requestingUser.data.id, projectId, requestingDataBody)
+
+        return res.status(200).json({
+            status: "success",
+            message: "Project updated successfully.",
+            data: response
+        })
     }
 
     async deleteProjectById(req: Request, res: Response) {

@@ -7,4 +7,5 @@ interface RequestingProjectDataBody {
 interface RequestingProjectEditDataBody {
     name?: string
     description?: string
+    userIds?: string[]
 }

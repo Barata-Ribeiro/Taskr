@@ -1,3 +1,4 @@
+import { validate } from "uuid"
 import { ProjectResponseDTO } from "../DTOs/project/ProjectResponseDTO"
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { projectRepository } from "../repositories/ProjectRepository"
@@ -54,5 +55,58 @@ export class ProjectService {
         if (!isUserInTeamOfProject) throw new ForbiddenError("You are not in the team of this project.")
 
         return ProjectResponseDTO.fromEntity(project, withProjectMembers)
+    }
+
+    async updateProjectById(
+        userId: string,
+        projectId: string,
+        requestingDataBody: RequestingProjectEditDataBody
+    ): Promise<ProjectResponseDTO> {
+        const wereUsersAdded = requestingDataBody.userIds && requestingDataBody.userIds.length > 0
+
+        const project = await projectRepository.findOne({
+            where: { id: projectId },
+            relations: ["team", "creator", wereUsersAdded ? "members" : ""]
+        })
+        if (!project) throw new NotFoundError("Project not found.")
+
+        const isUserOwnerOfProject = project.creator.id === userId
+        if (!isUserOwnerOfProject) throw new ForbiddenError("You are not the owner of this project.")
+
+        if (requestingDataBody.name) project.name = requestingDataBody.name
+        if (requestingDataBody.description) project.description = requestingDataBody.description
+        if (requestingDataBody.userIds) {
+            const invalidUserIds = requestingDataBody.userIds.filter((id) => !validate(id))
+            if (invalidUserIds.length > 0)
+                throw new BadRequestError(
+                    `Invalid user IDs: ${invalidUserIds.join(", ")}. \n\n Please provide valid user IDs.`
+                )
+
+            let membersToAdd = []
+            const currentMembers = await project.members
+            for (const memberId of requestingDataBody.userIds) {
+                const isAlreadyAMember = currentMembers.some((member) => member.id === memberId)
+                if (isAlreadyAMember)
+                    throw new BadRequestError(
+                        `User with ID ${memberId} is already a member of the project. Make sure to select only members who are not already in the project.`
+                    )
+
+                const userToBeAdd = await userRepository.findOneBy({ id: memberId })
+                if (!userToBeAdd) throw new NotFoundError(`User with ID ${memberId} not found.`)
+
+                membersToAdd.push(userToBeAdd)
+            }
+
+            project.members = Promise.resolve([...currentMembers, ...membersToAdd])
+        }
+
+        try {
+            await projectRepository.save(project)
+        } catch (error) {
+            console.error("Error saving project:", error)
+            throw new InternalServerError("An error occurred while updating the project.")
+        }
+
+        return ProjectResponseDTO.fromEntity(project, wereUsersAdded ? true : false)
     }
 }
