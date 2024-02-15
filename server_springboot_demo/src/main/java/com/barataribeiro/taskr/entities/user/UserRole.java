@@ -1,7 +1,7 @@
 package com.barataribeiro.taskr.entities.user;
 
 public enum UserRole {
-  ADMIN("admin"), USER("user");
+  ADMIN("admin"), MODERATOR("moderator"), USER("user"), BANNED("banned");
 
   private String role;
 

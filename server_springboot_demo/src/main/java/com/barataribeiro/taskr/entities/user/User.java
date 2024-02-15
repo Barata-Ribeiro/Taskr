@@ -1,4 +1,3 @@
-
 package com.barataribeiro.taskr.entities.user;
 
 import java.util.Collection;
@@ -15,14 +14,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.barataribeiro.taskr.entities.project.Project;
 import com.barataribeiro.taskr.entities.tasks.Task;
+import com.barataribeiro.taskr.entities.team.Team;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -54,11 +57,23 @@ public class User implements UserDetails {
 
   private UserRole role;
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "creator")
+  @OneToOne(fetch = FetchType.LAZY, mappedBy = "creator", cascade = CascadeType.ALL)
+  private List<Team> foundedTeam;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private List<Team> teams;
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "creator", cascade = CascadeType.ALL)
   private List<Project> projects;
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "creator")
+  @ManyToOne(fetch = FetchType.LAZY)
+  private List<Project> assignedProjects;
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "founder", cascade = CascadeType.ALL)
   private List<Task> tasks;
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "assignee")
+  private List<Task> assignedTasks;
 
   @CreatedDate
   @Temporal(TemporalType.TIMESTAMP)

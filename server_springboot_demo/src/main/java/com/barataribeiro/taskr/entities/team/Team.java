@@ -1,15 +1,12 @@
-package com.barataribeiro.taskr.entities.tasks;
+package com.barataribeiro.taskr.entities.team;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import com.barataribeiro.taskr.entities.comment.Comment;
 import com.barataribeiro.taskr.entities.project.Project;
 import com.barataribeiro.taskr.entities.user.User;
 
@@ -32,45 +29,29 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "taskr_tasks")
-public class Task {
+@Table(name = "taskr_teams")
+public class Team {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  private String title;
+  @Column(unique = true, nullable = false)
+  private String name;
 
+  @Column(nullable = false)
   private String description;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "projectId")
+  @JoinColumn(name = "founderId")
+  private User founder;
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "teams", cascade = CascadeType.ALL)
   private List<Project> projects;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "creatorId")
-  private List<User> creator;
-
-  @ColumnDefault("'PLANNED'")
-  private StatusEnum status;
-
-  @ColumnDefault("'LOW'")
-  private PriorityEnum priority;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(nullable = false)
-  private LocalDate dueDate;
-
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "task", cascade = CascadeType.ALL)
-  private List<Comment> comments;
-
   @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(name = "taskr_tasks_assignees", joinColumns = @JoinColumn(name = "taskId"), inverseJoinColumns = @JoinColumn(name = "userId"))
-  private List<User> assignees;
-
-  @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(name = "taskr_tasks_tags", joinColumns = @JoinColumn(name = "taskId"), inverseJoinColumns = @JoinColumn(name = "tagId"))
-  private List<Tag> tags;
+  @JoinTable(name = "taskr_team_members", joinColumns = @JoinColumn(name = "teamId"), inverseJoinColumns = @JoinColumn(name = "userId"))
+  private List<User> members;
 
   @CreatedDate
   @Temporal(TemporalType.TIMESTAMP)
@@ -81,5 +62,4 @@ public class Task {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "updated_at")
   private Date updatedAt;
-
 }
