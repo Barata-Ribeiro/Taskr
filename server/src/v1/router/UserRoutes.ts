@@ -24,10 +24,10 @@ routes.get("/", (req, res, next) => {
     else userController.getAllUsers(req, res).catch(next)
 })
 
-routes.get("/:userId", (req, res, next) => userController.getUserById(req, res).catch(next))
+routes.get("/:userId", authMiddleware, (req, res, next) => userController.getUserById(req, res).catch(next))
 
 routes.put("/:userId", authMiddleware, (req, res, next) => userController.updateOwnAccount(req, res).catch(next))
 
-routes.delete("/:userId", (req, res, next) => userController.deleteOwnAccount(req, res).catch(next))
+routes.delete("/:userId", authMiddleware, (req, res, next) => userController.deleteOwnAccount(req, res).catch(next))
 
 export default routes
