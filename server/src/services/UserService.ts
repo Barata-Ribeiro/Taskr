@@ -4,25 +4,30 @@ import { UserResponseDTO } from "../DTOs/user/UserResponseDTO"
 import { AppDataSource } from "../database/data-source"
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
-import { isEmailValid, isPasswordStrong } from "../utils/Validity"
+import { checkIfBodyExists } from "../utils/Checker"
+import { isEmailValid, isPasswordStrong, isUsernameValid } from "../utils/Validity"
 
 export class UserService {
     async createNewUser(requestingDataBody: RequestingUserDataBody): Promise<UserResponseDTO> {
-        if (!requestingDataBody.username) throw new BadRequestError("You must provide an username.")
-        if (!requestingDataBody.email) throw new BadRequestError("You must provide an email.")
-        if (!requestingDataBody.password) throw new BadRequestError("You must provide a password.")
+        checkIfBodyExists(requestingDataBody, ["username", "email", "password"])
+
+        if (!isUsernameValid(requestingDataBody.username))
+            throw new BadRequestError(
+                "Your username must be between 4 and 12 characters long, and can only contain letters and numbers."
+            )
 
         const checkIfUserExistsByUsername = await userRepository.findOne({
             where: { username: requestingDataBody.username }
         })
         if (checkIfUserExistsByUsername) throw new ConflictError("An user with this username already exists.")
 
+        if (!isEmailValid(requestingDataBody.email)) throw new BadRequestError("You have provided an invalid email.")
+
         const checkIfUserExistsByEmail = await userRepository.findOne({
             where: { email: requestingDataBody.email }
         })
         if (checkIfUserExistsByEmail) throw new ConflictError("This email is already in use.")
 
-        if (!isEmailValid(requestingDataBody.email)) throw new BadRequestError("You have provided an invalid email.")
         if (!isPasswordStrong(requestingDataBody.password))
             throw new BadRequestError(
                 "Your password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number and one special character."
@@ -55,16 +60,21 @@ export class UserService {
         if (firstName) requestingUser.firstName = firstName
         if (lastName) requestingUser.lastName = lastName
         if (username) {
-            const checkIfUserExistsByUsername = await userRepository.findOneBy({ username })
+            if (!isUsernameValid(username))
+                throw new BadRequestError(
+                    "Your username must be between 4 and 12 characters long, and can only contain letters and numbers."
+                )
 
+            const checkIfUserExistsByUsername = await userRepository.findOneBy({ username })
             if (checkIfUserExistsByUsername) throw new ConflictError("An user with this username already exists.")
+
             requestingUser.username = username
         }
         if (email) {
+            if (!isEmailValid(email)) throw new BadRequestError("You have provided an invalid email.")
+
             const checkIfUserExistsByEmail = await userRepository.findOneBy({ email })
             if (checkIfUserExistsByEmail) throw new ConflictError("This email is already in use.")
-
-            if (!isEmailValid(email)) throw new BadRequestError("You have provided an invalid email.")
 
             requestingUser.email = email
         }
