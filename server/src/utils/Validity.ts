@@ -3,7 +3,7 @@ import { TaskPriority } from "../entities/task/PriorityEnum"
 import { TaskStatus } from "../entities/task/StatusEnum"
 
 export const isUsernameValid = (username: string): boolean => {
-    const regex = /^(?=.{4,12}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/
+    const regex = /^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/
     return regex.test(username)
 }
 

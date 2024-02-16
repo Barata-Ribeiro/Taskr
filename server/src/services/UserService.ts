@@ -13,7 +13,7 @@ export class UserService {
 
         if (!isUsernameValid(requestingDataBody.username))
             throw new BadRequestError(
-                "Your username must be between 4 and 12 characters long, and can only contain letters and numbers."
+                "Your username must be between 4 and 20 characters long, and can only contain letters and numbers."
             )
 
         const checkIfUserExistsByUsername = await userRepository.findOne({
