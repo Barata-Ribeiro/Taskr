@@ -9,7 +9,7 @@ const taskController = new TaskController()
 
 routes.post("/", authMiddleware, (req, res, next) => taskController.createNewTask(req, res).catch(next))
 
-routes.get("/", authMiddleware, (req, res, next) => taskController.getAllTasks(req, res).catch(next))
+routes.get("/:projectId", authMiddleware, (req, res, next) => taskController.getAllTasks(req, res).catch(next))
 
 routes.get("/:taskId", authMiddleware, (req, res, next) => taskController.getTaskById(req, res).catch(next))
 
