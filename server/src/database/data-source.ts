@@ -12,10 +12,9 @@ const dataSourceOptions: DataSourceOptions & SeederOptions = {
     migrationsRun: true,
     ssl: true,
     extra: {
-        max: 4,
-        iddleTimeoutMillis: 1000,
-        connectionTimeoutMillis: 1000,
-        maxUses: 7500
+        max: 100,
+        iddleTimeoutMillis: 5000,
+        connectionTimeoutMillis: 5000
     },
     entities: [
         path.join(__dirname, "..", "entities", "**", "*.{ts,js}"),
