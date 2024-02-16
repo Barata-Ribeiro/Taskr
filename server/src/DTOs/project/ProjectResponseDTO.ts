@@ -13,6 +13,7 @@ export class ProjectResponseDTO {
 
     static async fromEntity(project: Project, withProjectMembers?: boolean): Promise<ProjectResponseDTO> {
         const dto = new ProjectResponseDTO()
+
         dto.id = project.id
         dto.name = project.name
         dto.description = project.description

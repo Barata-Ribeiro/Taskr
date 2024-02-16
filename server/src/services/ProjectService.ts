@@ -43,10 +43,15 @@ export class ProjectService {
         const user = await userRepository.findOneBy({ id: userId })
         if (!user) throw new NotFoundError("User not found.")
 
-        const project = await projectRepository.findOne({
-            where: { id: projectId },
-            relations: ["team"]
-        })
+        let project
+
+        if (withProjectMembers)
+            project = await projectRepository.findOne({
+                where: { id: projectId },
+                relations: ["team", "creator", "members"]
+            })
+        else project = await projectRepository.findOne({ where: { id: projectId }, relations: ["team", "creator"] })
+
         if (!project) throw new NotFoundError("Project not found.")
 
         const teamMembers = await project.team.members
