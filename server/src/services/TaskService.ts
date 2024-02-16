@@ -1,3 +1,4 @@
+import { TaskResponseDTO } from "../DTOs/task/TaskResponseDTO"
 import { RequestingTaskDataBody } from "../interfaces/TaskInterface"
 import { BadRequestError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { projectRepository } from "../repositories/ProjectRepository"
@@ -56,5 +57,33 @@ export class TaskService {
             console.error("Error saving team:", error)
             throw new InternalServerError("An error occurred while creating the task.")
         }
+    }
+
+    async getAllTasks(userId: string, projectId: string) {
+        const requestingUser = await userRepository.findOneBy({ id: userId })
+        if (!requestingUser) throw new NotFoundError("User not found.")
+
+        const project = await projectRepository.findOne({
+            where: { id: projectId },
+            relations: ["members", "tasks"]
+        })
+        if (!project) throw new NotFoundError("Project not found.")
+
+        const resolvedMembers = await project.members
+        const isUserInProject = resolvedMembers.some((member) => member.id === requestingUser.id)
+        if (!isUserInProject) throw new BadRequestError("You cannot get tasks from a project you are not a member of.")
+
+        const tasks = await project.tasks
+        const tasksToDTO = await Promise.all(tasks.map(async (task) => TaskResponseDTO.fromEntity(task, false)))
+
+        const tasksObject = {
+            tasks_count: tasks.length,
+            tasks_planned: tasksToDTO.filter((task) => task.status === "PLANNED"),
+            tasks_in_progress: tasksToDTO.filter((task) => task.status === "IN_PROGRESS"),
+            tasks_testing: tasksToDTO.filter((task) => task.status === "TESTING"),
+            tasks_done: tasksToDTO.filter((task) => task.status === "DONE")
+        }
+
+        return tasksObject
     }
 }
