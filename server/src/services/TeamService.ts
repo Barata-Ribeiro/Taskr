@@ -9,10 +9,13 @@ import {
     UnauthorizedError
 } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
+import { checkIfBodyExists } from "../utils/Checker"
 import { teamRepository } from "./../repositories/TeamRepository"
 
 export class TeamService {
     async createNewTeam(id: string, requestingDataBody: RequestingTeamDataBody): Promise<TeamResponseDTO> {
+        checkIfBodyExists(requestingDataBody, ["name", "description"])
+
         const user = await userRepository.findOne({
             where: { id },
             relations: ["teams"]

@@ -3,9 +3,11 @@ import { JsonWebTokenError, JwtPayload, TokenExpiredError, sign, verify } from "
 import { validate } from "uuid"
 import { BadRequestError, NotFoundError, UnauthorizedError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
+import { checkIfBodyExists } from "../utils/Checker"
 
 export class AuthService {
     async login(loginDataBody: LoginDataBody): Promise<LoginResponse> {
+        checkIfBodyExists(loginDataBody, ["username", "password"])
         const { username, password } = loginDataBody
 
         const user = await userRepository.findOneBy({ username })

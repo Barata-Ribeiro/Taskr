@@ -109,10 +109,12 @@ export class UserController {
     }
 
     async deleteOwnAccount(req: Request, res: Response) {
+        console.log("Deleting account...")
         const requestingUser = req.user.data
         if (!requestingUser?.id) throw new BadRequestError("You must be logged in to delete your account.")
         if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
 
+        console.log("Before entering the service...")
         await userService.deleteOwnAccount(requestingUser?.id)
 
         return res.status(200).json({

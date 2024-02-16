@@ -5,13 +5,11 @@ import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } f
 import { projectRepository } from "../repositories/ProjectRepository"
 import { teamRepository } from "../repositories/TeamRepository"
 import { userRepository } from "../repositories/UserRepository"
+import { checkIfBodyExists } from "../utils/Checker"
 
 export class ProjectService {
     async createNewProject(userId: string, requestingDataBody: RequestingProjectDataBody): Promise<ProjectResponseDTO> {
-        if (!requestingDataBody.name) throw new BadRequestError("You must provide a name for the project.")
-        if (!requestingDataBody.description)
-            throw new BadRequestError("You must provide a description for the project.")
-        if (!requestingDataBody.teamId) throw new BadRequestError("You must specify the team the project belongs to.")
+        checkIfBodyExists(requestingDataBody, ["name", "description", "teamId"])
 
         const user = await userRepository.findOneBy({ id: userId })
         if (!user) throw new NotFoundError("User not found.")

@@ -4,15 +4,12 @@ import { projectRepository } from "../repositories/ProjectRepository"
 import { tagRepository } from "../repositories/TagRepository"
 import { taskRepository } from "../repositories/TaskRepository"
 import { userRepository } from "../repositories/UserRepository"
+import { checkIfBodyExists } from "../utils/Checker"
 import { isTaskPriority, isTaskStatus } from "../utils/Validity"
 
 export class TaskService {
     async createNewTask(userId: string, requestingDataBody: RequestingTaskDataBody) {
-        if (!requestingDataBody.title) throw new BadRequestError("You must provide a title for the task.")
-        if (!requestingDataBody.description) throw new BadRequestError("You must provide a description for the task.")
-        if (!requestingDataBody.projectId)
-            throw new BadRequestError("You must specify the project the task belongs to.")
-        if (!requestingDataBody.dueDate) throw new BadRequestError("You must specify the due date for the task.")
+        checkIfBodyExists(requestingDataBody, ["title", "description", "projectId", "dueDate"])
 
         const requestingUser = await userRepository.findOneBy({ id: userId })
         if (!requestingUser) throw new NotFoundError("User not found.")

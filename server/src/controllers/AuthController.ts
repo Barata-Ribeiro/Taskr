@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { BadRequestError } from "../middlewares/helpers/ApiErrors"
 import { AuthService } from "../services/AuthService"
+import { checkIfBodyExists } from "../utils/Checker"
 
 const authService = new AuthService()
 
@@ -8,8 +9,6 @@ export class AuthController {
     async login(req: Request, res: Response) {
         const loginDataBody = req.body as LoginDataBody
         if (!loginDataBody) throw new BadRequestError("You must provide your username and password.")
-        if (!loginDataBody.username) throw new BadRequestError("You must provide your username.")
-        if (!loginDataBody.password) throw new BadRequestError("You must provide your password.")
 
         const response = await authService.login(loginDataBody)
 

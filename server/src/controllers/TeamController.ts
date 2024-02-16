@@ -12,6 +12,7 @@ const teamService = new TeamService()
 export class TeamController {
     async createNewTeam(req: Request, res: Response) {
         const requestingDataBody = req.body as RequestingTeamDataBody
+        if (!requestingDataBody) throw new BadRequestError("You must provide the team name and description.")
 
         const requestingUser = req.user
         if (!requestingUser?.data?.id) throw new BadRequestError("You must be logged in to update your account.")
