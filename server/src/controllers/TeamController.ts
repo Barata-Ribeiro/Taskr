@@ -67,12 +67,12 @@ export class TeamController {
         else if (withProjects && !withMembers)
             team = await teamRepository.findOne({
                 where: { id: teamId },
-                relations: ["founder", "projects"]
+                relations: ["founder", "projects", "projects.creator", "projects.team"]
             })
         else if (withMembers && withProjects)
             team = await teamRepository.findOne({
                 where: { id: teamId },
-                relations: ["founder", "members", "projects"]
+                relations: ["founder", "members", "projects", "projects.creator", "projects.team"]
             })
         else team = await teamRepository.findOne({ where: { id: teamId }, relations: ["founder"] })
 

@@ -30,7 +30,7 @@ export class TeamResponseDTO {
         if (withProjects) {
             const projects = await team.projects
             if (projects) {
-                const projectDTOs = projects.map((project) => ProjectResponseDTO.fromEntity(project))
+                const projectDTOs = projects.map(async (project) => await ProjectResponseDTO.fromEntity(project, false))
                 dto.projects = await Promise.all(projectDTOs)
             } else dto.projects = []
         }
