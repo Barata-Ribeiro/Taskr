@@ -1,7 +1,6 @@
 import { Request, Response } from "express"
 import { BadRequestError } from "../middlewares/helpers/ApiErrors"
 import { AuthService } from "../services/AuthService"
-import { checkIfBodyExists } from "../utils/Checker"
 
 const authService = new AuthService()
 
@@ -12,22 +11,21 @@ export class AuthController {
 
         const response = await authService.login(loginDataBody)
 
-        // If rememberMe === true then set the expiration to 30 days, otherwise set it to 1 day
-        const REMEMBER_ME_EXPIRATION = loginDataBody.rememberMe ? 30 * 24 * 60 * 60 * 1000 : 1 * 24 * 60 * 60 * 1000
+        const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
+        const ONE_DAY = 1 * 24 * 60 * 60 * 1000
+        const EXPIRATION_DATE = loginDataBody.rememberMe ? THIRTY_DAYS : ONE_DAY
 
         res.cookie("refresh_token", response.refreshToken, {
             httpOnly: true,
             secure: true,
             sameSite: "lax",
-            maxAge: REMEMBER_ME_EXPIRATION
+            maxAge: EXPIRATION_DATE
         })
 
         res.status(200).json({
             status: "success",
             message: "You have successfully logged in.",
-            data: {
-                accessToken: response.accessToken
-            }
+            data: { accessToken: response.accessToken }
         })
     }
 
@@ -40,9 +38,7 @@ export class AuthController {
         res.status(200).json({
             status: "success",
             message: "Your access token has been successfully refreshed.",
-            data: {
-                accessToken: response
-            }
+            data: { accessToken: response }
         })
     }
 

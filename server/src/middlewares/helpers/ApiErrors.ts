@@ -2,9 +2,6 @@
  * Represents an API error with a specific status code.
  */
 export class ApiError extends Error {
-    /**
-     * The HTTP status code associated with the error.
-     */
     public readonly status: number
 
     /**
@@ -24,10 +21,6 @@ export class ApiError extends Error {
  * Extends the base class ApiError.
  */
 export class BadRequestError extends ApiError {
-    /**
-     * Creates a new instance of the BadRequestError class.
-     * @param message The error message.
-     */
     constructor(message: string) {
         super(message, 400)
     }
@@ -39,10 +32,6 @@ export class BadRequestError extends ApiError {
  * Extends the base class ApiError.
  */
 export class UnauthorizedError extends ApiError {
-    /**
-     * Creates a new instance of UnauthorizedError.
-     * @param message - The error message.
-     */
     constructor(message: string) {
         super(message, 401)
     }
@@ -54,10 +43,6 @@ export class UnauthorizedError extends ApiError {
  * Extends the base class ApiError.
  */
 export class ForbiddenError extends ApiError {
-    /**
-     * Creates a new instance of the ForbiddenError class.
-     * @param message The error message.
-     */
     constructor(message: string) {
         super(message, 403)
     }
@@ -68,10 +53,6 @@ export class ForbiddenError extends ApiError {
  * Extends the base class ApiError.
  */
 export class NotFoundError extends ApiError {
-    /**
-     * Creates a new instance of NotFoundError.
-     * @param message - The error message.
-     */
     constructor(message: string) {
         super(message, 404)
     }
@@ -82,10 +63,6 @@ export class NotFoundError extends ApiError {
  * Extends the base class ApiError.
  */
 export class MethodNotAllowedError extends ApiError {
-    /**
-     * Creates a new instance of MethodNotAllowedError.
-     * @param message The error message.
-     */
     constructor(message: string) {
         super(message, 405)
     }
@@ -97,10 +74,6 @@ export class MethodNotAllowedError extends ApiError {
  * This error is thrown when there is a conflict with the current state of the resource.
  */
 export class ConflictError extends ApiError {
-    /**
-     * Creates a new instance of the ConflictError class.
-     * @param message The error message.
-     */
     constructor(message: string) {
         super(message, 409)
     }
@@ -111,10 +84,6 @@ export class ConflictError extends ApiError {
  * Extends the base class ApiError.
  */
 export class UnsupportedMediaTypeError extends ApiError {
-    /**
-     * Creates a new instance of UnsupportedMediaTypeError.
-     * @param message The error message.
-     */
     constructor(message: string) {
         super(message, 415)
     }
@@ -126,10 +95,6 @@ export class UnsupportedMediaTypeError extends ApiError {
  * Inherits from the base ApiError class.
  */
 export class InternalServerError extends ApiError {
-    /**
-     * Creates a new instance of InternalServerError.
-     * @param message The error message.
-     */
     constructor(message: string) {
         super(message, 500)
     }
@@ -140,10 +105,6 @@ export class InternalServerError extends ApiError {
  * Extends the base class ApiError.
  */
 export class NotImplemented extends ApiError {
-    /**
-     * Creates a new instance of the NotImplemented class.
-     * @param message The error message.
-     */
     constructor(message: string) {
         super(message, 501)
     }
@@ -155,10 +116,6 @@ export class NotImplemented extends ApiError {
  * Extends the base ApiError class.
  */
 export default class BadGatewayError extends ApiError {
-    /**
-     * Creates a new instance of BadGatewayError.
-     * @param message - The error message.
-     */
     constructor(message: string) {
         super(message, 502)
     }
@@ -169,10 +126,6 @@ export default class BadGatewayError extends ApiError {
  * This error occurs when a service is temporarily unavailable.
  */
 export class ServiceUnavailableError extends ApiError {
-    /**
-     * Creates a new instance of ServiceUnavailableError.
-     * @param message - The error message.
-     */
     constructor(message: string) {
         super(message, 503)
     }
@@ -184,10 +137,6 @@ export class ServiceUnavailableError extends ApiError {
  * Extends the base ApiError class.
  */
 export class GatewayTimeoutError extends ApiError {
-    /**
-     * Creates a new instance of GatewayTimeoutError.
-     * @param message The error message.
-     */
     constructor(message: string) {
         super(message, 504)
     }
