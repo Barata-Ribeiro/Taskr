@@ -1,9 +1,9 @@
 import { compare } from "bcrypt"
-import { JsonWebTokenError, JwtPayload, TokenExpiredError, sign, verify } from "jsonwebtoken"
-import { validate } from "uuid"
-import { BadRequestError, NotFoundError, UnauthorizedError } from "../middlewares/helpers/ApiErrors"
+import { sign } from "jsonwebtoken"
+import { NotFoundError, UnauthorizedError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
 import { checkIfBodyExists } from "../utils/Checker"
+import { attemptToGetUserIdFromToken } from "../utils/Operations"
 
 export class AuthService {
     async login(loginDataBody: LoginDataBody): Promise<LoginResponse> {
@@ -39,17 +39,7 @@ export class AuthService {
             )
 
         let id = ""
-
-        try {
-            const payload = verify(refreshToken, secretKey) as JwtPayload
-            id = payload.id
-
-            if (!id) throw new NotFoundError("Id not found in token.")
-            if (!validate(id)) throw new BadRequestError("Invalid user ID.")
-        } catch (error) {
-            if (error instanceof TokenExpiredError) throw new UnauthorizedError("Your token has expired.")
-            else if (error instanceof JsonWebTokenError) throw new UnauthorizedError("Invalid token.")
-        }
+        id = attemptToGetUserIdFromToken(refreshToken, secretKey, id)
 
         const user = await userRepository.findOneBy({ id })
         if (!user) throw new NotFoundError("User not found.")
