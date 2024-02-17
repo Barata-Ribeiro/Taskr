@@ -5,14 +5,18 @@ import { BadRequestError, NotFoundError } from "../middlewares/helpers/ApiErrors
 import { userRepository } from "../repositories/UserRepository"
 import { UserService } from "../services/UserService"
 
-const userService = new UserService()
-
 export class UserController {
+    private userService: UserService
+
+    constructor() {
+        this.userService = new UserService()
+    }
+
     async createNewUser(req: Request, res: Response) {
         const requestingDataBody = req.body as RequestingUserDataBody
         if (!requestingDataBody) throw new BadRequestError("You cannot register without providing your details.")
 
-        const response = await userService.createNewUser(requestingDataBody)
+        const response = await this.userService.createNewUser(requestingDataBody)
 
         return res.status(201).json({
             status: "success",
@@ -99,7 +103,7 @@ export class UserController {
         if (!requestingUser?.id) throw new BadRequestError("You must be logged in to update your account.")
         if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
 
-        const response = await userService.updateOwnAccount(requestingUser?.id, bodyDataWithNewUserInfo)
+        const response = await this.userService.updateOwnAccount(requestingUser?.id, bodyDataWithNewUserInfo)
 
         return res.status(200).json({
             status: "success",
@@ -115,7 +119,7 @@ export class UserController {
         if (!validate(requestingUser?.id)) throw new BadRequestError("Invalid user ID.")
 
         console.log("Before entering the service...")
-        await userService.deleteOwnAccount(requestingUser?.id)
+        await this.userService.deleteOwnAccount(requestingUser?.id)
 
         return res.status(200).json({
             status: "success",

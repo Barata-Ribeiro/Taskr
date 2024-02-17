@@ -4,9 +4,13 @@ import { RequestingTaskDataBody } from "../interfaces/TaskInterface"
 import { BadRequestError } from "../middlewares/helpers/ApiErrors"
 import { TaskService } from "../services/TaskService"
 
-const taskService = new TaskService()
-
 export class TaskController {
+    private taskService: TaskService
+
+    constructor() {
+        this.taskService = new TaskService()
+    }
+
     async createNewTask(req: Request, res: Response) {
         const requestingUser = req.user
         if (!requestingUser?.data?.id) throw new BadRequestError("You must be logged in to update your account.")
@@ -15,7 +19,7 @@ export class TaskController {
         const requestingDataBody = req.body as RequestingTaskDataBody
         if (!requestingDataBody) throw new BadRequestError("You cannot create a task without providing the details.")
 
-        const response = await taskService.createNewTask(requestingUser.data.id, requestingDataBody)
+        const response = await this.taskService.createNewTask(requestingUser.data.id, requestingDataBody)
 
         return res.status(201).json({
             status: "success",
@@ -32,7 +36,7 @@ export class TaskController {
         const { projectId } = req.params
         if (!projectId) throw new BadRequestError("You must provide a project ID to retrieve tasks.")
 
-        const response = await taskService.getAllTasks(requestingUser.data.id, projectId)
+        const response = await this.taskService.getAllTasks(requestingUser.data.id, projectId)
 
         return res.status(200).json({
             status: "success",

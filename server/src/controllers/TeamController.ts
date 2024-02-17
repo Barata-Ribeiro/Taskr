@@ -7,9 +7,13 @@ import { BadRequestError } from "../middlewares/helpers/ApiErrors"
 import { teamRepository } from "../repositories/TeamRepository"
 import { TeamService } from "../services/TeamService"
 
-const teamService = new TeamService()
-
 export class TeamController {
+    private teamService: TeamService
+
+    constructor() {
+        this.teamService = new TeamService()
+    }
+
     async createNewTeam(req: Request, res: Response) {
         const requestingDataBody = req.body as RequestingTeamDataBody
         if (!requestingDataBody) throw new BadRequestError("You must provide the team name and description.")
@@ -20,7 +24,7 @@ export class TeamController {
 
         if (requestingUser.is_in_team) throw new BadRequestError("You are already in a team.")
 
-        const response = await teamService.createNewTeam(requestingUser?.data.id, requestingDataBody)
+        const response = await this.teamService.createNewTeam(requestingUser?.data.id, requestingDataBody)
 
         return res.status(201).json({
             status: "success",
@@ -165,7 +169,7 @@ export class TeamController {
         if (!requestingDataBody)
             throw new BadRequestError("You cannot update your team without providing at least one field to update.")
 
-        const response = await teamService.updateTeamById(teamId, requestingUser?.id, requestingDataBody)
+        const response = await this.teamService.updateTeamById(teamId, requestingUser?.id, requestingDataBody)
 
         return res.status(200).json({
             status: "success",
@@ -183,7 +187,7 @@ export class TeamController {
         if (!teamId) throw new BadRequestError("Team Id is required.")
         if (!validate(teamId)) throw new BadRequestError("Invalid team ID.")
 
-        await teamService.deleteTeamById(teamId, requestingUser?.id)
+        await this.teamService.deleteTeamById(teamId, requestingUser?.id)
 
         return res.status(200).json({
             status: "success",

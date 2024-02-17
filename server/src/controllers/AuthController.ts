@@ -2,14 +2,18 @@ import { Request, Response } from "express"
 import { BadRequestError } from "../middlewares/helpers/ApiErrors"
 import { AuthService } from "../services/AuthService"
 
-const authService = new AuthService()
-
 export class AuthController {
+    private authService: AuthService
+
+    constructor() {
+        this.authService = new AuthService()
+    }
+
     async login(req: Request, res: Response) {
         const loginDataBody = req.body as LoginDataBody
         if (!loginDataBody) throw new BadRequestError("You must provide your username and password.")
 
-        const response = await authService.login(loginDataBody)
+        const response = await this.authService.login(loginDataBody)
 
         const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
         const ONE_DAY = 1 * 24 * 60 * 60 * 1000
@@ -33,7 +37,7 @@ export class AuthController {
         const refreshToken = req.headers["x-refresh-token"] as string
         if (!refreshToken) throw new BadRequestError("You must provide a refresh token.")
 
-        const response = await authService.refreshToken(refreshToken)
+        const response = await this.authService.refreshToken(refreshToken)
 
         res.status(200).json({
             status: "success",
