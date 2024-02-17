@@ -10,6 +10,7 @@ import {
 } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
 import { checkIfBodyExists } from "../utils/Checker"
+import { saveEntityToDatabase } from "../utils/Operations"
 import { teamRepository } from "./../repositories/TeamRepository"
 
 export class TeamService {
@@ -33,14 +34,9 @@ export class TeamService {
 
         team.members = Promise.resolve([user])
 
-        try {
-            await teamRepository.save(team)
-        } catch (error) {
-            console.error("Error saving team:", error)
-            throw new InternalServerError("An error occurred while creating the team.")
-        }
+        const savedNewTeam = await saveEntityToDatabase(teamRepository, team)
 
-        return TeamResponseDTO.fromEntity(team)
+        return TeamResponseDTO.fromEntity(savedNewTeam)
     }
 
     async updateTeamById(
@@ -91,14 +87,9 @@ export class TeamService {
             team.members = Promise.resolve([...(await currentMembers), ...membersToAdd])
         }
 
-        try {
-            await teamRepository.save(team)
-        } catch (error) {
-            console.error("Error saving team:", error)
-            throw new InternalServerError("An error occurred while updating the team.")
-        }
+        const savedEditedTeam = await saveEntityToDatabase(teamRepository, team)
 
-        return TeamResponseDTO.fromEntity(team, wereUsersAdded ? true : false, false)
+        return TeamResponseDTO.fromEntity(savedEditedTeam, wereUsersAdded ? true : false, false)
     }
 
     async deleteTeamById(teamId: string, requestingUserId: string): Promise<void> {

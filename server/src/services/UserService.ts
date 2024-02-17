@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt"
-import { QueryFailedError } from "typeorm"
 import { UserResponseDTO } from "../DTOs/user/UserResponseDTO"
 import { AppDataSource } from "../database/data-source"
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { userRepository } from "../repositories/UserRepository"
 import { checkIfBodyExists } from "../utils/Checker"
+import { saveEntityToDatabase } from "../utils/Operations"
 import { isEmailValid, isPasswordStrong, isUsernameValid } from "../utils/Validity"
 
 export class UserService {
@@ -40,15 +40,9 @@ export class UserService {
             password: hashedPassword
         })
 
-        try {
-            await userRepository.save(newUser)
-        } catch (error) {
-            if (error instanceof QueryFailedError) throw new ConflictError("Duplicate field value entered.")
+        const savedNewUser = await saveEntityToDatabase(userRepository, newUser)
 
-            throw new InternalServerError("Internal server error")
-        }
-
-        return UserResponseDTO.fromEntity(newUser)
+        return UserResponseDTO.fromEntity(savedNewUser)
     }
 
     async updateOwnAccount(id: string, bodyDataWithNewUserInfo: RequestingUserEditDataBody): Promise<UserResponseDTO> {
@@ -90,15 +84,9 @@ export class UserService {
         }
         if (avatarUrl) requestingUser.avatarUrl = avatarUrl
 
-        try {
-            await userRepository.save(requestingUser)
-        } catch (error) {
-            if (error instanceof QueryFailedError) throw new ConflictError("Duplicate field value entered.")
+        const savedEditedUser = await saveEntityToDatabase(userRepository, requestingUser)
 
-            throw new InternalServerError("Internal server error")
-        }
-
-        return UserResponseDTO.fromEntity(requestingUser)
+        return UserResponseDTO.fromEntity(savedEditedUser)
     }
 
     async deleteOwnAccount(id: string): Promise<void> {

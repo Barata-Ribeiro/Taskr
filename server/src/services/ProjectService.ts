@@ -6,6 +6,7 @@ import { projectRepository } from "../repositories/ProjectRepository"
 import { teamRepository } from "../repositories/TeamRepository"
 import { userRepository } from "../repositories/UserRepository"
 import { checkIfBodyExists } from "../utils/Checker"
+import { saveEntityToDatabase } from "../utils/Operations"
 
 export class ProjectService {
     async createNewProject(userId: string, requestingDataBody: RequestingProjectDataBody): Promise<ProjectResponseDTO> {
@@ -29,14 +30,9 @@ export class ProjectService {
 
         newProject.members = Promise.resolve([user])
 
-        try {
-            await projectRepository.save(newProject)
-        } catch (error) {
-            console.error("Error saving project:", error)
-            throw new InternalServerError("An error occurred while creating the project.")
-        }
+        const savedNewProject = await saveEntityToDatabase(projectRepository, newProject)
 
-        return ProjectResponseDTO.fromEntity(newProject)
+        return ProjectResponseDTO.fromEntity(savedNewProject)
     }
 
     async getProjectById(withProjectMembers: boolean, projectId: string, userId: string): Promise<ProjectResponseDTO> {
@@ -104,14 +100,9 @@ export class ProjectService {
             project.members = Promise.resolve([...currentMembers, ...membersToAdd])
         }
 
-        try {
-            await projectRepository.save(project)
-        } catch (error) {
-            console.error("Error saving project:", error)
-            throw new InternalServerError("An error occurred while updating the project.")
-        }
+        const savedEditedProject = await saveEntityToDatabase(projectRepository, project)
 
-        return ProjectResponseDTO.fromEntity(project, wereUsersAdded ? true : false)
+        return ProjectResponseDTO.fromEntity(savedEditedProject, wereUsersAdded ? true : false)
     }
 
     async deleteProjectById(userId: string, projectId: string): Promise<void> {
