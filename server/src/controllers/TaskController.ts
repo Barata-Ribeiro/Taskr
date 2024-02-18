@@ -49,6 +49,20 @@ export class TaskController {
         const requestingUser = req.user
         if (!requestingUser?.data?.id) throw new BadRequestError("You must be logged in to update your account.")
         if (!validate(requestingUser?.data.id)) throw new BadRequestError("Invalid user ID.")
+
+        const { projectId } = req.params
+        if (!projectId) throw new BadRequestError("You must provide a project ID to retrieve tasks.")
+
+        const { taskId } = req.params
+        if (!taskId) throw new BadRequestError("You must provide a task ID to retrieve a task.")
+
+        const response = await this.taskService.getTaskById(requestingUser.data.id, projectId, taskId)
+
+        return res.status(200).json({
+            status: "success",
+            message: "Task retrieved successfully.",
+            data: response
+        })
     }
 
     async updateTaskById(req: Request, res: Response) {

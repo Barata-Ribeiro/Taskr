@@ -1,11 +1,12 @@
 import { TaskResponseDTO } from "../DTOs/task/TaskResponseDTO"
 import { RequestingTaskDataBody } from "../interfaces/TaskInterface"
-import { BadRequestError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
+import { BadRequestError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { projectRepository } from "../repositories/ProjectRepository"
 import { tagRepository } from "../repositories/TagRepository"
 import { taskRepository } from "../repositories/TaskRepository"
 import { userRepository } from "../repositories/UserRepository"
 import { checkIfBodyExists } from "../utils/Checker"
+import { saveEntityToDatabase } from "../utils/Operations"
 import { isTaskPriority, isTaskStatus } from "../utils/Validity"
 
 export class TaskService {
@@ -51,12 +52,9 @@ export class TaskService {
             newTask.tags = Promise.resolve(tags)
         }
 
-        try {
-            await taskRepository.save(newTask)
-        } catch (error) {
-            console.error("Error saving team:", error)
-            throw new InternalServerError("An error occurred while creating the task.")
-        }
+        const savedTask = await saveEntityToDatabase(taskRepository, newTask)
+
+        return TaskResponseDTO.fromEntity(savedTask, false)
     }
 
     async getAllTasks(userId: string, projectId: string) {
@@ -85,5 +83,38 @@ export class TaskService {
         }
 
         return tasksObject
+    }
+
+    async getTaskById(userId: string, projectId: string, taskId: string) {
+        const isUserInProject =
+            (await projectRepository
+                .createQueryBuilder("project")
+                .innerJoin("project.members", "member", "member.id = :userId", { userId })
+                .where("project.id = :projectId", { projectId })
+                .getCount()) > 0
+        if (!isUserInProject) throw new BadRequestError("You cannot get a task from a project you are not a member of.")
+        
+        const task = await taskRepository
+            .createQueryBuilder("task")
+            .leftJoinAndSelect("task.comments", "comment")
+            .leftJoinAndSelect("task.tags", "tag")
+            .leftJoinAndSelect("task.assignees", "assignee")
+            .orderBy("comment.createdAt", "DESC")
+            .orderBy("tag.name", "ASC")
+            .where("task.project.id = :projectId", { projectId })
+            .andWhere("task.id = :taskId", { taskId })
+            .getOne()
+        if (!task) throw new NotFoundError("Task not found.")
+
+        const taskToDTO = await TaskResponseDTO.fromEntity(task, true)
+
+        const taskObject = {
+            task: taskToDTO,
+            assignees_count: taskToDTO?.assignees?.length,
+            comments_count: taskToDTO?.comments?.length,
+            tags_count: taskToDTO?.tags?.length
+        }
+
+        return taskObject
     }
 }

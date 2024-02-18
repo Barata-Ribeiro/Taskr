@@ -11,12 +11,14 @@ routes.post("/", authMiddleware, (req, res, next) => taskController.createNewTas
 
 routes.get("/:projectId", authMiddleware, (req, res, next) => taskController.getAllTasks(req, res).catch(next))
 
-routes.get("/:taskId", authMiddleware, (req, res, next) => taskController.getTaskById(req, res).catch(next))
+routes.get("/:projectId/:taskId", authMiddleware, (req, res, next) => taskController.getTaskById(req, res).catch(next))
 
-// routes.use("/:taskId/comments", authMiddleware, commentRoutes)
+// routes.use("/:projectId/:taskId/comments", authMiddleware, commentRoutes)
 
 routes.put("/:taskId", authMiddleware, (req, res, next) => taskController.updateTaskById(req, res).catch(next))
 
-routes.delete("/:taskId", authMiddleware, (req, res, next) => taskController.deleteTaskById(req, res).catch(next))
+routes.delete("/:projectId/:taskId", authMiddleware, (req, res, next) =>
+    taskController.deleteTaskById(req, res).catch(next)
+)
 
 export default routes
