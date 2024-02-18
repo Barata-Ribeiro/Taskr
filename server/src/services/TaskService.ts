@@ -1,4 +1,5 @@
 import { TaskResponseDTO } from "../DTOs/task/TaskResponseDTO"
+import { TaskStatus } from "../entities/task/StatusEnum"
 import { RequestingTaskDataBody } from "../interfaces/TaskInterface"
 import { BadRequestError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { projectRepository } from "../repositories/ProjectRepository"
@@ -58,28 +59,32 @@ export class TaskService {
     }
 
     async getAllTasks(userId: string, projectId: string) {
-        const requestingUser = await userRepository.findOneBy({ id: userId })
-        if (!requestingUser) throw new NotFoundError("User not found.")
+        const isUserInProject =
+            (await projectRepository
+                .createQueryBuilder("project")
+                .innerJoin("project.members", "member", "member.id = :userId", { userId })
+                .where("project.id = :projectId", { projectId })
+                .getCount()) > 0
 
-        const project = await projectRepository.findOne({
-            where: { id: projectId },
-            relations: ["members", "tasks"]
-        })
-        if (!project) throw new NotFoundError("Project not found.")
-
-        const resolvedMembers = await project.members
-        const isUserInProject = resolvedMembers.some((member) => member.id === requestingUser.id)
         if (!isUserInProject) throw new BadRequestError("You cannot get tasks from a project you are not a member of.")
 
-        const tasks = await project.tasks
+        const tasks = await taskRepository
+            .createQueryBuilder("task")
+            .leftJoinAndSelect("task.tags", "tag")
+            .leftJoinAndSelect("task.assignees", "assignee")
+            .orderBy("task.createdAt", "DESC")
+            .orderBy("tag.name", "ASC")
+            .where("task.project.id = :projectId", { projectId })
+            .getMany()
+
         const tasksToDTO = await Promise.all(tasks.map(async (task) => TaskResponseDTO.fromEntity(task, false)))
 
         const tasksObject = {
-            tasks_count: tasks.length,
-            tasks_planned: tasksToDTO.filter((task) => task.status === "PLANNED"),
-            tasks_in_progress: tasksToDTO.filter((task) => task.status === "IN_PROGRESS"),
-            tasks_testing: tasksToDTO.filter((task) => task.status === "TESTING"),
-            tasks_done: tasksToDTO.filter((task) => task.status === "DONE")
+            tasks_count: tasksToDTO.length,
+            tasks_planned: tasksToDTO.filter((task) => task.status === TaskStatus.PLANNED),
+            tasks_in_progress: tasksToDTO.filter((task) => task.status === TaskStatus.IN_PROGRESS),
+            tasks_testing: tasksToDTO.filter((task) => task.status === TaskStatus.TESTING),
+            tasks_done: tasksToDTO.filter((task) => task.status === TaskStatus.DONE)
         }
 
         return tasksObject
@@ -93,7 +98,7 @@ export class TaskService {
                 .where("project.id = :projectId", { projectId })
                 .getCount()) > 0
         if (!isUserInProject) throw new BadRequestError("You cannot get a task from a project you are not a member of.")
-        
+
         const task = await taskRepository
             .createQueryBuilder("task")
             .leftJoinAndSelect("task.comments", "comment")
