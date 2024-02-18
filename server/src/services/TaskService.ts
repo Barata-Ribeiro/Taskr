@@ -1,7 +1,8 @@
 import { TaskResponseDTO } from "../DTOs/task/TaskResponseDTO"
+import { AppDataSource } from "../database/data-source"
 import { TaskStatus } from "../entities/task/StatusEnum"
 import { RequestingTaskDataBody } from "../interfaces/TaskInterface"
-import { BadRequestError, NotFoundError } from "../middlewares/helpers/ApiErrors"
+import { BadRequestError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { projectRepository } from "../repositories/ProjectRepository"
 import { tagRepository } from "../repositories/TagRepository"
 import { taskRepository } from "../repositories/TaskRepository"
@@ -121,5 +122,32 @@ export class TaskService {
         }
 
         return taskObject
+    }
+
+    async deleteTaskById(userId: string, projectId: string, taskId: string) {
+        await AppDataSource.manager.transaction(async (transactionalEntityManager) => {
+            try {
+                const userIsOwnerOfTask =
+                    (await taskRepository
+                        .createQueryBuilder("task")
+                        .innerJoin("task.creator", "creator", "creator.id = :userId", { userId })
+                        .where("task.id = :taskId", { taskId })
+                        .getCount()) > 0
+                if (!userIsOwnerOfTask) throw new BadRequestError("You cannot delete a task you did not create.")
+
+                const requiredTask = await taskRepository
+                    .createQueryBuilder("task")
+                    .where("task.id = :taskId", { taskId })
+                    .andWhere("task.creator.id = :userId", { userId })
+                    .andWhere("task.project.id = :projectId", { projectId })
+                    .getOne()
+                if (!requiredTask) throw new BadRequestError("Task not found in the requested project.")
+
+                await transactionalEntityManager.remove(requiredTask)
+            } catch (error) {
+                console.error("Transaction failed:", error)
+                throw new InternalServerError("An error occurred during the deletion process.")
+            }
+        })
     }
 }
