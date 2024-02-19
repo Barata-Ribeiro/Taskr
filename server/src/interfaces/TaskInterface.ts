@@ -10,3 +10,13 @@ export interface RequestingTaskDataBody {
     priority?: TaskPriority
     tags?: string[]
 }
+
+export interface RequestingTaskEditDataBody {
+    title?: string
+    description?: string
+    status?: TaskStatus
+    priority?: TaskPriority
+    dueDate?: string
+    tags?: string[]
+    assignees?: string[]
+}

@@ -1,7 +1,7 @@
 import { TaskResponseDTO } from "../DTOs/task/TaskResponseDTO"
 import { AppDataSource } from "../database/data-source"
 import { TaskStatus } from "../entities/task/StatusEnum"
-import { RequestingTaskDataBody } from "../interfaces/TaskInterface"
+import { RequestingTaskDataBody, RequestingTaskEditDataBody } from "../interfaces/TaskInterface"
 import { BadRequestError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { projectRepository } from "../repositories/ProjectRepository"
 import { tagRepository } from "../repositories/TagRepository"
@@ -124,6 +124,70 @@ export class TaskService {
         return taskObject
     }
 
+    async updateTaskById(
+        userId: string,
+        projectId: string,
+        taskId: string,
+        requestingDataBody: RequestingTaskEditDataBody
+    ) {
+        const isUserInProject =
+            (await projectRepository
+                .createQueryBuilder("project")
+                .innerJoin("project.members", "member", "member.id = :userId", { userId })
+                .where("project.id = :projectId", { projectId })
+                .getCount()) > 0
+
+        if (!isUserInProject) {
+            throw new BadRequestError("You cannot update a task in a project you are not a member of.")
+        }
+
+        const taskToEdit = await taskRepository
+            .createQueryBuilder("task")
+            .where("task.id = :taskId", { taskId })
+            .andWhere("task.project.id = :projectId", { projectId })
+            .getOne()
+        if (!taskToEdit) throw new NotFoundError("Task not found in the requested project.")
+
+        if (requestingDataBody.title) taskToEdit.title = requestingDataBody.title
+        if (requestingDataBody.description) taskToEdit.description = requestingDataBody.description
+        if (requestingDataBody.status && isTaskStatus(requestingDataBody.status))
+            taskToEdit.status = requestingDataBody.status
+        if (requestingDataBody.priority && isTaskPriority(requestingDataBody.priority))
+            taskToEdit.priority = requestingDataBody.priority
+        if (requestingDataBody.dueDate) taskToEdit.dueDate = new Date(requestingDataBody.dueDate)
+
+        if (requestingDataBody.tags && requestingDataBody.tags.length > 0) {
+            const tags = await Promise.all(
+                requestingDataBody.tags.map(async (tagName) => {
+                    let tag = await tagRepository.findOneBy({ name: tagName })
+                    if (!tag) {
+                        tag = await tagRepository.create({ name: tagName })
+                        await tagRepository.save(tag)
+                    }
+                    return tag
+                })
+            )
+
+            taskToEdit.tags = Promise.resolve(tags)
+        }
+        if (requestingDataBody.assignees && requestingDataBody.assignees.length > 0) {
+            const assignees = await Promise.all(
+                requestingDataBody.assignees.map(async (assigneeId) => {
+                    const assignee = await userRepository.findOneBy({ id: assigneeId })
+                    if (!assignee) throw new NotFoundError("Assignee of id " + assigneeId + " not found.")
+
+                    return assignee
+                })
+            )
+
+            taskToEdit.assignees = Promise.resolve(assignees)
+        }
+
+        const savedTask = await saveEntityToDatabase(taskRepository, taskToEdit)
+
+        return TaskResponseDTO.fromEntity(savedTask, false)
+    }
+
     async deleteTaskById(userId: string, projectId: string, taskId: string) {
         await AppDataSource.manager.transaction(async (transactionalEntityManager) => {
             try {
@@ -132,13 +196,14 @@ export class TaskService {
                         .createQueryBuilder("task")
                         .innerJoin("task.creator", "creator", "creator.id = :userId", { userId })
                         .where("task.id = :taskId", { taskId })
+                        .andWhere("task.project.id = :projectId", { projectId })
                         .getCount()) > 0
                 if (!userIsOwnerOfTask) throw new BadRequestError("You cannot delete a task you did not create.")
 
                 const requiredTask = await taskRepository
                     .createQueryBuilder("task")
+                    .innerJoin("task.creator", "creator", "creator.id = :userId", { userId })
                     .where("task.id = :taskId", { taskId })
-                    .andWhere("task.creator.id = :userId", { userId })
                     .andWhere("task.project.id = :projectId", { projectId })
                     .getOne()
                 if (!requiredTask) throw new BadRequestError("Task not found in the requested project.")
