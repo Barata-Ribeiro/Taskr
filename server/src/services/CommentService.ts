@@ -1,6 +1,6 @@
 import { CommentResponseDTO } from "../DTOs/task/CommentResponseDTO"
 import { AppDataSource } from "../database/data-source"
-import { InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
+import { BadRequestError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { commentRepository } from "../repositories/CommentRepository"
 import { taskRepository } from "../repositories/TaskRepository"
 import { userRepository } from "../repositories/UserRepository"
@@ -41,6 +41,11 @@ export class CommentService {
         })
         if (!comment) throw new NotFoundError("Comment not found.")
 
+        if (comment.creator.id !== userId) throw new BadRequestError("You are not authorized to update this comment.")
+
+        if (comment.content === content)
+            throw new BadRequestError("You must provide a different content to update the comment.")
+
         comment.content = content
         comment.wasEdited = true
 
@@ -56,6 +61,9 @@ export class CommentService {
                     where: { id: commentId, creator: { id: userId }, task: { id: taskID } }
                 })
                 if (!comment) throw new NotFoundError("Comment not found.")
+
+                if (comment.creator.id !== userId)
+                    throw new BadRequestError("You are not authorized to update this comment.")
 
                 await transactionalEntityManager.remove(comment)
             } catch (error) {
