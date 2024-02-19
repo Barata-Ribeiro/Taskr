@@ -94,11 +94,14 @@ export class CommentController {
         const { taskId } = req.params
         if (!taskId) throw new BadRequestError("You must provide a task ID to post a comment.")
 
-        // await this.commentService.deleteCommentById(requestingUser.data.id, taskId)
+        const { commentId } = req.params
+        if (!commentId) throw new BadRequestError("You must provide a comment ID to retrieve a comment.")
 
-        // return res.status(200).json({
-        //     status: "success",
-        //     message: "Comment deleted successfully."
-        // })
+        await this.commentService.deleteCommentById(requestingUser.data.id, taskId, commentId)
+
+        return res.status(200).json({
+            status: "success",
+            message: "Comment deleted successfully."
+        })
     }
 }

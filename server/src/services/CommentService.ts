@@ -1,5 +1,6 @@
 import { CommentResponseDTO } from "../DTOs/task/CommentResponseDTO"
-import { NotFoundError } from "../middlewares/helpers/ApiErrors"
+import { AppDataSource } from "../database/data-source"
+import { InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { commentRepository } from "../repositories/CommentRepository"
 import { taskRepository } from "../repositories/TaskRepository"
 import { userRepository } from "../repositories/UserRepository"
@@ -46,5 +47,21 @@ export class CommentService {
         const savedComment = await saveEntityToDatabase(commentRepository, comment)
 
         return CommentResponseDTO.fromEntity(savedComment)
+    }
+
+    async deleteCommentById(userId: string, commentId: string, taskID: string) {
+        await AppDataSource.manager.transaction(async (transactionalEntityManager) => {
+            try {
+                const comment = await commentRepository.findOne({
+                    where: { id: commentId, creator: { id: userId }, task: { id: taskID } }
+                })
+                if (!comment) throw new NotFoundError("Comment not found.")
+
+                await transactionalEntityManager.remove(comment)
+            } catch (error) {
+                console.error("Transaction failed:", error)
+                throw new InternalServerError("An error occurred during the deletion process.")
+            }
+        })
     }
 }
