@@ -2,7 +2,7 @@ import { Router } from "express"
 import { TaskController } from "../../controllers/TaskController"
 import authMiddleware from "../../middlewares/AuthMiddleware"
 
-// import commentRoutes from "./v1/router/CommentRoutes"
+import commentRoutes from "./CommentRoutes"
 
 const routes = Router()
 const taskController = new TaskController()
@@ -13,9 +13,11 @@ routes.get("/:projectId", authMiddleware, (req, res, next) => taskController.get
 
 routes.get("/:projectId/:taskId", authMiddleware, (req, res, next) => taskController.getTaskById(req, res).catch(next))
 
-// routes.use("/:projectId/:taskId/comments", authMiddleware, commentRoutes)
+routes.use("/:taskId/comments", authMiddleware, commentRoutes)
 
-routes.put("/:taskId", authMiddleware, (req, res, next) => taskController.updateTaskById(req, res).catch(next))
+routes.put("/:projectId/:taskId", authMiddleware, (req, res, next) =>
+    taskController.updateTaskById(req, res).catch(next)
+)
 
 routes.delete("/:projectId/:taskId", authMiddleware, (req, res, next) =>
     taskController.deleteTaskById(req, res).catch(next)
