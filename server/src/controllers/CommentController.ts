@@ -40,8 +40,11 @@ export class CommentController {
         const { taskId } = req.params
         if (!taskId) throw new BadRequestError("You must provide a task ID to post a comment.")
 
+        const { commentId } = req.params
+        if (!commentId) throw new BadRequestError("You must provide a comment ID to retrieve a comment.")
+
         const comment = await commentRepository.findOne({
-            where: { id: taskId },
+            where: { id: commentId },
             relations: ["creator", "task"]
         })
         if (!comment) throw new NotFoundError("Comment not found.")
@@ -62,6 +65,25 @@ export class CommentController {
 
         const { taskId } = req.params
         if (!taskId) throw new BadRequestError("You must provide a task ID to post a comment.")
+
+        const { commentId } = req.params
+        if (!commentId) throw new BadRequestError("You must provide a comment ID to retrieve a comment.")
+
+        const requestingDataBody = req.body as RequestingCommentEditDataBody
+        if (!requestingDataBody) throw new BadRequestError("You cannot post an empty comment.")
+
+        const response = await this.commentService.updateCommentById(
+            requestingUser.data.id,
+            commentId,
+            taskId,
+            requestingDataBody
+        )
+
+        return res.status(200).json({
+            status: "success",
+            message: "Comment edited successfully.",
+            data: response
+        })
     }
 
     public async deleteCommentById(req: Request, res: Response) {
@@ -71,5 +93,12 @@ export class CommentController {
 
         const { taskId } = req.params
         if (!taskId) throw new BadRequestError("You must provide a task ID to post a comment.")
+
+        // await this.commentService.deleteCommentById(requestingUser.data.id, taskId)
+
+        // return res.status(200).json({
+        //     status: "success",
+        //     message: "Comment deleted successfully."
+        // })
     }
 }

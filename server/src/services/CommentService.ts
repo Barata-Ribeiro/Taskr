@@ -25,4 +25,26 @@ export class CommentService {
 
         return CommentResponseDTO.fromEntity(savedNewComment)
     }
+
+    async updateCommentById(
+        userId: string,
+        commentId: string,
+        taskID: string,
+        requestingDataBody: RequestingCommentEditDataBody
+    ) {
+        const { content } = requestingDataBody
+
+        const comment = await commentRepository.findOne({
+            where: { id: commentId, creator: { id: userId }, task: { id: taskID } },
+            relations: ["creator", "task"]
+        })
+        if (!comment) throw new NotFoundError("Comment not found.")
+
+        comment.content = content
+        comment.wasEdited = true
+
+        const savedComment = await saveEntityToDatabase(commentRepository, comment)
+
+        return CommentResponseDTO.fromEntity(savedComment)
+    }
 }
