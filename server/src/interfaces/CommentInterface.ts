@@ -1,0 +1,3 @@
+interface RequestingCommentDataBody {
+    content: string
+}
