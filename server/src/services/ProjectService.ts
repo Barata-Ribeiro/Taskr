@@ -1,4 +1,3 @@
-import { validate } from "uuid"
 import { ProjectResponseDTO } from "../DTOs/project/ProjectResponseDTO"
 import { AppDataSource } from "../database/data-source"
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
@@ -62,7 +61,7 @@ export class ProjectService {
         projectId: string,
         requestingDataBody: RequestingProjectEditDataBody
     ): Promise<ProjectResponseDTO> {
-        const wereUsersAdded = requestingDataBody.userIds && requestingDataBody.userIds.length > 0
+        const wereUsersAdded = requestingDataBody.usersUsername && requestingDataBody.usersUsername.length > 0
 
         const project = await projectRepository.findOne({
             where: { id: projectId },
@@ -75,27 +74,23 @@ export class ProjectService {
 
         if (requestingDataBody.name) project.name = requestingDataBody.name
         if (requestingDataBody.description) project.description = requestingDataBody.description
-        if (requestingDataBody.userIds) {
-            const invalidUserIds = requestingDataBody.userIds.filter((id) => !validate(id))
-            if (invalidUserIds.length > 0)
-                throw new BadRequestError(
-                    `Invalid user IDs: ${invalidUserIds.join(", ")}. \n\n Please provide valid user IDs.`
-                )
+        if (wereUsersAdded) {
+            const currentMembers = (await project.members) || []
 
-            let membersToAdd = []
-            const currentMembers = await project.members
-            for (const memberId of requestingDataBody.userIds) {
-                const isAlreadyAMember = currentMembers.some((member) => member.id === memberId)
-                if (isAlreadyAMember)
-                    throw new BadRequestError(
-                        `User with ID ${memberId} is already a member of the project. Make sure to select only members who are not already in the project.`
-                    )
+            if (currentMembers.length + requestingDataBody.usersUsername!.length > 15)
+                throw new BadRequestError("You can't have more than 15 members in a project.")
 
-                const userToBeAdd = await userRepository.findOneBy({ id: memberId })
-                if (!userToBeAdd) throw new NotFoundError(`User with ID ${memberId} not found.`)
+            const membersToAdd = await Promise.all(
+                requestingDataBody.usersUsername!.map(async (username) => {
+                    const user = await userRepository.findOneBy({ username })
+                    if (!user) throw new NotFoundError(`User with username ${username} not found.`)
 
-                membersToAdd.push(userToBeAdd)
-            }
+                    if (currentMembers.some((member) => member.username === user.username))
+                        throw new BadRequestError(username + " is already a member of this project.")
+
+                    return user
+                })
+            )
 
             project.members = Promise.resolve([...currentMembers, ...membersToAdd])
         }
