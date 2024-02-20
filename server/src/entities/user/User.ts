@@ -2,6 +2,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    Index,
     ManyToMany,
     OneToMany,
     OneToOne,
@@ -25,9 +26,11 @@ export class User {
     lastName?: string
 
     @Column({ unique: true, nullable: false })
+    @Index({ unique: true })
     username: string
 
     @Column({ unique: true, nullable: false })
+    @Index({ unique: true })
     email: string
 
     @Column({ nullable: false })
