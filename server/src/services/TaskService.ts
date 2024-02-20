@@ -1,6 +1,12 @@
+import { validate } from "uuid"
 import { TaskResponseDTO } from "../DTOs/task/TaskResponseDTO"
 import { AppDataSource } from "../database/data-source"
+import { Project } from "../entities/project/Project"
+import { TaskPriority } from "../entities/task/PriorityEnum"
 import { TaskStatus } from "../entities/task/StatusEnum"
+import { Tag } from "../entities/task/Tag"
+import { Task } from "../entities/task/Task"
+import { User } from "../entities/user/User"
 import { RequestingTaskDataBody, RequestingTaskEditDataBody } from "../interfaces/TaskInterface"
 import { BadRequestError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
 import { projectRepository } from "../repositories/ProjectRepository"
@@ -14,49 +20,49 @@ import { isTaskPriority, isTaskStatus } from "../utils/Validity"
 export class TaskService {
     async createNewTask(userId: string, requestingDataBody: RequestingTaskDataBody) {
         checkIfBodyExists(requestingDataBody, ["title", "description", "projectId", "dueDate"])
+        const { projectId } = requestingDataBody
+        if (!validate(projectId)) throw new BadRequestError("Invalid project ID.")
 
-        const requestingUser = await userRepository.findOneBy({ id: userId })
-        if (!requestingUser) throw new NotFoundError("User not found.")
+        return AppDataSource.transaction(async (transactionalEntityManager) => {
+            const isUserInProject =
+                (await projectRepository
+                    .createQueryBuilder("project")
+                    .innerJoin("project.members", "member", "member.id = :userId", { userId })
+                    .where("project.id = :projectId", { projectId })
+                    .getCount()) > 0
 
-        const project = await projectRepository.findOne({
-            where: { id: requestingDataBody.projectId },
-            relations: ["members"]
+            if (!isUserInProject)
+                throw new BadRequestError("You cannot get tasks from a project you are not a member of.")
+
+            const newTask = new Task()
+            newTask.title = requestingDataBody.title
+            newTask.description = requestingDataBody.description
+            newTask.project = { id: projectId } as Project
+            newTask.creator = { id: userId } as User
+            newTask.status = isTaskStatus(requestingDataBody.status) ? requestingDataBody.status : TaskStatus.PLANNED
+            newTask.priority = isTaskPriority(requestingDataBody.priority)
+                ? requestingDataBody.priority
+                : TaskPriority.LOW
+            newTask.dueDate = new Date(requestingDataBody.dueDate)
+
+            if (requestingDataBody.tags) {
+                const tags = await Promise.all(
+                    requestingDataBody.tags.map(async (tagName) => {
+                        let tag = await transactionalEntityManager.findOne(Tag, { where: { name: tagName } })
+                        if (!tag) {
+                            tag = transactionalEntityManager.create(Tag, { name: tagName })
+                            await transactionalEntityManager.save(Tag, tag)
+                        }
+                        return tag
+                    })
+                )
+                newTask.tags = Promise.resolve(tags)
+            }
+
+            await transactionalEntityManager.save(Task, newTask)
+
+            return TaskResponseDTO.fromEntity(newTask, false)
         })
-        if (!project) throw new NotFoundError("Project not found.")
-
-        const resolvedMembers = await project.members
-        const isUserInProject = resolvedMembers.some((member) => member.id === requestingUser.id)
-        if (!isUserInProject)
-            throw new BadRequestError("You cannot create a task in a project you are not a member of.")
-
-        const newTask = await taskRepository.create({
-            title: requestingDataBody.title,
-            description: requestingDataBody.description,
-            project: project,
-            creator: requestingUser,
-            status: isTaskStatus(requestingDataBody.status) ? requestingDataBody.status : undefined,
-            priority: isTaskPriority(requestingDataBody.priority) ? requestingDataBody.priority : undefined,
-            dueDate: new Date(requestingDataBody.dueDate)
-        })
-
-        if (requestingDataBody.tags) {
-            const tags = await Promise.all(
-                requestingDataBody.tags.map(async (tagName) => {
-                    let tag = await tagRepository.findOneBy({ name: tagName })
-                    if (!tag) {
-                        tag = await tagRepository.create({ name: tagName })
-                        await tagRepository.save(tag)
-                    }
-                    return tag
-                })
-            )
-
-            newTask.tags = Promise.resolve(tags)
-        }
-
-        const savedTask = await saveEntityToDatabase(taskRepository, newTask)
-
-        return TaskResponseDTO.fromEntity(savedTask, false)
     }
 
     async getAllTasks(userId: string, projectId: string) {
@@ -71,6 +77,8 @@ export class TaskService {
 
         const tasks = await taskRepository
             .createQueryBuilder("task")
+            .leftJoinAndSelect("task.creator", "creator")
+            .leftJoinAndSelect("task.project", "project")
             .leftJoinAndSelect("task.tags", "tag")
             .leftJoinAndSelect("task.assignees", "assignee")
             .orderBy("task.createdAt", "DESC")
@@ -102,23 +110,27 @@ export class TaskService {
 
         const task = await taskRepository
             .createQueryBuilder("task")
+            .leftJoinAndSelect("task.creator", "creator")
+            .leftJoinAndSelect("task.project", "project")
             .leftJoinAndSelect("task.comments", "comment")
             .leftJoinAndSelect("task.tags", "tag")
             .leftJoinAndSelect("task.assignees", "assignee")
+            .where("task.id = :taskId", { taskId })
+            .andWhere("task.project.id = :projectId", { projectId })
             .orderBy("comment.createdAt", "DESC")
-            .orderBy("tag.name", "ASC")
-            .where("task.project.id = :projectId", { projectId })
-            .andWhere("task.id = :taskId", { taskId })
+            .addOrderBy("tag.name", "ASC")
             .getOne()
         if (!task) throw new NotFoundError("Task not found.")
 
         const taskToDTO = await TaskResponseDTO.fromEntity(task, true)
 
+        if (!taskToDTO) throw new NotFoundError("Task not found.")
+
         const taskObject = {
             task: taskToDTO,
-            assignees_count: taskToDTO?.assignees?.length,
-            comments_count: taskToDTO?.comments?.length,
-            tags_count: taskToDTO?.tags?.length
+            assignees_count: taskToDTO.assignees?.length || 0,
+            comments_count: taskToDTO.comments?.length || 0,
+            tags_count: taskToDTO.tags?.length || 0
         }
 
         return taskObject
