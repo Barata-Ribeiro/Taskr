@@ -155,6 +155,10 @@ export class TaskService {
 
         const taskToEdit = await taskRepository
             .createQueryBuilder("task")
+            .leftJoinAndSelect("task.creator", "creator")
+            .leftJoinAndSelect("task.project", "project")
+            .leftJoinAndSelect("task.tags", "tag")
+            .leftJoinAndSelect("task.assignees", "assignee")
             .where("task.id = :taskId", { taskId })
             .andWhere("task.project.id = :projectId", { projectId })
             .getOne()
@@ -183,10 +187,17 @@ export class TaskService {
             taskToEdit.tags = Promise.resolve(tags)
         }
         if (requestingDataBody.assignees && requestingDataBody.assignees.length > 0) {
+            const currentAssignees = (await taskToEdit.assignees) || []
+
+            if (currentAssignees.length + requestingDataBody.assignees.length > 2)
+                throw new BadRequestError("You cannot assign more than 2 users to a task.")
+
             const assignees = await Promise.all(
-                requestingDataBody.assignees.map(async (assigneeId) => {
-                    const assignee = await userRepository.findOneBy({ id: assigneeId })
-                    if (!assignee) throw new NotFoundError("Assignee of id " + assigneeId + " not found.")
+                requestingDataBody.assignees.map(async (assigneeUsername) => {
+                    const assignee = await userRepository.findOneBy({ username: assigneeUsername })
+                    if (!assignee) throw new BadRequestError("User of username " + assigneeUsername + " not found.")
+                    if (currentAssignees.some((a) => a.username === assigneeUsername))
+                        throw new BadRequestError(assigneeUsername + " is already assigned to this task.")
 
                     return assignee
                 })
