@@ -203,7 +203,7 @@ export class TaskService {
                 })
             )
 
-            taskToEdit.assignees = Promise.resolve(assignees)
+            taskToEdit.assignees = Promise.resolve([...currentAssignees, ...assignees])
         }
 
         const savedTask = await saveEntityToDatabase(taskRepository, taskToEdit)
