@@ -90,6 +90,16 @@ export class UnsupportedMediaTypeError extends ApiError {
 }
 
 /**
+ * Represents an error that occurs when the server understands the content type of the request entity,
+ * and the syntax of the request entity is correct, but it was unable to process the contained instructions.
+ */
+export class UnprocessableContentError extends ApiError {
+    constructor(message: string) {
+        super(message, 422)
+    }
+}
+
+/**
  * Represents an internal server error, which is an error that occurs when the server
  * encounters an unexpected condition that prevents it from fulfilling the request.
  * Inherits from the base ApiError class.
