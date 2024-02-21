@@ -11,5 +11,5 @@ interface TeamQueryRequest {
 interface RequestingTeamEditDataBody {
     name?: string
     description?: string
-    userIds?: string[]
+    usersUsername?: string[]
 }
