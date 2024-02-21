@@ -20,7 +20,7 @@ export class Team {
     id: string
 
     @Column({ unique: true, nullable: false })
-    @Index()
+    @Index({ unique: true })
     name: string
 
     @Column({ nullable: false, type: "text" })

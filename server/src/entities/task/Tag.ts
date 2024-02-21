@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
+import { Column, CreateDateColumn, Entity, Index, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
 import { Task } from "./Task"
 
 @Entity("taskr_tags")
@@ -7,6 +7,7 @@ export class Tag {
     id: string
 
     @Column({ unique: true, nullable: false })
+    @Index({ unique: true })
     name: string
 
     @ManyToMany(() => Task, (task) => task.tags, { lazy: true })

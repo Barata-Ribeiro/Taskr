@@ -24,7 +24,7 @@ export class Task {
     id: string
 
     @Column({ unique: true, nullable: false })
-    @Index()
+    @Index({ unique: true })
     title: string
 
     @Column({ nullable: false, type: "text" })
