@@ -1,6 +1,14 @@
 import { CommentResponseDTO } from "../DTOs/task/CommentResponseDTO"
 import { AppDataSource } from "../database/data-source"
-import { BadRequestError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
+import { Task } from "../entities/task/Task"
+import { User } from "../entities/user/User"
+import {
+    BadRequestError,
+    ConflictError,
+    InternalServerError,
+    NotFoundError,
+    UnauthorizedError
+} from "../middlewares/helpers/ApiErrors"
 import { commentRepository } from "../repositories/CommentRepository"
 import { taskRepository } from "../repositories/TaskRepository"
 import { userRepository } from "../repositories/UserRepository"
@@ -10,16 +18,16 @@ export class CommentService {
     async createNewComment(userId: string, taskId: string, requestingDataBody: RequestingCommentDataBody) {
         const { content } = requestingDataBody
 
-        const user = await userRepository.findOneBy({ id: userId })
+        const user = await userRepository.existsBy({ id: userId })
         if (!user) throw new NotFoundError("User does not exist.")
 
-        const task = await taskRepository.findOneBy({ id: taskId })
+        const task = await taskRepository.existsBy({ id: taskId })
         if (!task) throw new NotFoundError("Task does not exist.")
 
         const newComment = await commentRepository.create({
             content,
-            creator: user,
-            task
+            creator: { id: userId } as User,
+            task: { id: taskId } as Task
         })
 
         const savedNewComment = await saveEntityToDatabase(commentRepository, newComment)
@@ -41,10 +49,10 @@ export class CommentService {
         })
         if (!comment) throw new NotFoundError("Comment not found.")
 
-        if (comment.creator.id !== userId) throw new BadRequestError("You are not authorized to update this comment.")
+        if (comment.creator.id !== userId) throw new UnauthorizedError("You are not the author of this comment.")
 
         if (comment.content === content)
-            throw new BadRequestError("You must provide a different content to update the comment.")
+            throw new ConflictError("You must provide a different content to update the comment.")
 
         comment.content = content
         comment.wasEdited = true
@@ -62,8 +70,7 @@ export class CommentService {
                 })
                 if (!comment) throw new NotFoundError("Comment not found.")
 
-                if (comment.creator.id !== userId)
-                    throw new BadRequestError("You are not authorized to update this comment.")
+                if (comment.creator.id !== userId) throw new BadRequestError("You are not the author of this comment.")
 
                 await transactionalEntityManager.remove(comment)
             } catch (error) {

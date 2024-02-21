@@ -4,6 +4,7 @@ import { TeamResponseDTO } from "../DTOs/team/TeamResponseDTO"
 import { AppDataSource } from "../database/data-source"
 import {
     BadRequestError,
+    ConflictError,
     InternalServerError,
     NotFoundError,
     UnauthorizedError
@@ -23,8 +24,8 @@ export class TeamService {
         })
         if (!user) throw new NotFoundError("User not found.")
 
-        const userTeams = await teamRepository.findOneBy({ name: requestingDataBody.name })
-        if (userTeams) throw new BadRequestError("A team with this name already exists.")
+        const checkIfTeamExistsByName = await teamRepository.existsBy({ name: requestingDataBody.name })
+        if (checkIfTeamExistsByName) throw new ConflictError("A team with this name already exists.")
 
         const team = teamRepository.create({
             name: requestingDataBody.name,
@@ -55,9 +56,8 @@ export class TeamService {
         if (team.founder.id !== requestingUserId) throw new UnauthorizedError("You are not allowed to edit this team.")
 
         if (requestingDataBody.name) {
-            const teamWithSameName = await teamRepository.findOneBy({ name: requestingDataBody.name })
-            if (teamWithSameName && teamWithSameName.id !== teamId)
-                throw new BadRequestError("A team with this name already exists.")
+            const checkIfTeamExistsByName = await teamRepository.existsBy({ name: requestingDataBody.name })
+            if (checkIfTeamExistsByName) throw new ConflictError("A team with this name already exists.")
 
             team.name = requestingDataBody.name
         }
@@ -74,7 +74,7 @@ export class TeamService {
             for (const memberId of requestingDataBody.userIds) {
                 const isAlreadyAMember = currentMembers.some((member) => member.id === memberId)
                 if (isAlreadyAMember)
-                    throw new BadRequestError(
+                    throw new ConflictError(
                         `User with ID ${memberId} is already a member of the team. Make sure to select only members who are not already in the team.`
                     )
 

@@ -8,7 +8,14 @@ import { Tag } from "../entities/task/Tag"
 import { Task } from "../entities/task/Task"
 import { User } from "../entities/user/User"
 import { RequestingTaskDataBody, RequestingTaskEditDataBody } from "../interfaces/TaskInterface"
-import { BadRequestError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
+import {
+    BadRequestError,
+    ConflictError,
+    InternalServerError,
+    NotFoundError,
+    UnauthorizedError,
+    UnprocessableContentError
+} from "../middlewares/helpers/ApiErrors"
 import { projectRepository } from "../repositories/ProjectRepository"
 import { tagRepository } from "../repositories/TagRepository"
 import { taskRepository } from "../repositories/TaskRepository"
@@ -149,9 +156,8 @@ export class TaskService {
                 .where("project.id = :projectId", { projectId })
                 .getCount()) > 0
 
-        if (!isUserInProject) {
+        if (!isUserInProject)
             throw new BadRequestError("You cannot update a task in a project you are not a member of.")
-        }
 
         const taskToEdit = await taskRepository
             .createQueryBuilder("task")
@@ -190,14 +196,14 @@ export class TaskService {
             const currentAssignees = (await taskToEdit.assignees) || []
 
             if (currentAssignees.length + requestingDataBody.assignees.length > 2)
-                throw new BadRequestError("You cannot assign more than 2 users to a task.")
+                throw new UnprocessableContentError("You cannot assign more than 2 users to a task.")
 
             const assignees = await Promise.all(
                 requestingDataBody.assignees.map(async (assigneeUsername) => {
                     const assignee = await userRepository.findOneBy({ username: assigneeUsername })
-                    if (!assignee) throw new BadRequestError("User of username " + assigneeUsername + " not found.")
+                    if (!assignee) throw new NotFoundError("User of username " + assigneeUsername + " not found.")
                     if (currentAssignees.some((a) => a.username === assigneeUsername))
-                        throw new BadRequestError(assigneeUsername + " is already assigned to this task.")
+                        throw new ConflictError(assigneeUsername + " is already assigned to this task.")
 
                     return assignee
                 })
@@ -221,7 +227,7 @@ export class TaskService {
                         .where("task.id = :taskId", { taskId })
                         .andWhere("task.project.id = :projectId", { projectId })
                         .getCount()) > 0
-                if (!userIsOwnerOfTask) throw new BadRequestError("You cannot delete a task you did not create.")
+                if (!userIsOwnerOfTask) throw new UnauthorizedError("You cannot delete a task you did not create.")
 
                 const requiredTask = await taskRepository
                     .createQueryBuilder("task")
@@ -229,7 +235,7 @@ export class TaskService {
                     .where("task.id = :taskId", { taskId })
                     .andWhere("task.project.id = :projectId", { projectId })
                     .getOne()
-                if (!requiredTask) throw new BadRequestError("Task not found in the requested project.")
+                if (!requiredTask) throw new NotFoundError("Task not found in the requested project.")
 
                 await transactionalEntityManager.remove(requiredTask)
             } catch (error) {

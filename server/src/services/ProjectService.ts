@@ -1,6 +1,12 @@
 import { ProjectResponseDTO } from "../DTOs/project/ProjectResponseDTO"
 import { AppDataSource } from "../database/data-source"
-import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from "../middlewares/helpers/ApiErrors"
+import {
+    ConflictError,
+    ForbiddenError,
+    InternalServerError,
+    NotFoundError,
+    UnprocessableContentError
+} from "../middlewares/helpers/ApiErrors"
 import { projectRepository } from "../repositories/ProjectRepository"
 import { teamRepository } from "../repositories/TeamRepository"
 import { userRepository } from "../repositories/UserRepository"
@@ -35,7 +41,7 @@ export class ProjectService {
     }
 
     async getProjectById(withProjectMembers: boolean, projectId: string, userId: string): Promise<ProjectResponseDTO> {
-        const user = await userRepository.findOneBy({ id: userId })
+        const user = await userRepository.existsBy({ id: userId })
         if (!user) throw new NotFoundError("User not found.")
 
         let project
@@ -78,7 +84,7 @@ export class ProjectService {
             const currentMembers = (await project.members) || []
 
             if (currentMembers.length + requestingDataBody.usersUsername!.length > 15)
-                throw new BadRequestError("You can't have more than 15 members in a project.")
+                throw new UnprocessableContentError("You can't have more than 15 members in a project.")
 
             const membersToAdd = await Promise.all(
                 requestingDataBody.usersUsername!.map(async (username) => {
@@ -86,7 +92,7 @@ export class ProjectService {
                     if (!user) throw new NotFoundError(`User with username ${username} not found.`)
 
                     if (currentMembers.some((member) => member.username === user.username))
-                        throw new BadRequestError(username + " is already a member of this project.")
+                        throw new ConflictError(username + " is already a member of this project.")
 
                     return user
                 })
