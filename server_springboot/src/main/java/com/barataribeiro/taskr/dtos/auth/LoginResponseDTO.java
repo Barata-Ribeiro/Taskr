@@ -1,6 +1,14 @@
 package com.barataribeiro.taskr.dtos.auth;
 
-import java.io.Serializable;
+import com.barataribeiro.taskr.dtos.user.UserDTO;
 
-public record LoginResponseDTO() implements Serializable {
+import java.io.Serializable;
+import java.time.Instant;
+
+public record LoginResponseDTO(
+        UserDTO user,
+        String accessToken,
+        String refreshToken,
+        Instant refreshTokenExpiresAt
+) implements Serializable {
 }

@@ -1,8 +1,9 @@
 package com.barataribeiro.taskr.services;
 
 
-public interface AuthService {
-    void login();
+import com.barataribeiro.taskr.dtos.auth.LoginRequestDTO;
+import com.barataribeiro.taskr.dtos.auth.LoginResponseDTO;
 
-    void register();
+public interface AuthService {
+    LoginResponseDTO login(LoginRequestDTO body);
 }
