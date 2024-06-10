@@ -3,7 +3,10 @@ package com.barataribeiro.taskr.services.impl;
 import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.auth.LoginRequestDTO;
 import com.barataribeiro.taskr.dtos.auth.LoginResponseDTO;
+import com.barataribeiro.taskr.dtos.auth.RegisterRequestDTO;
+import com.barataribeiro.taskr.dtos.auth.RegisterResponseDTO;
 import com.barataribeiro.taskr.exceptions.user.PasswordDoesNotMatch;
+import com.barataribeiro.taskr.exceptions.user.UserAlreadyExists;
 import com.barataribeiro.taskr.exceptions.user.UserIsBanned;
 import com.barataribeiro.taskr.exceptions.user.UserNotFound;
 import com.barataribeiro.taskr.models.entities.User;
@@ -12,10 +15,12 @@ import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.AuthService;
 import com.barataribeiro.taskr.services.security.TokenService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Map;
@@ -50,5 +55,28 @@ public class AuthServiceImpl implements AuthService {
                                     accessTokenAndExpiration.getKey(),
                                     refreshTokenAndExpiration.getKey(),
                                     refreshTokenAndExpiration.getValue());
+    }
+
+    @Override
+    @Transactional
+    public RegisterResponseDTO register(RegisterRequestDTO body) {
+        String username = StringEscapeUtils.escapeHtml4(body.username().toLowerCase().strip());
+        String displayName = StringEscapeUtils.escapeHtml4(body.displayName().strip());
+        String email = StringEscapeUtils.escapeHtml4(body.email().strip());
+
+        if (userRepository.existsByUsername(username) || userRepository.existsByEmail(email)) {
+            throw new UserAlreadyExists();
+        }
+
+        User user = User.builder()
+                .username(username)
+                .displayName(displayName)
+                .email(email)
+                .password(passwordEncoder.encode(body.password()))
+                .build();
+
+        User savedUser = userRepository.saveAndFlush(user);
+
+        return new RegisterResponseDTO(userMapper.toDTO(savedUser));
     }
 }

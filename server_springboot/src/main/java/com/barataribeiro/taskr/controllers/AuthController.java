@@ -2,6 +2,9 @@ package com.barataribeiro.taskr.controllers;
 
 import com.barataribeiro.taskr.dtos.RestResponseDTO;
 import com.barataribeiro.taskr.dtos.auth.LoginRequestDTO;
+import com.barataribeiro.taskr.dtos.auth.LoginResponseDTO;
+import com.barataribeiro.taskr.dtos.auth.RegisterRequestDTO;
+import com.barataribeiro.taskr.dtos.auth.RegisterResponseDTO;
 import com.barataribeiro.taskr.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +23,19 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<RestResponseDTO> login(@RequestBody LoginRequestDTO body) {
-
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK, HttpStatus.OK.value(), "Login successful", null));
+        LoginResponseDTO response = authService.login(body);
+        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
+                                                     HttpStatus.OK.value(),
+                                                     "Login successful",
+                                                     response));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RestResponseDTO> register() {
-
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK, HttpStatus.OK.value(), "Login successful", null));
+    public ResponseEntity<RestResponseDTO> register(@RequestBody RegisterRequestDTO body) {
+        RegisterResponseDTO response = authService.register(body);
+        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
+                                                     HttpStatus.OK.value(),
+                                                     "Registration successful",
+                                                     response));
     }
 }
