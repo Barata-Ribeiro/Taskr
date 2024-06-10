@@ -41,7 +41,7 @@ public class User {
     @Column(nullable = false, unique = true)
     @NotNull
     @NotEmpty
-    @Email(regexp = "[A-Za-z0-9._%-+]+@[A-Za-z0-9.-]+\\\\.[A-Za-z]{2,4}",
+    @Email(regexp = "[A-Za-z0-9._%-+]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}",
             message = "You must provide a valid email address.")
     private String email;
 

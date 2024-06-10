@@ -5,14 +5,26 @@ import com.barataribeiro.taskr.exceptions.generics.BadRequest;
 import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequest;
 import com.barataribeiro.taskr.exceptions.generics.InternalServerError;
 import com.barataribeiro.taskr.exceptions.generics.UnauthorizedRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.stream.Collectors;
+
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<RestErrorMessage> handleConstraintViolationException(ConstraintViolationException ex) {
+        String errorMessage = ex.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining(", "));
+        RestErrorMessage restErrorMessage = new RestErrorMessage(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), errorMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(restErrorMessage);
+    }
 
     @ExceptionHandler(InternalServerError.class)
     private ResponseEntity<RestErrorMessage> internalServerError(InternalServerError exception) {
