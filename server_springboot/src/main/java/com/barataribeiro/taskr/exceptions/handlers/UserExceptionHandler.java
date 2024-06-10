@@ -7,9 +7,11 @@ import com.barataribeiro.taskr.exceptions.user.UserIsBanned;
 import com.barataribeiro.taskr.exceptions.user.UserNotFound;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+@ControllerAdvice
 public class UserExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(UserNotFound.class)
     private ResponseEntity<RestErrorMessage> userNotFound(UserNotFound exception) {

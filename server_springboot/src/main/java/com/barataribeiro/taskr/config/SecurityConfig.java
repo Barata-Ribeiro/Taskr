@@ -35,7 +35,7 @@ public class SecurityConfig {
             "/swagger-ui/**",
             // -- Taskr
             "/",
-            "/api/auth/**",
+            "/api/v1/auth/**",
             };
     private final SecurityFilter securityFilter;
 
