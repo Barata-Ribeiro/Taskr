@@ -3,6 +3,9 @@ package com.barataribeiro.taskr.services.impl;
 import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.auth.LoginRequestDTO;
 import com.barataribeiro.taskr.dtos.auth.LoginResponseDTO;
+import com.barataribeiro.taskr.exceptions.user.PasswordDoesNotMatch;
+import com.barataribeiro.taskr.exceptions.user.UserIsBanned;
+import com.barataribeiro.taskr.exceptions.user.UserNotFound;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.models.enums.Roles;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
@@ -27,14 +30,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponseDTO login(@NotNull LoginRequestDTO body) {
-        User user = userRepository.findByUsername(body.username()).orElseThrow(null);
+        User user = userRepository.findByUsername(body.username()).orElseThrow(UserNotFound::new);
 
         boolean passwordMatches = passwordEncoder.matches(body.password(), user.getPassword());
         boolean userBannedOrNone = user.getRole().equals(Roles.BANNED) || user.getRole().equals(Roles.NONE);
 
+        if (userBannedOrNone) {
+            throw new UserIsBanned();
+        }
+
+        if (!passwordMatches) {
+            throw new PasswordDoesNotMatch();
+        }
+
         Map.Entry<String, Instant> accessTokenAndExpiration = tokenService.generateAccessToken(user);
         Map.Entry<String, Instant> refreshTokenAndExpiration = tokenService.generateRefreshToken(user, body.rememberMe());
-
 
         return new LoginResponseDTO(userMapper.toDTO(user),
                                     accessTokenAndExpiration.getKey(),

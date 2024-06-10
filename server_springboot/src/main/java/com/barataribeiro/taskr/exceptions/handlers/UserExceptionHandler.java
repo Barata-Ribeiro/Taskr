@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.exceptions.handlers;
 
 import com.barataribeiro.taskr.exceptions.RestErrorMessage;
+import com.barataribeiro.taskr.exceptions.user.PasswordDoesNotMatch;
 import com.barataribeiro.taskr.exceptions.user.UserAlreadyExists;
 import com.barataribeiro.taskr.exceptions.user.UserIsBanned;
 import com.barataribeiro.taskr.exceptions.user.UserNotFound;
@@ -26,5 +27,11 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
     private ResponseEntity<RestErrorMessage> userAlreadyExists(UserAlreadyExists exception) {
         RestErrorMessage errorMessage = new RestErrorMessage(HttpStatus.CONFLICT, HttpStatus.CONFLICT.value(), exception.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+    }
+
+    @ExceptionHandler(PasswordDoesNotMatch.class)
+    private ResponseEntity<RestErrorMessage> passwordDoesNotMatch(PasswordDoesNotMatch exception) {
+        RestErrorMessage errorMessage = new RestErrorMessage(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), exception.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMessage);
     }
 }
