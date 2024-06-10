@@ -5,7 +5,7 @@ import com.barataribeiro.taskr.dtos.auth.LoginRequestDTO;
 import com.barataribeiro.taskr.dtos.auth.LoginResponseDTO;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.models.enums.Roles;
-import com.barataribeiro.taskr.repositories.UserRepository;
+import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.AuthService;
 import com.barataribeiro.taskr.services.security.TokenService;
 import lombok.RequiredArgsConstructor;

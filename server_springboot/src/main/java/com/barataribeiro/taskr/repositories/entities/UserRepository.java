@@ -1,4 +1,4 @@
-package com.barataribeiro.taskr.repositories;
+package com.barataribeiro.taskr.repositories.entities;
 
 import com.barataribeiro.taskr.models.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;

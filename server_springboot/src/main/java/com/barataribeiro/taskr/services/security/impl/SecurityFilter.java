@@ -1,7 +1,7 @@
 package com.barataribeiro.taskr.services.security.impl;
 
 import com.barataribeiro.taskr.models.entities.User;
-import com.barataribeiro.taskr.repositories.UserRepository;
+import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.security.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
