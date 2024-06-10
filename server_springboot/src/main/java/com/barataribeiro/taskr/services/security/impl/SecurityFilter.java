@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.services.security.impl;
 
+import com.barataribeiro.taskr.exceptions.user.UserNotFound;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.security.TokenService;
@@ -37,9 +38,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
             if (login != null) {
                 String language = request.getHeader("Content-Language");
-                User user = userRepository.findByUsername(login).orElseThrow(
-                        () -> new RuntimeException("User not found")
-                );
+                User user = userRepository.findByUsername(login).orElseThrow(UserNotFound::new);
                 var authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
                 var authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);

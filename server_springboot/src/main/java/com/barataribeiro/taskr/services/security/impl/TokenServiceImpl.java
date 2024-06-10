@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.barataribeiro.taskr.exceptions.generics.InternalServerError;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.services.security.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class TokenServiceImpl implements TokenService {
             return new AbstractMap.SimpleEntry<>(token, expirationDate);
         } catch (IllegalArgumentException | JWTCreationException exception) {
             System.err.println(exception.getMessage());
-            throw new RuntimeException(exception);
+            throw new InternalServerError();
         }
     }
 
@@ -64,7 +65,7 @@ public class TokenServiceImpl implements TokenService {
             return new AbstractMap.SimpleEntry<>(token, expirationDate);
         } catch (IllegalArgumentException | JWTCreationException exception) {
             System.err.println(exception.getMessage());
-            throw new RuntimeException(exception);
+            throw new InternalServerError();
         }
     }
 
