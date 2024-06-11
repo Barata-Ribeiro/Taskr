@@ -14,6 +14,8 @@ public interface OrganizationService {
 
     Map<String, Object> getOrganizationMembers(String id);
 
+    Map<String, Object> getOrganizationProjects(String id);
+
     Map<String, Object> updateOrganizationInfo(String id, UpdateOrganizationRequestDTO body, Principal principal);
 
     void deleteOrganization(String id, Principal principal);

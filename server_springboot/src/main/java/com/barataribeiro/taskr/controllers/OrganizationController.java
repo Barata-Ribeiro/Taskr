@@ -52,6 +52,8 @@ public class OrganizationController {
     @GetMapping("/{orgId}/projects")
     public ResponseEntity<RestResponseDTO> getOrganizationProjects(@PathVariable String orgId) {
 
+        Map<String, Object> response = organizationService.getOrganizationProjects(orgId);
+
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Organization projects retrieved successfully",

@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.services.impl;
 
 import com.barataribeiro.taskr.builder.OrganizationMapper;
+import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
@@ -8,12 +9,16 @@ import com.barataribeiro.taskr.dtos.organization.UpdateOrganizationRequestDTO;
 import com.barataribeiro.taskr.exceptions.organization.AlreadyCreatedOrganization;
 import com.barataribeiro.taskr.exceptions.organization.OrganizationNotFound;
 import com.barataribeiro.taskr.exceptions.organization.UserIsNotOwner;
+import com.barataribeiro.taskr.exceptions.project.ProjectNotFound;
 import com.barataribeiro.taskr.exceptions.user.UserNotFound;
 import com.barataribeiro.taskr.models.entities.Organization;
+import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.User;
+import com.barataribeiro.taskr.models.relations.OrganizationProject;
 import com.barataribeiro.taskr.models.relations.OrganizationUser;
 import com.barataribeiro.taskr.repositories.entities.OrganizationRepository;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
+import com.barataribeiro.taskr.repositories.relations.OrganizationProjectRepository;
 import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository;
 import com.barataribeiro.taskr.services.OrganizationService;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +36,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
     private final OrganizationUserRepository organizationUserRepository;
+    private final OrganizationProjectRepository organizationProjectRepository;
     private final UserMapper userMapper;
     private final OrganizationMapper organizationMapper;
+    private final ProjectMapper projectMapper;
 
     @Override
     @Transactional
@@ -72,7 +79,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .findAllByOrganization_Id(Integer.valueOf(id));
 
         if (organizationUsers.isEmpty()) {
-            throw new OrganizationNotFound();
+            throw new UserNotFound();
         }
 
         Organization organization = organizationUsers.stream()
@@ -86,6 +93,31 @@ public class OrganizationServiceImpl implements OrganizationService {
         Map<String, Object> returnData = new HashMap<>();
         returnData.put("organization", organizationMapper.toDTO(organization));
         returnData.put("members", userMapper.toDTOList(new ArrayList<>(users)));
+
+        return returnData;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> getOrganizationProjects(String id) {
+        Set<OrganizationProject> organizationProjects = organizationProjectRepository
+                .findAllByOrganization_Id(Integer.valueOf(id));
+
+        if (organizationProjects.isEmpty()) {
+            throw new ProjectNotFound();
+        }
+
+        Organization organization = organizationProjects.stream()
+                .findFirst()
+                .map(OrganizationProject::getOrganization)
+                .orElseThrow(OrganizationNotFound::new);
+
+        Set<Project> projects = new HashSet<>();
+        organizationProjects.forEach(entity -> projects.add(entity.getProject()));
+
+        Map<String, Object> returnData = new HashMap<>();
+        returnData.put("organization", organizationMapper.toDTO(organization));
+        returnData.put("projects", projectMapper.toDTOList(new ArrayList<>(projects)));
 
         return returnData;
     }
