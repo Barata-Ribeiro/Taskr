@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.exceptions.RestErrorMessage;
 import com.barataribeiro.taskr.exceptions.organization.AlreadyCreatedOrganization;
 import com.barataribeiro.taskr.exceptions.organization.OrganizationAlreadyExists;
 import com.barataribeiro.taskr.exceptions.organization.OrganizationNotFound;
+import com.barataribeiro.taskr.exceptions.organization.UserIsNotOwner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -27,5 +28,11 @@ public class OrganizationExceptionHandler {
     private ResponseEntity<RestErrorMessage> alreadyCreatedOrganization(AlreadyCreatedOrganization exception) {
         RestErrorMessage errorMessage = new RestErrorMessage(HttpStatus.CONFLICT, HttpStatus.CONFLICT.value(), exception.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+    }
+
+    @ExceptionHandler(UserIsNotOwner.class)
+    private ResponseEntity<RestErrorMessage> userIsNotOwner(UserIsNotOwner exception) {
+        RestErrorMessage errorMessage = new RestErrorMessage(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.value(), exception.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessage);
     }
 }
