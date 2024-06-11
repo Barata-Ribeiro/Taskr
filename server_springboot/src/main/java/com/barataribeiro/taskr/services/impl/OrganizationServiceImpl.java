@@ -23,10 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -39,7 +36,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     @Transactional
-    public OrganizationDTO createOrganization(OrganizationRequestDTO body, @NotNull Principal principal) {
+    public OrganizationDTO createOrganization(@NotNull OrganizationRequestDTO body, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
 
         hasUserAlreadyCreatedOrganization(user);
@@ -68,17 +65,43 @@ public class OrganizationServiceImpl implements OrganizationService {
         return organizationMapper.toDTO(organization);
     }
 
+    @Override
+    @Transactional
+    public Map<String, Object> getOrganizationMembers(String id) {
+        Set<OrganizationUser> organizationUsers = organizationUserRepository
+                .findAllByOrganization_Id(Integer.valueOf(id));
+
+        if (organizationUsers.isEmpty()) {
+            throw new OrganizationNotFound();
+        }
+
+        Organization organization = organizationUsers.stream()
+                .findFirst()
+                .map(OrganizationUser::getOrganization)
+                .orElseThrow(OrganizationNotFound::new);
+
+        Set<User> users = new HashSet<>();
+        organizationUsers.forEach(entity -> users.add(entity.getUser()));
+
+        Map<String, Object> returnData = new HashMap<>();
+        returnData.put("organization", organizationMapper.toDTO(organization));
+        returnData.put("members", userMapper.toDTOList(new ArrayList<>(users)));
+
+        return returnData;
+    }
 
     @Override
     @Transactional
-    public Map<String, Object> updateOrganizationInfo(String id, UpdateOrganizationRequestDTO body, @NotNull Principal principal) {
+    public Map<String, Object> updateOrganizationInfo(String id, UpdateOrganizationRequestDTO body,
+                                                      @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
 
         if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
             throw new UserIsNotOwner();
         }
 
-        Organization organization = organizationRepository.findById(Integer.valueOf(id)).orElseThrow(OrganizationNotFound::new);
+        Organization organization = organizationRepository.findById(Integer.valueOf(id))
+                .orElseThrow(OrganizationNotFound::new);
 
         organization.setName(body.name());
         organization.setDescription(body.description());
@@ -108,7 +131,8 @@ public class OrganizationServiceImpl implements OrganizationService {
         organizationRepository.delete(organization);
     }
 
-    private void attemptAddUsersToOrganization(@NotNull UpdateOrganizationRequestDTO body, List<String> usersNotAdded, Organization organization, List<User> usersAdded) {
+    private void attemptAddUsersToOrganization(@NotNull UpdateOrganizationRequestDTO body, List<String> usersNotAdded,
+                                               Organization organization, List<User> usersAdded) {
         for (String username : body.usersToAdd()) {
             userRepository.findByUsername(username)
                     .ifPresentOrElse(

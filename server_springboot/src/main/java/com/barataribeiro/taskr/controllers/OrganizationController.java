@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/organizations")
@@ -40,10 +41,12 @@ public class OrganizationController {
     @GetMapping("/{orgId}/members")
     public ResponseEntity<RestResponseDTO> getOrganizationMembers(@PathVariable String orgId) {
 
+        Map<String, Object> response = organizationService.getOrganizationMembers(orgId);
+
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Organization members retrieved successfully",
-                                                     null));
+                                                     response));
     }
 
     @GetMapping("/{orgId}/projects")
