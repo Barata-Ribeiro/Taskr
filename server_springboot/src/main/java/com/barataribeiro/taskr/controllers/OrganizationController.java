@@ -1,13 +1,22 @@
 package com.barataribeiro.taskr.controllers;
 
 import com.barataribeiro.taskr.dtos.RestResponseDTO;
+import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
+import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
+import com.barataribeiro.taskr.services.OrganizationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/v1/organizations")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class OrganizationController {
+    private final OrganizationService organizationService;
 
     @GetMapping("/")
     public ResponseEntity<RestResponseDTO> getAllOrganizations(@RequestParam(defaultValue = "0") int page,
@@ -47,7 +56,10 @@ public class OrganizationController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<RestResponseDTO> createOrganization(@RequestBody Object body) {
+    public ResponseEntity<RestResponseDTO> createOrganization(@RequestBody OrganizationRequestDTO body,
+                                                              Principal principal) {
+
+        OrganizationDTO response = organizationService.createOrganization(body, principal);
 
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
