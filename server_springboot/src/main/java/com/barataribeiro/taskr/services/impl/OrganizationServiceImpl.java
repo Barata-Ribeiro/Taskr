@@ -79,7 +79,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .findAllByOrganization_Id(Integer.valueOf(id));
 
         if (organizationUsers.isEmpty()) {
-            throw new UserNotFound();
+            throw new OrganizationNotFound();
         }
 
         Organization organization = organizationUsers.stream()
@@ -87,12 +87,27 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .map(OrganizationUser::getOrganization)
                 .orElseThrow(OrganizationNotFound::new);
 
-        Set<User> users = new HashSet<>();
-        organizationUsers.forEach(entity -> users.add(entity.getUser()));
+        User owner = organizationUsers.stream()
+                .filter(OrganizationUser::isOwner)
+                .findFirst()
+                .map(OrganizationUser::getUser)
+                .orElseThrow(UserNotFound::new);
+
+        Set<User> admins = new HashSet<>();
+        organizationUsers.stream()
+                .filter(OrganizationUser::isAdmin)
+                .forEach(entity -> admins.add(entity.getUser()));
+
+        Set<User> members = new HashSet<>();
+        organizationUsers.stream()
+                .filter(entity -> !entity.isAdmin() && !entity.isOwner())
+                .forEach(entity -> members.add(entity.getUser()));
 
         Map<String, Object> returnData = new HashMap<>();
         returnData.put("organization", organizationMapper.toDTO(organization));
-        returnData.put("members", userMapper.toDTOList(new ArrayList<>(users)));
+        returnData.put("owner", userMapper.toDTO(owner));
+        returnData.put("admins", userMapper.toDTOList(new ArrayList<>(admins)));
+        returnData.put("members", userMapper.toDTOList(new ArrayList<>(members)));
 
         return returnData;
     }
