@@ -11,6 +11,8 @@ public interface OrganizationUserRepository extends JpaRepository<OrganizationUs
     @Query("select (count(o) > 0) from OrganizationUser o where o.user.id = :userId and o.isOwner = :isOwner")
     boolean existsOrganizationWhereUserByIdIsOwner(String userId, boolean isOwner);
 
+    boolean existsByOrganization_IdAndUser_Id(Integer id, String userId);
+
     boolean existsByUser_Id(String id);
 
     @Query("select o from OrganizationUser o where o.organization.id = :id " +
