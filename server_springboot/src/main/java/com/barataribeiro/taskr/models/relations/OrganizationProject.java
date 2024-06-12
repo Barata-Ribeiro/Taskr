@@ -2,6 +2,7 @@ package com.barataribeiro.taskr.models.relations;
 
 import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
+import com.barataribeiro.taskr.models.enums.ProjectStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,4 +29,8 @@ public class OrganizationProject {
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    private ProjectStatus status = ProjectStatus.AWAITING_APPROVAL;
 }

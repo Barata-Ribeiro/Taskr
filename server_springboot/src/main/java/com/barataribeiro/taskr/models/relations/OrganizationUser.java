@@ -29,6 +29,11 @@ public class OrganizationUser {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Builder.Default
+    @Column(columnDefinition = "BOOLEAN default 'false'", nullable = false)
     private boolean isAdmin = false;
+
+    @Builder.Default
+    @Column(columnDefinition = "BOOLEAN default 'false'", nullable = false)
     private boolean isOwner = false;
 }
