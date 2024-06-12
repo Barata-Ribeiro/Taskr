@@ -31,6 +31,7 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/webjars/**",
             // -- Swagger UI v3 (OpenAPI)
+            "/api-docs/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             // -- Taskr
