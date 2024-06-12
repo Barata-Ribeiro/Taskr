@@ -1,6 +1,8 @@
 package com.barataribeiro.taskr.services.impl;
 
+import com.barataribeiro.taskr.builder.OrganizationMapper;
 import com.barataribeiro.taskr.builder.ProjectMapper;
+import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
@@ -31,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -41,6 +44,8 @@ public class ProjectServiceImpl implements ProjectService {
     private final OrganizationProjectRepository organizationProjectRepository;
     private final ProjectRepository projectRepository;
     private final ProjectUserRepository projectUserRepository;
+    private final OrganizationMapper organizationMapper;
+    private final UserMapper userMapper;
     private final ProjectMapper projectMapper;
 
 
@@ -110,8 +115,8 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(ProjectUser::getProject)
                 .orElseThrow(ProjectNotFound::new);
 
-        Organization organization = organizationProjectRepository.findByOrganization_IdAndProject_Id(Integer.valueOf(orgId),
-                                                                                                     Integer.valueOf(projectId))
+        Organization organization = organizationProjectRepository
+                .findByOrganization_IdAndProject_Id(Integer.valueOf(orgId), Integer.valueOf(projectId))
                 .map(OrganizationProject::getOrganization)
                 .orElseThrow(OrganizationNotFound::new);
 
@@ -121,19 +126,20 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(ProjectUser::getUser)
                 .orElseThrow(UserNotFound::new);
 
-        Set<User> projectMembers = new HashSet<>();
-        projectUsers.stream()
+        Set<User> projectMembers = projectUsers.stream()
                 .filter(entity -> !entity.isProjectManager())
-                .forEach(entity -> projectMembers.add(entity.getUser()));
+                .map(ProjectUser::getUser)
+                .collect(Collectors.toSet());
 
         Map<String, Object> returnData = new HashMap<>();
-        returnData.put("organization", organization);
-        returnData.put("project", project);
-        returnData.put("manager", projectManager);
-        returnData.put("members", projectMembers);
+        returnData.put("organization", organizationMapper.toDTO(organization));
+        returnData.put("project", projectMapper.toDTO(project));
+        returnData.put("manager", userMapper.toDTO(projectManager));
+        returnData.put("members", userMapper.toDTOList(new ArrayList<>(projectMembers)));
 
         return returnData;
     }
+
 
     @Override
     public Map<String, Object> getProjectTasks(String orgId, String projectId) {

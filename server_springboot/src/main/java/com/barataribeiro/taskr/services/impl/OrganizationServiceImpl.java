@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -93,15 +94,15 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .map(OrganizationUser::getUser)
                 .orElseThrow(UserNotFound::new);
 
-        Set<User> admins = new HashSet<>();
-        organizationUsers.stream()
+        Set<User> admins = organizationUsers.stream()
                 .filter(OrganizationUser::isAdmin)
-                .forEach(entity -> admins.add(entity.getUser()));
+                .map(OrganizationUser::getUser)
+                .collect(Collectors.toSet());
 
-        Set<User> members = new HashSet<>();
-        organizationUsers.stream()
+        Set<User> members = organizationUsers.stream()
                 .filter(entity -> !entity.isAdmin() && !entity.isOwner())
-                .forEach(entity -> members.add(entity.getUser()));
+                .map(OrganizationUser::getUser)
+                .collect(Collectors.toSet());
 
         Map<String, Object> returnData = new HashMap<>();
         returnData.put("organization", organizationMapper.toDTO(organization));
@@ -111,6 +112,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         return returnData;
     }
+
 
     @Override
     @Transactional
@@ -127,8 +129,9 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .map(OrganizationProject::getOrganization)
                 .orElseThrow(OrganizationNotFound::new);
 
-        Set<Project> projects = new HashSet<>();
-        organizationProjects.forEach(entity -> projects.add(entity.getProject()));
+        Set<Project> projects = organizationProjects.stream()
+                .map(OrganizationProject::getProject)
+                .collect(Collectors.toSet());
 
         Map<String, Object> returnData = new HashMap<>();
         returnData.put("organization", organizationMapper.toDTO(organization));
@@ -157,7 +160,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         if (body.description() != null) {
             organization.setDescription(body.description());
         }
-        
+
         organizationRepository.save(organization);
 
         List<String> usersNotAdded = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.repositories.relations;
 
 import com.barataribeiro.taskr.models.relations.OrganizationUser;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -19,6 +20,7 @@ public interface OrganizationUserRepository extends JpaRepository<OrganizationUs
             "and o.user.username = :username and o.isOwner = :isOwner")
     Optional<OrganizationUser> findOrganizationByUser_UsernameAndIsOwner(Integer id, String username, boolean isOwner);
 
+    @EntityGraph(attributePaths = {"user"})
     @Query("select o from OrganizationUser o where o.organization.id = :id")
     Set<OrganizationUser> findAllByOrganization_Id(Integer id);
 
