@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.controllers;
 import com.barataribeiro.taskr.dtos.RestResponseDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
+import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
 import com.barataribeiro.taskr.services.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/projects/{orgId}")
@@ -28,16 +30,18 @@ public class ProjectController {
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Project created successfully",
-                                                     null));
+                                                     response));
     }
 
     @GetMapping("/project/{projectId}")
-    public ResponseEntity<RestResponseDTO> getProjectById(@PathVariable String orgId, @PathVariable String projectId) {
+    public ResponseEntity<RestResponseDTO> getProjectInfo(@PathVariable String orgId, @PathVariable String projectId) {
+
+        Map<String, Object> response = projectService.getProjectInfo(orgId, projectId);
 
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Project retrieved successfully",
-                                                     null));
+                                                     response));
     }
 
     @GetMapping("/project/{projectId}/members")
@@ -59,12 +63,17 @@ public class ProjectController {
     }
 
     @PutMapping("/project/{projectId}")
-    public ResponseEntity<RestResponseDTO> updateProject(@PathVariable String orgId, @PathVariable String projectId) {
+    public ResponseEntity<RestResponseDTO> updateProject(@PathVariable String orgId,
+                                                         @PathVariable String projectId,
+                                                         ProjectUpdateRequestDTO body,
+                                                         Principal principal) {
+
+        Map<String, Object> response = projectService.updateProject(orgId, projectId, body, principal);
 
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Project updated successfully",
-                                                     null));
+                                                     response));
     }
 
     @DeleteMapping("/project/{projectId}")
