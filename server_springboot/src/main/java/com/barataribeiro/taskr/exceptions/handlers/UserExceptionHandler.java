@@ -1,10 +1,7 @@
 package com.barataribeiro.taskr.exceptions.handlers;
 
 import com.barataribeiro.taskr.exceptions.RestErrorMessage;
-import com.barataribeiro.taskr.exceptions.user.PasswordDoesNotMatch;
-import com.barataribeiro.taskr.exceptions.user.UserAlreadyExists;
-import com.barataribeiro.taskr.exceptions.user.UserIsBanned;
-import com.barataribeiro.taskr.exceptions.user.UserNotFound;
+import com.barataribeiro.taskr.exceptions.user.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -35,5 +32,11 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
     private ResponseEntity<RestErrorMessage> passwordDoesNotMatch(PasswordDoesNotMatch exception) {
         RestErrorMessage errorMessage = new RestErrorMessage(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), exception.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMessage);
+    }
+
+    @ExceptionHandler(UserIsNotManager.class)
+    private ResponseEntity<RestErrorMessage> userIsNotManager(UserIsNotManager exception) {
+        RestErrorMessage errorMessage = new RestErrorMessage(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.value(), exception.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessage);
     }
 }
