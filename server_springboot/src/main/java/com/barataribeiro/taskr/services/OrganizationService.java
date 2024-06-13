@@ -10,6 +10,8 @@ import java.util.Map;
 public interface OrganizationService {
     OrganizationDTO createOrganization(OrganizationRequestDTO body, Principal principal);
 
+    Map<String, Object> getAllOrganizations(int page, int perPage);
+
     OrganizationDTO getOrganizationInfo(String id);
 
     Map<String, Object> getOrganizationMembers(String id);

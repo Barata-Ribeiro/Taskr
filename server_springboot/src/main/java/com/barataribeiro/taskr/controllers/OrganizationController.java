@@ -23,11 +23,11 @@ public class OrganizationController {
     @GetMapping("/")
     public ResponseEntity<RestResponseDTO> getAllOrganizations(@RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "10") int perPage) {
-
+        Map<String, Object> response = organizationService.getAllOrganizations(page, perPage);
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Organizations retrieved successfully",
-                                                     null));
+                                                     response));
     }
 
     @GetMapping("/{orgId}")

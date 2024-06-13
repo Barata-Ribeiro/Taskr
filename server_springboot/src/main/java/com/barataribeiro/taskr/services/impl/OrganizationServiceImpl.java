@@ -6,6 +6,7 @@ import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.UpdateOrganizationRequestDTO;
+import com.barataribeiro.taskr.exceptions.generics.BadRequest;
 import com.barataribeiro.taskr.exceptions.organization.AlreadyCreatedOrganization;
 import com.barataribeiro.taskr.exceptions.organization.OrganizationNotFound;
 import com.barataribeiro.taskr.exceptions.organization.UserIsNotOwner;
@@ -24,6 +25,9 @@ import com.barataribeiro.taskr.services.OrganizationService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +69,31 @@ public class OrganizationServiceImpl implements OrganizationService {
         organizationUserRepository.save(relation);
 
         return organizationMapper.toDTO(organization);
+    }
+
+    @Override
+    public Map<String, Object> getAllOrganizations(int page, int perPage) {
+        Pageable paging = PageRequest.of(page, perPage);
+
+        if ((perPage < 0 || perPage > 15) || page < 0) {
+            throw new BadRequest();
+        }
+
+        Page<Organization> organizationPage = organizationRepository.getAllOrganizationsPageable(paging);
+
+        if (organizationPage.isEmpty()) {
+            throw new OrganizationNotFound();
+        }
+
+        List<OrganizationDTO> organizations = organizationMapper.toDTOList(organizationPage.getContent());
+
+        Map<String, Object> returnData = new HashMap<>();
+        returnData.put("organizations", organizations);
+        returnData.put("currentPage", organizationPage.getNumber());
+        returnData.put("totalItems", organizationPage.getTotalElements());
+        returnData.put("totalPages", organizationPage.getTotalPages());
+
+        return returnData;
     }
 
     @Override
