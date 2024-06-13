@@ -21,7 +21,7 @@ public interface OrganizationUserRepository extends JpaRepository<OrganizationUs
     Optional<OrganizationUser> findOrganizationByUser_UsernameAndIsOwner(Integer id, String username, boolean isOwner);
 
     @EntityGraph(attributePaths = {"user"})
-    @Query("select o from OrganizationUser o where o.organization.id = :id")
+    @Query("select o from OrganizationUser o where o.organization.id = :id order by o.user.username")
     Set<OrganizationUser> findAllByOrganization_Id(Integer id);
 
 }

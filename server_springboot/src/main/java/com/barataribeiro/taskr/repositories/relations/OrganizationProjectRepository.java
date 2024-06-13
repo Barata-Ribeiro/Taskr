@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.repositories.relations;
 
+import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.relations.OrganizationProject;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,5 +16,6 @@ public interface OrganizationProjectRepository extends JpaRepository<Organizatio
 
     Optional<OrganizationProject> findByOrganization_IdAndProject_Id(Integer id, Integer projectId);
 
+    void deleteByProject(Project project);
 
 }
