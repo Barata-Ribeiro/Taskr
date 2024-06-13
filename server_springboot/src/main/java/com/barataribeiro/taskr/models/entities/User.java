@@ -29,7 +29,7 @@ public class User {
 
     @Column(nullable = false, unique = true)
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Username is required")
     @Size(min = 3, max = 50,
             message = "Username must be between 3 and 50 characters")
     private String username;
@@ -40,14 +40,14 @@ public class User {
 
     @Column(nullable = false, unique = true)
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Email is required")
     @Email(regexp = "[A-Za-z0-9._%-+]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}",
             message = "You must provide a valid email address.")
     private String email;
 
     @Column(nullable = false)
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Password is required")
     @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$",
             message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, one special character and no whitespace.")
@@ -57,10 +57,23 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Roles role = Roles.SERVICE_USER;
 
+    @Builder.Default
+    @Max(value = 15, message = "An user can manage up to 15 projects")
+    @Column(columnDefinition = "integer default 0", nullable = false)
+    private int managedProjects = 0;
+
     @Column(updatable = false)
     @CreationTimestamp
     private Instant createdAt;
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    public void incrementManagedProjects() {
+        this.managedProjects++;
+    }
+
+    public void decrementManagedProjects() {
+        this.managedProjects = this.managedProjects > 0 ? this.managedProjects - 1 : 0;
+    }
 }
