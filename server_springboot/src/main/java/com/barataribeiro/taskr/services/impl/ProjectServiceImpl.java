@@ -7,6 +7,7 @@ import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
+import com.barataribeiro.taskr.dtos.task.TaskDTO;
 import com.barataribeiro.taskr.exceptions.organization.OrganizationNotFound;
 import com.barataribeiro.taskr.exceptions.project.ProjectLimitReached;
 import com.barataribeiro.taskr.exceptions.project.ProjectNotFound;
@@ -18,6 +19,7 @@ import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.Task;
 import com.barataribeiro.taskr.models.entities.User;
+import com.barataribeiro.taskr.models.enums.TaskPriority;
 import com.barataribeiro.taskr.models.relations.OrganizationProject;
 import com.barataribeiro.taskr.models.relations.ProjectTask;
 import com.barataribeiro.taskr.models.relations.ProjectUser;
@@ -164,18 +166,13 @@ public class ProjectServiceImpl implements ProjectService {
             throw new TaskNotFound();
         }
 
-        Project project = projectTasks.stream()
-                .findFirst()
-                .map(ProjectTask::getProject)
-                .orElseThrow(ProjectNotFound::new);
-
-        Set<Task> tasks = projectTasks.stream()
-                .map(ProjectTask::getTask)
-                .collect(Collectors.toSet());
+        Project project = getProjectFromTasks(projectTasks);
+        Set<Task> tasks = getTasksFromProjectTasks(projectTasks);
+        Map<String, Object> sortedTasks = sortTasksByPriority(tasks);
 
         Map<String, Object> returnData = new HashMap<>();
         returnData.put("project", projectMapper.toDTO(project));
-        returnData.put("tasks", taskMapper.toDTOList(new ArrayList<>(tasks)));
+        returnData.put("tasks", sortedTasks);
 
         return returnData;
     }
@@ -217,6 +214,34 @@ public class ProjectServiceImpl implements ProjectService {
         projectUserRepository.deleteByProject(project);
         organizationProjectRepository.deleteByProject(project);
         projectRepository.delete(project);
+    }
+
+    private @NotNull Map<String, Object> sortTasksByPriority(Set<Task> tasks) {
+        Map<String, Object> sortedTasks = new HashMap<>();
+        sortedTasks.put("lowPriority", filterTasksByPriority(tasks, TaskPriority.LOW));
+        sortedTasks.put("mediumPriority", filterTasksByPriority(tasks, TaskPriority.MEDIUM));
+        sortedTasks.put("highPriority", filterTasksByPriority(tasks, TaskPriority.HIGH));
+        return sortedTasks;
+    }
+
+    private List<TaskDTO> filterTasksByPriority(@NotNull Set<Task> tasks, TaskPriority priority) {
+        return tasks.stream()
+                .filter(task -> task.getPriority().equals(priority))
+                .map(taskMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    private Project getProjectFromTasks(@NotNull Set<ProjectTask> projectTasks) {
+        return projectTasks.stream()
+                .findFirst()
+                .map(ProjectTask::getProject)
+                .orElseThrow(ProjectNotFound::new);
+    }
+
+    private Set<Task> getTasksFromProjectTasks(@NotNull Set<ProjectTask> projectTasks) {
+        return projectTasks.stream()
+                .map(ProjectTask::getTask)
+                .collect(Collectors.toSet());
     }
 
     private void attemptAddUsersToProject(@NotNull ProjectUpdateRequestDTO body, List<String> usersNotAdded,
