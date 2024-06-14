@@ -19,4 +19,6 @@ public interface ProjectUserRepository extends JpaRepository<ProjectUser, Long> 
     boolean existsProjectWhereUserByIdIsManager(Integer id, String userId, boolean isProjectManager);
 
     void deleteByProject(Project project);
+
+    boolean existsByProject_IdAndUser_Id(Integer id, String userId);
 }
