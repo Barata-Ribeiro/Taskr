@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.Date;
 
 @Entity
 @Table(name = "taskr_tasks", indexes = {
@@ -31,12 +32,12 @@ public class Task {
 
     @Column(nullable = false, unique = true)
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Title is required")
     private String title;
 
     @Column(nullable = false)
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Description is required")
     private String description;
 
     @Builder.Default
@@ -46,6 +47,11 @@ public class Task {
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private TaskPriority priority = TaskPriority.LOW;
+
+    @Column(nullable = false)
+    @NotNull
+    @NotEmpty(message = "Due date is required")
+    private Date dueDate;
 
     @Column(updatable = false)
     @CreationTimestamp
