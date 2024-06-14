@@ -39,4 +39,10 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
         RestErrorMessage errorMessage = new RestErrorMessage(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.value(), exception.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessage);
     }
+
+    @ExceptionHandler(UserIsNotInProject.class)
+    private ResponseEntity<RestErrorMessage> userIsNotInProject(UserIsNotInProject exception) {
+        RestErrorMessage errorMessage = new RestErrorMessage(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.value(), exception.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessage);
+    }
 }
