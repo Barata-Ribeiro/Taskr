@@ -12,6 +12,7 @@ import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class UserServieImpl implements UserService {
     }
 
     @Override
-    public UserDTO getUserContext(String id, Principal principal) {
+    public UserDTO getUserContext(String id, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
 
         if (id != null && !id.equals(user.getId())) {
@@ -45,7 +46,7 @@ public class UserServieImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO updateUserProfile(String id, UpdateAccountRequestDTO body, Principal principal) {
+    public UserDTO updateUserProfile(String id, UpdateAccountRequestDTO body, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
 
         if (!user.getId().equals(id)) {
@@ -74,7 +75,7 @@ public class UserServieImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUserProfile(String id, Principal principal) {
+    public void deleteUserProfile(String id, @NotNull Principal principal) {
         if (!userRepository.existsByIdAndUsername(id, principal.getName())) {
             throw new UserNotFound();
         }

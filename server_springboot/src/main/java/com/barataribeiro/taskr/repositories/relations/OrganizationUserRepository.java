@@ -12,16 +12,16 @@ public interface OrganizationUserRepository extends JpaRepository<OrganizationUs
     @Query("select (count(o) > 0) from OrganizationUser o where o.user.id = :userId and o.isOwner = :isOwner")
     boolean existsOrganizationWhereUserByIdIsOwner(String userId, boolean isOwner);
 
-    boolean existsByOrganization_IdAndUser_Id(Integer id, String userId);
+    boolean existsByOrganization_IdAndUser_Id(Long id, String userId);
 
     boolean existsByUser_Id(String id);
 
     @Query("select o from OrganizationUser o where o.organization.id = :id " +
             "and o.user.username = :username and o.isOwner = :isOwner")
-    Optional<OrganizationUser> findOrganizationByUser_UsernameAndIsOwner(Integer id, String username, boolean isOwner);
+    Optional<OrganizationUser> findOrganizationByUser_UsernameAndIsOwner(Long id, String username, boolean isOwner);
 
     @EntityGraph(attributePaths = {"user"})
     @Query("select o from OrganizationUser o where o.organization.id = :id order by o.user.username")
-    Set<OrganizationUser> findAllByOrganization_Id(Integer id);
+    Set<OrganizationUser> findAllByOrganization_Id(Long id);
 
 }

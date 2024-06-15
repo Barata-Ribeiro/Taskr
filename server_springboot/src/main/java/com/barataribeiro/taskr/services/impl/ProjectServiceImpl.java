@@ -68,7 +68,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new ProjectLimitReached();
         }
 
-        Organization organization = organizationRepository.findById(Integer.valueOf(orgId)).orElseThrow(OrganizationNotFound::new);
+        Organization organization = organizationRepository.findById(Long.valueOf(orgId)).orElseThrow(OrganizationNotFound::new);
 
         if (!organizationUserRepository.existsByOrganization_IdAndUser_Id(organization.getId(), user.getId())) {
             throw new UserIsNotOrganizationMember();
@@ -101,7 +101,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Map<String, Object> getProjectInfo(String orgId, String projectId) {
         OrganizationProject organizationProject = organizationProjectRepository
-                .findByOrganization_IdAndProject_Id(Integer.valueOf(orgId), Integer.valueOf(projectId))
+                .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
                 .orElseThrow(ProjectNotFound::new);
 
         Map<String, Object> project = new ObjectMapper()
@@ -121,7 +121,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public Map<String, Object> getProjectMembers(String orgId, String projectId) {
-        Set<ProjectUser> projectUsers = projectUserRepository.findAllByProject_Id(Integer.valueOf(projectId));
+        Set<ProjectUser> projectUsers = projectUserRepository.findAllByProject_Id(Long.valueOf(projectId));
 
         if (projectUsers.isEmpty()) {
             throw new ProjectNotFound();
@@ -133,7 +133,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(ProjectNotFound::new);
 
         Organization organization = organizationProjectRepository
-                .findByOrganization_IdAndProject_Id(Integer.valueOf(orgId), Integer.valueOf(projectId))
+                .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
                 .map(OrganizationProject::getOrganization)
                 .orElseThrow(OrganizationNotFound::new);
 
@@ -160,7 +160,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Map<String, Object> getProjectTasks(String orgId, String projectId) {
-        Set<ProjectTask> projectTasks = projectTaskRepository.findAllByProject_id(Integer.valueOf(projectId));
+        Set<ProjectTask> projectTasks = projectTaskRepository.findAllByProject_id(Long.valueOf(projectId));
 
         if (projectTasks.isEmpty()) {
             throw new TaskNotFound();
@@ -261,7 +261,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private @NotNull Project getManagedProjectByUser(String projectId, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
-        Project project = projectRepository.findById(Integer.valueOf(projectId)).orElseThrow(ProjectNotFound::new);
+        Project project = projectRepository.findById(Long.valueOf(projectId)).orElseThrow(ProjectNotFound::new);
         boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(project.getId(), user.getId(), true);
 
         if (!isManager) {

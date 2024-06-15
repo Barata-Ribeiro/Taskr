@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(body.password()))
                 .build();
 
-        User savedUser = userRepository.save(user);
+        User savedUser = userRepository.saveAndFlush(user);
 
         return new RegisterResponseDTO(userMapper.toDTO(savedUser));
     }

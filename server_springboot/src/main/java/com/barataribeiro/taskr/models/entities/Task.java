@@ -26,9 +26,10 @@ import java.util.Date;
 @Builder
 public class Task {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_seq")
+    @SequenceGenerator(name = "task_seq", sequenceName = "task_seq", allocationSize = 1)
     @Column(updatable = false, nullable = false, unique = true)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     @NotNull

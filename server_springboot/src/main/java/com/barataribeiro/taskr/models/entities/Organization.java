@@ -23,9 +23,10 @@ import java.time.Instant;
 @Builder
 public class Organization {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "organization_seq")
+    @SequenceGenerator(name = "organization_seq", sequenceName = "organization_seq", allocationSize = 1)
     @Column(updatable = false, nullable = false, unique = true)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     @NotNull

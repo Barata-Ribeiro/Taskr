@@ -57,9 +57,9 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public TaskDTO createTask(String orgId, String projectId, TaskCreateRequestDTO body, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
-        Project project = projectRepository.findById(Integer.valueOf(projectId)).orElseThrow(ProjectNotFound::new);
+        Project project = projectRepository.findById(Long.valueOf(projectId)).orElseThrow(ProjectNotFound::new);
 
-        if (!projectUserRepository.existsByProject_IdAndUser_Id(Integer.valueOf(projectId), user.getId())) {
+        if (!projectUserRepository.existsByProject_IdAndUser_Id(Long.valueOf(projectId), user.getId())) {
             throw new UserIsNotInProject();
         }
 
@@ -98,8 +98,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Map<String, Object> getTaskInfo(String projectId, String taskId) {
-        ProjectTask projectTask = projectTaskRepository.findByProject_IdAndTask_Id(Integer.valueOf(projectId),
-                                                                                   Integer.valueOf(taskId))
+        ProjectTask projectTask = projectTaskRepository.findByProject_IdAndTask_Id(Long.valueOf(projectId),
+                                                                                   Long.valueOf(taskId))
                 .orElseThrow(TaskNotFound::new);
 
         Map<String, Object> response = new HashMap<>();
@@ -127,8 +127,8 @@ public class TaskServiceImpl implements TaskService {
 
     private Task getTaskIfRequestingUserIsManagerOrAdmin(String projectId, String taskId, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
-        Task task = taskRepository.findById(Integer.valueOf(taskId)).orElseThrow(TaskNotFound::new);
-        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(Integer.valueOf(projectId),
+        Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(TaskNotFound::new);
+        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(Long.valueOf(projectId),
                                                                                       user.getId(),
                                                                                       true);
         boolean isOrgAdmin = organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(),

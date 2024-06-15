@@ -98,7 +98,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public OrganizationDTO getOrganizationInfo(String id) {
-        Organization organization = organizationRepository.findById(Integer.valueOf(id)).orElseThrow(OrganizationNotFound::new);
+        Organization organization = organizationRepository.findById(Long.valueOf(id)).orElseThrow(OrganizationNotFound::new);
         return organizationMapper.toDTO(organization);
     }
 
@@ -106,7 +106,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Transactional
     public Map<String, Object> getOrganizationMembers(String id) {
         Set<OrganizationUser> organizationUsers = organizationUserRepository
-                .findAllByOrganization_Id(Integer.valueOf(id));
+                .findAllByOrganization_Id(Long.valueOf(id));
 
         if (organizationUsers.isEmpty()) {
             throw new OrganizationNotFound();
@@ -147,7 +147,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Transactional
     public Map<String, Object> getOrganizationProjects(String id) {
         Set<OrganizationProject> organizationProjects = organizationProjectRepository
-                .findAllByOrganization_Id(Integer.valueOf(id));
+                .findAllByOrganization_Id(Long.valueOf(id));
 
         if (organizationProjects.isEmpty()) {
             throw new ProjectNotFound();
@@ -179,7 +179,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             throw new UserIsNotOwner();
         }
 
-        Organization organization = organizationRepository.findById(Integer.valueOf(id))
+        Organization organization = organizationRepository.findById(Long.valueOf(id))
                 .orElseThrow(OrganizationNotFound::new);
 
         if (body.name() != null) {
@@ -210,7 +210,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public void deleteOrganization(String id, @NotNull Principal principal) {
-        Organization organization = organizationRepository.findById(Integer.valueOf(id)).orElseThrow(OrganizationNotFound::new);
+        Organization organization = organizationRepository.findById(Long.valueOf(id)).orElseThrow(OrganizationNotFound::new);
         OrganizationUser relation = organizationUserRepository.findOrganizationByUser_UsernameAndIsOwner(organization.getId(), principal.getName(), true)
                 .orElseThrow(UserIsNotOwner::new);
 

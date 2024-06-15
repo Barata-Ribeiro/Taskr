@@ -23,9 +23,10 @@ import java.time.Instant;
 @Builder
 public class Project {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "project_seq")
+    @SequenceGenerator(name = "project_seq", sequenceName = "project_seq", allocationSize = 1)
     @Column(updatable = false, nullable = false, unique = true)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     @NotNull
