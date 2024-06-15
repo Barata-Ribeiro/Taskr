@@ -110,9 +110,29 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public TaskDTO updateTask(String projectId, String taskId,
-                              TaskUpdateRequestDTO body, Principal principal) {
-        return null;
+                              @NotNull TaskUpdateRequestDTO body, Principal principal) {
+        Task task = getTaskIfRequestingUserIsManagerOrAdmin(projectId, taskId, principal);
+
+        Date parsedDueDate = body.dueDate() == null ? task.getDueDate() : parseDate(body.dueDate());
+
+        if (parsedDueDate.before(new Date())) {
+            throw new AlreadyDueDate();
+        }
+
+        TaskStatus status = body.status() == null ? task.getStatus()
+                                                  : TaskStatus.valueOf(body.status().toUpperCase());
+        TaskPriority priority = body.priority() == null ? task.getPriority()
+                                                        : TaskPriority.valueOf(body.priority().toUpperCase());
+
+        task.setTitle(body.title());
+        task.setDescription(body.description());
+        task.setStatus(status);
+        task.setPriority(priority);
+        task.setDueDate(parsedDueDate);
+
+        return taskMapper.toDTO(taskRepository.saveAndFlush(task));
     }
 
     @Override
