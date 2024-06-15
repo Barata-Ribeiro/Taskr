@@ -21,7 +21,7 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping("/project-create")
-    public ResponseEntity<RestResponseDTO> createProject(@PathVariable String orgId, ProjectCreateRequestDTO body,
+    public ResponseEntity<RestResponseDTO> createProject(@PathVariable String orgId, @RequestBody ProjectCreateRequestDTO body,
                                                          Principal principal) {
         ProjectDTO response = projectService.createProject(orgId, body, principal);
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
@@ -59,7 +59,7 @@ public class ProjectController {
 
     @PutMapping("/project/{projectId}")
     public ResponseEntity<RestResponseDTO> updateProject(@PathVariable String orgId, @PathVariable String projectId,
-                                                         ProjectUpdateRequestDTO body, Principal principal) {
+                                                         @RequestBody ProjectUpdateRequestDTO body, Principal principal) {
         Map<String, Object> response = projectService.updateProject(orgId, projectId, body, principal);
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),

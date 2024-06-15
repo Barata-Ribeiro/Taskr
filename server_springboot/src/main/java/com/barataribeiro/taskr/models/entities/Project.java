@@ -30,12 +30,12 @@ public class Project {
 
     @Column(nullable = false, unique = true)
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Project name is required.")
     private String name;
 
     @Column(nullable = false)
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Project description is required.")
     private String description;
 
     @Builder.Default

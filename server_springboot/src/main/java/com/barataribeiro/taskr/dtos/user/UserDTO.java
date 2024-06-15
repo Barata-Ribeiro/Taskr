@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.time.Instant;
 
 /**
  * DTO for {@link com.barataribeiro.taskr.models.entities.User}
@@ -24,6 +23,6 @@ public class UserDTO implements Serializable {
     private String displayName;
     private String email;
     private Roles role;
-    private Instant createdAt;
-    private Instant updatedAt;
+    private String createdAt;
+    private String updatedAt;
 }

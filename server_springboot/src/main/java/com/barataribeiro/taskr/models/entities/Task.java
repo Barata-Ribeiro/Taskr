@@ -33,12 +33,12 @@ public class Task {
 
     @Column(nullable = false, unique = true)
     @NotNull
-    @NotEmpty(message = "Title is required")
+    @NotEmpty(message = "Title is required.")
     private String title;
 
     @Column(nullable = false)
     @NotNull
-    @NotEmpty(message = "Description is required")
+    @NotEmpty(message = "Description is required.")
     private String description;
 
     @Builder.Default

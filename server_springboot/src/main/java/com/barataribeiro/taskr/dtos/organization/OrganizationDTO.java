@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.time.Instant;
 
 /**
  * DTO for {@link com.barataribeiro.taskr.models.entities.Organization}
@@ -18,9 +17,9 @@ import java.time.Instant;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OrganizationDTO implements Serializable {
-    Integer id;
-    String name;
-    String description;
-    Instant createdAt;
-    Instant updatedAt;
+    private Integer id;
+    private String name;
+    private String description;
+    private String createdAt;
+    private String updatedAt;
 }

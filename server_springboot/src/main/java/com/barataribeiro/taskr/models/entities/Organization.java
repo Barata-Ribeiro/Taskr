@@ -30,7 +30,7 @@ public class Organization {
 
     @Column(nullable = false, unique = true)
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Organization name is required.")
     private String name;
 
     private String description;
