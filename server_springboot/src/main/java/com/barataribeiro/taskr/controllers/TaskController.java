@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.controllers;
 
 import com.barataribeiro.taskr.dtos.RestResponseDTO;
+import com.barataribeiro.taskr.dtos.task.TaskCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.task.TaskDTO;
 import com.barataribeiro.taskr.dtos.task.TaskUpdateRequestDTO;
 import com.barataribeiro.taskr.services.TaskService;
@@ -20,12 +21,13 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping("/create-task")
-    public ResponseEntity<RestResponseDTO> createTask(@PathVariable String projectId) {
-
+    public ResponseEntity<RestResponseDTO> createTask(@PathVariable String projectId, @RequestBody TaskCreateRequestDTO body,
+                                                      Principal principal) {
+        TaskDTO response = taskService.createTask(projectId, body, principal);
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Task created successfully",
-                                                     null));
+                                                     response));
     }
 
     @GetMapping("/task/{taskId}")
@@ -40,12 +42,12 @@ public class TaskController {
 
     @PutMapping("/task/{taskId}")
     public ResponseEntity<RestResponseDTO> updateTask(@PathVariable String projectId, @PathVariable String taskId,
-                                                      TaskUpdateRequestDTO body, Principal principal) {
+                                                      @RequestBody TaskUpdateRequestDTO body, Principal principal) {
         TaskDTO response = taskService.updateTask(projectId, taskId, body, principal);
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Task updated successfully",
-                                                     null));
+                                                     response));
     }
 
     @DeleteMapping("/task/{taskId}")

@@ -8,8 +8,7 @@ import java.security.Principal;
 import java.util.Map;
 
 public interface TaskService {
-    TaskDTO createTask(String orgId, String projectId,
-                       TaskCreateRequestDTO body, Principal principal);
+    TaskDTO createTask(String projectId, TaskCreateRequestDTO body, Principal principal);
 
     Map<String, Object> getTaskInfo(String projectId, String taskId);
 

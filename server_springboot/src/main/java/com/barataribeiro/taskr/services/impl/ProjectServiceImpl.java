@@ -62,7 +62,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public ProjectDTO createProject(String orgId, ProjectCreateRequestDTO body, @NotNull Principal principal) {
+    public ProjectDTO createProject(String orgId, @NotNull ProjectCreateRequestDTO body, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
 
         if (user.getManagedProjects() >= 15) {
@@ -78,6 +78,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project newProject = projectRepository.save(Project.builder()
                                                             .name(body.name())
                                                             .description(body.description())
+                                                            .membersCount(1L)
                                                             .build());
 
         organizationProjectRepository.save(OrganizationProject.builder()
@@ -105,16 +106,16 @@ public class ProjectServiceImpl implements ProjectService {
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
                 .orElseThrow(ProjectNotFound::new);
 
-        Map<String, Object> project = new ObjectMapper()
-                .convertValue(projectMapper.toDTO(organizationProject.getProject()), new TypeReference<>() {});
-        Map<String, Object> projectStatus = new ObjectMapper()
-                .convertValue(organizationProject.getStatus(), new TypeReference<>() {});
+        ProjectDTO projectDTO = projectMapper.toDTO(organizationProject.getProject());
+        ProjectStatus projectStatus = organizationProject.getStatus();
 
-        project.putAll(projectStatus);
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> projectMap = objectMapper.convertValue(projectDTO, new TypeReference<>() {});
+        projectMap.put("status", projectStatus);
 
         Map<String, Object> projectInfo = new HashMap<>();
         projectInfo.put("organization", organizationProject.getOrganization());
-        projectInfo.put("project", project);
+        projectInfo.put("project", projectMap);
 
         return projectInfo;
     }

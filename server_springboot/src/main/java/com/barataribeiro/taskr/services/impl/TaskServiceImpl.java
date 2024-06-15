@@ -55,7 +55,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public TaskDTO createTask(String orgId, String projectId, TaskCreateRequestDTO body, @NotNull Principal principal) {
+    public TaskDTO createTask(String projectId, @NotNull TaskCreateRequestDTO body,
+                              @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
         Project project = projectRepository.findById(Long.valueOf(projectId)).orElseThrow(ProjectNotFound::new);
 
