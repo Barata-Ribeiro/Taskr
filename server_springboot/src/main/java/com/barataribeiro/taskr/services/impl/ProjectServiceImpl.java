@@ -19,6 +19,7 @@ import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.Task;
 import com.barataribeiro.taskr.models.entities.User;
+import com.barataribeiro.taskr.models.enums.ProjectStatus;
 import com.barataribeiro.taskr.models.enums.TaskPriority;
 import com.barataribeiro.taskr.models.relations.OrganizationProject;
 import com.barataribeiro.taskr.models.relations.ProjectTask;
@@ -202,6 +203,35 @@ public class ProjectServiceImpl implements ProjectService {
         returnData.put("project", projectMapper.toDTO(project));
         returnData.put("usersAdded", usersAdded);
         returnData.put("usersNotAdded", usersNotAdded);
+
+        return returnData;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> changeProjectStatus(String orgId, String projectId, String status, @NotNull Principal principal) {
+        OrganizationProject organizationProject = organizationProjectRepository
+                .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
+                .orElseThrow(ProjectNotFound::new);
+
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
+
+        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(organizationProject.getProject().getId(), user.getId(), true);
+
+        if (!isManager) {
+            throw new UserIsNotManager();
+        }
+
+        ProjectStatus projectStatus = status == null ? organizationProject.getStatus() : ProjectStatus.valueOf(status.toUpperCase());
+
+        organizationProject.setStatus(projectStatus);
+        organizationProjectRepository.save(organizationProject);
+
+        Map<String, Object> returnData = new HashMap<>();
+        returnData.put("organization", organizationMapper.toDTO(organizationProject.getOrganization()));
+        returnData.put("project", projectMapper.toDTO(organizationProject.getProject()));
+        returnData.put("newStatus", projectStatus);
+        returnData.put("manager", userMapper.toDTO(user));
 
         return returnData;
     }

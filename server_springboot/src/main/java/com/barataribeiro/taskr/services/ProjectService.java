@@ -18,5 +18,7 @@ public interface ProjectService {
 
     Map<String, Object> updateProject(String orgId, String projectId, ProjectUpdateRequestDTO body, Principal principal);
 
+    Map<String, Object> changeProjectStatus(String projectId, String taskId, String status, Principal principal);
+
     void deleteProject(String orgId, String projectId, Principal principal);
 }

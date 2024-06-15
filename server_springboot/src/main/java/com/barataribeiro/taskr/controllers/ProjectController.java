@@ -67,6 +67,16 @@ public class ProjectController {
                                                      response));
     }
 
+    @PutMapping("/project/{projectId}/status")
+    public ResponseEntity<RestResponseDTO> changeProjectStatus(@PathVariable String orgId, @PathVariable String projectId,
+                                                               @RequestParam String status, Principal principal) {
+        Map<String, Object> response = projectService.changeProjectStatus(orgId, projectId, status, principal);
+        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
+                                                     HttpStatus.OK.value(),
+                                                     "Project status updated successfully",
+                                                     response));
+    }
+
     @DeleteMapping("/project/{projectId}")
     public ResponseEntity<RestResponseDTO> deleteProject(@PathVariable String orgId, @PathVariable String projectId,
                                                          Principal principal) {
