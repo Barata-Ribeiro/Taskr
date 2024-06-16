@@ -51,6 +51,11 @@ public class Task {
 
     @Column(nullable = false)
     @NotNull
+    @NotEmpty(message = "Start date is required")
+    private Date startDate;
+
+    @Column(nullable = false)
+    @NotNull
     @NotEmpty(message = "Due date is required")
     private Date dueDate;
 

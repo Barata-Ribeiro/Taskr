@@ -43,6 +43,12 @@ public class Organization {
     @Column(columnDefinition = "BIGINT default '0'", nullable = false)
     private Long projectsCount = 0L;
 
+    private String logoUrl;
+
+    private String websiteUrl;
+
+    private String location;
+
     @Column(updatable = false)
     @CreationTimestamp
     private Instant createdAt;

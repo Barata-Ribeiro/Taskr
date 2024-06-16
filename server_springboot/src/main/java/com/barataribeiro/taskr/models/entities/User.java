@@ -38,6 +38,8 @@ public class User {
             message = "Display name must be between 3 and 50 characters")
     private String displayName;
 
+    private String avatarUrl;
+
     @Column(nullable = false, unique = true)
     @NotNull
     @NotEmpty(message = "Email is required")

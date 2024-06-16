@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.Date;
 
 @Entity
 @Table(name = "taskr_projects", indexes = {
@@ -37,6 +38,11 @@ public class Project {
     @NotNull
     @NotEmpty(message = "Project description is required.")
     private String description;
+
+    @Column(nullable = false)
+    @NotNull
+    @NotEmpty(message = "Dead line is required")
+    private Date deadline;
 
     @Builder.Default
     @Column(columnDefinition = "BIGINT default '0'", nullable = false)
