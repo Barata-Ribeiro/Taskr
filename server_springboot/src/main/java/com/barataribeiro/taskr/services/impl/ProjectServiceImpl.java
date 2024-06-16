@@ -150,11 +150,14 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(ProjectUser::getUser)
                 .collect(Collectors.toSet());
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> projectMap = objectMapper.convertValue(projectMapper.toDTO(project), new TypeReference<>() {});
+        projectMap.put("manager", userMapper.toDTO(projectManager));
+        projectMap.put("members", userMapper.toDTOList(new ArrayList<>(projectMembers)));
+
         Map<String, Object> returnData = new HashMap<>();
         returnData.put("organization", organizationMapper.toDTO(organization));
-        returnData.put("project", projectMapper.toDTO(project));
-        returnData.put("manager", userMapper.toDTO(projectManager));
-        returnData.put("members", userMapper.toDTOList(new ArrayList<>(projectMembers)));
+        returnData.put("project", projectMap);
 
         return returnData;
     }

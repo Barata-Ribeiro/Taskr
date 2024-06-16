@@ -22,6 +22,8 @@ import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.repositories.relations.OrganizationProjectRepository;
 import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository;
 import com.barataribeiro.taskr.services.OrganizationService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,13 +135,13 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .map(OrganizationUser::getUser)
                 .collect(Collectors.toSet());
 
-        Map<String, Object> returnData = new HashMap<>();
-        returnData.put("organization", organizationMapper.toDTO(organization));
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> returnData = objectMapper.convertValue(organizationMapper.toDTO(organization), new TypeReference<>() {});
         returnData.put("owner", userMapper.toDTO(owner));
         returnData.put("admins", userMapper.toDTOList(new ArrayList<>(admins)));
         returnData.put("members", userMapper.toDTOList(new ArrayList<>(members)));
 
-        return returnData;
+        return Map.of("organization", returnData);
     }
 
 
