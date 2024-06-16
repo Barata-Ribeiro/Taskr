@@ -28,4 +28,10 @@ public class TaskUser {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Builder.Default
+    private boolean isCreator = false;
+
+    @Builder.Default
+    private boolean isAssigned = false;
 }
