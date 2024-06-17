@@ -13,5 +13,6 @@ public record TaskCreateRequestDTO(@NotNull
 
                                    String status,
                                    String priority,
+                                   String startDate,
                                    String dueDate) implements Serializable {
 }

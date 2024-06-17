@@ -2,9 +2,11 @@ package com.barataribeiro.taskr.services.impl;
 
 import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.TaskMapper;
+import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.task.TaskCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.task.TaskDTO;
 import com.barataribeiro.taskr.dtos.task.TaskUpdateRequestDTO;
+import com.barataribeiro.taskr.exceptions.generics.BadRequest;
 import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequest;
 import com.barataribeiro.taskr.exceptions.project.ProjectNotFound;
 import com.barataribeiro.taskr.exceptions.task.AlreadyDueDate;
@@ -27,6 +29,8 @@ import com.barataribeiro.taskr.repositories.relations.ProjectTaskRepository;
 import com.barataribeiro.taskr.repositories.relations.ProjectUserRepository;
 import com.barataribeiro.taskr.repositories.relations.TaskUserRepository;
 import com.barataribeiro.taskr.services.TaskService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -52,6 +55,7 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectMapper projectMapper;
     private final TaskMapper taskMapper;
     private final OrganizationUserRepository organizationUserRepository;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
@@ -64,10 +68,15 @@ public class TaskServiceImpl implements TaskService {
             throw new UserIsNotInProject();
         }
 
+        Date parsedStartDate = body.startDate() == null ? new Date() : parseDate(body.startDate());
         Date parsedDueDate = parseDate(body.dueDate());
 
         if (parsedDueDate.before(new Date())) {
             throw new AlreadyDueDate();
+        }
+
+        if (parsedStartDate.after(parsedDueDate)) {
+            throw new BadRequest();
         }
 
         TaskStatus status = body.status() == null ? TaskStatus.OPEN : TaskStatus.valueOf(body.status().toUpperCase());
@@ -78,6 +87,7 @@ public class TaskServiceImpl implements TaskService {
                                                    .description(body.description())
                                                    .status(status)
                                                    .priority(priority)
+                                                   .startDate(parsedStartDate)
                                                    .dueDate(parsedDueDate)
                                                    .build());
 
@@ -89,6 +99,7 @@ public class TaskServiceImpl implements TaskService {
         taskUserRepository.save(TaskUser.builder()
                                         .task(newTask)
                                         .user(user)
+                                        .isCreator(true)
                                         .build());
 
         project.incrementTasksCount();
@@ -98,14 +109,34 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public Map<String, Object> getTaskInfo(String projectId, String taskId) {
         ProjectTask projectTask = projectTaskRepository.findByProject_IdAndTask_Id(Long.valueOf(projectId),
                                                                                    Long.valueOf(taskId))
                 .orElseThrow(TaskNotFound::new);
 
+        Set<TaskUser> taskUsers = taskUserRepository.findTaskCreatorAndAssignedUsersByTaskId(projectTask.getTask().getId(),
+                                                                                             true,
+                                                                                             true);
+        User taskCreator = taskUsers.stream()
+                .filter(TaskUser::isCreator)
+                .map(TaskUser::getUser)
+                .findFirst()
+                .orElseThrow(TaskNotFound::new);
+        Set<User> assignedUsers = taskUsers.stream()
+                .filter(TaskUser::isAssigned)
+                .map(TaskUser::getUser)
+                .collect(Collectors.toSet());
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> taskMap = objectMapper.convertValue(taskMapper.toDTO(projectTask.getTask()), new TypeReference<>() {});
+        taskMap.put("creator", userMapper.toDTO(taskCreator));
+        taskMap.put("assigned", userMapper.toDTOList(new ArrayList<>(assignedUsers)));
+
         Map<String, Object> response = new HashMap<>();
         response.put("project", projectMapper.toDTO(projectTask.getProject()));
-        response.put("task", taskMapper.toDTO(projectTask.getTask()));
+        response.put("task", taskMap);
 
         return response;
     }
