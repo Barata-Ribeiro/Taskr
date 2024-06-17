@@ -184,22 +184,18 @@ public class OrganizationServiceImpl implements OrganizationService {
         Organization organization = organizationRepository.findById(Long.valueOf(id))
                 .orElseThrow(OrganizationNotFound::new);
 
-        if (body.name() != null) {
-            organization.setName(body.name());
-        }
-
-        if (body.description() != null) {
-            organization.setDescription(body.description());
-        }
+        if (body.name() != null) organization.setName(body.name());
+        if (body.description() != null) organization.setDescription(body.description());
+        if (body.logoUrl() != null) organization.setLogoUrl(body.logoUrl());
+        if (body.websiteUrl() != null) organization.setWebsiteUrl(body.websiteUrl());
+        if (body.location() != null) organization.setLocation(body.location());
 
         organizationRepository.save(organization);
 
         List<String> usersNotAdded = new ArrayList<>();
         List<User> usersAdded = new ArrayList<>();
 
-        if (body.usersToAdd() != null) {
-            attemptAddUsersToOrganization(body, usersNotAdded, organization, usersAdded);
-        }
+        if (body.usersToAdd() != null) attemptAddUsersToOrganization(body, usersNotAdded, organization, usersAdded);
 
         Map<String, Object> returnData = new HashMap<>();
         returnData.put("organization", organizationMapper.toDTO(organization));

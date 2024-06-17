@@ -4,5 +4,8 @@ import java.io.Serializable;
 
 public record UpdateOrganizationRequestDTO(String name,
                                            String description,
+                                           String logoUrl,
+                                           String websiteUrl,
+                                           String location,
                                            String[] usersToAdd) implements Serializable {
 }
