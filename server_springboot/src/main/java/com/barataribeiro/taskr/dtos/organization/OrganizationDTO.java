@@ -20,6 +20,11 @@ public class OrganizationDTO implements Serializable {
     private Integer id;
     private String name;
     private String description;
+    private Long membersCount;
+    private Long projectsCount;
+    private String logoUrl;
+    private String websiteUrl;
+    private String location;
     private String createdAt;
     private String updatedAt;
 }
