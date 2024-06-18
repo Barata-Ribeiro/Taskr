@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.controllers;
 
 import com.barataribeiro.taskr.dtos.RestResponseDTO;
+import com.barataribeiro.taskr.dtos.organization.ManagementRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.UpdateOrganizationRequestDTO;
@@ -32,9 +33,7 @@ public class OrganizationController {
 
     @GetMapping("/{orgId}")
     public ResponseEntity<RestResponseDTO> getOrganizationInfo(@PathVariable String orgId) {
-
         OrganizationDTO response = organizationService.getOrganizationInfo(orgId);
-
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Organization info retrieved successfully",
@@ -43,9 +42,7 @@ public class OrganizationController {
 
     @GetMapping("/{orgId}/members")
     public ResponseEntity<RestResponseDTO> getOrganizationMembers(@PathVariable String orgId) {
-
         Map<String, Object> response = organizationService.getOrganizationMembers(orgId);
-
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Organization members retrieved successfully",
@@ -54,9 +51,7 @@ public class OrganizationController {
 
     @GetMapping("/{orgId}/projects")
     public ResponseEntity<RestResponseDTO> getOrganizationProjects(@PathVariable String orgId) {
-
         Map<String, Object> response = organizationService.getOrganizationProjects(orgId);
-
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Organization projects retrieved successfully",
@@ -66,12 +61,21 @@ public class OrganizationController {
     @PostMapping("/")
     public ResponseEntity<RestResponseDTO> createOrganization(@RequestBody OrganizationRequestDTO body,
                                                               Principal principal) {
-
         OrganizationDTO response = organizationService.createOrganization(body, principal);
-
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Organization created successfully",
+                                                     response));
+    }
+
+    @PutMapping("/{orgId}/management")
+    public ResponseEntity<RestResponseDTO> addMemberToOrganization(@PathVariable String orgId,
+                                                                   @RequestBody ManagementRequestDTO body,
+                                                                   Principal principal) {
+        Map<String, Object> response = organizationService.manageOrganizationMembers(orgId, body, principal);
+        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
+                                                     HttpStatus.OK.value(),
+                                                     "Organization members managed successfully",
                                                      response));
     }
 
@@ -79,9 +83,7 @@ public class OrganizationController {
     public ResponseEntity<RestResponseDTO> updateOrganizationInfo(@PathVariable String orgId,
                                                                   @RequestBody UpdateOrganizationRequestDTO body,
                                                                   Principal principal) {
-
         Map<String, Object> response = organizationService.updateOrganizationInfo(orgId, body, principal);
-
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Organization info updated successfully",
@@ -91,9 +93,7 @@ public class OrganizationController {
     @DeleteMapping("/{orgId}")
     public ResponseEntity<RestResponseDTO> deleteOrganization(@PathVariable String orgId,
                                                               Principal principal) {
-
         organizationService.deleteOrganization(orgId, principal);
-
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Organization deleted successfully",

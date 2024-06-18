@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.services.impl;
 import com.barataribeiro.taskr.builder.OrganizationMapper;
 import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
+import com.barataribeiro.taskr.dtos.organization.ManagementRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.UpdateOrganizationRequestDTO;
@@ -172,6 +173,36 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    public Map<String, Object> manageOrganizationMembers(String orgId, ManagementRequestDTO body, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
+
+        if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
+            throw new UserIsNotOwner();
+        }
+
+        Organization organization = organizationRepository.findById(Long.valueOf(orgId))
+                .orElseThrow(OrganizationNotFound::new);
+
+        List<String> usersNotAdded = new ArrayList<>();
+        List<User> usersAdded = new ArrayList<>();
+        List<String> usersNotRemoved = new ArrayList<>();
+        List<User> usersRemoved = new ArrayList<>();
+
+        if (body.usersToAdd() != null) attemptAddUsersToOrganization(body, usersNotAdded, organization, usersAdded);
+        if (body.usersToRemove() != null)
+            attemptRemoveUsersFromOrganization(body, usersNotRemoved, organization, usersRemoved);
+
+        Map<String, Object> returnData = new HashMap<>();
+        returnData.put("organization", organizationMapper.toDTO(organization));
+        returnData.put("usersAdded", userMapper.toDTOList(usersAdded));
+        returnData.put("usersNotAdded", usersNotAdded);
+        returnData.put("usersRemoved", userMapper.toDTOList(usersRemoved));
+        returnData.put("usersNotRemoved", usersNotRemoved);
+
+        return returnData;
+    }
+
+    @Override
     @Transactional
     public Map<String, Object> updateOrganizationInfo(String id, UpdateOrganizationRequestDTO body,
                                                       @NotNull Principal principal) {
@@ -192,17 +223,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         organizationRepository.save(organization);
 
-        List<String> usersNotAdded = new ArrayList<>();
-        List<User> usersAdded = new ArrayList<>();
-
-        if (body.usersToAdd() != null) attemptAddUsersToOrganization(body, usersNotAdded, organization, usersAdded);
-
-        Map<String, Object> returnData = new HashMap<>();
-        returnData.put("organization", organizationMapper.toDTO(organization));
-        returnData.put("usersAdded", userMapper.toDTOList(usersAdded));
-        returnData.put("usersNotAdded", usersNotAdded);
-
-        return returnData;
+        return Map.of("organization", organizationMapper.toDTO(organization));
     }
 
     @Override
@@ -216,7 +237,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         organizationRepository.delete(organization);
     }
 
-    private void attemptAddUsersToOrganization(@NotNull UpdateOrganizationRequestDTO body, List<String> usersNotAdded,
+    private void attemptAddUsersToOrganization(@NotNull ManagementRequestDTO body, List<String> usersNotAdded,
                                                Organization organization, List<User> usersAdded) {
         for (String username : body.usersToAdd()) {
             userRepository.findByUsername(username)
@@ -236,6 +257,27 @@ public class OrganizationServiceImpl implements OrganizationService {
                                 }
                             },
                             () -> usersNotAdded.add(username)
+                    );
+        }
+    }
+
+    private void attemptRemoveUsersFromOrganization(@NotNull ManagementRequestDTO body, List<String> usersNotRemoved,
+                                                    Organization organization, List<User> usersRemoved) {
+        for (String username : body.usersToRemove()) {
+            userRepository.findByUsername(username)
+                    .ifPresentOrElse(
+                            userToRemove -> {
+                                if (organizationUserRepository.existsByUser_Id(userToRemove.getId())) {
+                                    OrganizationUser relation = organizationUserRepository
+                                            .findOrganizationByUser_UsernameAndIsOwner(organization.getId(), username, false)
+                                            .orElseThrow(UserIsNotOwner::new);
+                                    organizationUserRepository.delete(relation);
+                                    usersRemoved.add(userToRemove);
+                                } else {
+                                    usersNotRemoved.add(username);
+                                }
+                            },
+                            () -> usersNotRemoved.add(username)
                     );
         }
     }
