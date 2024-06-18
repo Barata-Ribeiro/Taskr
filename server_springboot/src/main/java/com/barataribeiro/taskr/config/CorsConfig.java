@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.config;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -9,13 +10,12 @@ import java.util.Arrays;
 
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
+    private static final long MAX_AGE_SECS = 3600;
     @Value("${api.security.cors.origins}")
     private String ALLOWED_ORIGINS;
 
-    private static final long MAX_AGE_SECS = 3600;
-
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
+    public void addCorsMappings(@NotNull CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(Arrays.stream(ALLOWED_ORIGINS.split(",")).toArray(String[]::new))
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
