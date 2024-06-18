@@ -29,8 +29,8 @@ public class Organization {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    @NotNull
-    @NotEmpty(message = "Organization name is required.")
+    @NotNull(message = "Organization name is required.")
+    @NotEmpty(message = "Organization name must not be empty.")
     private String name;
 
     private String description;

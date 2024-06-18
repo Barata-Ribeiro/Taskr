@@ -30,18 +30,18 @@ public class Project {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    @NotNull
-    @NotEmpty(message = "Project name is required.")
+    @NotNull(message = "Project name is required.")
+    @NotEmpty(message = "Project name must not be empty.")
     private String name;
 
     @Column(nullable = false)
-    @NotNull
-    @NotEmpty(message = "Project description is required.")
+    @NotNull(message = "Project description is required.")
+    @NotEmpty(message = "Project description must not be empty.")
     private String description;
 
     @Column(nullable = false)
-    @NotNull
-    @NotEmpty(message = "Dead line is required")
+    @NotNull(message = "Dead line is required.")
+    @NotEmpty(message = "Dead line must not be empty.")
     private Date deadline;
 
     @Builder.Default

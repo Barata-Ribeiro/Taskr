@@ -28,29 +28,26 @@ public class User {
     private String id;
 
     @Column(nullable = false, unique = true)
-    @NotNull
-    @NotEmpty(message = "Username is required")
-    @Size(min = 3, max = 50,
-            message = "Username must be between 3 and 50 characters")
+    @NotNull(message = "Username is required.")
+    @NotEmpty(message = "Username must not be empty.")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters.")
     private String username;
 
-    @Size(min = 3, max = 50,
-            message = "Display name must be between 3 and 50 characters")
+    @Size(min = 3, max = 50, message = "Display name must be between 3 and 50 characters.")
     private String displayName;
 
     private String avatarUrl;
 
     @Column(nullable = false, unique = true)
-    @NotNull
-    @NotEmpty(message = "Email is required")
-    @Email(regexp = "[A-Za-z0-9._%-+]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}",
-            message = "You must provide a valid email address.")
+    @NotNull(message = "Email is required")
+    @NotEmpty(message = "Email must not be empty")
+    @Email(regexp = "[A-Za-z0-9._%-+]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}", message = "You must provide a valid email address.")
     private String email;
 
     @Column(nullable = false)
-    @NotNull
-    @NotEmpty(message = "Password is required")
-    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
+    @NotNull(message = "Password is required.")
+    @NotEmpty(message = "Password must not be empty.")
+    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters.")
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$",
             message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, one special character and no whitespace.")
     private String password;
@@ -60,7 +57,7 @@ public class User {
     private Roles role = Roles.SERVICE_USER;
 
     @Builder.Default
-    @Max(value = 15, message = "An user can manage up to 15 projects")
+    @Max(value = 15, message = "An user can manage up to 15 projects.")
     @Column(columnDefinition = "integer default 0", nullable = false)
     private int managedProjects = 0;
 

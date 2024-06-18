@@ -32,13 +32,13 @@ public class Task {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    @NotNull
-    @NotEmpty(message = "Title is required.")
+    @NotNull(message = "Title is required.")
+    @NotEmpty(message = "Title must not be empty.")
     private String title;
 
     @Column(nullable = false)
-    @NotNull
-    @NotEmpty(message = "Description is required.")
+    @NotNull(message = "Description is required.")
+    @NotEmpty(message = "Description must not be empty.")
     private String description;
 
     @Builder.Default
@@ -50,13 +50,13 @@ public class Task {
     private TaskPriority priority = TaskPriority.LOW;
 
     @Column(nullable = false)
-    @NotNull
-    @NotEmpty(message = "Start date is required")
+    @NotNull(message = "Start date is required.")
+    @NotEmpty(message = "Start date must not be empty.")
     private Date startDate;
 
     @Column(nullable = false)
-    @NotNull
-    @NotEmpty(message = "Due date is required")
+    @NotNull(message = "Due date is required.")
+    @NotEmpty(message = "Due date must not be empty.")
     private Date dueDate;
 
     @Column(updatable = false)

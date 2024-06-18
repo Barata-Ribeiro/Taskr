@@ -5,10 +5,8 @@ import com.barataribeiro.taskr.dtos.user.UserDTO;
 import java.io.Serializable;
 import java.time.Instant;
 
-public record LoginResponseDTO(
-        UserDTO user,
-        String accessToken,
-        String refreshToken,
-        Instant refreshTokenExpiresAt
-) implements Serializable {
+public record LoginResponseDTO(UserDTO user,
+                               String accessToken,
+                               String refreshToken,
+                               Instant refreshTokenExpiresAt) implements Serializable {
 }
