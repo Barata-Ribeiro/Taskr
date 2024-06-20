@@ -10,6 +10,7 @@ import com.barataribeiro.taskr.exceptions.generics.BadRequest;
 import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequest;
 import com.barataribeiro.taskr.exceptions.project.ProjectNotFound;
 import com.barataribeiro.taskr.exceptions.task.AlreadyDueDate;
+import com.barataribeiro.taskr.exceptions.task.StartDateAfterDueDate;
 import com.barataribeiro.taskr.exceptions.task.TaskNotFound;
 import com.barataribeiro.taskr.exceptions.task.WrongDueDateFormat;
 import com.barataribeiro.taskr.exceptions.user.UserIsNotInProject;
@@ -49,13 +50,13 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
+    private final OrganizationUserRepository organizationUserRepository;
     private final ProjectUserRepository projectUserRepository;
     private final ProjectTaskRepository projectTaskRepository;
     private final TaskUserRepository taskUserRepository;
+    private final UserMapper userMapper;
     private final ProjectMapper projectMapper;
     private final TaskMapper taskMapper;
-    private final OrganizationUserRepository organizationUserRepository;
-    private final UserMapper userMapper;
 
     @Override
     @Transactional
@@ -148,10 +149,10 @@ public class TaskServiceImpl implements TaskService {
         Task task = getTaskIfRequestingUserIsManagerOrAdmin(projectId, taskId, principal);
 
         Date parsedDueDate = body.dueDate() == null ? task.getDueDate() : parseDate(body.dueDate());
+        Date parsedStartDate = body.startDate() == null ? task.getStartDate() : parseDate(body.startDate());
 
-        if (parsedDueDate.before(new Date())) {
-            throw new AlreadyDueDate();
-        }
+        if (parsedDueDate.before(new Date())) throw new AlreadyDueDate();
+        if (parsedStartDate.after(parsedDueDate)) throw new StartDateAfterDueDate();
 
         TaskStatus status = body.status() == null ? task.getStatus()
                                                   : TaskStatus.valueOf(body.status().toUpperCase());
@@ -162,9 +163,10 @@ public class TaskServiceImpl implements TaskService {
         task.setDescription(body.description());
         task.setStatus(status);
         task.setPriority(priority);
+        task.setStartDate(parsedStartDate);
         task.setDueDate(parsedDueDate);
 
-        return taskMapper.toDTO(taskRepository.saveAndFlush(task));
+        return taskMapper.toDTO(taskRepository.save(task));
     }
 
     @Override
