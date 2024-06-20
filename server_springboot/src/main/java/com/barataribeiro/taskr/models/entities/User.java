@@ -31,11 +31,18 @@ public class User {
     @NotNull(message = "Username is required.")
     @NotEmpty(message = "Username must not be empty.")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters.")
+    @Pattern(regexp = "^[a-z]*$", message = "Username must contain only lowercase letters.")
     private String username;
 
     @Size(min = 3, max = 50, message = "Display name must be between 3 and 50 characters.")
+    @Pattern(regexp = "^[a-zA-Z ]*$", message = "Display name must contain only letters, and spaces.")
     private String displayName;
+    
+    private String firstName;
 
+    private String lastName;
+
+    @Pattern(regexp = "((((https?|ftps?|gopher|telnet|nntp)://)|(mailto:|news:))([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)", message = "You must provide a valid URL.")
     private String avatarUrl;
 
     @Column(nullable = false, unique = true)
