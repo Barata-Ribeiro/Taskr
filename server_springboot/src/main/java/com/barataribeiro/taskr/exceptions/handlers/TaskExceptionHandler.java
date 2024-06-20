@@ -2,6 +2,7 @@ package com.barataribeiro.taskr.exceptions.handlers;
 
 import com.barataribeiro.taskr.exceptions.RestErrorMessage;
 import com.barataribeiro.taskr.exceptions.task.AlreadyDueDate;
+import com.barataribeiro.taskr.exceptions.task.StartDateAfterDueDate;
 import com.barataribeiro.taskr.exceptions.task.TaskNotFound;
 import com.barataribeiro.taskr.exceptions.task.WrongDueDateFormat;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,12 @@ public class TaskExceptionHandler {
 
     @ExceptionHandler(AlreadyDueDate.class)
     private ResponseEntity<RestErrorMessage> alreadyDueDate(AlreadyDueDate exception) {
+        RestErrorMessage errorMessage = new RestErrorMessage(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+    }
+
+    @ExceptionHandler(StartDateAfterDueDate.class)
+    private ResponseEntity<RestErrorMessage> startDateAfterDueDate(StartDateAfterDueDate exception) {
         RestErrorMessage errorMessage = new RestErrorMessage(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
     }
