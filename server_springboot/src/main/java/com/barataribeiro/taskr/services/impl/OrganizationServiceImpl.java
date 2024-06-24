@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.services.impl;
 import com.barataribeiro.taskr.builder.OrganizationMapper;
 import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
+import com.barataribeiro.taskr.config.AppConstants;
 import com.barataribeiro.taskr.dtos.organization.ManagementRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
@@ -142,7 +143,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         returnData.put("admins", userMapper.toDTOList(new ArrayList<>(admins)));
         returnData.put("members", userMapper.toDTOList(new ArrayList<>(members)));
 
-        return Map.of("organization", returnData);
+        return Map.of(AppConstants.ORGANIZATION, returnData);
     }
 
 
@@ -166,7 +167,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .collect(Collectors.toSet());
 
         Map<String, Object> returnData = new HashMap<>();
-        returnData.put("organization", organizationMapper.toDTO(organization));
+        returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
         returnData.put("projects", projectMapper.toDTOList(new ArrayList<>(projects)));
 
         return returnData;
@@ -193,7 +194,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             attemptRemoveUsersFromOrganization(body, usersNotRemoved, organization, usersRemoved);
 
         Map<String, Object> returnData = new HashMap<>();
-        returnData.put("organization", organizationMapper.toDTO(organization));
+        returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
         returnData.put("usersAdded", userMapper.toDTOList(usersAdded));
         returnData.put("usersNotAdded", usersNotAdded);
         returnData.put("usersRemoved", userMapper.toDTOList(usersRemoved));
@@ -223,7 +224,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         organizationRepository.save(organization);
 
-        return Map.of("organization", organizationMapper.toDTO(organization));
+        return Map.of(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
     }
 
     @Override

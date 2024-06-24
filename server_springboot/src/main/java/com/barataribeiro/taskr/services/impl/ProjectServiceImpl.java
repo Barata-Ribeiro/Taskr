@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.builder.OrganizationMapper;
 import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.TaskMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
+import com.barataribeiro.taskr.config.AppConstants;
 import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
@@ -114,8 +115,8 @@ public class ProjectServiceImpl implements ProjectService {
         projectMap.put("status", projectStatus);
 
         Map<String, Object> projectInfo = new HashMap<>();
-        projectInfo.put("organization", organizationProject.getOrganization());
-        projectInfo.put("project", projectMap);
+        projectInfo.put(AppConstants.ORGANIZATION, organizationProject.getOrganization());
+        projectInfo.put(AppConstants.PROJECT, projectMap);
 
         return projectInfo;
     }
@@ -156,8 +157,8 @@ public class ProjectServiceImpl implements ProjectService {
         projectMap.put("members", userMapper.toDTOList(new ArrayList<>(projectMembers)));
 
         Map<String, Object> returnData = new HashMap<>();
-        returnData.put("organization", organizationMapper.toDTO(organization));
-        returnData.put("project", projectMap);
+        returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
+        returnData.put(AppConstants.PROJECT, projectMap);
 
         return returnData;
     }
@@ -176,7 +177,7 @@ public class ProjectServiceImpl implements ProjectService {
         Map<String, Object> sortedTasks = sortTasksByPriority(tasks);
 
         Map<String, Object> returnData = new HashMap<>();
-        returnData.put("project", projectMapper.toDTO(project));
+        returnData.put(AppConstants.PROJECT, projectMapper.toDTO(project));
         returnData.put("tasks", sortedTasks);
 
         return returnData;
@@ -204,7 +205,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         Map<String, Object> returnData = new HashMap<>();
-        returnData.put("project", projectMapper.toDTO(project));
+        returnData.put(AppConstants.PROJECT, projectMapper.toDTO(project));
         returnData.put("usersAdded", usersAdded);
         returnData.put("usersNotAdded", usersNotAdded);
 
@@ -232,8 +233,8 @@ public class ProjectServiceImpl implements ProjectService {
         organizationProjectRepository.save(organizationProject);
 
         Map<String, Object> returnData = new HashMap<>();
-        returnData.put("organization", organizationMapper.toDTO(organizationProject.getOrganization()));
-        returnData.put("project", projectMapper.toDTO(organizationProject.getProject()));
+        returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organizationProject.getOrganization()));
+        returnData.put(AppConstants.PROJECT, projectMapper.toDTO(organizationProject.getProject()));
         returnData.put("newStatus", projectStatus);
         returnData.put("manager", userMapper.toDTO(user));
 

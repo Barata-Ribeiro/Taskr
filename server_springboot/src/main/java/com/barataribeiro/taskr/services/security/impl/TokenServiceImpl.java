@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.barataribeiro.taskr.config.AppConstants;
 import com.barataribeiro.taskr.exceptions.generics.InternalServerError;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.services.security.TokenService;
@@ -39,7 +40,7 @@ public class TokenServiceImpl implements TokenService {
             expirationDate = this.generateExpirationDateInDays(rememberMe != null && rememberMe ? 365 : 1);
 
             token = JWT.create()
-                    .withIssuer("auth0")
+                    .withIssuer(AppConstants.AUTH_0)
                     .withSubject(user.getUsername())
                     .withExpiresAt(expirationDate)
                     .sign(algorithm);
@@ -61,7 +62,7 @@ public class TokenServiceImpl implements TokenService {
             expirationDate = this.generateExpirationDateInMinutes();
 
             token = JWT.create()
-                    .withIssuer("auth0")
+                    .withIssuer(AppConstants.AUTH_0)
                     .withSubject(user.getUsername())
                     .withExpiresAt(expirationDate)
                     .sign(algorithm);
@@ -79,7 +80,7 @@ public class TokenServiceImpl implements TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
             return JWT.require(algorithm)
-                    .withIssuer("auth0")
+                    .withIssuer(AppConstants.AUTH_0)
                     .build()
                     .verify(token)
                     .getSubject();
