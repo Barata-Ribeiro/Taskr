@@ -37,7 +37,7 @@ public class User {
     @Size(min = 3, max = 50, message = "Display name must be between 3 and 50 characters.")
     @Pattern(regexp = "^[a-zA-Z ]*$", message = "Display name must contain only letters, and spaces.")
     private String displayName;
-    
+
     private String firstName;
 
     private String lastName;
@@ -55,7 +55,7 @@ public class User {
     @NotNull(message = "Password is required.")
     @NotEmpty(message = "Password must not be empty.")
     @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters.")
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$",
+    @Pattern(regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$",
             message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, one special character and no whitespace.")
     private String password;
 

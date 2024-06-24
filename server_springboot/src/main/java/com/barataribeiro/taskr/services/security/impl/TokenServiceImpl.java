@@ -9,6 +9,8 @@ import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.services.security.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TokenServiceImpl implements TokenService {
+    Logger logger = LoggerFactory.getLogger(TokenServiceImpl.class);
+
     @Value("${api.security.token.secret}")
     private String secret_key;
 
@@ -42,7 +46,7 @@ public class TokenServiceImpl implements TokenService {
 
             return new AbstractMap.SimpleEntry<>(token, expirationDate);
         } catch (IllegalArgumentException | JWTCreationException exception) {
-            System.err.println(exception.getMessage());
+            logger.error(exception.getMessage());
             throw new InternalServerError();
         }
     }
@@ -64,7 +68,7 @@ public class TokenServiceImpl implements TokenService {
 
             return new AbstractMap.SimpleEntry<>(token, expirationDate);
         } catch (IllegalArgumentException | JWTCreationException exception) {
-            System.err.println(exception.getMessage());
+            logger.error(exception.getMessage());
             throw new InternalServerError();
         }
     }
@@ -80,17 +84,13 @@ public class TokenServiceImpl implements TokenService {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException exception) {
-            System.err.println(exception.getMessage());
+            logger.error(exception.getMessage());
             return null;
         }
     }
 
     private Instant generateExpirationDateInDays(Integer days) {
         return LocalDateTime.now(ZoneOffset.UTC).plusDays(days).toInstant(ZoneOffset.UTC);
-    }
-
-    private Instant generateExpirationDateInHours(int hours) {
-        return LocalDateTime.now(ZoneOffset.UTC).plusHours(hours).toInstant(ZoneOffset.UTC);
     }
 
     private Instant generateExpirationDateInMinutes() {

@@ -6,6 +6,8 @@ import com.barataribeiro.taskr.models.enums.Roles;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +20,7 @@ public class MainSeeder {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-
+    Logger logger = LoggerFactory.getLogger(MainSeeder.class);
     @Value("${api.security.seeder.admin.username}")
     private String ADMIN_USERNAME;
 
@@ -53,14 +55,14 @@ public class MainSeeder {
 
             userRepository.save(admin);
 
-            System.out.println("Admin user created.");
-            System.out.println("Admin: " + userMapper.toDTO(admin));
+            logger.info("Admin user created.");
+            logger.info("Admin: {}", userMapper.toDTO(admin));
         }
 
-        System.out.println("Admin user already exists.");
+        logger.warn("Admin user already exists.");
         User admin = userRepository.findByUsername(ADMIN_USERNAME)
                 .orElseThrow(() -> new RuntimeException("Admin user not found and could not be created."));
-        System.out.println("Admin: " + userMapper.toDTO(admin));
+        logger.info("Admin: {}", userMapper.toDTO(admin));
 
     }
 }

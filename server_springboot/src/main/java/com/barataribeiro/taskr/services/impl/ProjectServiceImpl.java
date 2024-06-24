@@ -262,7 +262,7 @@ public class ProjectServiceImpl implements ProjectService {
         return tasks.stream()
                 .filter(task -> task.getPriority().equals(priority))
                 .map(taskMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Project getProjectFromTasks(@NotNull Set<ProjectTask> projectTasks) {

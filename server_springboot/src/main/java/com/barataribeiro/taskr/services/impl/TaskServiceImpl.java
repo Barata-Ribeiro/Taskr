@@ -34,6 +34,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +59,7 @@ public class TaskServiceImpl implements TaskService {
     private final UserMapper userMapper;
     private final ProjectMapper projectMapper;
     private final TaskMapper taskMapper;
+    Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     @Override
     @Transactional
@@ -200,7 +203,7 @@ public class TaskServiceImpl implements TaskService {
         try {
             return formatter.parse(date);
         } catch (ParseException e) {
-            System.out.println("Invalid date format - " + e.getMessage());
+            logger.error("Invalid date format - {}", e.getMessage());
             throw new WrongDueDateFormat();
         }
     }

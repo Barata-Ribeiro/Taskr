@@ -37,7 +37,6 @@ public class SecurityFilter extends OncePerRequestFilter {
             var login = tokenService.validateToken(token);
 
             if (login != null) {
-                String language = request.getHeader("Content-Language");
                 User user = userRepository.findByUsername(login).orElseThrow(UserNotFound::new);
                 var authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
                 var authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
