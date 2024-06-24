@@ -22,34 +22,34 @@ public class MainSeeder {
     private final PasswordEncoder passwordEncoder;
     Logger logger = LoggerFactory.getLogger(MainSeeder.class);
     @Value("${api.security.seeder.admin.username}")
-    private String ADMIN_USERNAME;
+    private String adminUsername;
 
     @Value("${api.security.seeder.admin.displayName}")
-    private String ADMIN_DISPLAY_NAME;
+    private String adminDisplayName;
 
     @Value("${api.security.seeder.admin.firstName}")
-    private String ADMIN_FIRST_NAME;
+    private String adminFirstName;
 
     @Value("${api.security.seeder.admin.lastName}")
-    private String ADMIN_LAST_NAME;
+    private String adminLastName;
 
     @Value("${api.security.seeder.admin.email}")
-    private String ADMIN_EMAIL;
+    private String adminEmail;
 
     @Value("${api.security.seeder.admin.password}")
-    private String ADMIN_PASSWORD;
+    private String adminPassword;
 
     @PostConstruct
     @Transactional
     public void seedAdmin() {
-        if (!userRepository.existsByUsername(ADMIN_USERNAME)) {
+        if (!userRepository.existsByUsername(adminUsername)) {
             User admin = User.builder()
-                    .username(ADMIN_USERNAME)
-                    .displayName(ADMIN_DISPLAY_NAME)
-                    .firstName(ADMIN_FIRST_NAME)
-                    .lastName(ADMIN_LAST_NAME)
-                    .email(ADMIN_EMAIL)
-                    .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                    .username(adminUsername)
+                    .displayName(adminDisplayName)
+                    .firstName(adminFirstName)
+                    .lastName(adminLastName)
+                    .email(adminEmail)
+                    .password(passwordEncoder.encode(adminPassword))
                     .role(Roles.SERVICE_ADMIN)
                     .build();
 
@@ -60,7 +60,7 @@ public class MainSeeder {
         }
 
         logger.warn("Admin user already exists.");
-        User admin = userRepository.findByUsername(ADMIN_USERNAME)
+        User admin = userRepository.findByUsername(adminUsername)
                 .orElseThrow(() -> new RuntimeException("Admin user not found and could not be created."));
         logger.info("Admin: {}", userMapper.toDTO(admin));
 

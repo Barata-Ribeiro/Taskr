@@ -11,13 +11,14 @@ import java.util.Arrays;
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
     private static final long MAX_AGE_SECS = 3600;
+
     @Value("${api.security.cors.origins}")
-    private String ALLOWED_ORIGINS;
+    private String allowedOrigins;
 
     @Override
     public void addCorsMappings(@NotNull CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(Arrays.stream(ALLOWED_ORIGINS.split(",")).toArray(String[]::new))
+                .allowedOrigins(Arrays.stream(allowedOrigins.split(",")).toArray(String[]::new))
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
                 .exposedHeaders("Authorization")

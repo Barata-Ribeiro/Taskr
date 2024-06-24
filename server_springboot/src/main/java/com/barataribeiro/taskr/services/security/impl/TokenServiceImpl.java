@@ -27,7 +27,7 @@ public class TokenServiceImpl implements TokenService {
     Logger logger = LoggerFactory.getLogger(TokenServiceImpl.class);
 
     @Value("${api.security.token.secret}")
-    private String secret_key;
+    private String secretKey;
 
     @Override
     public Map.Entry<String, Instant> generateRefreshToken(@NotNull User user, Boolean rememberMe) {
@@ -35,7 +35,7 @@ public class TokenServiceImpl implements TokenService {
         String token;
 
         try {
-            Algorithm algorithm = Algorithm.HMAC256(secret_key);
+            Algorithm algorithm = Algorithm.HMAC256(secretKey);
             expirationDate = this.generateExpirationDateInDays(rememberMe != null && rememberMe ? 365 : 1);
 
             token = JWT.create()
@@ -57,7 +57,7 @@ public class TokenServiceImpl implements TokenService {
         String token;
 
         try {
-            Algorithm algorithm = Algorithm.HMAC256(secret_key);
+            Algorithm algorithm = Algorithm.HMAC256(secretKey);
             expirationDate = this.generateExpirationDateInMinutes();
 
             token = JWT.create()
@@ -76,7 +76,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String validateToken(String token) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(secret_key);
+            Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
             return JWT.require(algorithm)
                     .withIssuer("auth0")
