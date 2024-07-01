@@ -26,10 +26,10 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-    const sortedStyles = tw`${roboto.variable} ${nunino.variable} h-full w-full bg-white dark:bg-black`
+    const sortedStyles = tw`${roboto.variable} ${nunino.variable} text-body-50 dark:bg-background-50 dark:text-body-950 h-full w-full bg-white`
 
     return (
-        <html lang='en'>
+        <html lang="en">
             <body className={sortedStyles}>{children}</body>
         </html>
     )

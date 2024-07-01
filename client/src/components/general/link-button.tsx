@@ -9,7 +9,7 @@ export default function LinkButton({
     className,
     ...props
 }: Readonly<AnchorHTMLAttributes<HTMLAnchorElement>>) {
-    const sortedClasses = tw`min-h-fit flex-1 select-none focus:outline-none`
+    const sortedClasses = tw`cursor-pointer transition-all focus:outline-none`
     const mergedClassName = twMerge(sortedClasses, className)
 
     return (
