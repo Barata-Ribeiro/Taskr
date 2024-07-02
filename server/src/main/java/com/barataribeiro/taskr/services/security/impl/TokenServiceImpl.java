@@ -31,35 +31,13 @@ public class TokenServiceImpl implements TokenService {
     private String secretKey;
 
     @Override
-    public Map.Entry<String, Instant> generateRefreshToken(@NotNull User user, Boolean rememberMe) {
+    public Map.Entry<String, Instant> generateToken(@NotNull User user, Boolean rememberMe) {
         Instant expirationDate;
         String token;
 
         try {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
             expirationDate = this.generateExpirationDateInDays(rememberMe != null && rememberMe ? 365 : 1);
-
-            token = JWT.create()
-                    .withIssuer(AppConstants.AUTH_0)
-                    .withSubject(user.getUsername())
-                    .withExpiresAt(expirationDate)
-                    .sign(algorithm);
-
-            return new AbstractMap.SimpleEntry<>(token, expirationDate);
-        } catch (IllegalArgumentException | JWTCreationException exception) {
-            logger.error(exception.getMessage());
-            throw new InternalServerError();
-        }
-    }
-
-    @Override
-    public Map.Entry<String, Instant> generateAccessToken(@NotNull User user) {
-        Instant expirationDate;
-        String token;
-
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(secretKey);
-            expirationDate = this.generateExpirationDateInMinutes();
 
             token = JWT.create()
                     .withIssuer(AppConstants.AUTH_0)
@@ -92,9 +70,5 @@ public class TokenServiceImpl implements TokenService {
 
     private Instant generateExpirationDateInDays(Integer days) {
         return LocalDateTime.now(ZoneOffset.UTC).plusDays(days).toInstant(ZoneOffset.UTC);
-    }
-
-    private Instant generateExpirationDateInMinutes() {
-        return LocalDateTime.now(ZoneOffset.UTC).plusMinutes(15).toInstant(ZoneOffset.UTC);
     }
 }
