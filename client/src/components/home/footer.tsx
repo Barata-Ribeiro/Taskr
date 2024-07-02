@@ -14,7 +14,7 @@ export default function Footer() {
             <div className="text-center">
                 <h2 className="text-3xl font-extrabold sm:text-5xl">Start Managing Now</h2>
 
-                <p className="mx-auto mt-4 max-w-sm text-body-300">
+                <p className="mx-auto mt-4 max-w-sm leading-relaxed text-body-300 antialiased">
                     Click the button below to start managing your projects and tasks with ease, for free.
                 </p>
 
@@ -31,7 +31,7 @@ export default function Footer() {
                         href="#hero">
                         <span className="sr-only">Back to top</span>
 
-                        <FaAnglesUp size={22} />
+                        <FaAnglesUp className="text-base md:text-xl lg:text-2xl" />
                     </LinkButton>
                 </div>
 
@@ -39,7 +39,7 @@ export default function Footer() {
                     <div>
                         <div className="flex justify-center text-accent-600 lg:justify-start">LOGO HERE</div>
 
-                        <p className="mx-auto mt-6 max-w-md text-center leading-relaxed text-body-400 lg:text-left">
+                        <p className="mx-auto mt-6 max-w-md text-center leading-relaxed text-body-400 antialiased lg:text-left">
                             Taskr is a free software that helps you manage your projects and tasks with ease. You are
                             free to use it for personal and commercial projects. Enjoy!
                         </p>
