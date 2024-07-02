@@ -6,7 +6,7 @@ export default function Home() {
     return (
         <Fragment>
             <Header />
-            <main>
+            <main className="container h-screen">
                 <h1>Welcome to Test!</h1>
             </main>
             <Footer />
