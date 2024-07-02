@@ -83,13 +83,10 @@ public class OrganizationServiceImpl implements OrganizationService {
             throw new BadRequest();
         }
 
-        Page<Organization> organizationPage = organizationRepository.getAllOrganizationsPageable(paging);
+        Page<Organization> organizationPage = organizationRepository.findAllOrganizationsPageable(paging);
 
-        if (organizationPage.isEmpty()) {
-            throw new OrganizationNotFound();
-        }
-
-        List<OrganizationDTO> organizations = organizationMapper.toDTOList(organizationPage.getContent());
+        List<OrganizationDTO> organizations = organizationPage.isEmpty() ? new ArrayList<>() :
+                                              organizationMapper.toDTOList(organizationPage.getContent());
 
         Map<String, Object> returnData = new HashMap<>();
         returnData.put("organizations", organizations);
@@ -98,6 +95,13 @@ public class OrganizationServiceImpl implements OrganizationService {
         returnData.put("totalPages", organizationPage.getTotalPages());
 
         return returnData;
+    }
+
+    @Override
+    public Map<String, Object> getTopThreeOrganizations() {
+        List<Organization> organizations = organizationRepository.findDistinctTop3ByOrderByCreatedAtDesc();
+        return Map.of("organizations", organizations.isEmpty() ? new ArrayList<>() :
+                                       organizationMapper.toDTOList(organizations));
     }
 
     @Override
@@ -174,7 +178,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public Map<String, Object> manageOrganizationMembers(String orgId, ManagementRequestDTO body, Principal principal) {
+    public Map<String, Object> manageOrganizationMembers(String orgId, ManagementRequestDTO body, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
 
         if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {

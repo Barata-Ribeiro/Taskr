@@ -13,6 +13,8 @@ public interface OrganizationService {
 
     Map<String, Object> getAllOrganizations(int page, int perPage);
 
+    Map<String, Object> getTopThreeOrganizations();
+
     OrganizationDTO getOrganizationInfo(String id);
 
     Map<String, Object> getOrganizationMembers(String id);
@@ -24,4 +26,5 @@ public interface OrganizationService {
     Map<String, Object> updateOrganizationInfo(String id, UpdateOrganizationRequestDTO body, Principal principal);
 
     void deleteOrganization(String id, Principal principal);
+
 }

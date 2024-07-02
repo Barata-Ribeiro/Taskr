@@ -31,6 +31,15 @@ public class OrganizationController {
                                                      response));
     }
 
+    @GetMapping("/")
+    public ResponseEntity<RestResponseDTO> getTopThreeOrganizations() {
+        Map<String, Object> response = organizationService.getTopThreeOrganizations();
+        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
+                                                     HttpStatus.OK.value(),
+                                                     "Top three organizations retrieved successfully",
+                                                     response));
+    }
+
     @GetMapping("/{orgId}")
     public ResponseEntity<RestResponseDTO> getOrganizationInfo(@PathVariable String orgId) {
         OrganizationDTO response = organizationService.getOrganizationInfo(orgId);
