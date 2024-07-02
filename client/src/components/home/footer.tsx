@@ -10,9 +10,9 @@ export default function Footer() {
     }
 
     return (
-        <footer className="bg-gradient-to-tr from-background-50 via-white to-background-50">
+        <footer className="bg-gradient-to-tr from-background-50 via-white to-background-50 font-body">
             <div className="text-center">
-                <h2 className="text-3xl font-extrabold sm:text-5xl">Start Managing Now</h2>
+                <h2 className="font-heading text-3xl font-extrabold sm:text-5xl">Start Managing Now</h2>
 
                 <p className="mx-auto mt-4 max-w-sm leading-relaxed text-body-300 antialiased">
                     Click the button below to start managing your projects and tasks with ease, for free.
@@ -20,7 +20,7 @@ export default function Footer() {
 
                 <LinkButton
                     href="/sign/up"
-                    className="mt-8 inline-block rounded-lg bg-gradient-to-tl from-primary-500 to-primary-600 px-6 py-2 text-sm font-medium text-body-50 hover:from-primary-600 hover:to-primary-700 focus:ring active:from-primary-700 active:to-primary-800">
+                    className="mt-8 inline-block select-none rounded-lg bg-gradient-to-tl from-primary-500 to-primary-600 px-6 py-2 font-heading text-sm font-medium text-body-50 hover:from-primary-600 hover:to-primary-700 focus:ring active:from-primary-700 active:to-primary-800">
                     Get Started
                 </LinkButton>
             </div>
@@ -48,7 +48,9 @@ export default function Footer() {
                     <ul className="mt-12 flex flex-wrap justify-center gap-6 md:gap-8 lg:mt-0 lg:justify-end lg:gap-12">
                         {Object.entries(navLinks).map(([key, value]) => (
                             <li key={key}>
-                                <LinkButton href={value} className="text-body-400 transition hover:text-body-600">
+                                <LinkButton
+                                    href={value}
+                                    className="font-heading text-body-400 transition hover:text-body-600">
                                     {key}
                                 </LinkButton>
                             </li>
