@@ -22,7 +22,7 @@ import java.security.Principal;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class UserServieImpl implements UserService {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;

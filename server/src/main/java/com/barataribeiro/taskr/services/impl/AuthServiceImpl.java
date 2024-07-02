@@ -1,7 +1,10 @@
 package com.barataribeiro.taskr.services.impl;
 
 import com.barataribeiro.taskr.builder.UserMapper;
-import com.barataribeiro.taskr.dtos.auth.*;
+import com.barataribeiro.taskr.dtos.auth.LoginRequestDTO;
+import com.barataribeiro.taskr.dtos.auth.LoginResponseDTO;
+import com.barataribeiro.taskr.dtos.auth.RegisterRequestDTO;
+import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.exceptions.user.PasswordDoesNotMatch;
 import com.barataribeiro.taskr.exceptions.user.UserAlreadyExists;
 import com.barataribeiro.taskr.exceptions.user.UserIsBanned;
@@ -45,19 +48,16 @@ public class AuthServiceImpl implements AuthService {
             throw new PasswordDoesNotMatch();
         }
 
-        Map.Entry<String, Instant> accessTokenAndExpiration = tokenService.generateAccessToken(user);
-        Map.Entry<String, Instant> refreshTokenAndExpiration = tokenService.generateRefreshToken(user,
-                                                                                                 body.rememberMe());
+        Map.Entry<String, Instant> tokenAndExpiration = tokenService.generateToken(user, body.rememberMe());
 
         return new LoginResponseDTO(userMapper.toDTO(user),
-                                    accessTokenAndExpiration.getKey(),
-                                    refreshTokenAndExpiration.getKey(),
-                                    refreshTokenAndExpiration.getValue());
+                                    tokenAndExpiration.getKey(),
+                                    tokenAndExpiration.getValue());
     }
 
     @Override
     @Transactional
-    public RegisterResponseDTO register(@NotNull RegisterRequestDTO body) {
+    public UserDTO register(@NotNull RegisterRequestDTO body) {
         String username = StringEscapeUtils.escapeHtml4(body.username().toLowerCase().strip());
         String displayName = StringEscapeUtils.escapeHtml4(body.displayName().strip());
         String email = StringEscapeUtils.escapeHtml4(body.email().strip());
@@ -75,14 +75,6 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.saveAndFlush(user);
 
-        return new RegisterResponseDTO(userMapper.toDTO(savedUser));
-    }
-
-    @Override
-    public RefreshTokenResponseDTO refreshToken(String refreshToken) {
-        String validatedToken = tokenService.validateToken(refreshToken);
-        User user = userRepository.findByUsername(validatedToken).orElseThrow(UserNotFound::new);
-        Map.Entry<String, Instant> newAccessToken = tokenService.generateAccessToken(user);
-        return new RefreshTokenResponseDTO(newAccessToken.getKey());
+        return userMapper.toDTO(savedUser);
     }
 }

@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.time.Instant;
 
 public record LoginResponseDTO(UserDTO user,
-                               String accessToken,
-                               String refreshToken,
-                               Instant refreshTokenExpiresAt) implements Serializable {
+                               String token,
+                               Instant tokenExpiresAt) implements Serializable {
 }

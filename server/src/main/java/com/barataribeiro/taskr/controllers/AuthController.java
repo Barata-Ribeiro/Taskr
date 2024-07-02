@@ -1,13 +1,19 @@
 package com.barataribeiro.taskr.controllers;
 
 import com.barataribeiro.taskr.dtos.RestResponseDTO;
-import com.barataribeiro.taskr.dtos.auth.*;
+import com.barataribeiro.taskr.dtos.auth.LoginRequestDTO;
+import com.barataribeiro.taskr.dtos.auth.LoginResponseDTO;
+import com.barataribeiro.taskr.dtos.auth.RegisterRequestDTO;
+import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -26,19 +32,10 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<RestResponseDTO> register(@RequestBody RegisterRequestDTO body) {
-        RegisterResponseDTO response = authService.register(body);
+        UserDTO response = authService.register(body);
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Registration successful",
-                                                     response));
-    }
-
-    @PostMapping("/refresh-token")
-    public ResponseEntity<RestResponseDTO> refreshToken(@RequestHeader("x-refresh-token") String refreshToken) {
-        RefreshTokenResponseDTO response = authService.refreshToken(refreshToken);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Token refreshed",
                                                      response));
     }
 }
