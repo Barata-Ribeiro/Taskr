@@ -29,7 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     const sortedStyles = tw`${roboto.variable} ${nunino.variable} h-full w-full bg-white text-body-950 dark:bg-background-950 dark:text-body-50`
 
     return (
-        <html lang="en">
+        <html lang="en" className="h-full w-full">
             <body className={sortedStyles}>{children}</body>
         </html>
     )
