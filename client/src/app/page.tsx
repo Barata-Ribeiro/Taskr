@@ -1,3 +1,5 @@
+import AboutSection from "@/components/home/about-section"
+import FeatureSection from "@/components/home/feature-section"
 import Footer from "@/components/home/footer"
 import Header from "@/components/home/header"
 import HeroSection from "@/components/home/hero-section"
@@ -9,8 +11,8 @@ export default function Home() {
             <Header />
             <main className="snap-y scroll-smooth">
                 <HeroSection />
-                <section id="about" className="container snap-start"></section>
-                <section id="features" className="container snap-start"></section>
+                <AboutSection />
+                <FeatureSection />
                 <section id="contact" className="container snap-start"></section>
             </main>
             <Footer />
