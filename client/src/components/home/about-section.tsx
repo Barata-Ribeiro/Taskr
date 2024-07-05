@@ -1,19 +1,10 @@
-import {
-    Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
-    Tab,
-    TabGroup,
-    TabList,
-    TabPanel,
-    TabPanels,
-} from "@headlessui/react"
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react"
 
 export default function AboutSection() {
     return (
         <section
             id="about"
-            className="h-screen w-full snap-start bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-background-700 via-background-800 to-background-950 py-16">
+            className="h-full w-full snap-start bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-background-700 via-background-800 to-background-950 py-28">
             <div className="container">
                 <div className="mx-auto max-w-7xl">
                     <div className="mx-auto max-w-2xl md:text-center">
@@ -32,19 +23,28 @@ export default function AboutSection() {
                     </div>
                 </div>
 
-                <TabGroup className="mx-auto mt-24 max-w-3xl" defaultIndex={1}>
+                <TabGroup className="mx-auto mt-24 max-w-3xl" defaultIndex={0}>
                     <TabList className="flex flex-wrap items-center justify-center gap-2 font-heading font-medium md:gap-4">
-                        <Tab className="rounded-lg border-background-50/30 px-6 py-1 text-center align-middle text-2xl text-body-200 data-[selected]:border data-[selected]:bg-background-50/20 data-[selected]:text-body-50">
-                            About Me
-                        </Tab>
                         <Tab className="rounded-lg border-background-50/30 px-6 py-1 text-center align-middle text-2xl text-body-200 data-[selected]:border data-[selected]:bg-background-50/20 data-[selected]:text-body-50">
                             About Taskr
                         </Tab>
                         <Tab className="rounded-lg border-background-50/30 px-6 py-1 text-center align-middle text-2xl text-body-200 data-[selected]:border data-[selected]:bg-background-50/20 data-[selected]:text-body-50">
-                            FAQ
+                            About Me
                         </Tab>
                     </TabList>
                     <TabPanels className="mt-2 rounded-lg border border-background-50/30 bg-background-50/20 p-4 shadow-nextJS">
+                        <TabPanel>
+                            <p className="cursor-default rounded-lg p-2 font-body text-xl leading-7 text-body-100 hover:bg-background-50/10">
+                                <span className="font-semibold text-body-50">Taskr</span> is an open-source project
+                                under the <span className="font-semibold text-body-50">GPLv3</span> license, initially
+                                created as a personal project using a{" "}
+                                <span className="font-semibold text-body-50">RESTful</span> architecture with a backend
+                                built in <span className="font-semibold text-body-50">Java Spring Boot</span>. It was
+                                developed as a portfolio project to demonstrate my skills. In{" "}
+                                <span className="font-semibold text-body-50">Taskr</span>, users can create their own
+                                organization, set up projects, and manage tasks for each project.
+                            </p>
+                        </TabPanel>
                         <TabPanel>
                             <p className="cursor-default rounded-lg p-2 font-body text-xl leading-7 text-body-100 hover:bg-background-50/10">
                                 I am Barata Ribeiro. I have a Bachelor&apos;s degree in{" "}
@@ -60,26 +60,6 @@ export default function AboutSection() {
                                 <span className="font-semibold text-body-50">UI Design</span> through intensive courses,
                                 aspiring to create user-friendly interfaces that significantly enhance user experience.
                             </p>
-                        </TabPanel>
-                        <TabPanel>
-                            <p className="cursor-default rounded-lg p-2 font-body text-xl leading-7 text-body-100 hover:bg-background-50/10">
-                                <span className="font-semibold text-body-50">Taskr</span> is an open-source project
-                                under the <span className="font-semibold text-body-50">GPLv3</span> license, initially
-                                created as a personal project using a{" "}
-                                <span className="font-semibold text-body-50">RESTful</span> architecture with a backend
-                                built in <span className="font-semibold text-body-50">Java Spring Boot</span>. It was
-                                developed as a portfolio project to demonstrate my skills. In{" "}
-                                <span className="font-semibold text-body-50">Taskr</span>, users can create their own
-                                organization, set up projects, and manage tasks for each project.
-                            </p>
-                        </TabPanel>
-                        <TabPanel>
-                            <Disclosure>
-                                <DisclosureButton className="py-2">Is team pricing available?</DisclosureButton>
-                                <DisclosurePanel className="text-gray-500">
-                                    Yes! You can purchase a license that you can share with your entire team.
-                                </DisclosurePanel>
-                            </Disclosure>
                         </TabPanel>
                     </TabPanels>
                 </TabGroup>
