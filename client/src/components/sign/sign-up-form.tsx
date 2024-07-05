@@ -1,26 +1,22 @@
 "use client"
 
-import LinkButton from "@/components/general/link-button"
-import { Button, Checkbox, Field, Input, Label } from "@headlessui/react"
+import { Button, Field, Input, Label } from "@headlessui/react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
 import { useFormStatus } from "react-dom"
 import { FaLock } from "react-icons/fa6"
 
-export default function SignInForm() {
+export default function SignUpForm() {
     const router = useRouter()
 
-    const [enabled, setEnabled] = useState(false)
-
     const { pending } = useFormStatus()
-    // const [state, action] = useFormState(signIn, {
+    // const [state, action] = useFormState(signUp, {
     //     ok: false,
     //     clientError: null,
     //     response: null,
     // })
-    //
+
     // useEffect(() => {
-    //     if (state.ok) router.push("/dashboard/")
+    //     if (state.ok) router.push("/sign/in")
     // }, [state.ok, router])
 
     return (
@@ -28,15 +24,42 @@ export default function SignInForm() {
             <div className="-space-y-px rounded-lg shadow-standard">
                 <Field>
                     <Label htmlFor="username" className="sr-only">
-                        username
+                        Username
                     </Label>
                     <Input
                         type="username"
                         id="username"
                         name="username"
-                        autoComplete="username"
+                        autoComplete="off"
                         className="form-input relative block w-full appearance-none rounded-none rounded-t-lg border border-background-200 px-3 py-2 text-body-950 placeholder-body-200 focus:z-10 focus:border-background-600 focus:outline-none focus:ring-background-600 sm:text-sm"
                         placeholder="Username"
+                        required
+                    />
+                </Field>
+                <Field>
+                    <Label htmlFor="displayName" className="sr-only">
+                        Display name
+                    </Label>
+                    <Input
+                        type="text"
+                        id="displayName"
+                        name="displayName"
+                        className="form-input relative block w-full appearance-none rounded-none border border-background-200 px-3 py-2 text-body-950 placeholder-body-200 focus:z-10 focus:border-background-600 focus:outline-none focus:ring-background-600 sm:text-sm"
+                        placeholder="Display name"
+                        required
+                    />
+                </Field>
+                <Field>
+                    <Label htmlFor="email" className="sr-only">
+                        Email Address
+                    </Label>
+                    <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="off"
+                        className="form-input relative block w-full appearance-none rounded-none border border-background-200 px-3 py-2 text-body-950 placeholder-body-200 focus:z-10 focus:border-background-600 focus:outline-none focus:ring-background-600 sm:text-sm"
+                        placeholder="Email address"
                         required
                     />
                 </Field>
@@ -48,36 +71,12 @@ export default function SignInForm() {
                         id="password"
                         name="password"
                         type="password"
-                        autoComplete="current-password"
+                        autoComplete="new-password"
                         className="form-input relative block w-full appearance-none rounded-none rounded-b-lg border border-background-200 px-3 py-2 text-body-950 placeholder-body-200 focus:z-10 focus:border-background-600 focus:outline-none focus:ring-background-600 sm:text-sm"
                         placeholder="Password"
                         required
                     />
                 </Field>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-between">
-                <Field className="flex items-center gap-2">
-                    <Checkbox
-                        name="rememberMe"
-                        checked={enabled}
-                        onChange={setEnabled}
-                        className="group form-checkbox block size-4 rounded border bg-background-50 transition focus:ring-background-600 data-[checked]:bg-background-600">
-                        <svg
-                            className="stroke-white opacity-0 transition group-data-[checked]:opacity-100"
-                            viewBox="0 0 14 14"
-                            fill="none">
-                            <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                    </Checkbox>
-                    <Label className="select-none text-body-950">Remember Me?</Label>
-                </Field>
-
-                <LinkButton
-                    href="/sign/forgot-password"
-                    className="font-semibold text-body-400 hover:text-body-500 active:text-body-400">
-                    Forgot your password?
-                </LinkButton>
             </div>
 
             <Button
@@ -86,7 +85,7 @@ export default function SignInForm() {
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                     <FaLock className="h-5 w-5 text-body-500 group-hover:text-body-400" aria-hidden="true" />
                 </span>
-                {pending ? "Signing in..." : "Sign in"}
+                {pending ? "Creating account..." : "Sign Up"}
             </Button>
         </form>
     )
