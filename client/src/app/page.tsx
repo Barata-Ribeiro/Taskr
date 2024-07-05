@@ -1,4 +1,5 @@
 import AboutSection from "@/components/home/about-section"
+import FaqSection from "@/components/home/faq-section"
 import FeatureSection from "@/components/home/feature-section"
 import Footer from "@/components/home/footer"
 import Header from "@/components/home/header"
@@ -13,7 +14,7 @@ export default function Home() {
                 <HeroSection />
                 <AboutSection />
                 <FeatureSection />
-                <section id="contact" className="container snap-start"></section>
+                <FaqSection />
             </main>
             <Footer />
         </Fragment>

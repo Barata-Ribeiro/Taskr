@@ -6,7 +6,7 @@ export default function Footer() {
         Home: "#hero",
         About: "#about",
         Features: "#features",
-        Contact: "#contact",
+        FAQ: "#faq",
     }
 
     return (
