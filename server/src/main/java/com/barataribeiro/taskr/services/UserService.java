@@ -8,7 +8,7 @@ import java.security.Principal;
 public interface UserService {
     UserDTO getUserProfileById(String id);
 
-    UserDTO getUserContext(String id, Principal principal);
+    UserDTO getUserContext(Principal principal);
 
     UserDTO updateUserProfile(String id, UpdateAccountRequestDTO body, Principal principal);
 

@@ -34,13 +34,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO getUserContext(String id, @NotNull Principal principal) {
+    public UserDTO getUserContext(@NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
-
-        if (id != null && !id.equals(user.getId())) {
-            throw new UnauthorizedRequest();
-        }
-
         return userMapper.toDTO(user);
     }
 

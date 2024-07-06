@@ -27,9 +27,9 @@ public class UserController {
                                                      response));
     }
 
-    @GetMapping("/me/{userId}/context")
-    public ResponseEntity<RestResponseDTO> getUserContext(@PathVariable String userId, Principal principal) {
-        UserDTO response = userService.getUserContext(userId, principal);
+    @GetMapping("/me/context")
+    public ResponseEntity<RestResponseDTO> getUserContext(Principal principal) {
+        UserDTO response = userService.getUserContext(principal);
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "User context retrieved successfully",
