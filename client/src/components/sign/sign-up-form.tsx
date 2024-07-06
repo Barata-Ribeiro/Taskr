@@ -1,6 +1,7 @@
 "use client"
 
 import signUp from "@/actions/auth/sign-up"
+import ErrorMessage from "@/components/general/error-message"
 import { Button, Field, Input, Label } from "@headlessui/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
@@ -80,6 +81,8 @@ export default function SignUpForm() {
                     />
                 </Field>
             </div>
+
+            {state.clientError && <ErrorMessage error={state.clientError} />}
 
             <Button
                 type="submit"

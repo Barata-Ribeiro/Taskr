@@ -11,6 +11,6 @@ export default function ResponseError(error: unknown): State {
 
     return {
         ...state,
-        clientError: error instanceof Error ? error.message : "An error occurred. Please try again.",
+        clientError: error instanceof Error ? error.message : String(error),
     }
 }

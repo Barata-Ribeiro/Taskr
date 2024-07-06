@@ -1,6 +1,7 @@
 "use client"
 
 import signIn from "@/actions/auth/sign-in"
+import ErrorMessage from "@/components/general/error-message"
 import LinkButton from "@/components/general/link-button"
 import { LoginResponse } from "@/interfaces/auth"
 import { Button, Checkbox, Field, Input, Label } from "@headlessui/react"
@@ -84,6 +85,8 @@ export default function SignInForm() {
                     Forgot your password?
                 </LinkButton>
             </div>
+
+            {state.clientError && <ErrorMessage error={state.clientError} />}
 
             <Button
                 type="submit"
