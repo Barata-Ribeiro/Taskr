@@ -31,12 +31,12 @@ public class OrganizationController {
                                                      response));
     }
 
-    @GetMapping("/")
+    @GetMapping("/get-latest")
     public ResponseEntity<RestResponseDTO> getTopThreeOrganizations() {
         Map<String, Object> response = organizationService.getTopThreeOrganizations();
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
-                                                     "Top three organizations retrieved successfully",
+                                                     "Latest organizations retrieved successfully",
                                                      response));
     }
 

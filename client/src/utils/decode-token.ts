@@ -1,4 +1,4 @@
-import { jwtDecrypt } from "jose"
+import { jwtVerify } from "jose"
 
 export default async function decodeToken(token: string) {
     if (!token) throw new Error("No token provided.")
@@ -6,10 +6,8 @@ export default async function decodeToken(token: string) {
 
     try {
         const secret_key = new TextEncoder().encode(process.env.JWT_BACKEND_SECRET)
-
-        const { payload } = await jwtDecrypt(token, secret_key)
-
-        return payload
+        const { payload } = await jwtVerify(token, secret_key, { algorithms: ["HS256"] })
+        return payload.sub
     } catch (error) {
         console.error(error)
         throw new Error("Something went wrong. Please try again.")
