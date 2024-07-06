@@ -1,10 +1,12 @@
 "use client"
 
+import signIn from "@/actions/auth/sign-in"
 import LinkButton from "@/components/general/link-button"
+import { LoginResponse } from "@/interfaces/auth"
 import { Button, Checkbox, Field, Input, Label } from "@headlessui/react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { useFormStatus } from "react-dom"
+import { useEffect, useState } from "react"
+import { useFormState, useFormStatus } from "react-dom"
 import { FaLock } from "react-icons/fa6"
 
 export default function SignInForm() {
@@ -13,18 +15,21 @@ export default function SignInForm() {
     const [enabled, setEnabled] = useState(false)
 
     const { pending } = useFormStatus()
-    // const [state, action] = useFormState(signIn, {
-    //     ok: false,
-    //     clientError: null,
-    //     response: null,
-    // })
-    //
-    // useEffect(() => {
-    //     if (state.ok) router.push("/dashboard/")
-    // }, [state.ok, router])
+    const [state, action] = useFormState(signIn, {
+        ok: false,
+        clientError: null,
+        response: null,
+    })
+
+    useEffect(() => {
+        if (state.ok) {
+            const response = state.response?.data as LoginResponse
+            router.push("/dashboard/" + response.user.username)
+        }
+    }, [state, router])
 
     return (
-        <form className="space-y-6" action="">
+        <form className="space-y-6" action={action}>
             <div className="-space-y-px rounded-lg shadow-standard">
                 <Field>
                     <Label htmlFor="username" className="sr-only">

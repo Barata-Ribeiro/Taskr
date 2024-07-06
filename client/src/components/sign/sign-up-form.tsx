@@ -1,26 +1,28 @@
 "use client"
 
+import signUp from "@/actions/auth/sign-up"
 import { Button, Field, Input, Label } from "@headlessui/react"
 import { useRouter } from "next/navigation"
-import { useFormStatus } from "react-dom"
+import { useEffect } from "react"
+import { useFormState, useFormStatus } from "react-dom"
 import { FaLock } from "react-icons/fa6"
 
 export default function SignUpForm() {
     const router = useRouter()
 
     const { pending } = useFormStatus()
-    // const [state, action] = useFormState(signUp, {
-    //     ok: false,
-    //     clientError: null,
-    //     response: null,
-    // })
+    const [state, action] = useFormState(signUp, {
+        ok: false,
+        clientError: null,
+        response: null,
+    })
 
-    // useEffect(() => {
-    //     if (state.ok) router.push("/sign/in")
-    // }, [state.ok, router])
+    useEffect(() => {
+        if (state.ok) router.push("/sign/in")
+    }, [state.ok, router])
 
     return (
-        <form className="space-y-6" action="">
+        <form className="space-y-6" action={action}>
             <div className="-space-y-px rounded-lg shadow-standard">
                 <Field>
                     <Label htmlFor="username" className="sr-only">
