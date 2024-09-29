@@ -1,16 +1,10 @@
-package com.barataribeiro.taskr.config;
+package com.barataribeiro.taskr.utils;
 
-import org.jetbrains.annotations.NonNls;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 public final class AppConstants {
-
-    @NonNls
     public static final String ORGANIZATION = "organization";
-    @NonNls
     public static final String PROJECT = "project";
-    @NonNls
     public static final String AUTH_0 = "auth0";
-
-    private AppConstants() {
-    }
 }

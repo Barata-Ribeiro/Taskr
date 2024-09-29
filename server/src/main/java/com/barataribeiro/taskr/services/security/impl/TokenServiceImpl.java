@@ -4,10 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.barataribeiro.taskr.config.AppConstants;
 import com.barataribeiro.taskr.exceptions.generics.InternalServerError;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.services.security.TokenService;
+import com.barataribeiro.taskr.utils.AppConstants;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -40,10 +40,10 @@ public class TokenServiceImpl implements TokenService {
             expirationDate = this.generateExpirationDateInDays(rememberMe != null && rememberMe ? 365 : 1);
 
             token = JWT.create()
-                    .withIssuer(AppConstants.AUTH_0)
-                    .withSubject(user.getUsername())
-                    .withExpiresAt(expirationDate)
-                    .sign(algorithm);
+                       .withIssuer(AppConstants.AUTH_0)
+                       .withSubject(user.getUsername())
+                       .withExpiresAt(expirationDate)
+                       .sign(algorithm);
 
             return new AbstractMap.SimpleEntry<>(token, expirationDate);
         } catch (IllegalArgumentException | JWTCreationException exception) {
@@ -58,10 +58,10 @@ public class TokenServiceImpl implements TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
             return JWT.require(algorithm)
-                    .withIssuer(AppConstants.AUTH_0)
-                    .build()
-                    .verify(token)
-                    .getSubject();
+                      .withIssuer(AppConstants.AUTH_0)
+                      .build()
+                      .verify(token)
+                      .getSubject();
         } catch (JWTVerificationException exception) {
             logger.error(exception.getMessage());
             return null;

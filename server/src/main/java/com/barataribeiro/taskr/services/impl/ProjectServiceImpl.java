@@ -4,7 +4,6 @@ import com.barataribeiro.taskr.builder.OrganizationMapper;
 import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.TaskMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
-import com.barataribeiro.taskr.config.AppConstants;
 import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
@@ -33,6 +32,7 @@ import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository
 import com.barataribeiro.taskr.repositories.relations.ProjectTaskRepository;
 import com.barataribeiro.taskr.repositories.relations.ProjectUserRepository;
 import com.barataribeiro.taskr.services.ProjectService;
+import com.barataribeiro.taskr.utils.AppConstants;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -70,28 +70,29 @@ public class ProjectServiceImpl implements ProjectService {
             throw new ProjectLimitReached();
         }
 
-        Organization organization = organizationRepository.findById(Long.valueOf(orgId)).orElseThrow(OrganizationNotFound::new);
+        Organization organization = organizationRepository.findById(Long.valueOf(orgId)).orElseThrow(
+                OrganizationNotFound::new);
 
         if (!organizationUserRepository.existsByOrganization_IdAndUser_Id(organization.getId(), user.getId())) {
             throw new UserIsNotOrganizationMember();
         }
 
         Project newProject = projectRepository.save(Project.builder()
-                                                            .name(body.name())
-                                                            .description(body.description())
-                                                            .membersCount(1L)
-                                                            .build());
+                                                           .name(body.name())
+                                                           .description(body.description())
+                                                           .membersCount(1L)
+                                                           .build());
 
         organizationProjectRepository.save(OrganizationProject.builder()
-                                                   .organization(organization)
-                                                   .project(newProject)
-                                                   .build());
+                                                              .organization(organization)
+                                                              .project(newProject)
+                                                              .build());
 
         projectUserRepository.save(ProjectUser.builder()
-                                           .project(newProject)
-                                           .user(user)
-                                           .isProjectManager(true)
-                                           .build());
+                                              .project(newProject)
+                                              .user(user)
+                                              .isProjectManager(true)
+                                              .build());
 
         user.incrementManagedProjects();
         userRepository.save(user);
@@ -131,9 +132,9 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         Project project = projectUsers.stream()
-                .findFirst()
-                .map(ProjectUser::getProject)
-                .orElseThrow(ProjectNotFound::new);
+                                      .findFirst()
+                                      .map(ProjectUser::getProject)
+                                      .orElseThrow(ProjectNotFound::new);
 
         Organization organization = organizationProjectRepository
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
@@ -141,18 +142,19 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(OrganizationNotFound::new);
 
         User projectManager = projectUsers.stream()
-                .filter(ProjectUser::isProjectManager)
-                .findFirst()
-                .map(ProjectUser::getUser)
-                .orElseThrow(UserNotFound::new);
+                                          .filter(ProjectUser::isProjectManager)
+                                          .findFirst()
+                                          .map(ProjectUser::getUser)
+                                          .orElseThrow(UserNotFound::new);
 
         Set<User> projectMembers = projectUsers.stream()
-                .filter(entity -> !entity.isProjectManager())
-                .map(ProjectUser::getUser)
-                .collect(Collectors.toSet());
+                                               .filter(entity -> !entity.isProjectManager())
+                                               .map(ProjectUser::getUser)
+                                               .collect(Collectors.toSet());
 
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> projectMap = objectMapper.convertValue(projectMapper.toDTO(project), new TypeReference<>() {});
+        Map<String, Object> projectMap = objectMapper.convertValue(projectMapper.toDTO(project),
+                                                                   new TypeReference<>() {});
         projectMap.put("manager", userMapper.toDTO(projectManager));
         projectMap.put("members", userMapper.toDTOList(new ArrayList<>(projectMembers)));
 
@@ -214,20 +216,23 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public Map<String, Object> changeProjectStatus(String orgId, String projectId, String status, @NotNull Principal principal) {
+    public Map<String, Object> changeProjectStatus(String orgId, String projectId, String status,
+                                                   @NotNull Principal principal) {
         OrganizationProject organizationProject = organizationProjectRepository
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
                 .orElseThrow(ProjectNotFound::new);
 
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
 
-        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(organizationProject.getProject().getId(), user.getId(), true);
+        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(
+                organizationProject.getProject().getId(), user.getId(), true);
 
         if (!isManager) {
             throw new UserIsNotManager();
         }
 
-        ProjectStatus projectStatus = status == null ? organizationProject.getStatus() : ProjectStatus.valueOf(status.toUpperCase());
+        ProjectStatus projectStatus = status == null ? organizationProject.getStatus() : ProjectStatus.valueOf(
+                status.toUpperCase());
 
         organizationProject.setStatus(projectStatus);
         organizationProjectRepository.save(organizationProject);
@@ -261,43 +266,44 @@ public class ProjectServiceImpl implements ProjectService {
 
     private List<TaskDTO> filterTasksByPriority(@NotNull Set<Task> tasks, TaskPriority priority) {
         return tasks.stream()
-                .filter(task -> task.getPriority().equals(priority))
-                .map(taskMapper::toDTO)
-                .toList();
+                    .filter(task -> task.getPriority().equals(priority))
+                    .map(taskMapper::toDTO)
+                    .toList();
     }
 
     private Project getProjectFromTasks(@NotNull Set<ProjectTask> projectTasks) {
         return projectTasks.stream()
-                .findFirst()
-                .map(ProjectTask::getProject)
-                .orElseThrow(ProjectNotFound::new);
+                           .findFirst()
+                           .map(ProjectTask::getProject)
+                           .orElseThrow(ProjectNotFound::new);
     }
 
     private Set<Task> getTasksFromProjectTasks(@NotNull Set<ProjectTask> projectTasks) {
         return projectTasks.stream()
-                .map(ProjectTask::getTask)
-                .collect(Collectors.toSet());
+                           .map(ProjectTask::getTask)
+                           .collect(Collectors.toSet());
     }
 
     private void attemptAddUsersToProject(@NotNull ProjectUpdateRequestDTO body, List<String> usersNotAdded,
                                           Project project, List<User> usersAdded) {
         for (String username : body.usersToAdd()) {
             userRepository.findByUsername(username)
-                    .ifPresentOrElse(user -> {
-                        projectUserRepository.save(ProjectUser.builder()
-                                                           .project(project)
-                                                           .user(user)
-                                                           .isProjectManager(false)
-                                                           .build());
-                        usersAdded.add(user);
-                    }, () -> usersNotAdded.add(username));
+                          .ifPresentOrElse(user -> {
+                              projectUserRepository.save(ProjectUser.builder()
+                                                                    .project(project)
+                                                                    .user(user)
+                                                                    .isProjectManager(false)
+                                                                    .build());
+                              usersAdded.add(user);
+                          }, () -> usersNotAdded.add(username));
         }
     }
 
     private @NotNull Project getManagedProjectByUser(String projectId, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
         Project project = projectRepository.findById(Long.valueOf(projectId)).orElseThrow(ProjectNotFound::new);
-        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(project.getId(), user.getId(), true);
+        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(project.getId(), user.getId(),
+                                                                                      true);
 
         if (!isManager) {
             throw new UserIsNotManager();
