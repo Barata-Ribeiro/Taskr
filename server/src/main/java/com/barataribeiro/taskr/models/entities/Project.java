@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.models.entities;
 
+import com.barataribeiro.taskr.models.relations.OrganizationProject;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,7 +9,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,9 +20,7 @@ import java.util.Date;
 @ToString
 @Builder
 @Entity
-@Table(name = "taskr_projects", indexes = {
-        @Index(name = "idx_project_name_unq", columnList = "name", unique = true)
-}, uniqueConstraints = {
+@Table(name = "taskr_projects", uniqueConstraints = {
         @UniqueConstraint(name = "uc_project_name", columnNames = {"name"})
 })
 public class Project {
@@ -37,9 +38,9 @@ public class Project {
     @Column(nullable = false)
     private String description;
 
-    @NotNull(message = "Dead line is required.")
+    @NotNull(message = "Deadline is required.")
     @Column(nullable = false)
-    private Date deadline;
+    private LocalDate deadline;
 
     @Builder.Default
     @Column(columnDefinition = "BIGINT default '0'", nullable = false)
@@ -55,6 +56,11 @@ public class Project {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<OrganizationProject> organizationProjects = new LinkedHashSet<>();
 
     public void incrementMembersCount() {
         this.membersCount++;

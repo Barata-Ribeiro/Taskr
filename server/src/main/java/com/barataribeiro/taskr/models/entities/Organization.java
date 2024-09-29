@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.models.entities;
 
+import com.barataribeiro.taskr.models.relations.OrganizationProject;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -8,6 +9,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,9 +19,7 @@ import java.time.Instant;
 @ToString
 @Builder
 @Entity
-@Table(name = "taskr_organization", indexes = {
-        @Index(name = "idx_organization_name_unq", columnList = "name", unique = true)
-}, uniqueConstraints = {
+@Table(name = "taskr_organization", uniqueConstraints = {
         @UniqueConstraint(name = "uc_organization_name", columnNames = {"name"})
 })
 public class Organization {
@@ -58,6 +59,11 @@ public class Organization {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<OrganizationProject> organizationProjects = new LinkedHashSet<>();
 
     public void incrementMembersCount() {
         this.membersCount++;
