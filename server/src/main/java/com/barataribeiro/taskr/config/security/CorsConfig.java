@@ -1,4 +1,4 @@
-package com.barataribeiro.taskr.config;
+package com.barataribeiro.taskr.config.security;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;

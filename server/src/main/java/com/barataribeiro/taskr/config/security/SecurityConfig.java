@@ -1,4 +1,4 @@
-package com.barataribeiro.taskr.config;
+package com.barataribeiro.taskr.config.security;
 
 import com.barataribeiro.taskr.services.security.impl.SecurityFilter;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +61,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 }
