@@ -1,0 +1,42 @@
+name: taskr-backend
+
+services:
+  taskr-database:
+    image: postgres:latest
+    container_name: taskr-database
+    restart: always
+    environment:
+      POSTGRES_DB: taskr_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  taskr-app:
+    build: .
+    container_name: taskr-app
+    restart: always
+    environment:
+      DB_ORIGIN: taskr-database
+      DB_PORT: 5432
+      DB_NAME: taskr_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: secret
+      CORS_ORIGINS: http://localhost:3000,http://localhost:4200
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: admin
+      ADMIN_DISPLAY_NAME: Jason Bourne
+      ADMIN_FIRST_NAME: Jason
+      ADMIN_LAST_NAME: Bourne
+      ADMIN_EMAIL: contact@example.com
+    ports:
+      - "8080:8080"
+    depends_on:
+      - taskr-database
+
+volumes:
+  pgdata:
