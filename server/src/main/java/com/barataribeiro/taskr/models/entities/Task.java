@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.models.entities;
 import com.barataribeiro.taskr.models.enums.TaskPriority;
 import com.barataribeiro.taskr.models.enums.TaskStatus;
 import com.barataribeiro.taskr.models.relations.ProjectTask;
+import com.barataribeiro.taskr.models.relations.TaskUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -67,4 +68,9 @@ public class Task {
     @ToString.Exclude
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
     private Set<ProjectTask> projectTask = new LinkedHashSet<>();
+
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    private Set<TaskUser> taskUser = new LinkedHashSet<>();
 }
