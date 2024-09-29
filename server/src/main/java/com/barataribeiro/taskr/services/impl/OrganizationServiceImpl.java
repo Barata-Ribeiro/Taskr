@@ -3,7 +3,6 @@ package com.barataribeiro.taskr.services.impl;
 import com.barataribeiro.taskr.builder.OrganizationMapper;
 import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
-import com.barataribeiro.taskr.config.AppConstants;
 import com.barataribeiro.taskr.dtos.organization.ManagementRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
@@ -24,6 +23,7 @@ import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.repositories.relations.OrganizationProjectRepository;
 import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository;
 import com.barataribeiro.taskr.services.OrganizationService;
+import com.barataribeiro.taskr.utils.AppConstants;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -58,18 +58,18 @@ public class OrganizationServiceImpl implements OrganizationService {
         hasUserAlreadyCreatedOrganization(user);
 
         Organization organization = Organization.builder()
-                .name(body.name())
-                .description(body.description())
-                .build();
+                                                .name(body.name())
+                                                .description(body.description())
+                                                .build();
         organization.incrementMembersCount();
         organizationRepository.save(organization);
 
         OrganizationUser relation = OrganizationUser.builder()
-                .organization(organization)
-                .user(user)
-                .isAdmin(true)
-                .isOwner(true)
-                .build();
+                                                    .organization(organization)
+                                                    .user(user)
+                                                    .isAdmin(true)
+                                                    .isOwner(true)
+                                                    .build();
         organizationUserRepository.save(relation);
 
         return organizationMapper.toDTO(organization);
@@ -106,7 +106,8 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public OrganizationDTO getOrganizationInfo(String id) {
-        Organization organization = organizationRepository.findById(Long.valueOf(id)).orElseThrow(OrganizationNotFound::new);
+        Organization organization = organizationRepository.findById(Long.valueOf(id)).orElseThrow(
+                OrganizationNotFound::new);
         return organizationMapper.toDTO(organization);
     }
 
@@ -121,28 +122,29 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
 
         Organization organization = organizationUsers.stream()
-                .findFirst()
-                .map(OrganizationUser::getOrganization)
-                .orElseThrow(OrganizationNotFound::new);
+                                                     .findFirst()
+                                                     .map(OrganizationUser::getOrganization)
+                                                     .orElseThrow(OrganizationNotFound::new);
 
         User owner = organizationUsers.stream()
-                .filter(OrganizationUser::isOwner)
-                .findFirst()
-                .map(OrganizationUser::getUser)
-                .orElseThrow(UserNotFound::new);
+                                      .filter(OrganizationUser::isOwner)
+                                      .findFirst()
+                                      .map(OrganizationUser::getUser)
+                                      .orElseThrow(UserNotFound::new);
 
         Set<User> admins = organizationUsers.stream()
-                .filter(OrganizationUser::isAdmin)
-                .map(OrganizationUser::getUser)
-                .collect(Collectors.toSet());
+                                            .filter(OrganizationUser::isAdmin)
+                                            .map(OrganizationUser::getUser)
+                                            .collect(Collectors.toSet());
 
         Set<User> members = organizationUsers.stream()
-                .filter(entity -> !entity.isAdmin() && !entity.isOwner())
-                .map(OrganizationUser::getUser)
-                .collect(Collectors.toSet());
+                                             .filter(entity -> !entity.isAdmin() && !entity.isOwner())
+                                             .map(OrganizationUser::getUser)
+                                             .collect(Collectors.toSet());
 
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> returnData = objectMapper.convertValue(organizationMapper.toDTO(organization), new TypeReference<>() {});
+        Map<String, Object> returnData = objectMapper.convertValue(organizationMapper.toDTO(organization),
+                                                                   new TypeReference<>() {});
         returnData.put("owner", userMapper.toDTO(owner));
         returnData.put("admins", userMapper.toDTOList(new ArrayList<>(admins)));
         returnData.put("members", userMapper.toDTOList(new ArrayList<>(members)));
@@ -162,13 +164,13 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
 
         Organization organization = organizationProjects.stream()
-                .findFirst()
-                .map(OrganizationProject::getOrganization)
-                .orElseThrow(OrganizationNotFound::new);
+                                                        .findFirst()
+                                                        .map(OrganizationProject::getOrganization)
+                                                        .orElseThrow(OrganizationNotFound::new);
 
         Set<Project> projects = organizationProjects.stream()
-                .map(OrganizationProject::getProject)
-                .collect(Collectors.toSet());
+                                                    .map(OrganizationProject::getProject)
+                                                    .collect(Collectors.toSet());
 
         Map<String, Object> returnData = new HashMap<>();
         returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
@@ -178,7 +180,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public Map<String, Object> manageOrganizationMembers(String orgId, ManagementRequestDTO body, @NotNull Principal principal) {
+    public Map<String, Object> manageOrganizationMembers(String orgId, ManagementRequestDTO body,
+                                                         @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
 
         if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
@@ -186,7 +189,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
 
         Organization organization = organizationRepository.findById(Long.valueOf(orgId))
-                .orElseThrow(OrganizationNotFound::new);
+                                                          .orElseThrow(OrganizationNotFound::new);
 
         List<String> usersNotAdded = new ArrayList<>();
         List<User> usersAdded = new ArrayList<>();
@@ -218,7 +221,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
 
         Organization organization = organizationRepository.findById(Long.valueOf(id))
-                .orElseThrow(OrganizationNotFound::new);
+                                                          .orElseThrow(OrganizationNotFound::new);
 
         if (body.name() != null) organization.setName(body.name());
         if (body.description() != null) organization.setDescription(body.description());
@@ -234,9 +237,11 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public void deleteOrganization(String id, @NotNull Principal principal) {
-        Organization organization = organizationRepository.findById(Long.valueOf(id)).orElseThrow(OrganizationNotFound::new);
-        OrganizationUser relation = organizationUserRepository.findOrganizationByUser_UsernameAndIsOwner(organization.getId(), principal.getName(), true)
-                .orElseThrow(UserIsNotOwner::new);
+        Organization organization = organizationRepository.findById(Long.valueOf(id)).orElseThrow(
+                OrganizationNotFound::new);
+        OrganizationUser relation = organizationUserRepository.findOrganizationByUser_UsernameAndIsOwner(
+                                                                      organization.getId(), principal.getName(), true)
+                                                              .orElseThrow(UserIsNotOwner::new);
 
         organizationUserRepository.delete(relation);
         organizationRepository.delete(organization);
@@ -246,23 +251,23 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                Organization organization, List<User> usersAdded) {
         for (String username : body.usersToAdd()) {
             userRepository.findByUsername(username)
-                    .ifPresentOrElse(
-                            userToAdd -> {
-                                if (organizationUserRepository.existsByUser_Id(userToAdd.getId())) {
-                                    usersNotAdded.add(username);
-                                } else {
-                                    OrganizationUser relation = OrganizationUser.builder()
-                                            .organization(organization)
-                                            .user(userToAdd)
-                                            .isAdmin(false)
-                                            .isOwner(false)
-                                            .build();
-                                    organizationUserRepository.save(relation);
-                                    usersAdded.add(userToAdd);
-                                }
-                            },
-                            () -> usersNotAdded.add(username)
-                    );
+                          .ifPresentOrElse(
+                                  userToAdd -> {
+                                      if (organizationUserRepository.existsByUser_Id(userToAdd.getId())) {
+                                          usersNotAdded.add(username);
+                                      } else {
+                                          OrganizationUser relation = OrganizationUser.builder()
+                                                                                      .organization(organization)
+                                                                                      .user(userToAdd)
+                                                                                      .isAdmin(false)
+                                                                                      .isOwner(false)
+                                                                                      .build();
+                                          organizationUserRepository.save(relation);
+                                          usersAdded.add(userToAdd);
+                                      }
+                                  },
+                                  () -> usersNotAdded.add(username)
+                          );
         }
     }
 
@@ -270,20 +275,21 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                     Organization organization, List<User> usersRemoved) {
         for (String username : body.usersToRemove()) {
             userRepository.findByUsername(username)
-                    .ifPresentOrElse(
-                            userToRemove -> {
-                                if (organizationUserRepository.existsByUser_Id(userToRemove.getId())) {
-                                    OrganizationUser relation = organizationUserRepository
-                                            .findOrganizationByUser_UsernameAndIsOwner(organization.getId(), username, false)
-                                            .orElseThrow(UserIsNotOwner::new);
-                                    organizationUserRepository.delete(relation);
-                                    usersRemoved.add(userToRemove);
-                                } else {
-                                    usersNotRemoved.add(username);
-                                }
-                            },
-                            () -> usersNotRemoved.add(username)
-                    );
+                          .ifPresentOrElse(
+                                  userToRemove -> {
+                                      if (organizationUserRepository.existsByUser_Id(userToRemove.getId())) {
+                                          OrganizationUser relation = organizationUserRepository
+                                                  .findOrganizationByUser_UsernameAndIsOwner(organization.getId(),
+                                                                                             username, false)
+                                                  .orElseThrow(UserIsNotOwner::new);
+                                          organizationUserRepository.delete(relation);
+                                          usersRemoved.add(userToRemove);
+                                      } else {
+                                          usersNotRemoved.add(username);
+                                      }
+                                  },
+                                  () -> usersNotRemoved.add(username)
+                          );
         }
     }
 
