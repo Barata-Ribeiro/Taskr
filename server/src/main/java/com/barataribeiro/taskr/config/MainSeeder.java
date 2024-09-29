@@ -6,21 +6,21 @@ import com.barataribeiro.taskr.models.enums.Roles;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MainSeeder {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    Logger logger = LoggerFactory.getLogger(MainSeeder.class);
+
     @Value("${api.security.seeder.admin.username}")
     private String adminUsername;
 
@@ -44,25 +44,26 @@ public class MainSeeder {
     public void seedAdmin() {
         if (!userRepository.existsByUsername(adminUsername)) {
             User admin = User.builder()
-                    .username(adminUsername)
-                    .displayName(adminDisplayName)
-                    .firstName(adminFirstName)
-                    .lastName(adminLastName)
-                    .email(adminEmail)
-                    .password(passwordEncoder.encode(adminPassword))
-                    .role(Roles.SERVICE_ADMIN)
-                    .build();
+                             .username(adminUsername)
+                             .displayName(adminDisplayName)
+                             .firstName(adminFirstName)
+                             .lastName(adminLastName)
+                             .email(adminEmail)
+                             .password(passwordEncoder.encode(adminPassword))
+                             .role(Roles.SERVICE_ADMIN)
+                             .build();
 
             userRepository.save(admin);
 
-            logger.info("Admin user created.");
-            logger.info("Admin: {}", userMapper.toDTO(admin));
+            log.atInfo().log("Admin user created.");
+            log.atInfo().log("Admin: {}", userMapper.toDTO(admin));
         }
 
-        logger.warn("Admin user already exists.");
+        log.atWarn().log("Admin user already exists.");
         User admin = userRepository.findByUsername(adminUsername)
-                .orElseThrow(() -> new RuntimeException("Admin user not found and could not be created."));
-        logger.info("Admin: {}", userMapper.toDTO(admin));
+                                   .orElseThrow(() -> new RuntimeException(
+                                           "Admin user not found and could not be created."));
+        log.atInfo().log("Admin: {}", userMapper.toDTO(admin));
 
     }
 }
