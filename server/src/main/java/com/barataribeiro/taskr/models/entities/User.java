@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.models.entities;
 
 import com.barataribeiro.taskr.models.enums.Roles;
+import com.barataribeiro.taskr.models.relations.OrganizationUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -10,17 +11,17 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "password")
 @Builder
 @Entity
-@Table(name = "taskr_users", indexes = {
-        @Index(name = "idx_user_username_email_unq", columnList = "username, email", unique = true)
-}, uniqueConstraints = {
+@Table(name = "taskr_users", uniqueConstraints = {
         @UniqueConstraint(name = "uc_user_username_email", columnNames = {"username", "email"})
 })
 public class User {
@@ -78,6 +79,11 @@ public class User {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<OrganizationUser> organizationUsers = new LinkedHashSet<>();
 
     public void incrementManagedProjects() {
         this.managedProjects++;
