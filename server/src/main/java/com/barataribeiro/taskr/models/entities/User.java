@@ -2,6 +2,7 @@ package com.barataribeiro.taskr.models.entities;
 
 import com.barataribeiro.taskr.models.enums.Roles;
 import com.barataribeiro.taskr.models.relations.OrganizationUser;
+import com.barataribeiro.taskr.models.relations.ProjectUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -84,6 +85,11 @@ public class User {
     @ToString.Exclude
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<OrganizationUser> organizationUsers = new LinkedHashSet<>();
+
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<ProjectUser> projectUser = new LinkedHashSet<>();
 
     public void incrementManagedProjects() {
         this.managedProjects++;
