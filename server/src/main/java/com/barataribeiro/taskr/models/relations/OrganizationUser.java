@@ -1,31 +1,34 @@
 package com.barataribeiro.taskr.models.relations;
 
+import com.barataribeiro.taskr.models.embeddables.OrganizationUserId;
 import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
-@Table(name = "organizations_users", indexes = {
-        @Index(name = "idx_organizationsusers_unq", columnList = "organization_id, user_id", unique = true)
-})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
 @Builder
+@Entity
+@Table(name = "organizations_users", uniqueConstraints = {
+        @UniqueConstraint(name = "uc_organization_user", columnNames = {"organization_id", "user_id"})
+})
 public class OrganizationUser {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false, unique = true)
-    private Long id;
+    @EmbeddedId
+    private OrganizationUserId id;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId("organizationId")
     @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

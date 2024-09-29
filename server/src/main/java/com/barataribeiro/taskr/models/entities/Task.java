@@ -2,28 +2,30 @@ package com.barataribeiro.taskr.models.entities;
 
 import com.barataribeiro.taskr.models.enums.TaskPriority;
 import com.barataribeiro.taskr.models.enums.TaskStatus;
+import com.barataribeiro.taskr.models.relations.ProjectTask;
+import com.barataribeiro.taskr.models.relations.TaskUser;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-@Entity
-@Table(name = "taskr_tasks", indexes = {
-        @Index(name = "idx_task_title_unq", columnList = "title", unique = true)
-}, uniqueConstraints = {
-        @UniqueConstraint(name = "uc_task_title", columnNames = {"title"})
-})
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
 @ToString
 @Builder
+@Entity
+@Table(name = "taskr_tasks", uniqueConstraints = {
+        @UniqueConstraint(name = "uc_task_title", columnNames = {"title"})
+})
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_seq")
@@ -31,14 +33,12 @@ public class Task {
     @Column(updatable = false, nullable = false, unique = true)
     private Long id;
 
+    @NotBlank(message = "Title is required.")
     @Column(nullable = false, unique = true)
-    @NotNull(message = "Title is required.")
-    @NotEmpty(message = "Title must not be empty.")
     private String title;
 
+    @NotBlank(message = "Description is required.")
     @Column(nullable = false)
-    @NotNull(message = "Description is required.")
-    @NotEmpty(message = "Description must not be empty.")
     private String description;
 
     @Builder.Default
@@ -49,15 +49,13 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskPriority priority = TaskPriority.LOW;
 
-    @Column(nullable = false)
     @NotNull(message = "Start date is required.")
-    @NotEmpty(message = "Start date must not be empty.")
-    private Date startDate;
-
     @Column(nullable = false)
+    private LocalDate startDate;
+
     @NotNull(message = "Due date is required.")
-    @NotEmpty(message = "Due date must not be empty.")
-    private Date dueDate;
+    @Column(nullable = false)
+    private LocalDate dueDate;
 
     @Column(updatable = false)
     @CreationTimestamp
@@ -65,4 +63,14 @@ public class Task {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    private Set<ProjectTask> projectTask = new LinkedHashSet<>();
+
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    private Set<TaskUser> taskUser = new LinkedHashSet<>();
 }

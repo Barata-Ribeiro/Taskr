@@ -1,32 +1,35 @@
 package com.barataribeiro.taskr.models.relations;
 
+import com.barataribeiro.taskr.models.embeddables.OrganizationProjectId;
 import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.enums.ProjectStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
-@Table(name = "organizations_projects", indexes = {
-        @Index(name = "idx_organizationproject_unq", columnList = "organization_id, project_id", unique = true)
-})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
 @Builder
+@Entity
+@Table(name = "organizations_projects", uniqueConstraints = {
+        @UniqueConstraint(name = "uc_organization_project", columnNames = {"organization_id", "project_id"})
+})
 public class OrganizationProject {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false, unique = true)
-    private Long id;
+    @EmbeddedId
+    private OrganizationProjectId id;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId("organizationId")
     @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId("projectId")
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 

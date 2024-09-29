@@ -1,37 +1,42 @@
 package com.barataribeiro.taskr.models.relations;
 
+import com.barataribeiro.taskr.models.embeddables.TaskUserId;
 import com.barataribeiro.taskr.models.entities.Task;
 import com.barataribeiro.taskr.models.entities.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
-@Table(name = "tasks_users", indexes = {
-        @Index(name = "idx_taskuser_task_id_unq", columnList = "task_id, user_id", unique = true)
-})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
 @Builder
+@Entity
+@Table(name = "tasks_users", uniqueConstraints = {
+        @UniqueConstraint(name = "uc_task_user", columnNames = {"task_id", "user_id"})
+})
 public class TaskUser {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false, unique = true)
-    private Long id;
+    @EmbeddedId
+    private TaskUserId id;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId("taskId")
     @JoinColumn(name = "task_id", nullable = false)
     private Task task;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Builder.Default
+    @Column(columnDefinition = "BOOLEAN default 'false'", nullable = false)
     private boolean isCreator = false;
 
     @Builder.Default
+    @Column(columnDefinition = "BOOLEAN default 'false'", nullable = false)
     private boolean isAssigned = false;
 }

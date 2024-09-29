@@ -1,34 +1,38 @@
 package com.barataribeiro.taskr.models.relations;
 
+import com.barataribeiro.taskr.models.embeddables.ProjectUserId;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
-@Table(name = "projects_users", indexes = {
-        @Index(name = "idx_projectuser_user_id_unq", columnList = "user_id, project_id", unique = true)
-})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
 @Builder
+@Entity
+@Table(name = "projects_users", uniqueConstraints = {
+        @UniqueConstraint(name = "uc_project_user", columnNames = {"project_id", "user_id"})
+})
 public class ProjectUser {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false, unique = true)
-    private Long id;
+    @EmbeddedId
+    private ProjectUserId id;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId("projectId")
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Builder.Default
+    @Column(columnDefinition = "BOOLEAN default 'false'", nullable = false)
     private boolean isProjectManager = false;
 }
