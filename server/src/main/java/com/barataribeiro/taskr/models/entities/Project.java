@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.models.entities;
 
 import com.barataribeiro.taskr.models.relations.OrganizationProject;
+import com.barataribeiro.taskr.models.relations.ProjectTask;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -59,8 +60,13 @@ public class Project {
 
     @Builder.Default
     @ToString.Exclude
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<OrganizationProject> organizationProjects = new LinkedHashSet<>();
+
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<ProjectTask> projectTask = new LinkedHashSet<>();
 
     public void incrementMembersCount() {
         this.membersCount++;

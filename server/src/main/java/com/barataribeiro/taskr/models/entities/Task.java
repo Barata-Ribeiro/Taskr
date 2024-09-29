@@ -2,6 +2,7 @@ package com.barataribeiro.taskr.models.entities;
 
 import com.barataribeiro.taskr.models.enums.TaskPriority;
 import com.barataribeiro.taskr.models.enums.TaskStatus;
+import com.barataribeiro.taskr.models.relations.ProjectTask;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +11,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,9 +22,7 @@ import java.util.Date;
 @ToString
 @Builder
 @Entity
-@Table(name = "taskr_tasks", indexes = {
-        @Index(name = "idx_task_title_unq", columnList = "title", unique = true)
-}, uniqueConstraints = {
+@Table(name = "taskr_tasks", uniqueConstraints = {
         @UniqueConstraint(name = "uc_task_title", columnNames = {"title"})
 })
 public class Task {
@@ -47,13 +48,13 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskPriority priority = TaskPriority.LOW;
 
-    @Column(nullable = false)
     @NotNull(message = "Start date is required.")
-    private Date startDate;
-
     @Column(nullable = false)
+    private LocalDate startDate;
+
     @NotNull(message = "Due date is required.")
-    private Date dueDate;
+    @Column(nullable = false)
+    private LocalDate dueDate;
 
     @Column(updatable = false)
     @CreationTimestamp
@@ -61,4 +62,9 @@ public class Task {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    private Set<ProjectTask> projectTask = new LinkedHashSet<>();
 }
