@@ -6,14 +6,9 @@ import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.task.TaskCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.task.TaskDTO;
 import com.barataribeiro.taskr.dtos.task.TaskUpdateRequestDTO;
-import com.barataribeiro.taskr.exceptions.generics.BadRequest;
-import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequest;
-import com.barataribeiro.taskr.exceptions.project.ProjectNotFound;
-import com.barataribeiro.taskr.exceptions.task.AlreadyDueDate;
-import com.barataribeiro.taskr.exceptions.task.TaskNotFound;
-import com.barataribeiro.taskr.exceptions.task.WrongDueDateFormat;
-import com.barataribeiro.taskr.exceptions.user.UserIsNotInProject;
-import com.barataribeiro.taskr.exceptions.user.UserNotFound;
+import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
+import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequestException;
+import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.Task;
 import com.barataribeiro.taskr.models.entities.User;
@@ -67,22 +62,25 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public TaskDTO createTask(String projectId, @NotNull TaskCreateRequestDTO body,
                               @NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
-        Project project = projectRepository.findById(Long.valueOf(projectId)).orElseThrow(ProjectNotFound::new);
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(
+                () -> new EntityNotFoundException("User"));
+        Project project =
+                projectRepository.findById(Long.valueOf(projectId))
+                                 .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
         if (!projectUserRepository.existsByProject_IdAndUser_Id(Long.valueOf(projectId), user.getId())) {
-            throw new UserIsNotInProject();
+            throw new IllegalRequestException("User is not in the project.");
         }
 
         LocalDate parsedStartDate = body.startDate() == null ? LocalDate.now() : parseDate(body.startDate());
         LocalDate parsedDueDate = parseDate(body.dueDate());
 
         if (parsedDueDate.isBefore(LocalDate.now())) {
-            throw new AlreadyDueDate();
+            throw new IllegalRequestException("Due date cannot be in the past.");
         }
 
         if (parsedStartDate.isAfter(parsedDueDate)) {
-            throw new BadRequest();
+            throw new IllegalRequestException("Start date cannot be after due date.");
         }
 
         TaskStatus status = body.status() == null ? TaskStatus.OPEN : TaskStatus.valueOf(body.status().toUpperCase());
@@ -118,9 +116,9 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public Map<String, Object> getTaskInfo(String projectId, String taskId) {
-        ProjectTask projectTask = projectTaskRepository.findByProject_IdAndTask_Id(Long.valueOf(projectId),
-                                                                                   Long.valueOf(taskId))
-                                                       .orElseThrow(TaskNotFound::new);
+        ProjectTask projectTask = projectTaskRepository
+                .findByProject_IdAndTask_Id(Long.valueOf(projectId), Long.valueOf(taskId))
+                .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
 
         Set<TaskUser> taskUsers = taskUserRepository.findTaskCreatorAndAssignedUsersByTaskId(
                 projectTask.getTask().getId(),
@@ -130,7 +128,7 @@ public class TaskServiceImpl implements TaskService {
                                     .filter(TaskUser::isCreator)
                                     .map(TaskUser::getUser)
                                     .findFirst()
-                                    .orElseThrow(TaskNotFound::new);
+                                    .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
         Set<User> assignedUsers = taskUsers.stream()
                                            .filter(TaskUser::isAssigned)
                                            .map(TaskUser::getUser)
@@ -160,11 +158,11 @@ public class TaskServiceImpl implements TaskService {
         LocalDate parsedDueDate = parseDate(body.dueDate());
 
         if (parsedDueDate.isBefore(LocalDate.now())) {
-            throw new AlreadyDueDate();
+            throw new IllegalRequestException("Due date cannot be in the past.");
         }
 
         if (parsedStartDate.isAfter(parsedDueDate)) {
-            throw new BadRequest();
+            throw new IllegalRequestException("Start date cannot be after due date.");
         }
 
         TaskStatus status = body.status() == null ? task.getStatus()
@@ -194,16 +192,19 @@ public class TaskServiceImpl implements TaskService {
 
     private Task getTaskIfRequestingUserIsManagerOrAdmin(String projectId, String taskId,
                                                          @NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
-        Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(TaskNotFound::new);
-        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(Long.valueOf(projectId),
-                                                                                      user.getId(),
-                                                                                      true);
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException("User"));
+
+        Task task = taskRepository.findById(Long.valueOf(taskId))
+                                  .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
+        boolean isManager = projectUserRepository
+                .existsProjectWhereUserByIdIsManager(Long.valueOf(projectId), user.getId(), true);
+
         boolean isOrgAdmin = organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(),
                                                                                                true);
 
         if (!isManager && !isOrgAdmin) {
-            throw new ForbiddenRequest();
+            throw new ForbiddenRequestException();
         }
 
         return task;
@@ -215,7 +216,7 @@ public class TaskServiceImpl implements TaskService {
             return LocalDate.parse(date, formatter);
         } catch (DateTimeParseException e) {
             log.atError().log("Error parsing date: {}", e.getMessage());
-            throw new WrongDueDateFormat();
+            throw new IllegalRequestException("Invalid date format. Use dd-MM-yyyy.");
         }
     }
 }

@@ -7,12 +7,8 @@ import com.barataribeiro.taskr.dtos.organization.ManagementRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.UpdateOrganizationRequestDTO;
-import com.barataribeiro.taskr.exceptions.generics.BadRequest;
-import com.barataribeiro.taskr.exceptions.organization.AlreadyCreatedOrganization;
-import com.barataribeiro.taskr.exceptions.organization.OrganizationNotFound;
-import com.barataribeiro.taskr.exceptions.organization.UserIsNotOwner;
-import com.barataribeiro.taskr.exceptions.project.ProjectNotFound;
-import com.barataribeiro.taskr.exceptions.user.UserNotFound;
+import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
+import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
 import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.User;
@@ -53,7 +49,9 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public OrganizationDTO createOrganization(@NotNull OrganizationRequestDTO body, @NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
+        User user =
+                userRepository.findByUsername(principal.getName())
+                              .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         hasUserAlreadyCreatedOrganization(user);
 
@@ -80,7 +78,8 @@ public class OrganizationServiceImpl implements OrganizationService {
         Pageable paging = PageRequest.of(page, perPage);
 
         if ((perPage < 0 || perPage > 15) || page < 0) {
-            throw new BadRequest();
+            throw new IllegalRequestException(
+                    "Invalid parameters. Page must be greater than or equal to 0 and perPage must be between 0 and 15");
         }
 
         Page<Organization> organizationPage = organizationRepository.findAllOrganizationsPageable(paging);
@@ -106,8 +105,9 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public OrganizationDTO getOrganizationInfo(String id) {
-        Organization organization = organizationRepository.findById(Long.valueOf(id)).orElseThrow(
-                OrganizationNotFound::new);
+        Organization organization = organizationRepository
+                .findById(Long.valueOf(id))
+                .orElseThrow(() -> new EntityNotFoundException(Organization.class.getSimpleName()));
         return organizationMapper.toDTO(organization);
     }
 
@@ -118,19 +118,20 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .findAllByOrganization_Id(Long.valueOf(id));
 
         if (organizationUsers.isEmpty()) {
-            throw new OrganizationNotFound();
+            throw new EntityNotFoundException(Organization.class.getSimpleName());
         }
 
         Organization organization = organizationUsers.stream()
                                                      .findFirst()
                                                      .map(OrganizationUser::getOrganization)
-                                                     .orElseThrow(OrganizationNotFound::new);
+                                                     .orElseThrow(() -> new EntityNotFoundException(
+                                                             Organization.class.getSimpleName()));
 
         User owner = organizationUsers.stream()
                                       .filter(OrganizationUser::isOwner)
                                       .findFirst()
                                       .map(OrganizationUser::getUser)
-                                      .orElseThrow(UserNotFound::new);
+                                      .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         Set<User> admins = organizationUsers.stream()
                                             .filter(OrganizationUser::isAdmin)
@@ -160,13 +161,14 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .findAllByOrganization_Id(Long.valueOf(id));
 
         if (organizationProjects.isEmpty()) {
-            throw new ProjectNotFound();
+            throw new EntityNotFoundException(Project.class.getSimpleName());
         }
 
         Organization organization = organizationProjects.stream()
                                                         .findFirst()
                                                         .map(OrganizationProject::getOrganization)
-                                                        .orElseThrow(OrganizationNotFound::new);
+                                                        .orElseThrow(() -> new EntityNotFoundException(
+                                                                Organization.class.getSimpleName()));
 
         Set<Project> projects = organizationProjects.stream()
                                                     .map(OrganizationProject::getProject)
@@ -180,16 +182,19 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    @Transactional
     public Map<String, Object> manageOrganizationMembers(String orgId, ManagementRequestDTO body,
                                                          @NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
-            throw new UserIsNotOwner();
+            throw new IllegalRequestException("You are not the owner of this organization.");
         }
 
-        Organization organization = organizationRepository.findById(Long.valueOf(orgId))
-                                                          .orElseThrow(OrganizationNotFound::new);
+        Organization organization = organizationRepository
+                .findById(Long.valueOf(orgId))
+                .orElseThrow(() -> new EntityNotFoundException(Organization.class.getSimpleName()));
 
         List<String> usersNotAdded = new ArrayList<>();
         List<User> usersAdded = new ArrayList<>();
@@ -214,14 +219,16 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Transactional
     public Map<String, Object> updateOrganizationInfo(String id, UpdateOrganizationRequestDTO body,
                                                       @NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
-            throw new UserIsNotOwner();
+            throw new IllegalRequestException("You are not the owner of this organization.");
         }
 
         Organization organization = organizationRepository.findById(Long.valueOf(id))
-                                                          .orElseThrow(OrganizationNotFound::new);
+                                                          .orElseThrow(() -> new EntityNotFoundException(
+                                                                  Organization.class.getSimpleName()));
 
         if (body.name() != null) organization.setName(body.name());
         if (body.description() != null) organization.setDescription(body.description());
@@ -237,11 +244,12 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public void deleteOrganization(String id, @NotNull Principal principal) {
-        Organization organization = organizationRepository.findById(Long.valueOf(id)).orElseThrow(
-                OrganizationNotFound::new);
-        OrganizationUser relation = organizationUserRepository.findOrganizationByUser_UsernameAndIsOwner(
-                                                                      organization.getId(), principal.getName(), true)
-                                                              .orElseThrow(UserIsNotOwner::new);
+        Organization organization = organizationRepository
+                .findById(Long.valueOf(id))
+                .orElseThrow(() -> new EntityNotFoundException(Organization.class.getSimpleName()));
+        OrganizationUser relation = organizationUserRepository
+                .findOrganizationByUser_UsernameAndIsOwner(organization.getId(), principal.getName(), true)
+                .orElseThrow(() -> new IllegalRequestException("You are not the owner of this organization."));
 
         organizationUserRepository.delete(relation);
         organizationRepository.delete(organization);
@@ -281,7 +289,8 @@ public class OrganizationServiceImpl implements OrganizationService {
                                           OrganizationUser relation = organizationUserRepository
                                                   .findOrganizationByUser_UsernameAndIsOwner(organization.getId(),
                                                                                              username, false)
-                                                  .orElseThrow(UserIsNotOwner::new);
+                                                  .orElseThrow(() -> new IllegalRequestException(
+                                                          "User is not a member of this organization."));
                                           organizationUserRepository.delete(relation);
                                           usersRemoved.add(userToRemove);
                                       } else {
@@ -295,7 +304,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     private void hasUserAlreadyCreatedOrganization(@NotNull User user) {
         if (organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
-            throw new AlreadyCreatedOrganization();
+            throw new IllegalRequestException("You have already created an organization.");
         }
     }
 }
