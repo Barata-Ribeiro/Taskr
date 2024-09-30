@@ -3,10 +3,10 @@ package com.barataribeiro.taskr.services.impl;
 import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.user.UpdateAccountRequestDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
+import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.UnauthorizedRequest;
 import com.barataribeiro.taskr.exceptions.user.PasswordDoesNotMatch;
 import com.barataribeiro.taskr.exceptions.user.UserAlreadyExists;
-import com.barataribeiro.taskr.exceptions.user.UserNotFound;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.UserService;
@@ -29,20 +29,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserProfileById(String id) {
-        User user = userRepository.findById(id).orElseThrow(UserNotFound::new);
+        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User"));
         return userMapper.toDTO(user);
     }
 
     @Override
     public UserDTO getUserContext(@NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(
+                () -> new EntityNotFoundException("User"));
         return userMapper.toDTO(user);
     }
 
     @Override
     @Transactional
     public UserDTO updateUserProfile(String id, UpdateAccountRequestDTO body, @NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(
+                () -> new EntityNotFoundException("User"));
 
         if (!user.getId().equals(id)) {
             throw new UnauthorizedRequest();
@@ -72,7 +74,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteUserProfile(String id, @NotNull Principal principal) {
         if (!userRepository.existsByIdAndUsername(id, principal.getName())) {
-            throw new UserNotFound();
+            throw new EntityNotFoundException("User");
         }
 
         userRepository.deleteByIdAndUsername(id, principal.getName());
