@@ -5,10 +5,10 @@ import com.barataribeiro.taskr.dtos.auth.LoginRequestDTO;
 import com.barataribeiro.taskr.dtos.auth.LoginResponseDTO;
 import com.barataribeiro.taskr.dtos.auth.RegisterRequestDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
-import com.barataribeiro.taskr.exceptions.user.PasswordDoesNotMatch;
-import com.barataribeiro.taskr.exceptions.user.UserAlreadyExists;
-import com.barataribeiro.taskr.exceptions.user.UserIsBanned;
-import com.barataribeiro.taskr.exceptions.user.UserNotFound;
+import com.barataribeiro.taskr.exceptions.generics.EntityAlreadyExistsException;
+import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
+import com.barataribeiro.taskr.exceptions.users.AccountIsBannedException;
+import com.barataribeiro.taskr.exceptions.users.InvalidAccountCredentialsException;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.models.enums.Roles;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
@@ -35,17 +35,19 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponseDTO login(@NotNull LoginRequestDTO body) {
-        User user = userRepository.findByUsername(body.username()).orElseThrow(UserNotFound::new);
+        User user = userRepository
+                .findByUsername(body.username())
+                .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         boolean passwordMatches = passwordEncoder.matches(body.password(), user.getPassword());
         boolean userBannedOrNone = user.getRole().equals(Roles.BANNED) || user.getRole().equals(Roles.NONE);
 
         if (userBannedOrNone) {
-            throw new UserIsBanned();
+            throw new AccountIsBannedException();
         }
 
         if (!passwordMatches) {
-            throw new PasswordDoesNotMatch();
+            throw new InvalidAccountCredentialsException("The provided password is incorrect.");
         }
 
         Map.Entry<String, Instant> tokenAndExpiration = tokenService.generateToken(user, body.rememberMe());
@@ -63,15 +65,15 @@ public class AuthServiceImpl implements AuthService {
         String email = StringEscapeUtils.escapeHtml4(body.email().strip());
 
         if (userRepository.existsByUsername(username) || userRepository.existsByEmail(email)) {
-            throw new UserAlreadyExists();
+            throw new EntityAlreadyExistsException(User.class.getSimpleName());
         }
 
         User user = User.builder()
-                .username(username)
-                .displayName(displayName)
-                .email(email)
-                .password(passwordEncoder.encode(body.password()))
-                .build();
+                        .username(username)
+                        .displayName(displayName)
+                        .email(email)
+                        .password(passwordEncoder.encode(body.password()))
+                        .build();
 
         User savedUser = userRepository.saveAndFlush(user);
 

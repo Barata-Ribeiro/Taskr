@@ -8,13 +8,8 @@ import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
 import com.barataribeiro.taskr.dtos.task.TaskDTO;
-import com.barataribeiro.taskr.exceptions.organization.OrganizationNotFound;
-import com.barataribeiro.taskr.exceptions.project.ProjectLimitReached;
-import com.barataribeiro.taskr.exceptions.project.ProjectNotFound;
-import com.barataribeiro.taskr.exceptions.task.TaskNotFound;
-import com.barataribeiro.taskr.exceptions.user.UserIsNotManager;
-import com.barataribeiro.taskr.exceptions.user.UserIsNotOrganizationMember;
-import com.barataribeiro.taskr.exceptions.user.UserNotFound;
+import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
+import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
 import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.Task;
@@ -64,17 +59,20 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectDTO createProject(String orgId, @NotNull ProjectCreateRequestDTO body, @NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
+        User user =
+                userRepository.findByUsername(principal.getName())
+                              .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         if (user.getManagedProjects() >= 15) {
-            throw new ProjectLimitReached();
+            throw new IllegalRequestException("You have reached the maximum number (15) of projects you can manage.");
         }
 
-        Organization organization = organizationRepository.findById(Long.valueOf(orgId)).orElseThrow(
-                OrganizationNotFound::new);
+        Organization organization = organizationRepository
+                .findById(Long.valueOf(orgId))
+                .orElseThrow(() -> new EntityNotFoundException(Organization.class.getSimpleName()));
 
         if (!organizationUserRepository.existsByOrganization_IdAndUser_Id(organization.getId(), user.getId())) {
-            throw new UserIsNotOrganizationMember();
+            throw new IllegalRequestException("You are not a member of this organization.");
         }
 
         Project newProject = projectRepository.save(Project.builder()
@@ -103,10 +101,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getProjectInfo(String orgId, String projectId) {
         OrganizationProject organizationProject = organizationProjectRepository
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
-                .orElseThrow(ProjectNotFound::new);
+                .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
         ProjectDTO projectDTO = projectMapper.toDTO(organizationProject.getProject());
         ProjectStatus projectStatus = organizationProject.getStatus();
@@ -123,29 +122,29 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getProjectMembers(String orgId, String projectId) {
         Set<ProjectUser> projectUsers = projectUserRepository.findAllByProject_Id(Long.valueOf(projectId));
 
         if (projectUsers.isEmpty()) {
-            throw new ProjectNotFound();
+            throw new EntityNotFoundException(Project.class.getSimpleName());
         }
 
         Project project = projectUsers.stream()
                                       .findFirst()
                                       .map(ProjectUser::getProject)
-                                      .orElseThrow(ProjectNotFound::new);
+                                      .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
         Organization organization = organizationProjectRepository
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
                 .map(OrganizationProject::getOrganization)
-                .orElseThrow(OrganizationNotFound::new);
+                .orElseThrow(() -> new EntityNotFoundException(Organization.class.getSimpleName()));
 
         User projectManager = projectUsers.stream()
                                           .filter(ProjectUser::isProjectManager)
                                           .findFirst()
                                           .map(ProjectUser::getUser)
-                                          .orElseThrow(UserNotFound::new);
+                                          .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         Set<User> projectMembers = projectUsers.stream()
                                                .filter(entity -> !entity.isProjectManager())
@@ -167,11 +166,12 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getProjectTasks(String orgId, String projectId) {
         Set<ProjectTask> projectTasks = projectTaskRepository.findAllByProject_id(Long.valueOf(projectId));
 
         if (projectTasks.isEmpty()) {
-            throw new TaskNotFound();
+            throw new EntityNotFoundException(Task.class.getSimpleName());
         }
 
         Project project = getProjectFromTasks(projectTasks);
@@ -220,15 +220,17 @@ public class ProjectServiceImpl implements ProjectService {
                                                    @NotNull Principal principal) {
         OrganizationProject organizationProject = organizationProjectRepository
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
-                .orElseThrow(ProjectNotFound::new);
+                .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
+        User user =
+                userRepository.findByUsername(principal.getName()).orElseThrow(
+                        () -> new EntityNotFoundException(User.class.getSimpleName()));
 
         boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(
                 organizationProject.getProject().getId(), user.getId(), true);
 
         if (!isManager) {
-            throw new UserIsNotManager();
+            throw new IllegalRequestException("You are not a manager of this project.");
         }
 
         ProjectStatus projectStatus = status == null ? organizationProject.getStatus() : ProjectStatus.valueOf(
@@ -275,7 +277,7 @@ public class ProjectServiceImpl implements ProjectService {
         return projectTasks.stream()
                            .findFirst()
                            .map(ProjectTask::getProject)
-                           .orElseThrow(ProjectNotFound::new);
+                           .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
     }
 
     private Set<Task> getTasksFromProjectTasks(@NotNull Set<ProjectTask> projectTasks) {
@@ -300,13 +302,18 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private @NotNull Project getManagedProjectByUser(String projectId, @NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
-        Project project = projectRepository.findById(Long.valueOf(projectId)).orElseThrow(ProjectNotFound::new);
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        Project project = projectRepository
+                .findById(Long.valueOf(projectId))
+                .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
+
         boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(project.getId(), user.getId(),
                                                                                       true);
 
         if (!isManager) {
-            throw new UserIsNotManager();
+            throw new IllegalRequestException("You are not a manager of this project.");
         }
 
         return project;
