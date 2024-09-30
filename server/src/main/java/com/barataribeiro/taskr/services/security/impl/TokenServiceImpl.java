@@ -9,9 +9,8 @@ import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.services.security.TokenService;
 import com.barataribeiro.taskr.utils.AppConstants;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,10 +21,10 @@ import java.time.ZoneOffset;
 import java.util.AbstractMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TokenServiceImpl implements TokenService {
-    Logger logger = LoggerFactory.getLogger(TokenServiceImpl.class);
 
     @Value("${api.security.token.secret}")
     private String secretKey;
@@ -47,7 +46,7 @@ public class TokenServiceImpl implements TokenService {
 
             return new AbstractMap.SimpleEntry<>(token, expirationDate);
         } catch (IllegalArgumentException | JWTCreationException exception) {
-            logger.error(exception.getMessage());
+            log.atError().log(exception.getMessage());
             throw new InternalServerError();
         }
     }
@@ -63,9 +62,13 @@ public class TokenServiceImpl implements TokenService {
                       .verify(token)
                       .getSubject();
         } catch (JWTVerificationException exception) {
-            logger.error(exception.getMessage());
+            log.atError().log(exception.getMessage());
             return null;
         }
+    }
+
+    private Instant generateExpirationDateInMinutes(Integer minutes) {
+        return LocalDateTime.now(ZoneOffset.UTC).plusMinutes(minutes).toInstant(ZoneOffset.UTC);
     }
 
     private Instant generateExpirationDateInDays(Integer days) {
