@@ -1,13 +1,15 @@
 package com.barataribeiro.taskr.dtos.user;
 
+import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.models.enums.Roles;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
- * DTO for {@link com.barataribeiro.taskr.models.entities.User}
+ * DTO for {@link User}
  */
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +17,7 @@ import java.io.Serializable;
 @Setter
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserDTO implements Serializable {
+public class ContextDTO implements Serializable {
     private String id;
     private String username;
     private String displayName;
@@ -23,6 +25,10 @@ public class UserDTO implements Serializable {
     private String avatarUrl;
     private String email;
     private Roles role;
-    private String createdAt;
-    private String updatedAt;
+    private int managedProjects;
+    private Long totalNotifications;
+    private Long totalReadNotifications;
+    private Long totalUnreadNotifications;
+    private Instant createdAt;
+    private Instant updatedAt;
 }

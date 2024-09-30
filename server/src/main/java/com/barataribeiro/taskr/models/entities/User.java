@@ -20,7 +20,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString(exclude = "password")
+@ToString
 @Builder
 @Entity
 @Table(name = "taskr_users", uniqueConstraints = {
@@ -42,9 +42,15 @@ public class User {
     @Pattern(regexp = "^[a-zA-Z ]*$", message = "Display name must contain only letters, and spaces.")
     private String displayName;
 
+    @JsonIgnore
+    @ToString.Exclude
     private String firstName;
 
+    @JsonIgnore
+    @ToString.Exclude
     private String lastName;
+
+    private String fullName;
 
     @URL(message = "Invalid URL format.", protocol = "https",
          regexp = "((((https?|ftps?|gopher|telnet|nntp)://)|(mailto:|news:))([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)")
@@ -62,6 +68,7 @@ public class User {
             message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, one " +
                     "special character and no whitespace.",
             regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")
+    @ToString.Exclude
     @JsonIgnore
     @Column(nullable = false)
     private String password;
@@ -75,12 +82,30 @@ public class User {
     @Column(columnDefinition = "integer default 0", nullable = false)
     private int managedProjects = 0;
 
+    @Builder.Default
+    @Column(columnDefinition = "BIGINT default '0'", nullable = false)
+    private Long totalNotifications = 0L;
+
+    @Builder.Default
+    @Column(columnDefinition = "BIGINT default '0'", nullable = false)
+    private Long totalReadNotifications = 0L;
+
+    @Builder.Default
+    @Column(columnDefinition = "BIGINT default '0'", nullable = false)
+    private Long totalUnreadNotifications = 0L;
+
     @Column(updatable = false)
     @CreationTimestamp
     private Instant createdAt;
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    // Associations
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Notification> notifications = new LinkedHashSet<>();
 
     @Builder.Default
     @ToString.Exclude
@@ -96,6 +121,20 @@ public class User {
     @ToString.Exclude
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<TaskUser> taskUser = new LinkedHashSet<>();
+
+    // Lifecycle methods
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    public void lifeCycleActions() {
+        this.totalNotifications = (long) this.notifications.size();
+        this.totalReadNotifications = this.notifications.stream().filter(Notification::isRead).count();
+        this.totalUnreadNotifications = this.totalNotifications - this.totalReadNotifications;
+
+        this.fullName = this.firstName + " " + this.lastName;
+
+        this.managedProjects = (int) this.projectUser.stream().filter(ProjectUser::isProjectManager).count();
+    }
 
     public void incrementManagedProjects() {
         this.managedProjects++;
