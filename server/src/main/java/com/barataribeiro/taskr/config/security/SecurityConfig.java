@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,6 +39,11 @@ public class SecurityConfig {
             "/",
             "/api/v1/auth/**",
             };
+
+    private static final String CONTENT_SECURITY_POLICY_VALUE = "default-src 'self'; base-uri 'self'; " +
+            "font-src 'self' https: data:; form-action 'self'; frame-ancestors 'self'; img-src 'self' data:; " +
+            "object-src 'none'; script-src 'self'; style-src 'self' https:; upgrade-insecure-requests";
+
     private final SecurityFilter securityFilter;
 
     @Bean
@@ -45,7 +51,12 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .headers(headers -> headers
+                        .httpStrictTransportSecurity(Customizer.withDefaults())
+                        .xssProtection(Customizer.withDefaults())
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(CONTENT_SECURITY_POLICY_VALUE))
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                        .permissionsPolicy(policy -> policy.policy("geolocation=(), microphone=(), camera=()")))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("SERVICE_ADMIN")
