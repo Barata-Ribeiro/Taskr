@@ -1,6 +1,6 @@
 package com.barataribeiro.taskr.services.security.impl;
 
-import com.barataribeiro.taskr.exceptions.user.UserNotFound;
+import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.security.TokenService;
@@ -47,7 +47,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             var login = tokenService.validateToken(token);
 
             if (login != null) {
-                User user = userRepository.findByUsername(login).orElseThrow(UserNotFound::new);
+                User user = userRepository.findByUsername(login).orElseThrow(() -> new EntityNotFoundException("User"));
 
                 List<SimpleGrantedAuthority> authorities = new ArrayList<>();
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
