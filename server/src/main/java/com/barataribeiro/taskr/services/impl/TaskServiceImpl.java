@@ -10,7 +10,6 @@ import com.barataribeiro.taskr.exceptions.generics.BadRequest;
 import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequest;
 import com.barataribeiro.taskr.exceptions.project.ProjectNotFound;
 import com.barataribeiro.taskr.exceptions.task.AlreadyDueDate;
-import com.barataribeiro.taskr.exceptions.task.StartDateAfterDueDate;
 import com.barataribeiro.taskr.exceptions.task.TaskNotFound;
 import com.barataribeiro.taskr.exceptions.task.WrongDueDateFormat;
 import com.barataribeiro.taskr.exceptions.user.UserIsNotInProject;
@@ -33,19 +32,23 @@ import com.barataribeiro.taskr.services.TaskService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TaskServiceImpl implements TaskService {
@@ -59,7 +62,6 @@ public class TaskServiceImpl implements TaskService {
     private final UserMapper userMapper;
     private final ProjectMapper projectMapper;
     private final TaskMapper taskMapper;
-    Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     @Override
     @Transactional
@@ -72,33 +74,34 @@ public class TaskServiceImpl implements TaskService {
             throw new UserIsNotInProject();
         }
 
-        Date parsedStartDate = body.startDate() == null ? new Date() : parseDate(body.startDate());
-        Date parsedDueDate = parseDate(body.dueDate());
+        LocalDate parsedStartDate = body.startDate() == null ? LocalDate.now() : parseDate(body.startDate());
+        LocalDate parsedDueDate = parseDate(body.dueDate());
 
-        if (parsedDueDate.before(new Date())) {
+        if (parsedDueDate.isBefore(LocalDate.now())) {
             throw new AlreadyDueDate();
         }
 
-        if (parsedStartDate.after(parsedDueDate)) {
+        if (parsedStartDate.isAfter(parsedDueDate)) {
             throw new BadRequest();
         }
 
         TaskStatus status = body.status() == null ? TaskStatus.OPEN : TaskStatus.valueOf(body.status().toUpperCase());
-        TaskPriority priority = body.priority() == null ? TaskPriority.LOW : TaskPriority.valueOf(body.priority().toUpperCase());
+        TaskPriority priority = body.priority() == null ? TaskPriority.LOW : TaskPriority.valueOf(
+                body.priority().toUpperCase());
 
         Task newTask = taskRepository.save(Task.builder()
-                                                   .title(body.title())
-                                                   .description(body.description())
-                                                   .status(status)
-                                                   .priority(priority)
-                                                   .startDate(parsedStartDate)
-                                                   .dueDate(parsedDueDate)
-                                                   .build());
+                                               .title(body.title())
+                                               .description(body.description())
+                                               .status(status)
+                                               .priority(priority)
+                                               .startDate(parsedStartDate)
+                                               .dueDate(parsedDueDate)
+                                               .build());
 
         projectTaskRepository.save(ProjectTask.builder()
-                                           .project(project)
-                                           .task(newTask)
-                                           .build());
+                                              .project(project)
+                                              .task(newTask)
+                                              .build());
 
         taskUserRepository.save(TaskUser.builder()
                                         .task(newTask)
@@ -117,24 +120,26 @@ public class TaskServiceImpl implements TaskService {
     public Map<String, Object> getTaskInfo(String projectId, String taskId) {
         ProjectTask projectTask = projectTaskRepository.findByProject_IdAndTask_Id(Long.valueOf(projectId),
                                                                                    Long.valueOf(taskId))
-                .orElseThrow(TaskNotFound::new);
+                                                       .orElseThrow(TaskNotFound::new);
 
-        Set<TaskUser> taskUsers = taskUserRepository.findTaskCreatorAndAssignedUsersByTaskId(projectTask.getTask().getId(),
-                                                                                             true,
-                                                                                             true);
+        Set<TaskUser> taskUsers = taskUserRepository.findTaskCreatorAndAssignedUsersByTaskId(
+                projectTask.getTask().getId(),
+                true,
+                true);
         User taskCreator = taskUsers.stream()
-                .filter(TaskUser::isCreator)
-                .map(TaskUser::getUser)
-                .findFirst()
-                .orElseThrow(TaskNotFound::new);
+                                    .filter(TaskUser::isCreator)
+                                    .map(TaskUser::getUser)
+                                    .findFirst()
+                                    .orElseThrow(TaskNotFound::new);
         Set<User> assignedUsers = taskUsers.stream()
-                .filter(TaskUser::isAssigned)
-                .map(TaskUser::getUser)
-                .collect(Collectors.toSet());
+                                           .filter(TaskUser::isAssigned)
+                                           .map(TaskUser::getUser)
+                                           .collect(Collectors.toSet());
 
 
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> taskMap = objectMapper.convertValue(taskMapper.toDTO(projectTask.getTask()), new TypeReference<>() {});
+        Map<String, Object> taskMap = objectMapper.convertValue(taskMapper.toDTO(projectTask.getTask()),
+                                                                new TypeReference<>() {});
         taskMap.put("creator", userMapper.toDTO(taskCreator));
         taskMap.put("assigned", userMapper.toDTOList(new ArrayList<>(assignedUsers)));
 
@@ -151,11 +156,16 @@ public class TaskServiceImpl implements TaskService {
                               @NotNull TaskUpdateRequestDTO body, Principal principal) {
         Task task = getTaskIfRequestingUserIsManagerOrAdmin(projectId, taskId, principal);
 
-        Date parsedDueDate = body.dueDate() == null ? task.getDueDate() : parseDate(body.dueDate());
-        Date parsedStartDate = body.startDate() == null ? task.getStartDate() : parseDate(body.startDate());
+        LocalDate parsedStartDate = body.startDate() == null ? LocalDate.now() : parseDate(body.startDate());
+        LocalDate parsedDueDate = parseDate(body.dueDate());
 
-        if (parsedDueDate.before(new Date())) throw new AlreadyDueDate();
-        if (parsedStartDate.after(parsedDueDate)) throw new StartDateAfterDueDate();
+        if (parsedDueDate.isBefore(LocalDate.now())) {
+            throw new AlreadyDueDate();
+        }
+
+        if (parsedStartDate.isAfter(parsedDueDate)) {
+            throw new BadRequest();
+        }
 
         TaskStatus status = body.status() == null ? task.getStatus()
                                                   : TaskStatus.valueOf(body.status().toUpperCase());
@@ -182,7 +192,8 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.delete(task);
     }
 
-    private Task getTaskIfRequestingUserIsManagerOrAdmin(String projectId, String taskId, @NotNull Principal principal) {
+    private Task getTaskIfRequestingUserIsManagerOrAdmin(String projectId, String taskId,
+                                                         @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(UserNotFound::new);
         Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(TaskNotFound::new);
         boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(Long.valueOf(projectId),
@@ -198,12 +209,12 @@ public class TaskServiceImpl implements TaskService {
         return task;
     }
 
-    private Date parseDate(String date) {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+    private @NotNull LocalDate parseDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         try {
-            return formatter.parse(date);
-        } catch (ParseException e) {
-            logger.error("Invalid date format - {}", e.getMessage());
+            return LocalDate.parse(date, formatter);
+        } catch (DateTimeParseException e) {
+            log.atError().log("Error parsing date: {}", e.getMessage());
             throw new WrongDueDateFormat();
         }
     }
