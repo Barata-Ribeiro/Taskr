@@ -1,7 +1,6 @@
 package com.barataribeiro.taskr.services.security.impl;
 
-import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
-import com.barataribeiro.taskr.models.entities.User;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.security.TokenService;
 import jakarta.servlet.FilterChain;
@@ -44,22 +43,23 @@ public class SecurityFilter extends OncePerRequestFilter {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
 
         if (token != null) {
-            var login = tokenService.validateToken(token);
+            DecodedJWT decodedJWT = tokenService.validateToken(token);
 
-            if (login != null) {
-                User user = userRepository.findByUsername(login).orElseThrow(() -> new EntityNotFoundException("User"));
+            if (decodedJWT != null) {
+                String username = decodedJWT.getSubject();
+                String role = decodedJWT.getClaim("role").asString();
 
                 List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
 
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
+                        new UsernamePasswordAuthenticationToken(username, null, authorities);
 
                 context.setAuthentication(authentication);
                 SecurityContextHolder.setContext(context);
                 filterRepository.saveContext(context, request, response);
 
-                log.atInfo().log("User {} authenticated", user.getUsername());
+                log.info("User {} authenticated with role {}", username, role);
             }
         }
 

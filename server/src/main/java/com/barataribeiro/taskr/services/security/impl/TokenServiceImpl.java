@@ -1,9 +1,11 @@
 package com.barataribeiro.taskr.services.security.impl;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.barataribeiro.taskr.exceptions.TaskrMainException;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.services.security.TokenService;
@@ -20,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.AbstractMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -38,10 +41,14 @@ public class TokenServiceImpl implements TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
             expirationDate = this.generateExpirationDateInDays(rememberMe != null && rememberMe ? 365 : 1);
 
+            String tokenId = UUID.randomUUID().toString();
+
             token = JWT.create()
                        .withIssuer(AppConstants.AUTH_0)
                        .withSubject(user.getUsername())
                        .withExpiresAt(expirationDate)
+                       .withClaim("role", user.getRole().name())
+                       .withJWTId(tokenId)
                        .sign(algorithm);
 
             return new AbstractMap.SimpleEntry<>(token, expirationDate);
@@ -52,17 +59,14 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public String validateToken(String token) {
+    public DecodedJWT validateToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
+            JWTVerifier verifier = JWT.require(algorithm).withIssuer(AppConstants.AUTH_0).build();
 
-            return JWT.require(algorithm)
-                      .withIssuer(AppConstants.AUTH_0)
-                      .build()
-                      .verify(token)
-                      .getSubject();
+            return verifier.verify(token);
         } catch (JWTVerificationException exception) {
-            log.atError().log(exception.getMessage());
+            log.atError().log("Invalid token: {}", exception.getMessage());
             return null;
         }
     }
