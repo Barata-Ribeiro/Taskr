@@ -9,6 +9,7 @@ import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.UpdateOrganizationRequestDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
+import com.barataribeiro.taskr.models.embeddables.OrganizationUserId;
 import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.User;
@@ -60,9 +61,10 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                 .description(body.description())
                                                 .build();
         organization.incrementMembersCount();
-        organizationRepository.save(organization);
 
+        OrganizationUserId organizationUserId = new OrganizationUserId(organization.getId(), user.getId());
         OrganizationUser relation = OrganizationUser.builder()
+                                                    .id(organizationUserId)
                                                     .organization(organization)
                                                     .user(user)
                                                     .isAdmin(true)
@@ -70,7 +72,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                     .build();
         organizationUserRepository.save(relation);
 
-        return organizationMapper.toDTO(organization);
+        return organizationMapper.toDTO(organizationRepository.saveAndFlush(organization));
     }
 
     @Override
