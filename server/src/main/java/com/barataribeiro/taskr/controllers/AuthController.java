@@ -10,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -36,6 +33,15 @@ public class AuthController {
         return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
                                                      HttpStatus.OK.value(),
                                                      "Registration successful",
+                                                     response));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<RestResponseDTO> refreshToken(@RequestHeader("X-Refresh-Token") String refreshToken) {
+        LoginResponseDTO response = authService.refreshToken(refreshToken);
+        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
+                                                     HttpStatus.OK.value(),
+                                                     "Token refreshed",
                                                      response));
     }
 }

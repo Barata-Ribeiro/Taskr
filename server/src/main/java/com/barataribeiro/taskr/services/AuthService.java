@@ -10,4 +10,6 @@ public interface AuthService {
     LoginResponseDTO login(LoginRequestDTO body);
 
     UserDTO register(RegisterRequestDTO body);
+
+    LoginResponseDTO refreshToken(String refreshToken);
 }

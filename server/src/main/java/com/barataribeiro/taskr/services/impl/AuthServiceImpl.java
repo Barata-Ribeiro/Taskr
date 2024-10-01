@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.services.impl;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.auth.LoginRequestDTO;
 import com.barataribeiro.taskr.dtos.auth.LoginResponseDTO;
@@ -7,6 +8,7 @@ import com.barataribeiro.taskr.dtos.auth.RegisterRequestDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityAlreadyExistsException;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
+import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequestException;
 import com.barataribeiro.taskr.exceptions.users.AccountIsBannedException;
 import com.barataribeiro.taskr.exceptions.users.InvalidAccountCredentialsException;
 import com.barataribeiro.taskr.models.entities.User;
@@ -76,5 +78,22 @@ public class AuthServiceImpl implements AuthService {
                         .build();
 
         return userMapper.toDTO(userRepository.save(user));
+    }
+
+    @Override
+    public LoginResponseDTO refreshToken(String refreshToken) {
+        DecodedJWT decodedJWT = tokenService.validateToken(refreshToken);
+
+        if (decodedJWT == null) {
+            throw new ForbiddenRequestException();
+        }
+
+        String username = decodedJWT.getSubject();
+        User user = userRepository.findByUsername(username)
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        Map.Entry<String, Instant> accessTokenEntry = tokenService.generateAccessToken(user);
+
+        return new LoginResponseDTO(userMapper.toDTO(user), accessTokenEntry.getKey(), null, null);
     }
 }
