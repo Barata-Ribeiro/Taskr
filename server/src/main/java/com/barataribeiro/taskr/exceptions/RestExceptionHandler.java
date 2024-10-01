@@ -1,6 +1,5 @@
 package com.barataribeiro.taskr.exceptions;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
@@ -9,14 +8,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.io.IOException;
 import java.util.List;
 
 @Slf4j
 @RestControllerAdvice
-public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+public class RestExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     protected ProblemDetail handleAccessDenied(@NotNull AccessDeniedException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
@@ -51,13 +48,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         log.atError().log("Invalid request parameters: {}, {}", fieldErrors, ex.getMessage());
 
         return problemDetail;
-    }
-
-    private void writeResponse(@NotNull HttpServletResponse response,
-                               @NotNull ProblemDetail problemDetail) throws IOException {
-        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.setContentType("application/json");
-        response.getWriter().write(problemDetail.toString());
     }
 
     private record InvalidParam(String fieldName, String reason) {}
