@@ -33,7 +33,30 @@ public class TokenServiceImpl implements TokenService {
     private String secretKey;
 
     @Override
-    public Map.Entry<String, Instant> generateToken(@NotNull User user, Boolean rememberMe) {
+    public Map.Entry<String, Instant> generateAccessToken(@NotNull User user) {
+        Instant expirationDate;
+        String token;
+
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secretKey);
+            expirationDate = this.generateExpirationDateInMinutes(15);
+
+            token = JWT.create()
+                       .withIssuer(AppConstants.AUTH_0)
+                       .withSubject(user.getUsername())
+                       .withClaim("role", user.getRole().name())
+                       .withExpiresAt(expirationDate)
+                       .sign(algorithm);
+
+            return new AbstractMap.SimpleEntry<>(token, expirationDate);
+        } catch (IllegalArgumentException | JWTCreationException exception) {
+            log.atError().log(exception.getMessage());
+            throw new TaskrMainException();
+        }
+    }
+
+    @Override
+    public Map.Entry<String, Instant> generateRefreshToken(@NotNull User user, Boolean rememberMe) {
         Instant expirationDate;
         String token;
 

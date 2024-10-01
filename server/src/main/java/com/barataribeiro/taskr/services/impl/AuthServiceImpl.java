@@ -34,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final TokenService tokenService;
 
     @Override
+    @Transactional
     public LoginResponseDTO login(@NotNull LoginRequestDTO body) {
         User user = userRepository
                 .findByUsername(body.username())
@@ -47,18 +48,17 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (!passwordMatches) {
-            throw new InvalidAccountCredentialsException("The provided password is incorrect.");
+            throw new InvalidAccountCredentialsException("Login failed; Wrong username or password.");
         }
 
-        Map.Entry<String, Instant> tokenAndExpiration = tokenService.generateToken(user, body.rememberMe());
+        Map.Entry<String, Instant> accessToken = tokenService.generateAccessToken(user);
+        Map.Entry<String, Instant> refreshToken = tokenService.generateRefreshToken(user, body.rememberMe());
 
-        return new LoginResponseDTO(userMapper.toDTO(user),
-                                    tokenAndExpiration.getKey(),
-                                    tokenAndExpiration.getValue());
+        return new LoginResponseDTO(userMapper.toDTO(user), accessToken.getKey(),
+                                    refreshToken.getKey(), refreshToken.getValue());
     }
 
     @Override
-    @Transactional
     public UserDTO register(@NotNull RegisterRequestDTO body) {
         String username = StringEscapeUtils.escapeHtml4(body.username().toLowerCase().strip());
         String displayName = StringEscapeUtils.escapeHtml4(body.displayName().strip());
@@ -75,8 +75,6 @@ public class AuthServiceImpl implements AuthService {
                         .password(passwordEncoder.encode(body.password()))
                         .build();
 
-        User savedUser = userRepository.saveAndFlush(user);
-
-        return userMapper.toDTO(savedUser);
+        return userMapper.toDTO(userRepository.save(user));
     }
 }
