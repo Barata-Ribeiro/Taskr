@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.services.impl;
 
+import com.barataribeiro.taskr.builder.NotificationMapper;
 import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.TaskMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
@@ -9,6 +10,7 @@ import com.barataribeiro.taskr.dtos.task.TaskUpdateRequestDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequestException;
 import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
+import com.barataribeiro.taskr.models.entities.Notification;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.Task;
 import com.barataribeiro.taskr.models.entities.User;
@@ -16,6 +18,7 @@ import com.barataribeiro.taskr.models.enums.TaskPriority;
 import com.barataribeiro.taskr.models.enums.TaskStatus;
 import com.barataribeiro.taskr.models.relations.ProjectTask;
 import com.barataribeiro.taskr.models.relations.TaskUser;
+import com.barataribeiro.taskr.repositories.entities.NotificationRepository;
 import com.barataribeiro.taskr.repositories.entities.ProjectRepository;
 import com.barataribeiro.taskr.repositories.entities.TaskRepository;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
@@ -23,6 +26,7 @@ import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository
 import com.barataribeiro.taskr.repositories.relations.ProjectTaskRepository;
 import com.barataribeiro.taskr.repositories.relations.ProjectUserRepository;
 import com.barataribeiro.taskr.repositories.relations.TaskUserRepository;
+import com.barataribeiro.taskr.services.NotificationService;
 import com.barataribeiro.taskr.services.TaskService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,16 +61,18 @@ public class TaskServiceImpl implements TaskService {
     private final UserMapper userMapper;
     private final ProjectMapper projectMapper;
     private final TaskMapper taskMapper;
+    private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
+    private final NotificationMapper notificationMapper;
 
     @Override
     @Transactional
-    public TaskDTO createTask(String projectId, @NotNull TaskCreateRequestDTO body,
-                              @NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(
-                () -> new EntityNotFoundException("User"));
-        Project project =
-                projectRepository.findById(Long.valueOf(projectId))
-                                 .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
+    public TaskDTO createTask(String projectId, @NotNull TaskCreateRequestDTO body, @NotNull Principal principal) {
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException("User"));
+        Project project = projectRepository
+                .findById(Long.valueOf(projectId))
+                .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
         if (!projectUserRepository.existsByProject_IdAndUser_Id(Long.valueOf(projectId), user.getId())) {
             throw new IllegalRequestException("User is not in the project.");
@@ -114,7 +120,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getTaskInfo(String projectId, String taskId) {
         ProjectTask projectTask = projectTaskRepository
                 .findByProject_IdAndTask_Id(Long.valueOf(projectId), Long.valueOf(taskId))
@@ -170,14 +176,16 @@ public class TaskServiceImpl implements TaskService {
         TaskPriority priority = body.priority() == null ? task.getPriority()
                                                         : TaskPriority.valueOf(body.priority().toUpperCase());
 
-        task.setTitle(body.title());
-        task.setDescription(body.description());
-        task.setStatus(status);
-        task.setPriority(priority);
-        task.setStartDate(parsedStartDate);
-        task.setDueDate(parsedDueDate);
+        if (body.title() != null) task.setTitle(body.title());
+        if (body.description() != null) task.setDescription(body.description());
+        if (body.status() != null) task.setStatus(status);
+        if (body.priority() != null) task.setPriority(priority);
+        if (body.startDate() != null) task.setStartDate(parsedStartDate);
+        if (body.dueDate() != null) task.setDueDate(parsedDueDate);
 
-        return taskMapper.toDTO(taskRepository.save(task));
+        sendNotificationToAssignedUser(task, principal);
+
+        return taskMapper.toDTO(taskRepository.saveAndFlush(task));
     }
 
     @Override
@@ -188,6 +196,29 @@ public class TaskServiceImpl implements TaskService {
         projectTaskRepository.deleteByTask(task);
         taskUserRepository.deleteByTask(task);
         taskRepository.delete(task);
+    }
+
+    private void sendNotificationToAssignedUser(@NotNull Task task, Principal principal) {
+        taskUserRepository.findTaskCreatorAndAssignedUsersByTaskId(task.getId(), false, true)
+                          .forEach(taskUser -> {
+                              Notification notification = Notification.builder()
+                                                                      .title("Task Modified")
+                                                                      .message(String.format(
+                                                                              "The task %s has been modified by %s. " +
+                                                                                      "As an assigned user, you " +
+                                                                                      "should check it out as soon as" +
+                                                                                      " possible.",
+                                                                              task.getTitle(),
+                                                                              principal.getName()))
+                                                                      .user(taskUser.getUser())
+                                                                      .build();
+                              notificationRepository.save(notification);
+
+                              notificationService
+                                      .sendNotificationThroughWebsocket(taskUser.getUser().getUsername(),
+                                                                        notificationMapper.toDTO(
+                                                                                notification));
+                          });
     }
 
     private Task getTaskIfRequestingUserIsManagerOrAdmin(String projectId, String taskId,
