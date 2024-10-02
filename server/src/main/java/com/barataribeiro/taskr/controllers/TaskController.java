@@ -21,42 +21,45 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping("/create-task")
-    public ResponseEntity<RestResponseDTO> createTask(@PathVariable String projectId, @RequestBody TaskCreateRequestDTO body,
-                                                      Principal principal) {
+    public ResponseEntity<RestResponseDTO<TaskDTO>> createTask(@PathVariable String projectId,
+                                                               @RequestBody TaskCreateRequestDTO body,
+                                                               Principal principal) {
         TaskDTO response = taskService.createTask(projectId, body, principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Task created successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Task created successfully",
+                                                       response));
     }
 
     @GetMapping("/task/{taskId}")
-    public ResponseEntity<RestResponseDTO> getTaskInfo(@PathVariable String projectId,
-                                                       @PathVariable String taskId) {
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getTaskInfo(@PathVariable String projectId,
+                                                                            @PathVariable String taskId) {
         Map<String, Object> response = taskService.getTaskInfo(projectId, taskId);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Task retrieved successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Task retrieved successfully",
+                                                       response));
     }
 
     @PutMapping("/task/{taskId}")
-    public ResponseEntity<RestResponseDTO> updateTask(@PathVariable String projectId, @PathVariable String taskId,
-                                                      @RequestBody TaskUpdateRequestDTO body, Principal principal) {
+    public ResponseEntity<RestResponseDTO<TaskDTO>> updateTask(@PathVariable String projectId,
+                                                               @PathVariable String taskId,
+                                                               @RequestBody TaskUpdateRequestDTO body,
+                                                               Principal principal) {
         TaskDTO response = taskService.updateTask(projectId, taskId, body, principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Task updated successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Task updated successfully",
+                                                       response));
     }
 
     @DeleteMapping("/task/{taskId}")
-    public ResponseEntity<RestResponseDTO> deleteTask(@PathVariable String projectId, @PathVariable String taskId,
-                                                      Principal principal) {
+    public ResponseEntity<RestResponseDTO<?>> deleteTask(@PathVariable String projectId, @PathVariable String taskId,
+                                                         Principal principal) {
         taskService.deleteTask(projectId, taskId, principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Task deleted successfully",
-                                                     null));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Task deleted successfully",
+                                                       null));
     }
 }

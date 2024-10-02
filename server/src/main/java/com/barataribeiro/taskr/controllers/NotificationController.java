@@ -21,11 +21,11 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping("/latest")
-    public ResponseEntity<RestResponseDTO> getLatestNotifications(Principal principal) {
+    public ResponseEntity<RestResponseDTO<List<NotificationDTO>>> getLatestNotifications(Principal principal) {
         List<NotificationDTO> response = notificationService.getLatestUserNotifications(principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Notifications retrieved successfully.",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Notifications retrieved successfully.",
+                                                       response));
     }
 }

@@ -19,40 +19,40 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/profile/{userId}")
-    public ResponseEntity<RestResponseDTO> getUserProfileById(@PathVariable String userId) {
+    public ResponseEntity<RestResponseDTO<UserDTO>> getUserProfileById(@PathVariable String userId) {
         UserDTO response = userService.getUserProfileById(userId);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "User profile retrieved successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "User profile retrieved successfully",
+                                                       response));
     }
 
     @GetMapping("/me/context")
-    public ResponseEntity<RestResponseDTO> getUserContext(Principal principal) {
+    public ResponseEntity<RestResponseDTO<UserDTO>> getUserContext(Principal principal) {
         UserDTO response = userService.getUserContext(principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "User context retrieved successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "User context retrieved successfully",
+                                                       response));
     }
 
     @PutMapping("/me/{userId}")
-    public ResponseEntity<RestResponseDTO> updateUserProfile(@PathVariable String userId,
-                                                             @RequestBody UpdateAccountRequestDTO body,
-                                                             Principal principal) {
+    public ResponseEntity<RestResponseDTO<UserDTO>> updateUserProfile(@PathVariable String userId,
+                                                                      @RequestBody UpdateAccountRequestDTO body,
+                                                                      Principal principal) {
         UserDTO response = userService.updateUserProfile(userId, body, principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "User profile updated successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "User profile updated successfully",
+                                                       response));
     }
 
     @DeleteMapping("/me/{userId}")
-    public ResponseEntity<RestResponseDTO> deleteUserProfile(@PathVariable String userId, Principal principal) {
+    public ResponseEntity<RestResponseDTO<?>> deleteUserProfile(@PathVariable String userId, Principal principal) {
         userService.deleteUserProfile(userId, principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "User profile deleted successfully",
-                                                     null));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "User profile deleted successfully",
+                                                       null));
     }
 }

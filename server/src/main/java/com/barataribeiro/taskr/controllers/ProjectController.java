@@ -21,69 +21,77 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping("/project-create")
-    public ResponseEntity<RestResponseDTO> createProject(@PathVariable String orgId, @RequestBody ProjectCreateRequestDTO body,
-                                                         Principal principal) {
+    public ResponseEntity<RestResponseDTO<ProjectDTO>> createProject(@PathVariable String orgId,
+                                                                     @RequestBody ProjectCreateRequestDTO body,
+                                                                     Principal principal) {
         ProjectDTO response = projectService.createProject(orgId, body, principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Project created successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Project created successfully",
+                                                       response));
     }
 
     @GetMapping("/project/{projectId}")
-    public ResponseEntity<RestResponseDTO> getProjectInfo(@PathVariable String orgId, @PathVariable String projectId) {
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getProjectInfo(@PathVariable String orgId,
+                                                                               @PathVariable String projectId) {
         Map<String, Object> response = projectService.getProjectInfo(orgId, projectId);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Project retrieved successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Project retrieved successfully",
+                                                       response));
     }
 
     @GetMapping("/project/{projectId}/members")
-    public ResponseEntity<RestResponseDTO> getProjectMembers(@PathVariable String orgId, @PathVariable String projectId) {
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getProjectMembers(@PathVariable String orgId,
+                                                                                  @PathVariable String projectId) {
         Map<String, Object> response = projectService.getProjectMembers(orgId, projectId);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Project members retrieved successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Project members retrieved successfully",
+                                                       response));
     }
 
     @GetMapping("/project/{projectId}/tasks")
-    public ResponseEntity<RestResponseDTO> getProjectTasks(@PathVariable String orgId, @PathVariable String projectId) {
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getProjectTasks(@PathVariable String orgId,
+                                                                                @PathVariable String projectId) {
         Map<String, Object> response = projectService.getProjectTasks(orgId, projectId);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Project tasks retrieved successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Project tasks retrieved successfully",
+                                                       response));
     }
 
     @PutMapping("/project/{projectId}")
-    public ResponseEntity<RestResponseDTO> updateProject(@PathVariable String orgId, @PathVariable String projectId,
-                                                         @RequestBody ProjectUpdateRequestDTO body, Principal principal) {
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> updateProject(@PathVariable String orgId,
+                                                                              @PathVariable String projectId,
+                                                                              @RequestBody ProjectUpdateRequestDTO body,
+                                                                              Principal principal) {
         Map<String, Object> response = projectService.updateProject(orgId, projectId, body, principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Project updated successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Project updated successfully",
+                                                       response));
     }
 
     @PutMapping("/project/{projectId}/status")
-    public ResponseEntity<RestResponseDTO> changeProjectStatus(@PathVariable String orgId, @PathVariable String projectId,
-                                                               @RequestParam String status, Principal principal) {
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> changeProjectStatus(@PathVariable String orgId,
+                                                                                    @PathVariable String projectId,
+                                                                                    @RequestParam String status,
+                                                                                    Principal principal) {
         Map<String, Object> response = projectService.changeProjectStatus(orgId, projectId, status, principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Project status updated successfully",
-                                                     response));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Project status updated successfully",
+                                                       response));
     }
 
     @DeleteMapping("/project/{projectId}")
-    public ResponseEntity<RestResponseDTO> deleteProject(@PathVariable String orgId, @PathVariable String projectId,
-                                                         Principal principal) {
+    public ResponseEntity<RestResponseDTO<?>> deleteProject(@PathVariable String orgId, @PathVariable String projectId,
+                                                            Principal principal) {
         projectService.deleteProject(orgId, projectId, principal);
-        return ResponseEntity.ok(new RestResponseDTO(HttpStatus.OK,
-                                                     HttpStatus.OK.value(),
-                                                     "Project deleted successfully",
-                                                     null));
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Project deleted successfully",
+                                                       null));
     }
 }
