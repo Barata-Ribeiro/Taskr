@@ -11,7 +11,9 @@ import java.util.Set;
 public interface ProjectTaskRepository extends JpaRepository<ProjectTask, Long> {
     void deleteByTask(Task task);
 
-    @Query("select p from ProjectTask p where p.project.id = :id order by p.task.createdAt")
+    @Query("""
+           SELECT p FROM ProjectTask p WHERE p.project.id = :id ORDER BY p.task.createdAt
+           """)
     Set<ProjectTask> findAllByProject_id(Long id);
 
     Optional<ProjectTask> findByProject_IdAndTask_Id(Long projectId, Long taskId);

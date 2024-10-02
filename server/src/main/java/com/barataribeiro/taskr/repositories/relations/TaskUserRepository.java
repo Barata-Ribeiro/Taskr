@@ -13,8 +13,9 @@ public interface TaskUserRepository extends JpaRepository<TaskUser, Long> {
 
     @EntityGraph(attributePaths = {"user"})
     @Query("""
-            select t from TaskUser t
-            where t.task.id = :id and t.isCreator = :isCreator or t.isAssigned = :isAssigned
-            order by t.user.username DESC""")
+           SELECT t FROM TaskUser t
+           WHERE t.task.id = :id AND t.isCreator = :isCreator OR t.isAssigned = :isAssigned
+           ORDER BY t.user.username DESC
+           """)
     Set<TaskUser> findTaskCreatorAndAssignedUsersByTaskId(Long id, boolean isCreator, boolean isAssigned);
 }

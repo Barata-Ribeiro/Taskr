@@ -9,19 +9,29 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface OrganizationUserRepository extends JpaRepository<OrganizationUser, Long> {
-    @Query("select (count(o) > 0) from OrganizationUser o where o.user.id = :userId and o.isOwner = :isOwner")
+    @Query("""
+           SELECT (COUNT (o) > 0) FROM OrganizationUser o
+           WHERE o.user.id = :userId AND o.isOwner = :isOwner
+           """)
     boolean existsOrganizationWhereUserByIdIsOwner(String userId, boolean isOwner);
 
     boolean existsByOrganization_IdAndUser_Id(Long id, String userId);
 
     boolean existsByUser_Id(String id);
 
-    @Query("select o from OrganizationUser o where o.organization.id = :id " +
-            "and o.user.username = :username and o.isOwner = :isOwner")
+    @Query("""
+           SELECT o FROM OrganizationUser o
+           WHERE o.organization.id = :id AND o.user.username = :username
+           AND o.isOwner = :isOwner
+           """)
     Optional<OrganizationUser> findOrganizationByUser_UsernameAndIsOwner(Long id, String username, boolean isOwner);
 
     @EntityGraph(attributePaths = {"user"})
-    @Query("select o from OrganizationUser o where o.organization.id = :id order by o.user.username")
+    @Query("""
+           SELECT o FROM OrganizationUser o
+           WHERE o.organization.id = :id
+           ORDER BY o.user.username
+           """)
     Set<OrganizationUser> findAllByOrganization_Id(Long id);
 
 }
