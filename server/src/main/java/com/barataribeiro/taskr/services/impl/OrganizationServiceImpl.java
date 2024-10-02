@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.services.impl;
 
+import com.barataribeiro.taskr.builder.NotificationMapper;
 import com.barataribeiro.taskr.builder.OrganizationMapper;
 import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
@@ -10,15 +11,18 @@ import com.barataribeiro.taskr.dtos.organization.UpdateOrganizationRequestDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
 import com.barataribeiro.taskr.models.embeddables.OrganizationUserId;
+import com.barataribeiro.taskr.models.entities.Notification;
 import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.models.relations.OrganizationProject;
 import com.barataribeiro.taskr.models.relations.OrganizationUser;
+import com.barataribeiro.taskr.repositories.entities.NotificationRepository;
 import com.barataribeiro.taskr.repositories.entities.OrganizationRepository;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.repositories.relations.OrganizationProjectRepository;
 import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository;
+import com.barataribeiro.taskr.services.NotificationService;
 import com.barataribeiro.taskr.services.OrganizationService;
 import com.barataribeiro.taskr.utils.AppConstants;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -46,13 +50,15 @@ public class OrganizationServiceImpl implements OrganizationService {
     private final UserMapper userMapper;
     private final OrganizationMapper organizationMapper;
     private final ProjectMapper projectMapper;
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
+    private final NotificationMapper notificationMapper;
 
     @Override
     @Transactional
     public OrganizationDTO createOrganization(@NotNull OrganizationRequestDTO body, @NotNull Principal principal) {
-        User user =
-                userRepository.findByUsername(principal.getName())
-                              .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         hasUserAlreadyCreatedOrganization(user);
 
@@ -76,6 +82,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getAllOrganizations(int page, int perPage) {
         Pageable paging = PageRequest.of(page, perPage);
 
@@ -86,8 +93,9 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         Page<Organization> organizationPage = organizationRepository.findAllOrganizationsPageable(paging);
 
-        List<OrganizationDTO> organizations = organizationPage.isEmpty() ? new ArrayList<>() :
-                                              organizationMapper.toDTOList(organizationPage.getContent());
+        List<OrganizationDTO> organizations = organizationPage.isEmpty()
+                                              ? new ArrayList<>()
+                                              : organizationMapper.toDTOList(organizationPage.getContent());
 
         Map<String, Object> returnData = new HashMap<>();
         returnData.put("organizations", organizations);
@@ -99,6 +107,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getTopThreeOrganizations() {
         List<Organization> organizations = organizationRepository.findDistinctTop3ByOrderByCreatedAtDesc();
         return Map.of("organizations", organizations.isEmpty() ? new ArrayList<>() :
@@ -114,7 +123,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getOrganizationMembers(String id) {
         Set<OrganizationUser> organizationUsers = organizationUserRepository
                 .findAllByOrganization_Id(Long.valueOf(id));
@@ -157,7 +166,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getOrganizationProjects(String id) {
         Set<OrganizationProject> organizationProjects = organizationProjectRepository
                 .findAllByOrganization_Id(Long.valueOf(id));
@@ -204,8 +213,10 @@ public class OrganizationServiceImpl implements OrganizationService {
         List<User> usersRemoved = new ArrayList<>();
 
         if (body.usersToAdd() != null) attemptAddUsersToOrganization(body, usersNotAdded, organization, usersAdded);
-        if (body.usersToRemove() != null)
-            attemptRemoveUsersFromOrganization(body, usersNotRemoved, organization, usersRemoved);
+        if (body.usersToRemove() != null) attemptRemoveUsersFromOrganization(body, usersNotRemoved, organization,
+                                                                             usersRemoved);
+
+        organizationRepository.save(organization);
 
         Map<String, Object> returnData = new HashMap<>();
         returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
@@ -213,6 +224,9 @@ public class OrganizationServiceImpl implements OrganizationService {
         returnData.put("usersNotAdded", usersNotAdded);
         returnData.put("usersRemoved", userMapper.toDTOList(usersRemoved));
         returnData.put("usersNotRemoved", usersNotRemoved);
+
+        if (!usersAdded.isEmpty()) sendNotificationForUsersAdded(usersAdded, organization, user);
+        if (!usersRemoved.isEmpty()) sendNotificationForUsersRemoved(usersRemoved, organization, user);
 
         return returnData;
     }
@@ -257,6 +271,43 @@ public class OrganizationServiceImpl implements OrganizationService {
         organizationRepository.delete(organization);
     }
 
+    private void sendNotificationForUsersRemoved(@NotNull List<User> usersRemoved, Organization organization,
+                                                 User user) {
+        for (User userRemoved : usersRemoved) {
+            Notification notification = Notification.builder()
+                                                    .title("Left Organization")
+                                                    .message(String.format(
+                                                            "You have been removed from the organization %s, by " +
+                                                                    "its owner %s.", organization.getName(),
+                                                            user.getUsername()))
+                                                    .user(userRemoved)
+                                                    .build();
+
+            notificationRepository.save(notification);
+
+            notificationService.sendNotificationThroughWebsocket(userRemoved.getUsername(),
+                                                                 notificationMapper.toDTO(notification));
+        }
+    }
+
+    private void sendNotificationForUsersAdded(@NotNull List<User> usersAdded, Organization organization, User user) {
+        for (User userAdded : usersAdded) {
+            Notification notification = Notification.builder()
+                                                    .title("Joined Organization")
+                                                    .message(String.format(
+                                                            "You have been added to the organization %s, by its " +
+                                                                    "owner %s.", organization.getName(),
+                                                            user.getUsername()))
+                                                    .user(userAdded)
+                                                    .build();
+
+            notificationRepository.save(notification);
+
+            notificationService.sendNotificationThroughWebsocket(userAdded.getUsername(),
+                                                                 notificationMapper.toDTO(notification));
+        }
+    }
+
     private void attemptAddUsersToOrganization(@NotNull ManagementRequestDTO body, List<String> usersNotAdded,
                                                Organization organization, List<User> usersAdded) {
         for (String username : body.usersToAdd()) {
@@ -272,6 +323,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                                                       .isAdmin(false)
                                                                                       .isOwner(false)
                                                                                       .build();
+                                          organization.incrementMembersCount();
                                           organizationUserRepository.save(relation);
                                           usersAdded.add(userToAdd);
                                       }
@@ -293,6 +345,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                                                              username, false)
                                                   .orElseThrow(() -> new IllegalRequestException(
                                                           "User is not a member of this organization."));
+                                          organization.decrementMembersCount();
                                           organizationUserRepository.delete(relation);
                                           usersRemoved.add(userToRemove);
                                       } else {
