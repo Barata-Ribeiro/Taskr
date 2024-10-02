@@ -2,7 +2,7 @@ package com.barataribeiro.taskr.dtos.notification;
 
 import com.barataribeiro.taskr.dtos.user.ContextDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Value;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -10,7 +10,11 @@ import java.time.Instant;
 /**
  * DTO for {@link com.barataribeiro.taskr.models.entities.Notification}
  */
-@Value
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NotificationDTO implements Serializable {
     private Long id;
