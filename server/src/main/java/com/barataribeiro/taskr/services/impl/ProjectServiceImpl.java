@@ -1,24 +1,19 @@
 package com.barataribeiro.taskr.services.impl;
 
-import com.barataribeiro.taskr.builder.OrganizationMapper;
-import com.barataribeiro.taskr.builder.ProjectMapper;
-import com.barataribeiro.taskr.builder.TaskMapper;
-import com.barataribeiro.taskr.builder.UserMapper;
+import com.barataribeiro.taskr.builder.*;
 import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
 import com.barataribeiro.taskr.dtos.task.TaskDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
-import com.barataribeiro.taskr.models.entities.Organization;
-import com.barataribeiro.taskr.models.entities.Project;
-import com.barataribeiro.taskr.models.entities.Task;
-import com.barataribeiro.taskr.models.entities.User;
+import com.barataribeiro.taskr.models.entities.*;
 import com.barataribeiro.taskr.models.enums.ProjectStatus;
 import com.barataribeiro.taskr.models.enums.TaskPriority;
 import com.barataribeiro.taskr.models.relations.OrganizationProject;
 import com.barataribeiro.taskr.models.relations.ProjectTask;
 import com.barataribeiro.taskr.models.relations.ProjectUser;
+import com.barataribeiro.taskr.repositories.entities.NotificationRepository;
 import com.barataribeiro.taskr.repositories.entities.OrganizationRepository;
 import com.barataribeiro.taskr.repositories.entities.ProjectRepository;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
@@ -26,6 +21,7 @@ import com.barataribeiro.taskr.repositories.relations.OrganizationProjectReposit
 import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository;
 import com.barataribeiro.taskr.repositories.relations.ProjectTaskRepository;
 import com.barataribeiro.taskr.repositories.relations.ProjectUserRepository;
+import com.barataribeiro.taskr.services.NotificationService;
 import com.barataribeiro.taskr.services.ProjectService;
 import com.barataribeiro.taskr.utils.AppConstants;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -54,14 +50,16 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectMapper projectMapper;
     private final TaskMapper taskMapper;
     private final ProjectTaskRepository projectTaskRepository;
+    private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
+    private final NotificationMapper notificationMapper;
 
 
     @Override
     @Transactional
     public ProjectDTO createProject(String orgId, @NotNull ProjectCreateRequestDTO body, @NotNull Principal principal) {
-        User user =
-                userRepository.findByUsername(principal.getName())
-                              .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         if (user.getManagedProjects() >= 15) {
             throw new IllegalRequestException("You have reached the maximum number (15) of projects you can manage.");
@@ -204,6 +202,10 @@ public class ProjectServiceImpl implements ProjectService {
 
         if (body.usersToAdd() != null) {
             attemptAddUsersToProject(body, usersNotAdded, project, usersAdded);
+
+            projectRepository.save(project);
+
+            sendNotificationForUsersAdded(principal, usersAdded, project);
         }
 
         Map<String, Object> returnData = new HashMap<>();
@@ -222,19 +224,19 @@ public class ProjectServiceImpl implements ProjectService {
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
                 .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
-        User user =
-                userRepository.findByUsername(principal.getName()).orElseThrow(
-                        () -> new EntityNotFoundException(User.class.getSimpleName()));
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
-        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(
-                organizationProject.getProject().getId(), user.getId(), true);
+        boolean isManager = projectUserRepository
+                .existsProjectWhereUserByIdIsManager(organizationProject.getProject().getId(), user.getId(), true);
 
         if (!isManager) {
             throw new IllegalRequestException("You are not a manager of this project.");
         }
 
-        ProjectStatus projectStatus = status == null ? organizationProject.getStatus() : ProjectStatus.valueOf(
-                status.toUpperCase());
+        ProjectStatus projectStatus = status == null
+                                      ? organizationProject.getStatus()
+                                      : ProjectStatus.valueOf(status.toUpperCase());
 
         organizationProject.setStatus(projectStatus);
         organizationProjectRepository.save(organizationProject);
@@ -256,6 +258,24 @@ public class ProjectServiceImpl implements ProjectService {
         projectUserRepository.deleteByProject(project);
         organizationProjectRepository.deleteByProject(project);
         projectRepository.delete(project);
+    }
+
+    private void sendNotificationForUsersAdded(@NotNull Principal principal, @NotNull List<User> usersAdded,
+                                               Project project) {
+        for (User userAdded : usersAdded) {
+            Notification notification = Notification.builder()
+                                                    .title("Joined Project")
+                                                    .message(String.format(
+                                                            "You have been added to the project %s, by its " +
+                                                                    "manager %s.",
+                                                            project.getName(), principal.getName()))
+                                                    .user(userAdded)
+                                                    .build();
+            notificationRepository.save(notification);
+
+            notificationService.sendNotificationThroughWebsocket(userAdded.getUsername(),
+                                                                 notificationMapper.toDTO(notification));
+        }
     }
 
     private @NotNull Map<String, Object> sortTasksByPriority(Set<Task> tasks) {
@@ -296,6 +316,7 @@ public class ProjectServiceImpl implements ProjectService {
                                                                     .user(user)
                                                                     .isProjectManager(false)
                                                                     .build());
+                              project.incrementMembersCount();
                               usersAdded.add(user);
                           }, () -> usersNotAdded.add(username));
         }
