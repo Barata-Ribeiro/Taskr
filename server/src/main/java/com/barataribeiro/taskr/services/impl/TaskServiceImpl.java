@@ -10,6 +10,8 @@ import com.barataribeiro.taskr.dtos.task.TaskUpdateRequestDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequestException;
 import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
+import com.barataribeiro.taskr.models.embeddables.ProjectTaskId;
+import com.barataribeiro.taskr.models.embeddables.TaskUserId;
 import com.barataribeiro.taskr.models.entities.Notification;
 import com.barataribeiro.taskr.models.entities.Project;
 import com.barataribeiro.taskr.models.entities.Task;
@@ -102,12 +104,16 @@ public class TaskServiceImpl implements TaskService {
                                                .dueDate(parsedDueDate)
                                                .build());
 
+        ProjectTaskId projectTaskId = new ProjectTaskId(project.getId(), newTask.getId());
         projectTaskRepository.save(ProjectTask.builder()
+                                              .id(projectTaskId)
                                               .project(project)
                                               .task(newTask)
                                               .build());
 
+        TaskUserId taskUserId = new TaskUserId(newTask.getId(), user.getId());
         taskUserRepository.save(TaskUser.builder()
+                                        .id(taskUserId)
                                         .task(newTask)
                                         .user(user)
                                         .isCreator(true)
@@ -126,10 +132,8 @@ public class TaskServiceImpl implements TaskService {
                 .findByProject_IdAndTask_Id(Long.valueOf(projectId), Long.valueOf(taskId))
                 .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
 
-        Set<TaskUser> taskUsers = taskUserRepository.findTaskCreatorAndAssignedUsersByTaskId(
-                projectTask.getTask().getId(),
-                true,
-                true);
+        Set<TaskUser> taskUsers = taskUserRepository
+                .findTaskCreatorAndAssignedUsersByTaskId(projectTask.getTask().getId(), true, true);
         User taskCreator = taskUsers.stream()
                                     .filter(TaskUser::isCreator)
                                     .map(TaskUser::getUser)

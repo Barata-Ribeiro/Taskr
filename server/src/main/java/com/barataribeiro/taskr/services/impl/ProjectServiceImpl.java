@@ -7,6 +7,8 @@ import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
 import com.barataribeiro.taskr.dtos.task.TaskDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
+import com.barataribeiro.taskr.models.embeddables.OrganizationProjectId;
+import com.barataribeiro.taskr.models.embeddables.ProjectUserId;
 import com.barataribeiro.taskr.models.entities.*;
 import com.barataribeiro.taskr.models.enums.ProjectStatus;
 import com.barataribeiro.taskr.models.enums.TaskPriority;
@@ -79,12 +81,17 @@ public class ProjectServiceImpl implements ProjectService {
                                                            .membersCount(1L)
                                                            .build());
 
+        OrganizationProjectId organizationProjectId = new OrganizationProjectId(organization.getId(),
+                                                                                newProject.getId());
         organizationProjectRepository.save(OrganizationProject.builder()
+                                                              .id(organizationProjectId)
                                                               .organization(organization)
                                                               .project(newProject)
                                                               .build());
 
+        ProjectUserId projectUserId = new ProjectUserId(newProject.getId(), user.getId());
         projectUserRepository.save(ProjectUser.builder()
+                                              .id(projectUserId)
                                               .project(newProject)
                                               .user(user)
                                               .isProjectManager(true)
