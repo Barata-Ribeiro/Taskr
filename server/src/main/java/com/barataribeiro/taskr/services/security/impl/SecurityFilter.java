@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.services.security.impl;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.barataribeiro.taskr.repositories.entities.TokenRepository;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.security.TokenService;
 import jakarta.servlet.FilterChain;
@@ -33,6 +34,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
     private final RequestAttributeSecurityContextRepository filterRepository =
             new RequestAttributeSecurityContextRepository();
+    private final TokenRepository tokenRepository;
 
     @Override
     protected void doFilterInternal(final @NonNull HttpServletRequest request,
@@ -46,9 +48,16 @@ public class SecurityFilter extends OncePerRequestFilter {
             DecodedJWT decodedJWT = tokenService.validateToken(token);
 
             if (decodedJWT != null) {
+                String jti = decodedJWT.getId();
                 String username = decodedJWT.getSubject();
-                String role = decodedJWT.getClaim("role").asString();
 
+                if (tokenRepository.existsById(jti)) {
+                    log.atWarn().log("Token {} has been blacklisted", jti);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
+                }
+
+                String role = decodedJWT.getClaim("role").asString();
                 List<SimpleGrantedAuthority> authorities = new ArrayList<>();
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
 
