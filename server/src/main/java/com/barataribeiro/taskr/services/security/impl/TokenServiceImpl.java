@@ -39,7 +39,7 @@ public class TokenServiceImpl implements TokenService {
 
         try {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
-            expirationDate = this.generateExpirationDateInMinutes(15);
+            expirationDate = this.generateExpirationDateOfFifteenMinutes();
 
             token = JWT.create()
                        .withIssuer(AppConstants.AUTH_0)
@@ -62,7 +62,7 @@ public class TokenServiceImpl implements TokenService {
 
         try {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
-            expirationDate = this.generateExpirationDateInDays(rememberMe != null && rememberMe ? 365 : 1);
+            expirationDate = this.generateExpirationDateInDays(rememberMe != null && rememberMe ? 30 : 1);
 
             String tokenId = UUID.randomUUID().toString();
 
@@ -94,8 +94,8 @@ public class TokenServiceImpl implements TokenService {
         }
     }
 
-    private Instant generateExpirationDateInMinutes(Integer minutes) {
-        return LocalDateTime.now(ZoneOffset.UTC).plusMinutes(minutes).toInstant(ZoneOffset.UTC);
+    private Instant generateExpirationDateOfFifteenMinutes() {
+        return LocalDateTime.now(ZoneOffset.UTC).plusMinutes(15).toInstant(ZoneOffset.UTC);
     }
 
     private Instant generateExpirationDateInDays(Integer days) {
