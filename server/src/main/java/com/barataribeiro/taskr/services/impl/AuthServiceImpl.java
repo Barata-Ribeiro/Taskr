@@ -11,8 +11,10 @@ import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequestException;
 import com.barataribeiro.taskr.exceptions.users.AccountIsBannedException;
 import com.barataribeiro.taskr.exceptions.users.InvalidAccountCredentialsException;
+import com.barataribeiro.taskr.models.entities.Token;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.models.enums.Roles;
+import com.barataribeiro.taskr.repositories.entities.TokenRepository;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.AuthService;
 import com.barataribeiro.taskr.services.security.TokenService;
@@ -34,9 +36,9 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final TokenRepository tokenRepository;
 
     @Override
-    @Transactional
     public LoginResponseDTO login(@NotNull LoginRequestDTO body) {
         User user = userRepository
                 .findByUsername(body.username())
@@ -61,6 +63,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public UserDTO register(@NotNull RegisterRequestDTO body) {
         String username = StringEscapeUtils.escapeHtml4(body.username().toLowerCase().strip());
         String displayName = StringEscapeUtils.escapeHtml4(body.displayName().strip());
@@ -81,6 +84,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public LoginResponseDTO refreshToken(String refreshToken) {
         DecodedJWT decodedJWT = tokenService.validateToken(refreshToken);
 
@@ -95,5 +99,28 @@ public class AuthServiceImpl implements AuthService {
         Map.Entry<String, Instant> accessTokenEntry = tokenService.generateAccessToken(user);
 
         return new LoginResponseDTO(userMapper.toDTO(user), accessTokenEntry.getKey(), null, null);
+    }
+
+    @Override
+    @Transactional
+    public void logout(String refreshToken) {
+        DecodedJWT decodedJWT = tokenService.validateToken(refreshToken);
+
+        if (decodedJWT == null) {
+            throw new ForbiddenRequestException();
+        }
+
+        String jti = decodedJWT.getId();
+        String username = decodedJWT.getSubject();
+        Instant expirationDate = decodedJWT.getExpiresAt().toInstant();
+
+        Token token = Token.builder()
+                           .id(jti)
+                           .token(refreshToken)
+                           .ownerUsername(username)
+                           .expirationDate(expirationDate)
+                           .build();
+
+        tokenRepository.save(token);
     }
 }

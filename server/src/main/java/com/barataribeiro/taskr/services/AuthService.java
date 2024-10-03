@@ -12,4 +12,6 @@ public interface AuthService {
     UserDTO register(RegisterRequestDTO body);
 
     LoginResponseDTO refreshToken(String refreshToken);
+
+    void logout(String refreshToken);
 }

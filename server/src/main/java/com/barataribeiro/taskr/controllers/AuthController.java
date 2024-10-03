@@ -37,12 +37,21 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<RestResponseDTO<LoginResponseDTO>> refreshToken(
-            @RequestHeader("X-Refresh-Token") String refreshToken) {
+    public ResponseEntity<RestResponseDTO<LoginResponseDTO>> refreshToken(@RequestHeader("X-Refresh-Token")
+                                                                          String refreshToken) {
         LoginResponseDTO response = authService.refreshToken(refreshToken);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "Token refreshed",
                                                        response));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<RestResponseDTO<?>> logout(@RequestHeader("X-Refresh-Token") String refreshToken) {
+        authService.logout(refreshToken);
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Logout successful",
+                                                       null));
     }
 }
