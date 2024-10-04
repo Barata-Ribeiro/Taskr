@@ -1,4 +1,6 @@
+import getUserContext from "@/actions/user/get-user-context"
 import { UserContextProvider } from "@/context/user-context-provider"
+import { User } from "@/interfaces/user"
 import tw from "@/utils/tw"
 import type { Metadata } from "next"
 import { Nunito, Roboto } from "next/font/google"
@@ -32,6 +34,9 @@ export default async function RootLayout({
     children: ReactNode
 }>) {
     const sortedStyles = tw`${roboto.variable} ${nunito.variable}`
+
+    const state = await getUserContext()
+    const user = state.response?.data as User
 
     return (
         <html lang="en" className="h-full !overflow-y-auto !p-0">
