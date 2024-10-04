@@ -1,45 +1,43 @@
 "use server"
 
-import { ApiResponse } from "@/interfaces/actions"
+import ResponseError from "@/actions/response-error"
+import { ApiResponse, ProblemDetails } from "@/interfaces/actions"
 import { User } from "@/interfaces/user"
 import { USER_GET_CONTEXT } from "@/utils/api-urls"
-import ResponseError from "@/utils/response-error"
-import { cookies } from "next/headers"
+import verifyAuthentication from "@/utils/verify-authentication"
 
 export default async function getUserContext() {
-    const URL = USER_GET_CONTEXT()
+    const authToken = String(verifyAuthentication())
 
     try {
-        const auth_token = cookies().get("auth_token")?.value
-        if (!auth_token) {
-            return { ok: false, clientError: null, response: null }
-        }
+        const URL = USER_GET_CONTEXT()
 
         const response = await fetch(URL, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: "Bearer " + auth_token,
+                Authorization: "Bearer " + authToken,
             },
-            next: { tags: ["context"] },
-            cache: "no-store",
+            next: { revalidate: 5, tags: ["context"] },
         })
 
-        const responseData = (await response.json()) as ApiResponse
+        const json = await response.json()
 
         if (!response.ok) {
-            return ResponseError(responseData.message)
+            const problemDetails = json as ProblemDetails
+            return ResponseError(problemDetails)
         }
 
-        const userResponse = responseData.data as User
+        const responseData = json as ApiResponse
+
+        const data = responseData.data as User
 
         return {
             ok: true,
-            clientError: null,
-            response: { ...responseData, userResponse },
+            error: null,
+            response: { ...responseData, data },
         }
-    } catch (error: unknown) {
-        console.error("Error: ", error)
+    } catch (error) {
         return ResponseError(error)
     }
 }

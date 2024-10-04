@@ -1,6 +1,6 @@
 import { jwtVerify } from "jose"
 
-export default async function decodeToken(token: string) {
+export default async function decodeToken(token: string | undefined) {
     if (!token) throw new Error("No token provided.")
     if (token.length < 10) throw new Error("Token is invalid.")
 

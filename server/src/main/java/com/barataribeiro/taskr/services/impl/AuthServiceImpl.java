@@ -58,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
         Map.Entry<String, Instant> accessToken = tokenService.generateAccessToken(user);
         Map.Entry<String, Instant> refreshToken = tokenService.generateRefreshToken(user, body.rememberMe());
 
-        return new LoginResponseDTO(userMapper.toDTO(user), accessToken.getKey(),
+        return new LoginResponseDTO(userMapper.toContextDTO(user), accessToken.getKey(), accessToken.getValue(),
                                     refreshToken.getKey(), refreshToken.getValue());
     }
 
@@ -98,7 +98,9 @@ public class AuthServiceImpl implements AuthService {
 
         Map.Entry<String, Instant> accessTokenEntry = tokenService.generateAccessToken(user);
 
-        return new LoginResponseDTO(userMapper.toDTO(user), accessTokenEntry.getKey(), null, null);
+        return new LoginResponseDTO(userMapper.toContextDTO(user), accessTokenEntry.getKey(),
+                                    accessTokenEntry.getValue(),
+                                    null, null);
     }
 
     @Override

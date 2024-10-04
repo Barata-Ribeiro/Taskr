@@ -15,7 +15,7 @@ const roboto = Roboto({
     weight: ["100", "300", "400", "500", "700", "900"],
 })
 
-const nunino = Nunito({
+const nunito = Nunito({
     display: "swap",
     style: ["normal", "italic"],
     subsets: ["latin"],
@@ -33,10 +33,10 @@ export default async function RootLayout({
 }: Readonly<{
     children: ReactNode
 }>) {
-    const sortedStyles = tw`${roboto.variable} ${nunino.variable} h-full bg-white text-body-950 dark:bg-background-950 dark:text-body-50`
+    const sortedStyles = tw`${roboto.variable} ${nunito.variable}`
 
-    const userResponse = await getUserContext()
-    const user = userResponse.response?.data as User | null
+    const state = await getUserContext()
+    const user = state.response?.data as User
 
     return (
         <html lang="en" className="h-full !overflow-y-auto !p-0">
