@@ -2,6 +2,8 @@ import { User } from "@/interfaces/user"
 
 export interface LoginResponse {
     user: User
-    token: string
-    tokenExpiresAt: string
+    accessToken: string
+    accessTokenExpiresAt: string
+    refreshToken?: string
+    refreshTokenExpiresAt?: string
 }
