@@ -1,6 +1,4 @@
-import getUserContext from "@/actions/user/get-user-context"
 import { UserContextProvider } from "@/context/user-context-provider"
-import { User } from "@/interfaces/user"
 import tw from "@/utils/tw"
 import type { Metadata } from "next"
 import { Nunito, Roboto } from "next/font/google"
@@ -15,7 +13,7 @@ const roboto = Roboto({
     weight: ["100", "300", "400", "500", "700", "900"],
 })
 
-const nunino = Nunito({
+const nunito = Nunito({
     display: "swap",
     style: ["normal", "italic"],
     subsets: ["latin"],
@@ -33,10 +31,7 @@ export default async function RootLayout({
 }: Readonly<{
     children: ReactNode
 }>) {
-    const sortedStyles = tw`${roboto.variable} ${nunino.variable} h-full bg-white text-body-950 dark:bg-background-950 dark:text-body-50`
-
-    const userResponse = await getUserContext()
-    const user = userResponse.response?.data as User | null
+    const sortedStyles = tw`${roboto.variable} ${nunito.variable}`
 
     return (
         <html lang="en" className="h-full !overflow-y-auto !p-0">

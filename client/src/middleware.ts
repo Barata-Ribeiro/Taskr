@@ -11,7 +11,7 @@ export async function middleware(req: NextRequest) {
     }
 
     if (authenticated && req.nextUrl.pathname.startsWith("/sign")) {
-        const jwtPayload = await decodeToken(auth_token!)
+        const jwtPayload = await decodeToken(auth_token)
         return NextResponse.redirect(new URL("/dashboard/" + jwtPayload, req.url))
     }
 
