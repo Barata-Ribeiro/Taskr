@@ -1,10 +1,12 @@
+type UserRoles = "NONE" | "SERVICE_ADMIN" | "SERVICE_USER" | "BANNED"
+
 interface User {
     id: string
     username: string
     displayName: string
     fullName: string
     email: string
-    role: "NONE" | "SERVICE_ADMIN" | "SERVICE_USER" | "BANNED"
+    role: UserRoles
     managedProjects: number
     totalNotifications: number
     totalReadNotifications: number
@@ -19,9 +21,9 @@ interface Profile {
     displayName: string
     fullName: string
     email: string
-    role: "NONE" | "SERVICE_ADMIN" | "SERVICE_USER" | "BANNED"
+    role: UserRoles
     createdAt: string
     updatedAt: string
 }
 
-export type { User, Profile }
+export type { UserRoles, User, Profile }
