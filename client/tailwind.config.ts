@@ -107,6 +107,7 @@ const config: Config = {
             },
         },
     },
-    plugins: [require("@tailwindcss/forms")({ strategy: "class" })],
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
 }
 export default config
