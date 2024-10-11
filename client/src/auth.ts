@@ -82,7 +82,7 @@ export const config = {
                 const json = await response.json()
 
                 if (!response.ok) {
-                    throw new Error(json.message)
+                    throw JSON.stringify(json)
                 }
 
                 const responseData = json as ApiResponse
@@ -146,4 +146,4 @@ export const config = {
         },
     },
 } satisfies NextAuthConfig
-export const { auth, handlers } = NextAuth(config)
+export const { auth, signIn, signOut, handlers } = NextAuth(config)
