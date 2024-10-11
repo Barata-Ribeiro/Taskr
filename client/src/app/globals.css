@@ -2,10 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-    --scroll-behavior: smooth !important;
-    scroll-behavior: smooth !important;
+@layer base {
+    html,
+    body {
+        @apply antialiased !scroll-smooth
+    }
+
+    body {
+        @apply font-body text-gray-950 dark:text-gray-50
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    a,
+    th,
+    dt,
+    button,
+    label {
+        @apply font-heading
+    }
 }
 
 /* Chrome, Edge and Safari */
@@ -39,3 +58,4 @@ body {
 *::-webkit-scrollbar-thumb:active {
     background-color: hsl(255, 69%, 20%);
 }
+
