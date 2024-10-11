@@ -1,8 +1,6 @@
-import getUserContext from "@/actions/user/get-user-context"
-import { UserContextProvider } from "@/context/user-context-provider"
-import { User } from "@/interfaces/user"
 import tw from "@/utils/tw"
 import type { Metadata } from "next"
+import { SessionProvider } from "next-auth/react"
 import { Nunito, Roboto } from "next/font/google"
 import "./globals.css"
 import { ReactNode } from "react"
@@ -24,7 +22,10 @@ const nunito = Nunito({
 })
 
 export const metadata: Metadata = {
-    title: "Taskr",
+    title: {
+        default: "Taskr",
+        template: "%s | Taskr",
+    },
     description: "Taskr is a simple task manager built for helping you and your team stay organized.",
 }
 
@@ -33,16 +34,13 @@ export default async function RootLayout({
 }: Readonly<{
     children: ReactNode
 }>) {
-    const sortedStyles = tw`${roboto.variable} ${nunito.variable}`
-
-    const state = await getUserContext()
-    const user = state.response?.data as User
+    const sortedStyles = tw`${roboto.variable} ${nunito.variable} h-full`
 
     return (
-        <html lang="en" className="h-full !overflow-y-auto !p-0">
-            <UserContextProvider user={user}>
-                <body className={sortedStyles}>{children}</body>
-            </UserContextProvider>
+        <html lang="en" className="h-full bg-white dark:bg-gray-950">
+            <body className={sortedStyles}>
+                <SessionProvider>{children}</SessionProvider>
+            </body>
         </html>
     )
 }
