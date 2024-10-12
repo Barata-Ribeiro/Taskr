@@ -1,6 +1,9 @@
 "use client"
 
 import postAuthLogin from "@/actions/auth/post-auth-login"
+import ApiRequestError from "@/components/feedback/api-request-error"
+import InputValidationError from "@/components/feedback/input-validation-error"
+import Spinner from "@/components/helpers/spinner"
 import { useForm } from "@/hooks/use-form"
 import { Button, Field, Input, Label } from "@headlessui/react"
 import Link from "next/link"
@@ -16,45 +19,37 @@ export default function LoginForm() {
     })
 
     useEffect(() => {
-        if (formState.ok) {
-            router.push("/")
-        }
-
-        if (formState.error) console.log("ERROR: ", JSON.parse(formState.error.split(". R")[0]))
+        if (formState.ok) router.push("/")
     }, [formState, router])
 
     return (
         <form action={formAction} onSubmit={onSubmit} className="space-y-6">
             <Field>
-                <Label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                    Email address
+                <Label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
+                    Username
                 </Label>
-                <div className="mt-2">
-                    <Input
-                        id="username"
-                        name="username"
-                        type="text"
-                        required
-                        autoComplete="username"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
-                    />
-                </div>
+                <Input
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    autoComplete="username"
+                    className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
+                />
             </Field>
 
             <Field>
                 <Label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
                     Password
                 </Label>
-                <div className="mt-2">
-                    <Input
-                        id="password"
-                        name="password"
-                        type="password"
-                        required
-                        autoComplete="current-password"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
-                    />
-                </div>
+                <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
+                />
             </Field>
 
             <div className="flex items-center justify-between">
@@ -79,21 +74,23 @@ export default function LoginForm() {
                 </div>
             </div>
 
-            {formState.error && (
-                <div className="text-sm text-red-600" role="alert">
-                    {Object.entries(JSON.parse(formState.error.split(". R")[0])).map(([key, value]) => (
-                        <p key={key} className="text-sm">
-                            {value}
-                        </p>
-                    ))}
-                </div>
+            {formState.error && !Array.isArray(formState.error) && (
+                <ApiRequestError error={JSON.parse(formState.error.split(". R")[0])} />
             )}
+
+            {formState.error && Array.isArray(formState.error) && <InputValidationError errors={formState.error} />}
 
             <Button
                 type="submit"
                 disabled={isPending}
-                className="inline-flex w-full justify-center rounded-md bg-ebony-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-ebony-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ebony-600">
-                {isPending ? <>Loading...</> : "Sign In"}
+                className="inline-flex w-full items-center justify-center rounded-md bg-ebony-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-ebony-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ebony-600 active:bg-ebony-800 disabled:opacity-50">
+                {isPending ? (
+                    <>
+                        <Spinner /> Loading...
+                    </>
+                ) : (
+                    "Sign In"
+                )}
             </Button>
         </form>
     )
