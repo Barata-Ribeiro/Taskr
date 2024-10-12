@@ -1,4 +1,13 @@
-export { auth as middleware } from "auth"
+import { auth } from "auth"
+import { NextRequest, NextResponse } from "next/server"
+
+export default auth((request: NextRequest) => {
+    const { pathname } = request.nextUrl
+
+    if (pathname === "/") {
+        return NextResponse.redirect(new URL("/auth/login", request.nextUrl).toString())
+    }
+})
 
 export const config = {
     matcher: [
