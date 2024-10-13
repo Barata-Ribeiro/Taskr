@@ -64,7 +64,7 @@ export const config = {
             },
             async authorize(credentials, req) {
                 const payload = {
-                    email: credentials.username,
+                    username: credentials.username,
                     password: credentials.password,
                     rememberMe: credentials.rememberMe,
                 }
@@ -114,7 +114,7 @@ export const config = {
             }
 
             if (
-                (token.accessTokenExpiresAt && Date.now() > new Date(token.accessTokenExpiresAt).getTime()) ||
+                (token.accessTokenExpiresAt && Date.now() < new Date(token.accessTokenExpiresAt).getTime()) ||
                 token.error === "RefreshAccessTokenError"
             ) {
                 const { refreshToken, ...rest } = token
@@ -125,6 +125,8 @@ export const config = {
             return refreshToken(token)
         },
         async session({ session, token }) {
+            console.log("Getting session...")
+
             session.user = { ...session.user, ...token.user }
             session.accessToken = token.accessToken
             session.accessTokenExpiresAt = token.accessTokenExpiresAt
@@ -140,7 +142,7 @@ export const config = {
             if (searchTerm.includes("/dashboard")) return !!auth
             else if (pathname.includes("/auth")) {
                 const isLoggedIn = !!auth
-                if (isLoggedIn) return Response.redirect(new URL("/", request.nextUrl))
+                if (isLoggedIn) return Response.redirect(new URL("/dashboard", request.nextUrl))
                 else return true
             } else return true
         },

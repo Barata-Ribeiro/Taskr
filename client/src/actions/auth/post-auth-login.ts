@@ -1,7 +1,7 @@
 "use server"
 
-import { signIn } from "@/auth"
 import ResponseError from "@/actions/response-error"
+import { signIn } from "@/auth"
 import { State } from "@/interfaces/actions"
 import { z } from "zod"
 
@@ -28,9 +28,9 @@ export default async function postAuthLogin(state: State, formData: FormData) {
         })
 
         return {
-            ok: response.ok,
+            ok: !response.error,
             error: response.error,
-            response: response,
+            response: null,
         }
     } catch (error) {
         console.log("CALLBACK ERROR: ", error)
