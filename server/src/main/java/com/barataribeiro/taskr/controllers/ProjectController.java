@@ -25,8 +25,8 @@ public class ProjectController {
                                                                      @RequestBody ProjectCreateRequestDTO body,
                                                                      Principal principal) {
         ProjectDTO response = projectService.createProject(orgId, body, principal);
-        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
-                                                       HttpStatus.OK.value(),
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.CREATED,
+                                                       HttpStatus.CREATED.value(),
                                                        "Project created successfully",
                                                        response));
     }
@@ -61,7 +61,7 @@ public class ProjectController {
                                                        response));
     }
 
-    @PutMapping("/project/{projectId}")
+    @PatchMapping("/project/{projectId}")
     public ResponseEntity<RestResponseDTO<Map<String, Object>>> updateProject(@PathVariable String orgId,
                                                                               @PathVariable String projectId,
                                                                               @RequestBody ProjectUpdateRequestDTO body,
@@ -73,7 +73,7 @@ public class ProjectController {
                                                        response));
     }
 
-    @PutMapping("/project/{projectId}/status")
+    @PatchMapping("/project/{projectId}/status")
     public ResponseEntity<RestResponseDTO<Map<String, Object>>> changeProjectStatus(@PathVariable String orgId,
                                                                                     @PathVariable String projectId,
                                                                                     @RequestParam String status,
@@ -89,8 +89,8 @@ public class ProjectController {
     public ResponseEntity<RestResponseDTO<?>> deleteProject(@PathVariable String orgId, @PathVariable String projectId,
                                                             Principal principal) {
         projectService.deleteProject(orgId, projectId, principal);
-        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
-                                                       HttpStatus.OK.value(),
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.NO_CONTENT,
+                                                       HttpStatus.NO_CONTENT.value(),
                                                        "Project deleted successfully",
                                                        null));
     }

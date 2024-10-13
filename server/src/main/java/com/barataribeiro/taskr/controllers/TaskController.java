@@ -25,8 +25,8 @@ public class TaskController {
                                                                @RequestBody TaskCreateRequestDTO body,
                                                                Principal principal) {
         TaskDTO response = taskService.createTask(projectId, body, principal);
-        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
-                                                       HttpStatus.OK.value(),
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.CREATED,
+                                                       HttpStatus.CREATED.value(),
                                                        "Task created successfully",
                                                        response));
     }
@@ -41,7 +41,7 @@ public class TaskController {
                                                        response));
     }
 
-    @PutMapping("/task/{taskId}")
+    @PatchMapping("/task/{taskId}")
     public ResponseEntity<RestResponseDTO<TaskDTO>> updateTask(@PathVariable String projectId,
                                                                @PathVariable String taskId,
                                                                @RequestBody TaskUpdateRequestDTO body,
@@ -57,8 +57,8 @@ public class TaskController {
     public ResponseEntity<RestResponseDTO<?>> deleteTask(@PathVariable String projectId, @PathVariable String taskId,
                                                          Principal principal) {
         taskService.deleteTask(projectId, taskId, principal);
-        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
-                                                       HttpStatus.OK.value(),
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.NO_CONTENT,
+                                                       HttpStatus.NO_CONTENT.value(),
                                                        "Task deleted successfully",
                                                        null));
     }

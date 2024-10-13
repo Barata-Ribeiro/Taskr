@@ -36,7 +36,7 @@ public class UserController {
                                                        response));
     }
 
-    @PutMapping("/me/{userId}")
+    @PatchMapping("/me/{userId}")
     public ResponseEntity<RestResponseDTO<UserDTO>> updateUserProfile(@PathVariable String userId,
                                                                       @RequestBody UpdateAccountRequestDTO body,
                                                                       Principal principal) {
@@ -50,8 +50,8 @@ public class UserController {
     @DeleteMapping("/me/{userId}")
     public ResponseEntity<RestResponseDTO<?>> deleteUserProfile(@PathVariable String userId, Principal principal) {
         userService.deleteUserProfile(userId, principal);
-        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
-                                                       HttpStatus.OK.value(),
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.NO_CONTENT,
+                                                       HttpStatus.NO_CONTENT.value(),
                                                        "User profile deleted successfully",
                                                        null));
     }

@@ -73,13 +73,13 @@ public class OrganizationController {
     public ResponseEntity<RestResponseDTO<OrganizationDTO>> createOrganization(@RequestBody OrganizationRequestDTO body,
                                                                                Principal principal) {
         OrganizationDTO response = organizationService.createOrganization(body, principal);
-        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
-                                                       HttpStatus.OK.value(),
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.CREATED,
+                                                       HttpStatus.CREATED.value(),
                                                        "Organization created successfully",
                                                        response));
     }
 
-    @PutMapping("/{orgId}/management")
+    @PatchMapping("/{orgId}/management")
     public ResponseEntity<RestResponseDTO<Map<String, Object>>> addMemberToOrganization(@PathVariable String orgId,
                                                                                         @RequestBody
                                                                                         ManagementRequestDTO body,
@@ -91,7 +91,7 @@ public class OrganizationController {
                                                        response));
     }
 
-    @PutMapping("/{orgId}")
+    @PatchMapping("/{orgId}")
     public ResponseEntity<RestResponseDTO<Map<String, Object>>> updateOrganizationInfo(@PathVariable String orgId,
                                                                                        @RequestBody
                                                                                        UpdateOrganizationRequestDTO body,
@@ -107,8 +107,8 @@ public class OrganizationController {
     public ResponseEntity<RestResponseDTO<?>> deleteOrganization(@PathVariable String orgId,
                                                                  Principal principal) {
         organizationService.deleteOrganization(orgId, principal);
-        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
-                                                       HttpStatus.OK.value(),
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.NO_CONTENT,
+                                                       HttpStatus.NO_CONTENT.value(),
                                                        "Organization deleted successfully",
                                                        null));
     }

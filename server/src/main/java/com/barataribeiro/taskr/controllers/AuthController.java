@@ -30,8 +30,8 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<RestResponseDTO<UserDTO>> register(@RequestBody RegisterRequestDTO body) {
         UserDTO response = authService.register(body);
-        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
-                                                       HttpStatus.OK.value(),
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.CREATED,
+                                                       HttpStatus.CREATED.value(),
                                                        "Registration successful",
                                                        response));
     }
@@ -46,11 +46,11 @@ public class AuthController {
                                                        response));
     }
 
-    @PostMapping("/logout")
+    @DeleteMapping("/logout")
     public ResponseEntity<RestResponseDTO<?>> logout(@RequestHeader("X-Refresh-Token") String refreshToken) {
         authService.logout(refreshToken);
-        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
-                                                       HttpStatus.OK.value(),
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.NO_CONTENT,
+                                                       HttpStatus.NO_CONTENT.value(),
                                                        "Logout successful",
                                                        null));
     }
