@@ -56,7 +56,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                 String jti = decodedJWT.getId();
                 String username = decodedJWT.getSubject();
 
-                if (tokenRepository.existsById(jti)) {
+                if (jti != null && tokenRepository.existsById(jti)) {
                     log.atWarn().log("Token {} has been blacklisted", jti);
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     return;
