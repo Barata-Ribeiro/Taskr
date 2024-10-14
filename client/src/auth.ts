@@ -9,11 +9,20 @@ import { cookies } from "next/headers"
 /* eslint-disable @typescript-eslint/no-unused-vars */
 async function refreshToken(token: JWT) {
     const URL = AUTH_REFRESH_TOKEN()
+
+    console.log("Refreshing token...")
+
+    const refreshToken = cookies().get("auth_rt")?.value
+    if (!refreshToken) {
+        console.error("No refresh token found.")
+        return { ...token, error: "RefreshAccessTokenError" }
+    }
+
     const response = await fetch(URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-Refresh-Token": token.refreshToken as string,
+            "X-Refresh-Token": refreshToken,
         },
         body: JSON.stringify({}),
     })
@@ -21,6 +30,7 @@ async function refreshToken(token: JWT) {
     const json = await response.json()
 
     if (!response.ok) {
+        console.error("Refresh token error: ", json)
         return { ...token, error: "RefreshAccessTokenError" }
     }
 
@@ -111,13 +121,16 @@ export const config = {
                 token.accessTokenExpiresAt = context.accessTokenExpiresAt
                 token.refreshToken = context.refreshToken
                 token.refreshTokenExpiresAt = context.refreshTokenExpiresAt
+                token.error = null
+
+                return token
             }
 
             if (
                 (token.accessTokenExpiresAt && Date.now() < new Date(token.accessTokenExpiresAt).getTime()) ||
                 token.error === "RefreshAccessTokenError"
             ) {
-                const { refreshToken, ...rest } = token
+                const { refreshToken, refreshTokenExpiresAt, ...rest } = token
 
                 return rest
             }
@@ -125,13 +138,9 @@ export const config = {
             return refreshToken(token)
         },
         async session({ session, token }) {
-            console.log("Getting session...")
-
             session.user = { ...session.user, ...token.user }
             session.accessToken = token.accessToken
             session.accessTokenExpiresAt = token.accessTokenExpiresAt
-            session.refreshToken = token.refreshToken
-            session.refreshTokenExpiresAt = token.refreshTokenExpiresAt
 
             return session
         },
@@ -148,4 +157,4 @@ export const config = {
         },
     },
 } satisfies NextAuthConfig
-export const { auth, signIn, signOut, handlers } = NextAuth(config)
+export const { handlers, auth, signIn, signOut } = NextAuth(config)

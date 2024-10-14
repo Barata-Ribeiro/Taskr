@@ -18,8 +18,6 @@ declare module "next-auth" {
         user: Context & DefaultSession["user"]
         accessToken: string
         accessTokenExpiresAt: string
-        refreshToken?: string | null
-        refreshTokenExpiresAt?: string | null
     }
 }
 
