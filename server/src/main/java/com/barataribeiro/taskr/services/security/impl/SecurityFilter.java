@@ -37,6 +37,11 @@ public class SecurityFilter extends OncePerRequestFilter {
     private final TokenRepository tokenRepository;
 
     @Override
+    protected boolean shouldNotFilter(@NotNull HttpServletRequest request) throws ServletException {
+        return request.getServletPath().startsWith("/api/v1/auth/");
+    }
+
+    @Override
     protected void doFilterInternal(final @NonNull HttpServletRequest request,
                                     final @NonNull HttpServletResponse response,
                                     final @NonNull FilterChain filterChain) throws ServletException, IOException {
