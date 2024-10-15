@@ -4,19 +4,18 @@ import ResponseError from "@/actions/response-error"
 import { ApiResponse, ProblemDetails } from "@/interfaces/actions"
 import { User } from "@/interfaces/user"
 import { USER_GET_CONTEXT } from "@/utils/api-urls"
-import verifyAuthentication from "@/utils/verify-authentication"
+import { auth } from "auth"
 
 export default async function getUserContext() {
-    const authToken = String(verifyAuthentication())
-
     try {
+        const session = await auth()
         const URL = USER_GET_CONTEXT()
 
         const response = await fetch(URL, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: "Bearer " + authToken,
+                Authorization: "Bearer " + session?.accessToken,
             },
             next: { revalidate: 5, tags: ["context"] },
         })
