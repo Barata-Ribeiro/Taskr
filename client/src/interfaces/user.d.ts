@@ -5,6 +5,7 @@ interface User {
     username: string
     displayName: string
     fullName: string
+    avatarUrl: string
     email: string
     role: UserRoles
     managedProjects: number
@@ -20,10 +21,19 @@ interface Profile {
     username: string
     displayName: string
     fullName: string
+    avatarUrl: string
     email: string
     role: UserRoles
     createdAt: string
     updatedAt: string
 }
 
-export type { UserRoles, User, Profile }
+interface UserContext {
+    context: User
+    projectsWhereUserIsMember: SimpleProject[]
+    totalProjectsWhereUserIsMember: number
+    organizationsWhereUserIsMember: SimpleOrganization[]
+    totalOrganizationsWhereUserIsMember: number
+}
+
+export type { UserRoles, User, Profile, UserContext }
