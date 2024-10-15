@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -28,8 +29,8 @@ public class UserController {
     }
 
     @GetMapping("/me/context")
-    public ResponseEntity<RestResponseDTO<UserDTO>> getUserContext(Principal principal) {
-        UserDTO response = userService.getUserContext(principal);
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getUserContext(Principal principal) {
+        Map<String, Object> response = userService.getUserContext(principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "User context retrieved successfully",

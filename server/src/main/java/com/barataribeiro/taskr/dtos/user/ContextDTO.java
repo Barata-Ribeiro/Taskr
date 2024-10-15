@@ -3,7 +3,9 @@ package com.barataribeiro.taskr.dtos.user;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.models.enums.Roles;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -11,11 +13,9 @@ import java.time.Instant;
 /**
  * DTO for {@link User}
  */
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContextDTO implements Serializable {
     private String id;

@@ -4,11 +4,12 @@ import com.barataribeiro.taskr.dtos.user.UpdateAccountRequestDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
 
 import java.security.Principal;
+import java.util.Map;
 
 public interface UserService {
     UserDTO getUserProfileById(String id);
 
-    UserDTO getUserContext(Principal principal);
+    Map<String, Object> getUserContext(Principal principal);
 
     UserDTO updateUserProfile(String id, UpdateAccountRequestDTO body, Principal principal);
 
