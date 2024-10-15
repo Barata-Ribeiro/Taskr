@@ -2,7 +2,7 @@
 
 import ResponseError from "@/actions/response-error"
 import { ApiResponse, ProblemDetails } from "@/interfaces/actions"
-import { User } from "@/interfaces/user"
+import { UserContext } from "@/interfaces/user"
 import { USER_GET_CONTEXT } from "@/utils/api-urls"
 import { auth } from "auth"
 
@@ -29,7 +29,7 @@ export default async function getUserContext() {
 
         const responseData = json as ApiResponse
 
-        const data = responseData.data as User
+        const data = responseData.data as UserContext
 
         return {
             ok: true,
