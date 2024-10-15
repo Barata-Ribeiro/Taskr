@@ -7,5 +7,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
     const session = await auth()
     if (!session) return redirect("/auth/login")
 
+    console.log("Current session: ", session)
+
     return <Sidebar session={session}>{children}</Sidebar>
 }
