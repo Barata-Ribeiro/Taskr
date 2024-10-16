@@ -4,6 +4,8 @@ import com.barataribeiro.taskr.dtos.RestResponseDTO;
 import com.barataribeiro.taskr.dtos.user.UpdateAccountRequestDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Tag(name = "User", description = "User related operations")
 public class UserController {
     private final UserService userService;
 

@@ -6,6 +6,7 @@ import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.UpdateOrganizationRequestDTO;
 import com.barataribeiro.taskr.services.OrganizationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/organizations")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Tag(name = "Organizations", description = "Operations pertaining to organizations")
 public class OrganizationController {
     private final OrganizationService organizationService;
 

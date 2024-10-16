@@ -6,6 +6,7 @@ import com.barataribeiro.taskr.dtos.auth.LoginResponseDTO;
 import com.barataribeiro.taskr.dtos.auth.RegisterRequestDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.services.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Tag(name = "Auth", description = "Authentication endpoints")
 public class AuthController {
     private final AuthService authService;
 

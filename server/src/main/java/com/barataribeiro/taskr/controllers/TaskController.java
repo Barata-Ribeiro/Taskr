@@ -5,6 +5,7 @@ import com.barataribeiro.taskr.dtos.task.TaskCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.task.TaskDTO;
 import com.barataribeiro.taskr.dtos.task.TaskUpdateRequestDTO;
 import com.barataribeiro.taskr.services.TaskService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/tasks/{projectId}")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Tag(name = "Task", description = "Task related operations")
 public class TaskController {
     private final TaskService taskService;
 
