@@ -2,14 +2,14 @@ import getUserContext from "@/actions/user/get-user-context"
 import Sidebar from "@/components/sidebar"
 import { UserContext } from "@/interfaces/user"
 import { auth } from "auth"
-import { notFound, redirect } from "next/navigation"
+import { redirect } from "next/navigation"
 import { ReactNode } from "react"
 
 export default async function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
-    const [session, contextState] = await Promise.all([auth(), getUserContext()])
+    const session = await auth()
+    const contextState = await getUserContext()
 
-    if (!session) return redirect("/auth/login")
-    if (contextState.error) return notFound()
+    if (!session || contextState.error) return redirect("/auth/login")
 
     const context = contextState.response?.data as UserContext
 
