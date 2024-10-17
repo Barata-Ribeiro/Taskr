@@ -118,7 +118,7 @@ public class AuthServiceImpl implements AuthService {
 
         Token token = Token.builder()
                            .id(jti)
-                           .token(refreshToken)
+                           .tokenValue(refreshToken)
                            .ownerUsername(username)
                            .expirationDate(expirationDate)
                            .build();

@@ -22,7 +22,7 @@ public class Token {
     private String id;
 
     @Column(nullable = false, unique = true)
-    private String token;
+    private String tokenValue;
 
     @Column(name = "owner_username", nullable = false)
     private String ownerUsername;
