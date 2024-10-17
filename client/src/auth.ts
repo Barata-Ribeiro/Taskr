@@ -50,8 +50,6 @@ async function refreshToken(token: JWT) {
 }
 
 export const config = {
-    trustHost: true,
-    secret: process.env.AUTH_SECRET,
     pages: {
         newUser: "/auth/register",
         signIn: "/auth/login",
@@ -145,6 +143,9 @@ export const config = {
             session.accessTokenExpiresAt = token.accessTokenExpiresAt
 
             return session
+        },
+        async redirect({ url, baseUrl }) {
+            return url.startsWith(baseUrl) ? url : baseUrl
         },
         authorized({ request, auth }) {
             const { pathname } = request.nextUrl
