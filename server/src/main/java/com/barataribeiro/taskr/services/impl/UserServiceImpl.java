@@ -88,31 +88,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDTO updateUserProfile(String id, UpdateAccountRequestDTO body, @NotNull Principal principal) {
+        if (body == null || isBodyOnlyContainingCurrentPassword(body)) {
+            throw new IllegalArgumentException("The request body must contain at least one field to update.");
+        }
+
         User user = userRepository.findByUsername(principal.getName())
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
-        if (!user.getId().equals(id)) {
-            throw new ForbiddenRequestException();
-        }
+        validateUpdateRequest(id, body, user);
 
-        if (!user.getPassword().equals(body.currentPassword())) {
-            throw new InvalidAccountCredentialsException("The provided password is incorrect.");
-        }
+        setNewIncomingBodyPropertiesInExistingUserEntity(body, user);
 
-        if (userRepository.existsByUsername(body.username()) && !user.getUsername().equals(body.username())) {
-            throw new EntityAlreadyExistsException(User.class.getSimpleName());
-        }
-
-        String username = StringEscapeUtils.escapeHtml4(body.username().toLowerCase().strip());
-        String displayName = StringEscapeUtils.escapeHtml4(body.displayName().strip());
-
-        user.setUsername(username);
-        user.setDisplayName(displayName);
-        user.setPassword(passwordEncoder.encode(body.newPassword()));
-
-        User savedUser = userRepository.saveAndFlush(user);
-
-        return userMapper.toDTO(savedUser);
+        return userMapper.toDTO(userRepository.saveAndFlush(user));
     }
 
     @Override
@@ -123,5 +110,57 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.deleteByIdAndUsername(id, principal.getName());
+    }
+
+    private void validateUpdateRequest(String id, UpdateAccountRequestDTO body, @NotNull User user) {
+        if (!user.getId().equals(id)) {
+            throw new ForbiddenRequestException();
+        }
+
+        if (!passwordEncoder.matches(body.currentPassword(), user.getPassword())) {
+            throw new InvalidAccountCredentialsException("The provided credentials are invalid.");
+        }
+
+        if (body.username() != null && !body.username().isBlank() &&
+                userRepository.existsByUsername(body.username()) && !user.getUsername().equals(body.username())) {
+            throw new EntityAlreadyExistsException(User.class.getSimpleName());
+        }
+    }
+
+    private boolean isBodyOnlyContainingCurrentPassword(@NotNull UpdateAccountRequestDTO body) {
+        return (body.username() == null || body.username().isBlank()) &&
+                (body.displayName() == null || body.displayName().isBlank()) &&
+                (body.firstName() == null || body.firstName().isBlank()) &&
+                (body.lastName() == null || body.lastName().isBlank()) &&
+                (body.avatarUrl() == null || body.avatarUrl().isBlank()) &&
+                (body.newPassword() == null || body.newPassword().isBlank());
+    }
+
+    private void setNewIncomingBodyPropertiesInExistingUserEntity(@NotNull UpdateAccountRequestDTO body, User user) {
+        if (body.username() != null && !body.username().isBlank()) {
+            String username = StringEscapeUtils.escapeHtml4(body.username().toLowerCase().strip());
+            user.setUsername(username);
+        }
+
+        if (body.displayName() != null && !body.displayName().isBlank()) {
+            String displayName = StringEscapeUtils.escapeHtml4(body.displayName().strip());
+            user.setDisplayName(displayName);
+        }
+
+        if (body.firstName() != null && !body.firstName().isBlank()) {
+            user.setFirstName(body.firstName().strip());
+        }
+
+        if (body.lastName() != null && !body.lastName().isBlank()) {
+            user.setLastName(body.lastName().strip());
+        }
+
+        if (body.avatarUrl() != null && !body.avatarUrl().isBlank()) {
+            user.setAvatarUrl(body.avatarUrl().strip());
+        }
+
+        if (body.newPassword() != null && !body.newPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(body.newPassword()));
+        }
     }
 }
