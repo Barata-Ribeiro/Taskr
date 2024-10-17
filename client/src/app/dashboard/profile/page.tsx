@@ -4,9 +4,29 @@ import { Button, Field, Fieldset, Input, Label, Legend } from "@headlessui/react
 import Image from "next/image"
 import { FaCircleUser } from "react-icons/fa6"
 
+export async function generateMetadata() {
+    const state = await getUserContext()
+    if (!state) return { title: "Profile", description: "Profile page" }
+
+    const data = state.response?.data as UserContext
+
+    const title = data.context.fullName ?? data.context.displayName
+
+    return {
+        title: title,
+        description: `Welcome back, ${title}! This is your profile page.`,
+    }
+}
+
 export default async function ProfilePage() {
     const state = await getUserContext()
-    if (!state) return <section>ERROR!</section>
+    if (!state || state.error)
+        return (
+            <div>
+                <h1>Error</h1>
+                <p>There was an error loading the page. Please try again later.</p>
+            </div>
+        )
 
     const data = state.response?.data as UserContext
 
@@ -22,7 +42,7 @@ export default async function ProfilePage() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 rounded-md p-4 shadow-derek sm:grid-cols-2">
-                <div className="grid gap-2">
+                <div className="flex flex-col gap-2">
                     <div className="mb-4 border-b border-gray-300 pb-4">
                         <h2 className="text-base font-semibold leading-7 text-gray-900">Account Information</h2>
                         <p className="mt-1 text-sm leading-6 text-gray-500">
@@ -84,7 +104,8 @@ export default async function ProfilePage() {
                                     name="firstName"
                                     type="text"
                                     placeholder="John/Jane"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    autoComplete="given-name"
+                                    className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
                                 />
                             </Field>
 
@@ -97,22 +118,88 @@ export default async function ProfilePage() {
                                     name="lastName"
                                     type="text"
                                     placeholder="Doe"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    autoComplete="family-name"
+                                    className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
                                 />
                             </Field>
                         </div>
                     </Fieldset>
+
+                    <Field>
+                        <Label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
+                            Username
+                        </Label>
+                        <Input
+                            type="text"
+                            id="username"
+                            name="username"
+                            autoComplete="username"
+                            defaultValue={data.context.username}
+                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
+                        />
+                    </Field>
+                    <Field>
+                        <Label htmlFor="displayName" className="block text-sm font-medium leading-6 text-gray-900">
+                            Display Name
+                        </Label>
+                        <Input
+                            type="text"
+                            id="displayName"
+                            name="displayName"
+                            defaultValue={data.context.displayName}
+                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
+                        />
+                    </Field>
                 </div>
 
-                <div className="grid gap-2">
+                <div className="flex flex-col gap-2">
                     <div className="mb-4 border-b border-gray-300 pb-4">
                         <h2 className="text-base font-semibold leading-7 text-gray-900">Password &amp; Security</h2>
                         <p className="mt-1 text-sm leading-6 text-gray-500">
-                            Update your password and security settings.
+                            Update your password associated with your account.
                         </p>
                     </div>
 
-                    <div></div>
+                    <div className="grid gap-2">
+                        <Field>
+                            <Label
+                                htmlFor="currentPassword"
+                                className="block text-sm font-medium leading-6 text-gray-900">
+                                Current Password
+                            </Label>
+                            <Input
+                                id="currentPassword"
+                                name="currentPassword"
+                                type="password"
+                                autoComplete="current-password"
+                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
+                            />
+                        </Field>
+                        <Field>
+                            <Label htmlFor="newPassword" className="block text-sm font-medium leading-6 text-gray-900">
+                                New Password
+                            </Label>
+                            <Input
+                                id="newPassword"
+                                name="newPassword"
+                                type="password"
+                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
+                            />
+                        </Field>
+                        <Field>
+                            <Label
+                                htmlFor="confirmNewPassword"
+                                className="block text-sm font-medium leading-6 text-gray-900">
+                                Confirm New Password
+                            </Label>
+                            <Input
+                                id="confirmNewPassword"
+                                name="confirmNewPassword"
+                                type="password"
+                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
+                            />
+                        </Field>
+                    </div>
                 </div>
             </div>
         </section>
