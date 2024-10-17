@@ -9,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.URL;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -23,7 +25,10 @@ import java.util.Set;
 @Table(name = "taskr_organization", uniqueConstraints = {
         @UniqueConstraint(name = "uc_organization_name", columnNames = {"name"})
 })
-public class Organization {
+public class Organization implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "organization_seq")
     @SequenceGenerator(name = "organization_seq", sequenceName = "organization_seq", allocationSize = 1)

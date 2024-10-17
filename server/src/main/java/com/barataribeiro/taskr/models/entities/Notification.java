@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 
 @NoArgsConstructor
@@ -14,7 +16,10 @@ import java.time.Instant;
 @Builder
 @Entity
 @Table(name = "taskr_notifications")
-public class Notification {
+public class Notification implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_seq")
     @SequenceGenerator(name = "notification_seq", sequenceName = "notification_seq", allocationSize = 1)

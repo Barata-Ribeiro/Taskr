@@ -10,6 +10,8 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -25,7 +27,10 @@ import java.util.Set;
 @Table(name = "taskr_projects", uniqueConstraints = {
         @UniqueConstraint(name = "uc_project_name", columnNames = {"name"})
 })
-public class Project {
+public class Project implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "project_seq")
     @SequenceGenerator(name = "project_seq", sequenceName = "project_seq", allocationSize = 1)

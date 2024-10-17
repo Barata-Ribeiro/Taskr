@@ -6,6 +6,9 @@ import com.barataribeiro.taskr.models.entities.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -16,7 +19,10 @@ import lombok.*;
 @Table(name = "organizations_users", uniqueConstraints = {
         @UniqueConstraint(name = "uc_organization_user", columnNames = {"organization_id", "user_id"})
 })
-public class OrganizationUser {
+public class OrganizationUser implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @EmbeddedId
     private OrganizationUserId id;
 

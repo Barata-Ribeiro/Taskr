@@ -7,6 +7,9 @@ import com.barataribeiro.taskr.models.enums.ProjectStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -17,7 +20,10 @@ import lombok.*;
 @Table(name = "organizations_projects", uniqueConstraints = {
         @UniqueConstraint(name = "uc_organization_project", columnNames = {"organization_id", "project_id"})
 })
-public class OrganizationProject {
+public class OrganizationProject implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @EmbeddedId
     private OrganizationProjectId id;
 

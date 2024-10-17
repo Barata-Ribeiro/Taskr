@@ -6,6 +6,9 @@ import com.barataribeiro.taskr.models.entities.Task;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -16,7 +19,10 @@ import lombok.*;
 @Table(name = "projects_tasks", uniqueConstraints = {
         @UniqueConstraint(name = "uc_project_task", columnNames = {"project_id", "task_id"})
 })
-public class ProjectTask {
+public class ProjectTask implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @EmbeddedId
     private ProjectTaskId id;
 

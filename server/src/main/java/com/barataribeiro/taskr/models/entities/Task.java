@@ -11,6 +11,8 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -26,7 +28,10 @@ import java.util.Set;
 @Table(name = "taskr_tasks", uniqueConstraints = {
         @UniqueConstraint(name = "uc_task_title", columnNames = {"title"})
 })
-public class Task {
+public class Task implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_seq")
     @SequenceGenerator(name = "task_seq", sequenceName = "task_seq", allocationSize = 1)
