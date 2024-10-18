@@ -1,8 +1,8 @@
 import getUserContext from "@/actions/user/get-user-context"
+import UpdateAccountForm from "@/components/forms/update-account-form"
+import UpdateAvatarForm from "@/components/forms/update-avatar-form"
 import { UserContext } from "@/interfaces/user"
-import { Button, Field, Fieldset, Input, Label, Legend } from "@headlessui/react"
-import Image from "next/image"
-import { FaCircleUser } from "react-icons/fa6"
+import { Field, Input, Label } from "@headlessui/react"
 
 export async function generateMetadata() {
     const state = await getUserContext()
@@ -50,106 +50,9 @@ export default async function ProfilePage() {
                         </p>
                     </div>
 
-                    <div className="flex flex-col items-start gap-8 sm:flex-row sm:items-center">
-                        <div className="flex-shrink-0">
-                            {data.context.avatarUrl ? (
-                                <Image
-                                    src={data.context.avatarUrl}
-                                    alt="User current avatar"
-                                    title="User current avatar"
-                                    className="rounded-full shadow"
-                                    width={112}
-                                    height={112}
-                                    sizes="100vw"
-                                />
-                            ) : (
-                                <FaCircleUser
-                                    aria-label="Default - No Avatar Setup"
-                                    title="Default - No Avatar Setup"
-                                    className="h-28 w-28 rounded-full text-gray-400 shadow"
-                                />
-                            )}
-                        </div>
+                    <UpdateAvatarForm data={data} />
 
-                        <div>
-                            <Button
-                                type="button"
-                                className="rounded-md bg-ebony-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ebony-700 active:bg-ebony-800">
-                                Change avatar
-                            </Button>
-                            <p className="mt-2 text-xs leading-5 text-gray-400">
-                                For best results, use an image at least 128px by 128px.
-                            </p>
-                        </div>
-                    </div>
-
-                    <Fieldset className="mt-6 space-y-4">
-                        <Legend as="h3" className="grid text-lg font-bold">
-                            Full Name{" "}
-                            {data.context.fullName && (
-                                <span className="text-sm font-medium leading-none text-gray-300">
-                                    {data.context.fullName}
-                                </span>
-                            )}
-                        </Legend>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <Field>
-                                <Label
-                                    htmlFor="firstName"
-                                    className="block text-sm font-medium leading-6 text-gray-900">
-                                    First Name
-                                </Label>
-                                <Input
-                                    id="firstName"
-                                    name="firstName"
-                                    type="text"
-                                    placeholder="John/Jane"
-                                    autoComplete="given-name"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
-                                />
-                            </Field>
-
-                            <Field>
-                                <Label htmlFor="lastName" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Last Name
-                                </Label>
-                                <Input
-                                    id="lastName"
-                                    name="lastName"
-                                    type="text"
-                                    placeholder="Doe"
-                                    autoComplete="family-name"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
-                                />
-                            </Field>
-                        </div>
-                    </Fieldset>
-
-                    <Field>
-                        <Label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                            Username
-                        </Label>
-                        <Input
-                            type="text"
-                            id="username"
-                            name="username"
-                            autoComplete="username"
-                            defaultValue={data.context.username}
-                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
-                        />
-                    </Field>
-                    <Field>
-                        <Label htmlFor="displayName" className="block text-sm font-medium leading-6 text-gray-900">
-                            Display Name
-                        </Label>
-                        <Input
-                            type="text"
-                            id="displayName"
-                            name="displayName"
-                            defaultValue={data.context.displayName}
-                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
-                        />
-                    </Field>
+                    <UpdateAccountForm data={data} />
                 </div>
 
                 <div className="flex flex-col gap-2">
