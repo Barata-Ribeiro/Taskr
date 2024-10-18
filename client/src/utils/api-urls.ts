@@ -8,4 +8,8 @@ export const AUTH_LOGOUT = () => `${BACKEND_URL}/api/v1/auth/logout`
 
 // User
 export const USER_GET_CONTEXT = () => `${BACKEND_URL}/api/v1/users/me/context`
-export const USER_PATCH_UPDATE_ACCOUNT = (id: string) => `${BACKEND_URL}/api/v1/users/me/${id}`
+export const USER_PATCH_UPDATE_ACCOUNT = (id: string, ra?: boolean) => {
+    let url = `${BACKEND_URL}/api/v1/users/me/${id}`
+    if (ra) url += `?ra=true`
+    return url
+}
