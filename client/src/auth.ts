@@ -31,8 +31,6 @@ async function refreshToken(token: JWT) {
 
     if (!response.ok) {
         console.error("Refresh token error: ", json)
-        cookies().delete("auth_rt")
-        await signOut({ redirectTo: "/auth/login" })
         return { ...token, error: "RefreshAccessTokenError" }
     }
 
@@ -131,6 +129,13 @@ export const config = {
                 token.error === "RefreshAccessTokenError"
             ) {
                 const { refreshToken, refreshTokenExpiresAt, ...rest } = token
+
+                if (token.error === "RefreshAccessTokenError") {
+                    cookies()
+                        .getAll()
+                        .forEach(cookie => cookies().delete(cookie.name))
+                    await signOut({ redirectTo: "/auth/login" })
+                }
 
                 return rest
             }
