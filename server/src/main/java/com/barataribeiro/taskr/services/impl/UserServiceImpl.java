@@ -105,6 +105,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public ContextDTO removeUserAvatar(String id, @NotNull Principal principal, String paramRemoveAvatar) {
+        User user = userRepository.findById(id)
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        if (!user.getUsername().equals(principal.getName())) {
+            throw new ForbiddenRequestException();
+        }
+
+        if (paramRemoveAvatar == null || !paramRemoveAvatar.equals("true")) {
+            throw new IllegalRequestException("The request parameter 'removeAvatar' must be set to 'true'.");
+        }
+
+        user.setAvatarUrl(null);
+
+        return userMapper.toContextDTO(userRepository.saveAndFlush(user));
+    }
+
+    @Override
+    @Transactional
     public void deleteUserProfile(String id, @NotNull Principal principal) {
         if (!userRepository.existsByIdAndUsername(id, principal.getName())) {
             throw new EntityNotFoundException(User.class.getSimpleName());

@@ -14,5 +14,7 @@ public interface UserService {
 
     ContextDTO updateUserProfile(String id, UpdateAccountRequestDTO body, Principal principal);
 
+    ContextDTO removeUserAvatar(String id, Principal principal, String paramRemoveAvatar);
+
     void deleteUserProfile(String id, Principal principal);
 }

@@ -42,9 +42,14 @@ public class UserController {
 
     @PatchMapping("/me/{userId}")
     public ResponseEntity<RestResponseDTO<ContextDTO>> updateUserProfile(@PathVariable String userId,
+                                                                         @RequestParam(required = false) String ra,
                                                                          @RequestBody UpdateAccountRequestDTO body,
                                                                          Principal principal) {
-        ContextDTO response = userService.updateUserProfile(userId, body, principal);
+        ContextDTO response = null;
+
+        if (ra != null) response = userService.removeUserAvatar(userId, principal, ra);
+        else response = userService.updateUserProfile(userId, body, principal);
+
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "User profile updated successfully",
