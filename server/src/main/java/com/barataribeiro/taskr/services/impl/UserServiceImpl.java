@@ -7,6 +7,7 @@ import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityAlreadyExistsException;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.ForbiddenRequestException;
+import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
 import com.barataribeiro.taskr.exceptions.users.InvalidAccountCredentialsException;
 import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
@@ -87,9 +88,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO updateUserProfile(String id, UpdateAccountRequestDTO body, @NotNull Principal principal) {
+    public ContextDTO updateUserProfile(String id, UpdateAccountRequestDTO body, @NotNull Principal principal) {
         if (body == null || isBodyOnlyContainingCurrentPassword(body)) {
-            throw new IllegalArgumentException("The request body must contain at least one field to update.");
+            throw new IllegalRequestException("The request body must contain at least one field to update.");
         }
 
         User user = userRepository.findByUsername(principal.getName())
@@ -99,7 +100,7 @@ public class UserServiceImpl implements UserService {
 
         setNewIncomingBodyPropertiesInExistingUserEntity(body, user);
 
-        return userMapper.toDTO(userRepository.saveAndFlush(user));
+        return userMapper.toContextDTO(userRepository.saveAndFlush(user));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.services;
 
+import com.barataribeiro.taskr.dtos.user.ContextDTO;
 import com.barataribeiro.taskr.dtos.user.UpdateAccountRequestDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
 
@@ -11,7 +12,7 @@ public interface UserService {
 
     Map<String, Object> getUserContext(Principal principal);
 
-    UserDTO updateUserProfile(String id, UpdateAccountRequestDTO body, Principal principal);
+    ContextDTO updateUserProfile(String id, UpdateAccountRequestDTO body, Principal principal);
 
     void deleteUserProfile(String id, Principal principal);
 }

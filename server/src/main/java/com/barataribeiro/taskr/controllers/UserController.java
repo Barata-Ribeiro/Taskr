@@ -1,10 +1,10 @@
 package com.barataribeiro.taskr.controllers;
 
 import com.barataribeiro.taskr.dtos.RestResponseDTO;
+import com.barataribeiro.taskr.dtos.user.ContextDTO;
 import com.barataribeiro.taskr.dtos.user.UpdateAccountRequestDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.services.UserService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +41,10 @@ public class UserController {
     }
 
     @PatchMapping("/me/{userId}")
-    public ResponseEntity<RestResponseDTO<UserDTO>> updateUserProfile(@PathVariable String userId,
-                                                                      @RequestBody UpdateAccountRequestDTO body,
-                                                                      Principal principal) {
-        UserDTO response = userService.updateUserProfile(userId, body, principal);
+    public ResponseEntity<RestResponseDTO<ContextDTO>> updateUserProfile(@PathVariable String userId,
+                                                                         @RequestBody UpdateAccountRequestDTO body,
+                                                                         Principal principal) {
+        ContextDTO response = userService.updateUserProfile(userId, body, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "User profile updated successfully",
