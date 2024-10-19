@@ -8,27 +8,49 @@ import { auth } from "auth"
 import { revalidateTag } from "next/cache"
 import { z } from "zod"
 
-const updateAccountSchema = z.object({
-    firstName: z.string().min(3, "First name must be at least 3 characters").nullish().or(z.literal("")),
-    lastName: z.string().min(3, "Last name must be at least 3 characters").nullish().or(z.literal("")),
-    username: z
-        .string({ message: "Username is required" })
-        .trim()
-        .min(3, "Username must be at least 3 characters")
-        .max(50, "Username must be at most 50 characters")
-        .regex(/^[a-z]*$/, "Username must contain only lowercase letters")
-        .nullish()
-        .or(z.literal("")),
-    displayName: z
-        .string({ message: "Display Name is required" })
-        .trim()
-        .min(3, "Display Name must be at least 3" + " characters")
-        .max(50, "Display Name must be at most 50 characters")
-        .regex(/^[a-zA-Z\s]*$/, "Display Name must contain only letters and spaces")
-        .nullish()
-        .or(z.literal("")),
-    currentPassword: z.string({ message: "Current password is required" }),
-})
+const updateAccountSchema = z
+    .object({
+        firstName: z.string().min(3, "First name must be at least 3 characters").nullish().or(z.literal("")),
+        lastName: z.string().min(3, "Last name must be at least 3 characters").nullish().or(z.literal("")),
+        username: z
+            .string({ message: "Username is required" })
+            .trim()
+            .min(3, "Username must be at least 3 characters")
+            .max(50, "Username must be at most 50 characters")
+            .regex(/^[a-z]*$/, "Username must contain only lowercase letters")
+            .nullish()
+            .or(z.literal("")),
+        displayName: z
+            .string({ message: "Display Name is required" })
+            .trim()
+            .min(3, "Display Name must be at least 3" + " characters")
+            .max(50, "Display Name must be at most 50 characters")
+            .regex(/^[a-zA-Z\s]*$/, "Display Name must contain only letters and spaces")
+            .nullish()
+            .or(z.literal("")),
+        currentPassword: z.string({ message: "Current password is required" }),
+        newPassword: z
+            .string()
+            .min(8, "Password must be at least 8 characters")
+            .max(100, "Password must be at most 100 characters")
+            .regex(
+                /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{8,}$/,
+                "Password must contain at least one digit, one lowercase letter, " +
+                    "one uppercase letter, one special character and no whitespace.",
+            )
+            .nullish()
+            .or(z.literal("")),
+        confirmNewPassword: z.string().optional().or(z.literal("")),
+    })
+    .superRefine(({ newPassword, confirmNewPassword }, ctx) => {
+        if (newPassword && newPassword !== confirmNewPassword) {
+            ctx.addIssue({
+                code: "custom",
+                message: "Passwords do not match",
+                path: ["confirmNewPassword"],
+            })
+        }
+    })
 
 export default async function patchUserUpdateAccount(state: State, formData: FormData) {
     try {
