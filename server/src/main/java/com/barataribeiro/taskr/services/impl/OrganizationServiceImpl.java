@@ -31,8 +31,9 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,27 +84,17 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getAllOrganizations(int page, int perPage) {
-        Pageable paging = PageRequest.of(page, perPage);
+    public Page<OrganizationDTO> getAllOrganizations(String search, int page, int perPage, @NotNull String direction,
+                                                     String orderBy, Principal principal) {
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        orderBy = orderBy.equalsIgnoreCase(AppConstants.CREATED_AT) ? AppConstants.CREATED_AT : orderBy;
+        PageRequest pageable = PageRequest.of(page, perPage, Sort.by(sortDirection, orderBy));
 
-        if ((perPage < 0 || perPage > 15) || page < 0) {
-            throw new IllegalRequestException(
-                    "Invalid parameters. Page must be greater than or equal to 0 and perPage must be between 0 and 15");
-        }
+        Page<Organization> organizationPage = organizationRepository.findAll(pageable);
 
-        Page<Organization> organizationPage = organizationRepository.findAllOrganizationsPageable(paging);
+        List<OrganizationDTO> organizations = organizationMapper.toDTOList(organizationPage.getContent());
 
-        List<OrganizationDTO> organizations = organizationPage.isEmpty()
-                                              ? new ArrayList<>()
-                                              : organizationMapper.toDTOList(organizationPage.getContent());
-
-        Map<String, Object> returnData = new HashMap<>();
-        returnData.put("organizations", organizations);
-        returnData.put("currentPage", organizationPage.getNumber());
-        returnData.put("totalItems", organizationPage.getTotalElements());
-        returnData.put("totalPages", organizationPage.getTotalPages());
-
-        return returnData;
+        return new PageImpl<>(organizations, pageable, organizationPage.getTotalElements());
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.dtos.organization.ManagementRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
 import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
 import com.barataribeiro.taskr.dtos.organization.UpdateOrganizationRequestDTO;
+import org.springframework.data.domain.Page;
 
 import java.security.Principal;
 import java.util.Map;
@@ -11,7 +12,8 @@ import java.util.Map;
 public interface OrganizationService {
     OrganizationDTO createOrganization(OrganizationRequestDTO body, Principal principal);
 
-    Map<String, Object> getAllOrganizations(int page, int perPage);
+    Page<OrganizationDTO> getAllOrganizations(String search, int page, int perPage, String direction, String orderBy,
+                                              Principal principal);
 
     Map<String, Object> getTopThreeOrganizations();
 

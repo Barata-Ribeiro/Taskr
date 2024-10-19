@@ -9,6 +9,7 @@ import com.barataribeiro.taskr.services.OrganizationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,11 +25,15 @@ public class OrganizationController {
     private final OrganizationService organizationService;
 
     @GetMapping("/")
-    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getAllOrganizations(@RequestParam(defaultValue = "0")
-                                                                                    int page,
-                                                                                    @RequestParam(defaultValue = "10")
-                                                                                    int perPage) {
-        Map<String, Object> response = organizationService.getAllOrganizations(page, perPage);
+    public ResponseEntity<RestResponseDTO<Page<OrganizationDTO>>> getAllOrganizations(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int perPage,
+            @RequestParam(defaultValue = "ASC") String direction,
+            @RequestParam(defaultValue = "createdAt") String orderBy,
+            Principal principal) {
+        Page<OrganizationDTO> response = organizationService
+                .getAllOrganizations(search, page, perPage, direction, orderBy, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "Organizations retrieved successfully",
