@@ -200,12 +200,12 @@ public class OrganizationServiceImpl implements OrganizationService {
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
-            throw new IllegalRequestException("You are not the owner of this organization.");
+            throw new IllegalRequestException(AppConstants.NOT_THE_OWNER_OF_THIS_ORGANIZATION);
         }
 
-        Organization organization = organizationRepository
-                .findById(Long.valueOf(orgId))
-                .orElseThrow(() -> new EntityNotFoundException(Organization.class.getSimpleName()));
+        Organization organization = organizationRepository.findById(Long.valueOf(orgId))
+                                                          .orElseThrow(() -> new EntityNotFoundException(
+                                                                  Organization.class.getSimpleName()));
 
         List<String> usersNotAdded = new ArrayList<>();
         List<User> usersAdded = new ArrayList<>();
@@ -233,18 +233,9 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     @Transactional
-    public Map<String, Object> updateOrganizationInfo(String id, UpdateOrganizationRequestDTO body,
+    public Map<String, Object> updateOrganizationInfo(String id, @NotNull UpdateOrganizationRequestDTO body,
                                                       @NotNull Principal principal) {
-        User user = userRepository.findByUsername(principal.getName())
-                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
-
-        if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
-            throw new IllegalRequestException("You are not the owner of this organization.");
-        }
-
-        Organization organization = organizationRepository.findById(Long.valueOf(id))
-                                                          .orElseThrow(() -> new EntityNotFoundException(
-                                                                  Organization.class.getSimpleName()));
+        final Organization organization = getOrganizationIfUserIsOwner(id, principal);
 
         if (body.name() != null) organization.setName(body.name());
         if (body.description() != null) organization.setDescription(body.description());
@@ -252,9 +243,8 @@ public class OrganizationServiceImpl implements OrganizationService {
         if (body.websiteUrl() != null) organization.setWebsiteUrl(body.websiteUrl());
         if (body.location() != null) organization.setLocation(body.location());
 
-        organizationRepository.save(organization);
-
-        return Map.of(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
+        return Map.of(AppConstants.ORGANIZATION,
+                      organizationMapper.toDTO(organizationRepository.saveAndFlush(organization)));
     }
 
     @Override
@@ -265,10 +255,23 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .orElseThrow(() -> new EntityNotFoundException(Organization.class.getSimpleName()));
         OrganizationUser relation = organizationUserRepository
                 .findOrganizationByUser_UsernameAndIsOwner(organization.getId(), principal.getName(), true)
-                .orElseThrow(() -> new IllegalRequestException("You are not the owner of this organization."));
+                .orElseThrow(() -> new IllegalRequestException(AppConstants.NOT_THE_OWNER_OF_THIS_ORGANIZATION));
 
         organizationUserRepository.delete(relation);
         organizationRepository.delete(organization);
+    }
+
+    private Organization getOrganizationIfUserIsOwner(String id, @NotNull Principal principal) {
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
+            throw new IllegalRequestException(AppConstants.NOT_THE_OWNER_OF_THIS_ORGANIZATION);
+        }
+
+        return organizationRepository.findById(Long.valueOf(id))
+                                     .orElseThrow(() -> new EntityNotFoundException(
+                                             Organization.class.getSimpleName()));
     }
 
     private void sendNotificationForUsersRemoved(@NotNull List<User> usersRemoved, Organization organization,
