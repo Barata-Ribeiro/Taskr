@@ -1,8 +1,8 @@
 import getUserContext from "@/actions/user/get-user-context"
+import ChangeAccountPassword from "@/components/forms/change-account-password-form"
 import UpdateAccountForm from "@/components/forms/update-account-form"
 import UpdateAvatarForm from "@/components/forms/update-avatar-form"
 import { UserContext } from "@/interfaces/user"
-import { Field, Input, Label } from "@headlessui/react"
 
 export async function generateMetadata() {
     const state = await getUserContext()
@@ -63,46 +63,7 @@ export default async function ProfilePage() {
                         </p>
                     </div>
 
-                    <div className="grid gap-2">
-                        <Field>
-                            <Label
-                                htmlFor="currentPassword"
-                                className="block text-sm font-medium leading-6 text-gray-900">
-                                Current Password
-                            </Label>
-                            <Input
-                                id="currentPassword"
-                                name="currentPassword"
-                                type="password"
-                                autoComplete="current-password"
-                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
-                            />
-                        </Field>
-                        <Field>
-                            <Label htmlFor="newPassword" className="block text-sm font-medium leading-6 text-gray-900">
-                                New Password
-                            </Label>
-                            <Input
-                                id="newPassword"
-                                name="newPassword"
-                                type="password"
-                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
-                            />
-                        </Field>
-                        <Field>
-                            <Label
-                                htmlFor="confirmNewPassword"
-                                className="block text-sm font-medium leading-6 text-gray-900">
-                                Confirm New Password
-                            </Label>
-                            <Input
-                                id="confirmNewPassword"
-                                name="confirmNewPassword"
-                                type="password"
-                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
-                            />
-                        </Field>
-                    </div>
+                    <ChangeAccountPassword />
                 </div>
             </div>
         </section>
