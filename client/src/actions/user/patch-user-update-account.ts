@@ -4,7 +4,7 @@ import ResponseError from "@/actions/response-error"
 import { ApiResponse, ProblemDetails, State } from "@/interfaces/actions"
 import { UserContext } from "@/interfaces/user"
 import { USER_PATCH_UPDATE_ACCOUNT } from "@/utils/api-urls"
-import { auth } from "auth"
+import { auth, unstable_update } from "auth"
 import { revalidateTag } from "next/cache"
 import { z } from "zod"
 
@@ -87,6 +87,13 @@ export default async function patchUserUpdateAccount(state: State, formData: For
         const registerResponse = responseData.data as UserContext
 
         revalidateTag("context")
+        await unstable_update({
+            ...session,
+            user: {
+                ...session.user,
+                ...registerResponse,
+            },
+        })
 
         return {
             ok: true,

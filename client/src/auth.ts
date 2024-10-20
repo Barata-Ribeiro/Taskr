@@ -47,6 +47,18 @@ async function refreshToken(token: JWT) {
     }
 }
 
+function getTokenAndExpiration() {
+    const token = cookies().get("auth_rt")?.value
+    if (!token) throw new Error("No token found.")
+
+    const decodedToken = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString())
+
+    return {
+        token: token,
+        expiresAt: decodedToken["exp"] * 1000,
+    }
+}
+
 export const config = {
     pages: {
         newUser: "/auth/register",
@@ -112,7 +124,7 @@ export const config = {
         }),
     ],
     callbacks: {
-        async jwt({ token, user: context, account }) {
+        async jwt({ token, user: context, account, trigger, session }) {
             if (account && context) {
                 token.user = context.user
                 token.accessToken = context.accessToken
@@ -122,6 +134,19 @@ export const config = {
                 token.error = null
 
                 return token
+            }
+
+            if (trigger === "update") {
+                if (session) {
+                    const refreshToken: { token: string; expiresAt: number } = getTokenAndExpiration()
+
+                    token.user = session.user
+                    token.accessToken = session.accessToken
+                    token.accessTokenExpiresAt = session.accessTokenExpiresAt
+                    token.refreshToken = refreshToken.token
+                    token.refreshTokenExpiresAt = new Date(Number(refreshToken.expiresAt)).toISOString()
+                    token.error = null
+                }
             }
 
             if (
@@ -165,4 +190,4 @@ export const config = {
         },
     },
 } satisfies NextAuthConfig
-export const { handlers, auth, signIn, signOut } = NextAuth(config)
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth(config)
