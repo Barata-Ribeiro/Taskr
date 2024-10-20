@@ -2,10 +2,25 @@ import { auth } from "auth"
 import { NextRequest, NextResponse } from "next/server"
 
 export default auth((request: NextRequest) => {
+    // @ts-expect-error `auth` is added to the request object by the `auth` middleware
+    const { auth } = request
     const { pathname } = request.nextUrl
+    const isAuthenticated = !!auth
 
-    if (pathname === "/") {
-        return NextResponse.redirect(new URL("/auth/login", request.nextUrl).toString())
+    const searchTerm = pathname.split("/").slice(0, 2).join("/")
+
+    if (searchTerm.includes("/dashboard")) {
+        if (!isAuthenticated) {
+            return NextResponse.redirect(
+                new URL(`/auth/login?callbackUrl=${encodeURIComponent(request.nextUrl.href)}`, request.nextUrl),
+            )
+        }
+    }
+
+    if (pathname === "/" || pathname.startsWith("/auth")) {
+        if (isAuthenticated && !auth.error) {
+            return NextResponse.redirect(new URL("/dashboard", request.nextUrl))
+        }
     }
 })
 

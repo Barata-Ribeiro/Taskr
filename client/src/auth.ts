@@ -177,17 +177,6 @@ export const config = {
         async redirect({ url, baseUrl }) {
             return url.startsWith(baseUrl) ? url : baseUrl
         },
-        authorized({ request, auth }) {
-            const { pathname } = request.nextUrl
-            const searchTerm = pathname.split("/").slice(0, 2).join("/")
-
-            if (searchTerm.includes("/dashboard")) return !!auth
-            else if (pathname.includes("/auth")) {
-                const isLoggedIn = !!auth
-                if (isLoggedIn) return Response.redirect(new URL("/dashboard", request.nextUrl))
-                else return true
-            } else return true
-        },
     },
 } satisfies NextAuthConfig
 export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth(config)

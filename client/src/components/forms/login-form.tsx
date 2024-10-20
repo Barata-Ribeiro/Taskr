@@ -21,8 +21,11 @@ export default function LoginForm() {
     })
 
     useEffect(() => {
-        if (formState.ok) router.push("/dashboard")
-    }, [formState, router])
+        if (formState.ok) {
+            const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard"
+            router.push(callbackUrl)
+        }
+    }, [formState, router, searchParams])
 
     const searchParamsObject = {
         success: searchParams.get("success") === "true",
