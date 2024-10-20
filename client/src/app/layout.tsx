@@ -37,7 +37,7 @@ export default async function RootLayout({
     const sortedStyles = tw`${roboto.variable} ${nunito.variable} h-full`
 
     return (
-        <html lang="en" className="h-full bg-white dark:bg-gray-950" suppressHydrationWarning>
+        <html lang="en" className="h-full bg-gray-50 dark:bg-gray-950" suppressHydrationWarning>
             <body className={sortedStyles}>
                 <SessionProvider>{children}</SessionProvider>
             </body>

@@ -41,7 +41,7 @@ export default async function ProfilePage() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 rounded-md p-4 shadow-derek sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 rounded-md bg-white p-4 shadow-derek sm:grid-cols-2">
                 <div className="flex flex-col gap-2">
                     <div className="mb-4 border-b border-gray-300 pb-4">
                         <h2 className="text-base font-semibold leading-7 text-gray-900">Account Information</h2>
