@@ -31,51 +31,56 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class SecurityFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
-    private final UserRepository userRepository;
     private final RequestAttributeSecurityContextRepository filterRepository =
             new RequestAttributeSecurityContextRepository();
     private final TokenRepository tokenRepository;
 
     @Override
-    protected boolean shouldNotFilter(@NotNull HttpServletRequest request) throws ServletException {
-        return request.getServletPath().startsWith("/api/v1/auth/");
-    }
-
-    @Override
     protected void doFilterInternal(final @NonNull HttpServletRequest request,
                                     final @NonNull HttpServletResponse response,
                                     final @NonNull FilterChain filterChain) throws ServletException, IOException {
-        log.atInfo().log("Filtering request");
-        String token = recoverToken(request);
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-
-        if (token != null) {
-            DecodedJWT decodedJWT = tokenService.validateToken(token);
-
-            if (decodedJWT != null) {
-                String jti = decodedJWT.getId();
-                String username = decodedJWT.getSubject();
-
-                if (jti != null && tokenRepository.existsById(jti)) {
-                    log.atWarn().log("Token {} has been blacklisted", jti);
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
-                }
-
-                String role = decodedJWT.getClaim("role").asString();
-                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, authorities);
-
-                context.setAuthentication(authentication);
-                SecurityContextHolder.setContext(context);
-                filterRepository.saveContext(context, request, response);
-
-                log.info("User {} authenticated with role {}", username, role);
-            }
+        if (request.getServletPath().startsWith("/api/v1/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        log.atInfo().log("Filtering request...");
+
+        String token = recoverToken(request);
+        if (token == null || token.isBlank()) {
+            log.atWarn().log("Token not found in servlet request");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        DecodedJWT decodedJWT = tokenService.validateToken(token);
+        if (decodedJWT == null) {
+            log.atWarn().log("Invalid token");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        String jti = decodedJWT.getId();
+        if (jti != null && tokenRepository.existsById(jti)) {
+            log.atWarn().log("Token {} has been blacklisted", jti);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        String username = decodedJWT.getSubject();
+        String role = decodedJWT.getClaim("role").asString();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(username, null, authorities);
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        filterRepository.saveContext(context, request, response);
+
+        log.info("User {} authenticated with role {}", username, role);
 
         filterChain.doFilter(request, response);
     }
@@ -88,8 +93,6 @@ public class SecurityFilter extends OncePerRequestFilter {
             log.atInfo().log("Token found in request");
             return authHeader.replace("Bearer ", "");
         }
-
-        log.atWarn().log("Token not found in request");
 
         return null;
     }
