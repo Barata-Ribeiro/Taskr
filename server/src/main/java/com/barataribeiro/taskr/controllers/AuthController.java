@@ -49,7 +49,7 @@ public class AuthController {
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity<RestResponseDTO<?>> logout(@RequestHeader("X-Refresh-Token") String refreshToken) {
+    public ResponseEntity<RestResponseDTO<Void>> logout(@RequestHeader("X-Refresh-Token") String refreshToken) {
         authService.logout(refreshToken);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.NO_CONTENT,
                                                        HttpStatus.NO_CONTENT.value(),

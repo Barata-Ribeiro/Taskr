@@ -111,8 +111,8 @@ public class OrganizationController {
     }
 
     @DeleteMapping("/{orgId}")
-    public ResponseEntity<RestResponseDTO<?>> deleteOrganization(@PathVariable String orgId,
-                                                                 Principal principal) {
+    public ResponseEntity<RestResponseDTO<Void>> deleteOrganization(@PathVariable String orgId,
+                                                                    Principal principal) {
         organizationService.deleteOrganization(orgId, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.NO_CONTENT,
                                                        HttpStatus.NO_CONTENT.value(),

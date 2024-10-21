@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @DeleteMapping("/me/{userId}")
-    public ResponseEntity<RestResponseDTO<?>> deleteUserProfile(@PathVariable String userId, Principal principal) {
+    public ResponseEntity<RestResponseDTO<Void>> deleteUserProfile(@PathVariable String userId, Principal principal) {
         userService.deleteUserProfile(userId, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.NO_CONTENT,
                                                        HttpStatus.NO_CONTENT.value(),

@@ -56,8 +56,8 @@ public class TaskController {
     }
 
     @DeleteMapping("/task/{taskId}")
-    public ResponseEntity<RestResponseDTO<?>> deleteTask(@PathVariable String projectId, @PathVariable String taskId,
-                                                         Principal principal) {
+    public ResponseEntity<RestResponseDTO<Void>> deleteTask(@PathVariable String projectId, @PathVariable String taskId,
+                                                            Principal principal) {
         taskService.deleteTask(projectId, taskId, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.NO_CONTENT,
                                                        HttpStatus.NO_CONTENT.value(),

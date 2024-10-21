@@ -88,8 +88,9 @@ public class ProjectController {
     }
 
     @DeleteMapping("/project/{projectId}")
-    public ResponseEntity<RestResponseDTO<?>> deleteProject(@PathVariable String orgId, @PathVariable String projectId,
-                                                            Principal principal) {
+    public ResponseEntity<RestResponseDTO<Void>> deleteProject(@PathVariable String orgId,
+                                                               @PathVariable String projectId,
+                                                               Principal principal) {
         projectService.deleteProject(orgId, projectId, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.NO_CONTENT,
                                                        HttpStatus.NO_CONTENT.value(),
