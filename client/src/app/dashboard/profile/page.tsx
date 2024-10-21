@@ -1,4 +1,6 @@
 import getUserContext from "@/actions/user/get-user-context"
+import DeleteAccount from "@/components/actions/delete-account"
+import SignOut from "@/components/actions/sign-out"
 import ChangeAccountPassword from "@/components/forms/change-account-password-form"
 import UpdateAccountForm from "@/components/forms/update-account-form"
 import UpdateAvatarForm from "@/components/forms/update-avatar-form"
@@ -42,9 +44,11 @@ export default async function ProfilePage() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 rounded-md bg-white p-4 shadow-derek sm:grid-cols-2">
-                <div className="flex flex-col gap-2">
+                <article aria-labelledby="account-information-title" className="flex flex-col gap-2">
                     <div className="mb-4 border-b border-gray-300 pb-4">
-                        <h2 className="text-base font-semibold leading-7 text-gray-900">Account Information</h2>
+                        <h2 id="account-information-title" className="text-base font-semibold leading-7 text-gray-900">
+                            Account Information
+                        </h2>
                         <p className="mt-1 text-sm leading-6 text-gray-500">
                             Basic account information. Edit it quickly and easily.
                         </p>
@@ -53,19 +57,41 @@ export default async function ProfilePage() {
                     <UpdateAvatarForm data={data} />
 
                     <UpdateAccountForm data={data} />
-                </div>
+                </article>
 
-                <div className="flex flex-col gap-2">
+                <article aria-labelledby="password-and-security-title" className="flex flex-col gap-2">
                     <div className="mb-4 border-b border-gray-300 pb-4">
-                        <h2 className="text-base font-semibold leading-7 text-gray-900">Password &amp; Security</h2>
+                        <h2
+                            id="password-and-security-title"
+                            className="text-base font-semibold leading-7 text-gray-900">
+                            Password &amp; Security
+                        </h2>
                         <p className="mt-1 text-sm leading-6 text-gray-500">
                             Update your password associated with your account.
                         </p>
                     </div>
 
                     <ChangeAccountPassword />
-                </div>
+                </article>
             </div>
+
+            <article aria-labelledby="danger-zone-title" className="mt-8 grid rounded-md bg-white p-4 shadow-derek">
+                <div className="flex flex-col gap-2">
+                    <div className="mb-4 border-b border-gray-300 pb-4">
+                        <h2 id="danger-zone-title" className="text-base font-semibold leading-7 text-gray-900">
+                            Danger Zone
+                        </h2>
+                        <p className="mt-1 text-sm leading-6 text-gray-500">
+                            Be careful with the following actions. Bellow you can both logout and/or delete your
+                            account. The latter is irreversible.
+                        </p>
+                    </div>
+
+                    <SignOut />
+
+                    <DeleteAccount />
+                </div>
+            </article>
         </section>
     )
 }
