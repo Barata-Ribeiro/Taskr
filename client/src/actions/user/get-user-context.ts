@@ -7,8 +7,9 @@ import { USER_GET_CONTEXT } from "@/utils/api-urls"
 import { auth } from "auth"
 
 export default async function getUserContext() {
+    const session = await auth()
+
     try {
-        const session = await auth()
         const URL = USER_GET_CONTEXT()
 
         const response = await fetch(URL, {
