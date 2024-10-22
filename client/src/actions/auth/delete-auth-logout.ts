@@ -45,7 +45,6 @@ export default async function deleteAuthLogout() {
             response: responseData,
         }
     } catch (error) {
-        console.log("CALLBACK ERROR: ", error)
         return ResponseError(error)
     }
 }
