@@ -3,7 +3,9 @@
 import ResponseError from "@/actions/response-error"
 import { ApiResponse, ProblemDetails } from "@/interfaces/actions"
 import { AUTH_LOGOUT } from "@/utils/api-urls"
+import getAuthCookies from "@/utils/get-auth-cookies"
 import { signOut } from "auth"
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies"
 import { cookies } from "next/headers"
 
 export default async function deleteAuthLogout() {
@@ -28,7 +30,12 @@ export default async function deleteAuthLogout() {
             return ResponseError(problemDetails)
         }
 
-        await signOut()
+        await signOut({ redirect: false })
+
+        const cookieStore = await getAuthCookies()
+        if (cookieStore) {
+            ;(cookieStore as RequestCookie[]).forEach(cookie => cookies().delete(cookie.name))
+        }
 
         const responseData = json as ApiResponse
 
