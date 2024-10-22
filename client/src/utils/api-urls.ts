@@ -13,3 +13,4 @@ export const USER_PATCH_UPDATE_ACCOUNT = (id: string, ra?: boolean) => {
     if (ra) url += `?ra=true`
     return url
 }
+export const USER_DELETE_ACCOUNT = (id: string) => `${BACKEND_URL}/api/v1/users/me/${id}`
