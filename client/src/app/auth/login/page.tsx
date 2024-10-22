@@ -2,6 +2,7 @@ import LoginForm from "@/components/forms/login-form"
 import { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
+import { Suspense } from "react"
 import taskrLogo from "../../../../public/images/logo.svg"
 
 export const metadata: Metadata = {
@@ -21,7 +22,9 @@ export default async function LoginPage() {
 
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
                 <div className="bg-white px-6 py-12 shadow-derek sm:rounded-lg sm:px-12">
-                    <LoginForm />
+                    <Suspense fallback={<></>}>
+                        <LoginForm />
+                    </Suspense>
                 </div>
 
                 <p className="mt-10 text-center text-sm text-gray-100">
