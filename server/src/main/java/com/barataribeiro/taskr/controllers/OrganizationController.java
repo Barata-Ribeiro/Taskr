@@ -24,7 +24,7 @@ import java.util.Map;
 public class OrganizationController {
     private final OrganizationService organizationService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<RestResponseDTO<Page<OrganizationDTO>>> getAllOrganizations(
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
@@ -76,7 +76,7 @@ public class OrganizationController {
                                                        response));
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<RestResponseDTO<OrganizationDTO>> createOrganization(@RequestBody OrganizationRequestDTO body,
                                                                                Principal principal) {
         OrganizationDTO response = organizationService.createOrganization(body, principal);
