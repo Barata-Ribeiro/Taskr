@@ -47,8 +47,7 @@ export default function DeleteAccount() {
 
                 <Button
                     type="button"
-                    disabled={isPending}
-                    onClick={handleDeleteAccount}
+                    onClick={() => setIsOpen(true)}
                     className="inline-flex items-center justify-center place-self-start rounded-md bg-red-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 active:bg-red-800 md:col-span-2 md:mt-0">
                     Delete Account
                 </Button>
@@ -84,9 +83,9 @@ export default function DeleteAccount() {
                                     </DialogTitle>
                                     <div className="my-2">
                                         <p className="text-sm text-gray-500">
-                                            Are you really sure you want to delete your account? This action is not
-                                            reversible. All information related to this account will be deleted
-                                            permanently.
+                                            Are you really sure you want to delete your account? This action is{" "}
+                                            <strong>not reversible</strong>. All information related to this account
+                                            will be <strong>deleted permanently</strong>.
                                         </p>
                                     </div>
 
