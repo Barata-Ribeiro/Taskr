@@ -14,3 +14,16 @@ export const USER_PATCH_UPDATE_ACCOUNT = (id: string, ra?: boolean) => {
     return url
 }
 export const USER_DELETE_ACCOUNT = (id: string) => `${BACKEND_URL}/api/v1/users/me/${id}`
+
+// Organizations
+export const ORGANIZATIONS_GET_LIST = (
+    page: number,
+    perPage: number,
+    search: string | null,
+    direction: string,
+    orderBy: string,
+) => {
+    let url = `${BACKEND_URL}/api/v1/organizations?page=${page}&perPage=${perPage}&direction=${direction}&orderBy=${orderBy}`
+    if (search) url += `&search=${search}`
+    return url
+}
