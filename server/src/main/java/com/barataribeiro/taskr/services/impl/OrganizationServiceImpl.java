@@ -90,7 +90,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         orderBy = orderBy.equalsIgnoreCase(AppConstants.CREATED_AT) ? AppConstants.CREATED_AT : orderBy;
         PageRequest pageable = PageRequest.of(page, perPage, Sort.by(sortDirection, orderBy));
 
-        Page<Organization> organizationPage = organizationRepository.findAll(pageable);
+        Page<Organization> organizationPage;
+        if (search != null && !search.isBlank()) {
+            organizationPage = organizationRepository.findAllOrganizationsWithParamsPaginated(search, pageable);
+        } else {
+            organizationPage = organizationRepository.findAll(pageable);
+        }
 
         List<OrganizationDTO> organizations = organizationMapper.toDTOList(organizationPage.getContent());
 
