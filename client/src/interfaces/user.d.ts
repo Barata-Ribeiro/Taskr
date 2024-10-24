@@ -36,4 +36,10 @@ interface UserContext {
     totalOrganizationsWhereUserIsMember: number
 }
 
-export type { UserRoles, User, Profile, UserContext }
+interface UserDashboard {
+    context: User
+    organizationsWhereUserIsMember: unknown[]
+    projectsWhereUserIsMember: unknown[]
+}
+
+export type { UserRoles, User, Profile, UserContext, UserDashboard }
