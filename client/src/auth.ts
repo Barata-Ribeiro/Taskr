@@ -159,7 +159,7 @@ export const config = {
                     cookies()
                         .getAll()
                         .forEach(cookie => cookies().delete(cookie.name))
-                    await signOut({ redirectTo: "/auth/login" })
+                    await signOut({ redirect: false })
                 }
 
                 return rest
