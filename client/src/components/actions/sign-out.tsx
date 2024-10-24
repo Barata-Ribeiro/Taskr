@@ -36,7 +36,7 @@ export default function SignOut() {
 
     return (
         <>
-            <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-8 px-4 pb-16 sm:px-6 md:grid-cols-3 lg:px-8">
+            <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-8 pb-16 md:grid-cols-3">
                 <div>
                     <h2 className="text-base font-semibold leading-7 text-gray-900">Logout</h2>
                     <p className="mt-1 text-sm leading-6 text-gray-400">
