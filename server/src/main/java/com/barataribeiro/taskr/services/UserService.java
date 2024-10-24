@@ -17,4 +17,6 @@ public interface UserService {
     ContextDTO removeUserAvatar(String id, Principal principal, String paramRemoveAvatar);
 
     void deleteUserProfile(String id, Principal principal);
+
+    Map<String, Object> getUserDashboard(Principal principal);
 }

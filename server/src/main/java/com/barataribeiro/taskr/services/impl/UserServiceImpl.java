@@ -11,10 +11,12 @@ import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
 import com.barataribeiro.taskr.exceptions.users.InvalidAccountCredentialsException;
 import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
+import com.barataribeiro.taskr.models.entities.Task;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.models.relations.OrganizationUser;
 import com.barataribeiro.taskr.models.relations.ProjectUser;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
+import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository;
 import com.barataribeiro.taskr.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
@@ -33,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final OrganizationUserRepository organizationUserRepository;
 
     @Override
     public UserDTO getUserProfileById(String id) {
@@ -130,6 +133,86 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.deleteByIdAndUsername(id, principal.getName());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> getUserDashboard(@NotNull Principal principal) {
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        ContextDTO contextDTO = userMapper.toContextDTO(user);
+
+        // Organization related data
+        Set<OrganizationUser> organizationUsers = user.getOrganizationUsers();
+        List<Map<String, Object>> organizations = organizationUsers.stream()
+                                                                   .map(ou -> {
+                                                                       Organization organization = ou.getOrganization();
+                                                                       Map<String, Object> orgMap = new HashMap<>();
+                                                                       orgMap.put("id", organization.getId());
+                                                                       orgMap.put("name", organization.getName());
+                                                                       orgMap.put("isOwner", ou.isOwner());
+                                                                       orgMap.put("isAdmin", ou.isAdmin());
+                                                                       return orgMap;
+                                                                   })
+                                                                   .toList();
+
+        // Project related data
+        Set<ProjectUser> projectUsers = user.getProjectUser();
+        List<Map<String, Object>> projects = projectUsers.stream()
+                                                         .map(pu -> {
+                                                             Project project = pu.getProject();
+                                                             Map<String, Object> projectMap = new HashMap<>();
+                                                             projectMap.put("id", project.getId());
+                                                             projectMap.put("name", project.getName());
+                                                             projectMap.put("isManager", pu.isProjectManager());
+
+                                                             // Task related data
+                                                             List<Map<String, Object>> latestTasks =
+                                                                     getProjectLatestTasksWhereUserIsEitherCreatorOrAssigned(
+                                                                             project, user);
+                                                             projectMap.put("latestTasks", latestTasks);
+
+                                                             long totalTasks = project.getProjectTask().size();
+                                                             projectMap.put("totalTasks", totalTasks);
+
+                                                             return projectMap;
+                                                         })
+                                                         .toList();
+
+        // Prepare the result map
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("context", contextDTO);
+        result.put("organizationsWhereUserIsMember", organizations);
+        result.put("projectsWhereUserIsMember", projects);
+
+        return result;
+    }
+
+    private @NotNull List<Map<String, Object>> getProjectLatestTasksWhereUserIsEitherCreatorOrAssigned(
+            @NotNull Project project,
+            User user) {
+        return project.getProjectTask().stream()
+                      .flatMap(pt -> pt.getTask().getTaskUser().stream())
+                      .filter(tu -> tu.getUser().equals(user) && (tu.isAssigned() || tu.isCreator()))
+                      .sorted(Comparator.comparing(taskUser -> taskUser.getTask().getCreatedAt(),
+                                                   Comparator.reverseOrder()))
+                      .limit(5)
+                      .map(tu -> {
+                          Task task = tu.getTask();
+
+                          Map<String, Object> taskMap = new HashMap<>();
+                          taskMap.put("id", task.getId());
+                          taskMap.put("title", task.getTitle());
+                          taskMap.put("description", task.getDescription());
+                          taskMap.put("status", task.getStatus());
+                          taskMap.put("priority", task.getPriority());
+                          taskMap.put("startDate", task.getStartDate());
+                          taskMap.put("dueDate", task.getDueDate());
+
+                          return taskMap;
+                      })
+                      .toList();
     }
 
     private void validateUpdateRequest(String id, UpdateAccountRequestDTO body, @NotNull User user) {

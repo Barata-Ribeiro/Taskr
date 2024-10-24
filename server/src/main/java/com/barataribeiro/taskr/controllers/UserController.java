@@ -40,6 +40,15 @@ public class UserController {
                                                        response));
     }
 
+    @GetMapping("/me/dashboard")
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getUserDashboard(Principal principal) {
+        Map<String, Object> response = userService.getUserDashboard(principal);
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "User dashboard retrieved successfully",
+                                                       response));
+    }
+
     @PatchMapping("/me/{userId}")
     public ResponseEntity<RestResponseDTO<ContextDTO>> updateUserProfile(@PathVariable String userId,
                                                                          @RequestParam(required = false) String ra,
