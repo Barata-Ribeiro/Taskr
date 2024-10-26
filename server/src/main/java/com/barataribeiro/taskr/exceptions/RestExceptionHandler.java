@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.exceptions;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
@@ -34,10 +35,26 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ProblemDetail handleMethodArgumentNotValid(@NotNull MethodArgumentNotValidException ex) {
-
         List<InvalidParam> fieldErrors = ex.getFieldErrors()
                                            .stream()
                                            .map(f -> new InvalidParam(f.getField(), f.getDefaultMessage()))
+                                           .toList();
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+
+        problemDetail.setTitle("Your request parameters didn't validate.");
+        problemDetail.setProperty("invalid-params", fieldErrors);
+
+        log.atError().log("Invalid request parameters: {}, {}", fieldErrors, ex.getMessage());
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ProblemDetail handleConstraintViolation(@NotNull ConstraintViolationException ex) {
+        List<InvalidParam> fieldErrors = ex.getConstraintViolations()
+                                           .stream()
+                                           .map(f -> new InvalidParam(f.getPropertyPath().toString(), f.getMessage()))
                                            .toList();
 
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
