@@ -28,3 +28,4 @@ export const ORGANIZATIONS_GET_LIST = (
     if (search) url += `&search=${search}`
     return url
 }
+export const ORGANIZATIONS_POST_NEW = () => `${BACKEND_URL}/api/v1/organizations`
