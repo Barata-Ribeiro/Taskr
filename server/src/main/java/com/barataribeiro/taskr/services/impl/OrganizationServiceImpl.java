@@ -28,6 +28,7 @@ import com.barataribeiro.taskr.utils.AppConstants;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,6 +42,7 @@ import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class OrganizationServiceImpl implements OrganizationService {
@@ -61,13 +63,19 @@ public class OrganizationServiceImpl implements OrganizationService {
         User user = userRepository.findByUsername(principal.getName())
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
+        log.atInfo().log("User {} is attempting to create an organization.", user.getUsername());
+
         hasUserAlreadyCreatedOrganization(user);
+
+        log.atInfo().log("Creating organization with name {} and description {}.", body.name(), body.description());
 
         Organization organization = Organization.builder()
                                                 .name(body.name())
                                                 .description(body.description())
                                                 .build();
         organization.incrementMembersCount();
+
+        organization = organizationRepository.save(organization);
 
         OrganizationUserId organizationUserId = new OrganizationUserId(organization.getId(), user.getId());
         OrganizationUser relation = OrganizationUser.builder()
@@ -79,7 +87,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                     .build();
         organizationUserRepository.save(relation);
 
-        return organizationMapper.toDTO(organizationRepository.saveAndFlush(organization));
+        return organizationMapper.toDTO(organization);
     }
 
     @Override
@@ -195,6 +203,8 @@ public class OrganizationServiceImpl implements OrganizationService {
         User user = userRepository.findByUsername(principal.getName())
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
+        log.atInfo().log("User {} is attempting to manage organization {} members.", user.getUsername(), orgId);
+
         if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
             throw new IllegalRequestException(AppConstants.NOT_THE_OWNER_OF_THIS_ORGANIZATION);
         }
@@ -246,6 +256,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public void deleteOrganization(String id, @NotNull Principal principal) {
+        log.atInfo().log("User {} is attempting to delete organization {}.", principal.getName(), id);
+
         Organization organization = organizationRepository
                 .findById(Long.valueOf(id))
                 .orElseThrow(() -> new EntityNotFoundException(Organization.class.getSimpleName()));
@@ -261,7 +273,11 @@ public class OrganizationServiceImpl implements OrganizationService {
         User user = userRepository.findByUsername(principal.getName())
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
+        log.atInfo().log("User {} is attempting to update organization {}.", user.getUsername(), id);
+
         if (!organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true)) {
+            log.atError().log("User {} attempted to update organization {} without being the owner.",
+                              user.getUsername(), id);
             throw new IllegalRequestException(AppConstants.NOT_THE_OWNER_OF_THIS_ORGANIZATION);
         }
 
