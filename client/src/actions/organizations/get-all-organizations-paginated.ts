@@ -1,7 +1,8 @@
 "use server"
 
 import ResponseError from "@/actions/response-error"
-import { ApiResponse, ProblemDetails } from "@/interfaces/actions"
+import { ApiResponse, Paginated, ProblemDetails } from "@/interfaces/actions"
+import { Organization } from "@/interfaces/organization"
 import { ORGANIZATIONS_GET_LIST } from "@/utils/api-urls"
 import { auth } from "auth"
 
@@ -43,7 +44,7 @@ export default async function getAllOrganizationsPaginated({
 
         const responseData = json as ApiResponse
 
-        const data = responseData.data
+        const data = responseData.data as Paginated<Organization>
 
         return {
             ok: true,

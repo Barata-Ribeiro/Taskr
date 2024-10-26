@@ -16,14 +16,4 @@ interface SimpleOrganization {
     name: string
 }
 
-interface PaginatedOrganizations {
-    content: Organization[]
-    page: {
-        size: number
-        number: number
-        totalElements: number
-        totalPages: number
-    }
-}
-
-export type { Organization, SimpleOrganization, PaginatedOrganizations }
+export type { Organization, SimpleOrganization }

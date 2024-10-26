@@ -29,4 +29,14 @@ interface State {
     response: ApiResponse | null
 }
 
-export type { ApiResponse, ProblemDetails, State, ValidationError }
+interface Paginated<T> {
+    content: T[]
+    page: {
+        size: number
+        number: number
+        totalElements: number
+        totalPages: number
+    }
+}
+
+export type { ApiResponse, ProblemDetails, State, ValidationError, Paginated }
