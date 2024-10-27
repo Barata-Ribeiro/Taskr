@@ -1,9 +1,11 @@
 import { ApiResponse } from "@/interfaces/actions"
 import { LoginResponse } from "@/interfaces/auth"
 import { AUTH_LOGIN, AUTH_REFRESH_TOKEN } from "@/utils/api-urls"
+import getAuthCookies from "@/utils/get-auth-cookies"
 import Credentials from "@auth/core/providers/credentials"
 import NextAuth, { NextAuthConfig } from "next-auth"
 import { JWT } from "next-auth/jwt"
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies"
 import { cookies } from "next/headers"
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -156,9 +158,11 @@ export const config = {
                 const { refreshToken, refreshTokenExpiresAt, ...rest } = token
 
                 if (token.error === "RefreshAccessTokenError") {
-                    cookies()
-                        .getAll()
-                        .forEach(cookie => cookies().delete(cookie.name))
+                    const cookieStore = await getAuthCookies()
+                    if (cookieStore) {
+                        ;(cookieStore as RequestCookie[]).forEach(cookie => cookies().delete(cookie.name))
+                    }
+
                     await signOut({ redirect: false })
                 }
 
