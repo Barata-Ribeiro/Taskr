@@ -29,4 +29,6 @@ export const ORGANIZATIONS_GET_LIST = (
     return url
 }
 export const ORGANIZATIONS_GET_BY_ID = (id: string) => `${BACKEND_URL}/api/v1/organizations/${id}`
+export const ORGANIZATIONS_GET_MEMBERS_BY_ID = (id: string) => `${BACKEND_URL}/api/v1/organizations/${id}/members`
+export const ORGANIZATIONS_GET_PROJECTS_BY_ID = (id: string) => `${BACKEND_URL}/api/v1/organizations/${id}/projects`
 export const ORGANIZATIONS_POST_NEW = () => `${BACKEND_URL}/api/v1/organizations`

@@ -1,3 +1,5 @@
+import { User } from "@/interfaces/user"
+
 interface Organization {
     id: number
     name: string
@@ -16,4 +18,16 @@ interface SimpleOrganization {
     name: string
 }
 
-export type { Organization, SimpleOrganization }
+interface OrganizationMembersList {
+    organization: Organization
+    owner: User
+    admins: User[]
+    members: User[]
+}
+
+interface OrganizationProjectsList {
+    organization: Organization
+    projects: Project[]
+}
+
+export type { Organization, SimpleOrganization, OrganizationMembersList, OrganizationProjectsList }
