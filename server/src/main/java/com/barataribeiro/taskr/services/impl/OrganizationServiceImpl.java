@@ -25,8 +25,6 @@ import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository
 import com.barataribeiro.taskr.services.NotificationService;
 import com.barataribeiro.taskr.services.OrganizationService;
 import com.barataribeiro.taskr.utils.AppConstants;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -158,9 +156,8 @@ public class OrganizationServiceImpl implements OrganizationService {
                                              .map(OrganizationUser::getUser)
                                              .collect(Collectors.toSet());
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> returnData = objectMapper.convertValue(organizationMapper.toDTO(organization),
-                                                                   new TypeReference<>() {});
+        Map<String, Object> returnData = new LinkedHashMap<>();
+        returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
         returnData.put("owner", userMapper.toDTO(owner));
         returnData.put("admins", userMapper.toDTOList(new ArrayList<>(admins)));
         returnData.put("members", userMapper.toDTOList(new ArrayList<>(members)));
@@ -189,7 +186,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                     .map(OrganizationProject::getProject)
                                                     .collect(Collectors.toSet());
 
-        Map<String, Object> returnData = new HashMap<>();
+        Map<String, Object> returnData = new LinkedHashMap<>();
         returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
         returnData.put("projects", projectMapper.toDTOList(new ArrayList<>(projects)));
 
