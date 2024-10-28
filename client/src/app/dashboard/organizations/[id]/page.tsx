@@ -1,7 +1,9 @@
 import getOrganizationById from "@/actions/organizations/get-organization-by-id"
+import getOrganizationMembersById from "@/actions/organizations/get-organization-members-by-id"
+import getOrganizationProjectsById from "@/actions/organizations/get-organization-projects-by-id"
 import StateError from "@/components/feedback/state-error"
 import { ProblemDetails } from "@/interfaces/actions"
-import { Organization } from "@/interfaces/organization"
+import { Organization, OrganizationMembersList, OrganizationProjectsList } from "@/interfaces/organization"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -27,10 +29,18 @@ export async function generateMetadata({ params }: Readonly<OrganizationPageProp
 export default async function OrganizationPage({ params }: Readonly<OrganizationPageProps>) {
     if (!params.id) return notFound()
 
-    const state = await getOrganizationById({ id: params.id })
-    if (!state.ok) return <StateError error={state.error as ProblemDetails} />
+    const membersState = getOrganizationMembersById({ id: params.id })
+    const projectsState = getOrganizationProjectsById({ id: params.id })
 
-    const data = state.response?.data as Organization
+    const [members, projects] = await Promise.all([membersState, projectsState])
+    if (!members.ok) return <StateError error={members.error as ProblemDetails} />
+    if (!projects.ok && (projects.error as ProblemDetails).status !== 404) {
+        return <StateError error={projects.error as ProblemDetails} />
+    }
+
+    const { organization: data, ...membersData } = members.response?.data as OrganizationMembersList
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { organization: _, ...projectsData } = projects.response?.data as OrganizationProjectsList
 
     return (
         <article id="organizations-org-info" aria-labelledby="organizations-org-info-title">
