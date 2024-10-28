@@ -1,6 +1,7 @@
 import getAllOrganizationsPaginated from "@/actions/organizations/get-all-organizations-paginated"
 import NewOrganizationCTA from "@/components/actions/new-organization-c-t-a"
 import StateError from "@/components/feedback/state-error"
+import NavigationPagination from "@/components/filters/navigation-pagination"
 import SearchAndSortFilter from "@/components/filters/search-and-sort-filter"
 import { Paginated, ProblemDetails } from "@/interfaces/actions"
 import { Organization } from "@/interfaces/organization"
@@ -37,8 +38,8 @@ export default async function OrganizationsPage({ searchParams }: Readonly<Organ
         <section id="organizations-list-section" aria-labelledby="organizations-list-title">
             <NewOrganizationCTA />
 
-            <div className="mt-8 px-4 sm:px-6 lg:px-8">
-                <div className="border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between sm:border-b">
+            <div className="mt-12">
+                <div className="border-gray-200 pb-6 sm:flex sm:items-center sm:justify-between sm:border-b">
                     <h3 className="text-base font-semibold leading-6 text-gray-900">
                         Organizations{" "}
                         <span className="hidden text-sm text-gray-500 sm:ml-4 sm:inline-block">
@@ -49,7 +50,7 @@ export default async function OrganizationsPage({ searchParams }: Readonly<Organ
                     <SearchAndSortFilter />
                 </div>
 
-                <div className="flow-root sm:mt-5">
+                <div className="flow-root px-4 sm:mt-6 sm:px-0">
                     <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
@@ -133,6 +134,7 @@ export default async function OrganizationsPage({ searchParams }: Readonly<Organ
                                         )}
                                     </tbody>
                                 </table>
+                                <NavigationPagination usePageInfo={pageInfo} contentSize={content.length} />
                             </div>
                         </div>
                     </div>
