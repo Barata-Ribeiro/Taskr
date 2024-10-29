@@ -22,7 +22,8 @@ public interface OrganizationService {
     Map<String, Object> getOrganizationMembers(String orgId, String search, int page, int perPage, String direction,
                                                String id);
 
-    Map<String, Object> getOrganizationProjects(String id);
+    Map<String, Object> getOrganizationProjects(String id, String search, int page, int perPage, String direction,
+                                                String orderBy);
 
     Map<String, Object> manageOrganizationMembers(String orgId, ManagementRequestDTO body, Principal principal);
 

@@ -24,6 +24,16 @@ import java.util.Map;
 public class OrganizationController {
     private final OrganizationService organizationService;
 
+    @PostMapping
+    public ResponseEntity<RestResponseDTO<OrganizationDTO>> createOrganization(@RequestBody OrganizationRequestDTO body,
+                                                                               Principal principal) {
+        OrganizationDTO response = organizationService.createOrganization(body, principal);
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.CREATED,
+                                                       HttpStatus.CREATED.value(),
+                                                       "Organization created successfully",
+                                                       response));
+    }
+
     @GetMapping
     public ResponseEntity<RestResponseDTO<Page<OrganizationDTO>>> getAllOrganizations(
             @RequestParam(required = false) String search,
@@ -75,21 +85,18 @@ public class OrganizationController {
     }
 
     @GetMapping("/{orgId}/projects")
-    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getOrganizationProjects(@PathVariable String orgId) {
-        Map<String, Object> response = organizationService.getOrganizationProjects(orgId);
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getOrganizationProjects(
+            @PathVariable String orgId,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int perPage,
+            @RequestParam(defaultValue = "ASC") String direction,
+            @RequestParam(defaultValue = "createdAt") String orderBy) {
+        Map<String, Object> response = organizationService
+                .getOrganizationProjects(orgId, search, page, perPage, direction, orderBy);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "Organization projects retrieved successfully",
-                                                       response));
-    }
-
-    @PostMapping
-    public ResponseEntity<RestResponseDTO<OrganizationDTO>> createOrganization(@RequestBody OrganizationRequestDTO body,
-                                                                               Principal principal) {
-        OrganizationDTO response = organizationService.createOrganization(body, principal);
-        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.CREATED,
-                                                       HttpStatus.CREATED.value(),
-                                                       "Organization created successfully",
                                                        response));
     }
 
@@ -106,10 +113,10 @@ public class OrganizationController {
     }
 
     @PatchMapping("/{orgId}")
-    public ResponseEntity<RestResponseDTO<Map<String, Object>>> updateOrganizationInfo(@PathVariable String orgId,
-                                                                                       @RequestBody
-                                                                                       UpdateOrganizationRequestDTO body,
-                                                                                       Principal principal) {
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> updateOrganizationInfo(
+            @PathVariable String orgId,
+            @RequestBody UpdateOrganizationRequestDTO body,
+            Principal principal) {
         Map<String, Object> response = organizationService.updateOrganizationInfo(orgId, body, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),

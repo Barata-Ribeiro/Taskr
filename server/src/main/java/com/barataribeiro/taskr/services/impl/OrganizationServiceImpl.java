@@ -5,6 +5,7 @@ import com.barataribeiro.taskr.builder.OrganizationMapper;
 import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
 import com.barataribeiro.taskr.dtos.organization.*;
+import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
 import com.barataribeiro.taskr.models.embeddables.OrganizationUserId;
@@ -160,12 +161,18 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getOrganizationProjects(String id) {
-        Set<OrganizationProject> organizationProjects = organizationProjectRepository
-                .findAllByOrganization_Id(Long.valueOf(id));
+    public Map<String, Object> getOrganizationProjects(String id, String search, int page, int perPage,
+                                                       @NotNull String direction, String orderBy) {
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        orderBy = orderBy.equalsIgnoreCase(AppConstants.CREATED_AT) ? AppConstants.CREATED_AT : orderBy;
+        PageRequest pageable = PageRequest.of(page, perPage, Sort.by(sortDirection, "project." + orderBy));
 
-        if (organizationProjects.isEmpty()) {
-            throw new EntityNotFoundException(Project.class.getSimpleName());
+        Page<OrganizationProject> organizationProjects;
+        if (search != null && !search.isBlank()) {
+            organizationProjects = organizationProjectRepository
+                    .findAllProjectsWithParamsPaginated(Long.valueOf(id), search, pageable);
+        } else {
+            organizationProjects = organizationProjectRepository.findByOrganization_Id(Long.valueOf(id), pageable);
         }
 
         Organization organization = organizationProjects.stream()
@@ -174,13 +181,21 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                         .orElseThrow(() -> new EntityNotFoundException(
                                                                 Organization.class.getSimpleName()));
 
-        Set<Project> projects = organizationProjects.stream()
-                                                    .map(OrganizationProject::getProject)
-                                                    .collect(Collectors.toSet());
+
+        Page<OrganizationProjectDTO> projectsPage = organizationProjects
+                .stream()
+                .map(organizationProject -> OrganizationProjectDTO.builder()
+                                                                  .project(projectMapper.toDTO(
+                                                                          organizationProject.getProject()))
+                                                                  .status(String.valueOf(
+                                                                          organizationProject.getStatus()))
+                                                                  .build())
+                .collect(Collectors.collectingAndThen(Collectors.toList(), list -> new PageImpl<>(list, pageable,
+                                                                                                  organizationProjects.getTotalElements())));
 
         Map<String, Object> returnData = new LinkedHashMap<>();
         returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
-        returnData.put("projects", projectMapper.toDTOList(new ArrayList<>(projects)));
+        returnData.put("projects", projectsPage);
 
         return returnData;
     }
