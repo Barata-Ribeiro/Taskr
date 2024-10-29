@@ -39,8 +39,25 @@ export default async function OrganizationPage({ params }: Readonly<Organization
     }
 
     const { organization: data, ...membersData } = members.response?.data as OrganizationMembersList
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { organization: _, ...projectsData } = projects.response?.data as OrganizationProjectsList
+
+    let projectsData: OrganizationProjectsList
+
+    if ((projects.error as ProblemDetails).status === 404) {
+        projectsData = {
+            organization: data,
+            projects: {
+                content: [],
+                page: {
+                    size: 10,
+                    number: 0,
+                    totalElements: 1,
+                    totalPages: 1,
+                },
+            },
+        }
+    }
+
+    projectsData = projects.response?.data as OrganizationProjectsList
 
     return (
         <article id="organizations-org-info" aria-labelledby="organizations-org-info-title">
@@ -111,20 +128,20 @@ export default async function OrganizationPage({ params }: Readonly<Organization
                     </div>
                 )}
 
-                {/* Projects Section */}
-                <section className="mt-12" aria-labelledby="projects-section-title">
-                    <h2 id="projects-section-title" className="font-heading text-2xl font-bold text-ebony-900">
-                        Projects
-                    </h2>
-                    <p className="mt-4 text-ebony-500">Soon, the projects of the organization will be listed here.</p>
-                </section>
-
                 {/* Members Section */}
                 <section className="mt-12" aria-labelledby="members-section-title">
                     <h2 id="members-section-title" className="font-heading text-2xl font-bold text-ebony-900">
                         Members
                     </h2>
                     <p className="mt-4 text-ebony-500">Soon, the members of the organization will be listed here.</p>
+                </section>
+
+                {/* Projects Section */}
+                <section className="mt-12" aria-labelledby="projects-section-title">
+                    <h2 id="projects-section-title" className="font-heading text-2xl font-bold text-ebony-900">
+                        Projects
+                    </h2>
+                    <p className="mt-4 text-ebony-500">Soon, the projects of the organization will be listed here.</p>
                 </section>
             </div>
         </article>

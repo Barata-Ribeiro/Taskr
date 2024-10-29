@@ -1,4 +1,6 @@
-import { User } from "@/interfaces/user"
+import { Paginated } from "@/interfaces/actions"
+import { OrganizationProject } from "@/interfaces/project"
+import { OrganizationMember } from "@/interfaces/user"
 
 interface Organization {
     id: number
@@ -20,14 +22,12 @@ interface SimpleOrganization {
 
 interface OrganizationMembersList {
     organization: Organization
-    owner: User
-    admins: User[]
-    members: User[]
+    members: Paginated<OrganizationMember>
 }
 
 interface OrganizationProjectsList {
     organization: Organization
-    projects: Project[]
+    projects: Paginated<OrganizationProject>
 }
 
 export type { Organization, SimpleOrganization, OrganizationMembersList, OrganizationProjectsList }

@@ -42,4 +42,11 @@ interface UserDashboard {
     projectsWhereUserIsMember: unknown[]
 }
 
-export type { UserRoles, User, Profile, UserContext, UserDashboard }
+type OrganizationMemberRole = "Admin" | "Owner" | "Member"
+
+interface OrganizationMember {
+    user: Profile
+    roles: OrganizationMemberRole[]
+}
+
+export type { UserRoles, User, Profile, UserContext, UserDashboard, OrganizationMemberRole, OrganizationMember }
