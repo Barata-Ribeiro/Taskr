@@ -4,10 +4,7 @@ import com.barataribeiro.taskr.builder.NotificationMapper;
 import com.barataribeiro.taskr.builder.OrganizationMapper;
 import com.barataribeiro.taskr.builder.ProjectMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
-import com.barataribeiro.taskr.dtos.organization.ManagementRequestDTO;
-import com.barataribeiro.taskr.dtos.organization.OrganizationDTO;
-import com.barataribeiro.taskr.dtos.organization.OrganizationRequestDTO;
-import com.barataribeiro.taskr.dtos.organization.UpdateOrganizationRequestDTO;
+import com.barataribeiro.taskr.dtos.organization.*;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
 import com.barataribeiro.taskr.models.embeddables.OrganizationUserId;
@@ -126,12 +123,18 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getOrganizationMembers(String id) {
-        Set<OrganizationUser> organizationUsers = organizationUserRepository
-                .findAllByOrganization_Id(Long.valueOf(id));
+    public Map<String, Object> getOrganizationMembers(String orgId, String search, int page, int perPage,
+                                                      @NotNull String direction, String orderBy) {
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        orderBy = orderBy.equalsIgnoreCase(AppConstants.CREATED_AT) ? AppConstants.CREATED_AT : orderBy;
+        PageRequest pageable = PageRequest.of(page, perPage, Sort.by(sortDirection, "user." + orderBy));
 
-        if (organizationUsers.isEmpty()) {
-            throw new EntityNotFoundException(Organization.class.getSimpleName());
+        Page<OrganizationUser> organizationUsers;
+        if (search != null && !search.isBlank()) {
+            organizationUsers = organizationUserRepository
+                    .findAllUsersWithParamsPaginated(Long.valueOf(orgId), search, pageable);
+        } else {
+            organizationUsers = organizationUserRepository.findByOrganization_Id(Long.valueOf(orgId), pageable);
         }
 
         Organization organization = organizationUsers.stream()
@@ -140,31 +143,20 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                      .orElseThrow(() -> new EntityNotFoundException(
                                                              Organization.class.getSimpleName()));
 
-        User owner = organizationUsers.stream()
-                                      .filter(OrganizationUser::isOwner)
-                                      .findFirst()
-                                      .map(OrganizationUser::getUser)
-                                      .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
-
-        Set<User> admins = organizationUsers.stream()
-                                            .filter(OrganizationUser::isAdmin)
-                                            .map(OrganizationUser::getUser)
-                                            .collect(Collectors.toSet());
-
-        Set<User> members = organizationUsers.stream()
-                                             .filter(entity -> !entity.isAdmin() && !entity.isOwner())
-                                             .map(OrganizationUser::getUser)
-                                             .collect(Collectors.toSet());
-
+        Page<OrganizationMemberDTO> membersPage = organizationUsers
+                .stream()
+                .map(organizationUser -> OrganizationMemberDTO.builder()
+                                                              .user(userMapper.toDTO(organizationUser.getUser()))
+                                                              .roles(getRole(organizationUser))
+                                                              .build())
+                .collect(Collectors.collectingAndThen(Collectors.toList(), list -> new PageImpl<>(list, pageable,
+                                                                                                  organizationUsers.getTotalElements())));
         Map<String, Object> returnData = new LinkedHashMap<>();
         returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
-        returnData.put("owner", userMapper.toDTO(owner));
-        returnData.put("admins", userMapper.toDTOList(new ArrayList<>(admins)));
-        returnData.put("members", userMapper.toDTOList(new ArrayList<>(members)));
+        returnData.put("members", membersPage);
 
-        return Map.of(AppConstants.ORGANIZATION, returnData);
+        return returnData;
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -264,6 +256,14 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         organizationUserRepository.delete(relation);
         organizationRepository.delete(organization);
+    }
+
+    private @NotNull List<String> getRole(@NotNull OrganizationUser organizationUser) {
+        List<String> roles = new ArrayList<>();
+        if (organizationUser.isAdmin()) roles.add("Admin");
+        if (organizationUser.isOwner()) roles.add("Owner");
+        if (roles.isEmpty()) roles.add("Employee");
+        return roles;
     }
 
     private Organization getOrganizationIfUserIsOwner(String id, @NotNull Principal principal) {

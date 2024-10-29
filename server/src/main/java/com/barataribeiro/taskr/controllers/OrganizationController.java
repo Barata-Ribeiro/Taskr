@@ -59,8 +59,15 @@ public class OrganizationController {
     }
 
     @GetMapping("/{orgId}/members")
-    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getOrganizationMembers(@PathVariable String orgId) {
-        Map<String, Object> response = organizationService.getOrganizationMembers(orgId);
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getOrganizationMembers(
+            @PathVariable String orgId,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int perPage,
+            @RequestParam(defaultValue = "ASC") String direction,
+            @RequestParam(defaultValue = "createdAt") String orderBy) {
+        Map<String, Object> response = organizationService
+                .getOrganizationMembers(orgId, search, page, perPage, direction, orderBy);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "Organization members retrieved successfully",

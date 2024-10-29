@@ -19,7 +19,8 @@ public interface OrganizationService {
 
     OrganizationDTO getOrganizationInfo(String id);
 
-    Map<String, Object> getOrganizationMembers(String id);
+    Map<String, Object> getOrganizationMembers(String orgId, String search, int page, int perPage, String direction,
+                                               String id);
 
     Map<String, Object> getOrganizationProjects(String id);
 

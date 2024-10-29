@@ -1,12 +1,14 @@
 package com.barataribeiro.taskr.repositories.relations;
 
 import com.barataribeiro.taskr.models.relations.OrganizationUser;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
-import java.util.Set;
 
 public interface OrganizationUserRepository extends JpaRepository<OrganizationUser, Long> {
     @Query("""
@@ -27,11 +29,16 @@ public interface OrganizationUserRepository extends JpaRepository<OrganizationUs
     Optional<OrganizationUser> findOrganizationByUser_UsernameAndIsOwner(Long id, String username, boolean isOwner);
 
     @EntityGraph(attributePaths = {"user"})
+    Page<OrganizationUser> findByOrganization_Id(Long id, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user"})
     @Query("""
            SELECT o FROM OrganizationUser o
            WHERE o.organization.id = :id
-           ORDER BY o.user.username
+           AND LOWER(o.user.username) LIKE LOWER(CONCAT('%', :term, '%'))
+           OR LOWER(o.user.displayName) LIKE LOWER(CONCAT('%', :term, '%'))
+           OR LOWER(o.user.fullName) LIKE LOWER(CONCAT('%', :term, '%'))
+           OR LOWER(o.user.email) LIKE LOWER(CONCAT('%', :term, '%'))
            """)
-    Set<OrganizationUser> findAllByOrganization_Id(Long id);
-
+    Page<OrganizationUser> findAllUsersWithParamsPaginated(Long id, @Param("term") String term, Pageable pageable);
 }
