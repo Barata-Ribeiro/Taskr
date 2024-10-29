@@ -2,11 +2,13 @@ import getOrganizationById from "@/actions/organizations/get-organization-by-id"
 import getOrganizationMembersById from "@/actions/organizations/get-organization-members-by-id"
 import getOrganizationProjectsById from "@/actions/organizations/get-organization-projects-by-id"
 import StateError from "@/components/feedback/state-error"
+import StackedOrganizationMembersList from "@/components/lists/stacked-organization-members-list"
 import { ProblemDetails } from "@/interfaces/actions"
 import { Organization, OrganizationMembersList, OrganizationProjectsList } from "@/interfaces/organization"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { FaArrowRightLong } from "react-icons/fa6"
 
 interface OrganizationPageProps {
     params: {
@@ -24,6 +26,31 @@ export async function generateMetadata({ params }: Readonly<OrganizationPageProp
         title: data.name,
         description: `Page of organization ${data.name}. ${data.description}`,
     }
+}
+
+function OrganizationLogo(props: Readonly<{ data: Organization }>) {
+    return (
+        <>
+            {props.data.logoUrl ? (
+                <Image
+                    className="h-24 w-24 flex-shrink-0 rounded-full bg-ebony-200 object-cover shadow-derek"
+                    src={props.data.logoUrl}
+                    title={`${props.data.name} logo`}
+                    alt={`${props.data.name} logo`}
+                    width={96}
+                    height={96}
+                    sizes="96px"
+                    priority
+                />
+            ) : (
+                <div
+                    className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-ebony-200"
+                    aria-label={`${props.data.name} logo placeholder`}>
+                    <span className="font-heading text-4xl text-ebony-500">{props.data.name.charAt(0)}</span>
+                </div>
+            )}
+        </>
+    )
 }
 
 export default async function OrganizationPage({ params }: Readonly<OrganizationPageProps>) {
@@ -63,25 +90,8 @@ export default async function OrganizationPage({ params }: Readonly<Organization
         <article id="organizations-org-info" aria-labelledby="organizations-org-info-title">
             <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
                 {/* Org Header */}
-                <header className="flex items-center space-x-6">
-                    {data.logoUrl ? (
-                        <Image
-                            className="h-24 w-24 flex-shrink-0 rounded-full bg-ebony-200 object-cover shadow-derek"
-                            src={data.logoUrl}
-                            title={`${data.name} logo`}
-                            alt={`${data.name} logo`}
-                            width={96}
-                            height={96}
-                            sizes="96px"
-                            priority
-                        />
-                    ) : (
-                        <div
-                            className="flex h-24 w-24 items-center justify-center rounded-full bg-ebony-200"
-                            aria-label={`${data.name} logo placeholder`}>
-                            <span className="font-heading text-4xl text-ebony-500">{data.name.charAt(0)}</span>
-                        </div>
-                    )}
+                <header className="flex flex-wrap items-center gap-6">
+                    <OrganizationLogo data={data} />
                     <div>
                         <h1
                             id="organizations-org-info-title"
@@ -93,22 +103,18 @@ export default async function OrganizationPage({ params }: Readonly<Organization
                 </header>
 
                 {/* Organization Description */}
-                {data.description && (
-                    <div className="mt-8">
-                        <p className="text-base text-ebony-700">{data.description}</p>
-                    </div>
-                )}
+                {data.description && <p className="mt-8 text-base text-gray-700">{data.description}</p>}
 
-                {/* Estatísticas */}
+                {/* Statistics */}
                 <section className="mt-8">
                     <dl className="flex space-x-12">
                         <div className="text-center">
-                            <dt className="font-heading text-3xl font-semibold text-ebony-900">{data.projectsCount}</dt>
-                            <dd className="text-ebony-500">Projects</dd>
+                            <dt className="font-heading text-3xl font-semibold text-gray-900">{data.projectsCount}</dt>
+                            <dd className="text-gray-500">Projects</dd>
                         </div>
                         <div className="text-center">
-                            <dt className="font-heading text-3xl font-semibold text-ebony-900">{data.membersCount}</dt>
-                            <dd className="text-ebony-500">Members</dd>
+                            <dt className="font-heading text-3xl font-semibold text-gray-900">{data.membersCount}</dt>
+                            <dd className="text-gray-500">Members</dd>
                         </div>
                     </dl>
                 </section>
@@ -130,10 +136,20 @@ export default async function OrganizationPage({ params }: Readonly<Organization
 
                 {/* Members Section */}
                 <section className="mt-12" aria-labelledby="members-section-title">
-                    <h2 id="members-section-title" className="font-heading text-2xl font-bold text-ebony-900">
-                        Members
-                    </h2>
-                    <p className="mt-4 text-ebony-500">Soon, the members of the organization will be listed here.</p>
+                    <div className="flex items-center justify-between">
+                        <h2 id="members-section-title" className="mb-2 font-heading text-2xl font-bold text-ebony-900">
+                            Members
+                        </h2>{" "}
+                        <Link
+                            href={`/organizations/${params.id}/members`}
+                            aria-label={`List all members of ${data.name}`}
+                            title={`List all members of ${data.name}`}
+                            className="inline-flex items-center gap-2 text-base font-medium text-english-holly-600 decoration-2 underline-offset-4 hover:text-english-holly-700 hover:underline active:text-english-holly-800">
+                            List all <FaArrowRightLong aria-hidden="true" className="h-3 w-3 flex-none text-inherit" />
+                        </Link>
+                    </div>
+
+                    <StackedOrganizationMembersList data={membersData.members} />
                 </section>
 
                 {/* Projects Section */}
