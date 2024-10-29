@@ -2,7 +2,6 @@ package com.barataribeiro.taskr.services.security.impl;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.barataribeiro.taskr.repositories.entities.TokenRepository;
-import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.services.security.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

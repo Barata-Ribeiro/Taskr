@@ -22,7 +22,7 @@ import java.io.Serializable;
 public class TaskUser implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    
+
     @EmbeddedId
     private TaskUserId id;
 

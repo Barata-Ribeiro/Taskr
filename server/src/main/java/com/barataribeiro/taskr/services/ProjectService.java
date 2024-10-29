@@ -16,7 +16,8 @@ public interface ProjectService {
 
     Map<String, Object> getProjectTasks(String orgId, String projectId);
 
-    Map<String, Object> updateProject(String orgId, String projectId, ProjectUpdateRequestDTO body, Principal principal);
+    Map<String, Object> updateProject(String orgId, String projectId, ProjectUpdateRequestDTO body,
+                                      Principal principal);
 
     Map<String, Object> changeProjectStatus(String projectId, String taskId, String status, Principal principal);
 

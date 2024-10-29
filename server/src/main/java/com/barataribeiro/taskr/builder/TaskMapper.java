@@ -27,13 +27,13 @@ public class TaskMapper {
 
     public List<TaskDTO> toDTOList(@NotNull List<Task> tasks) {
         return tasks.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toCollection(ArrayList::new));
+                    .map(this::toDTO)
+                    .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public List<Task> toListEntity(@NotNull List<TaskDTO> taskDTOS) {
         return taskDTOS.stream()
-                .map(this::toEntity)
-                .collect(Collectors.toCollection(ArrayList::new));
+                       .map(this::toEntity)
+                       .collect(Collectors.toCollection(ArrayList::new));
     }
 }

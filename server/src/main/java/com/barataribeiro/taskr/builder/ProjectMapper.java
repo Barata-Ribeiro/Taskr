@@ -27,13 +27,13 @@ public class ProjectMapper {
 
     public List<ProjectDTO> toDTOList(@NotNull List<Project> projects) {
         return projects.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toCollection(ArrayList::new));
+                       .map(this::toDTO)
+                       .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public List<Project> toListEntity(@NotNull List<ProjectDTO> projectDTOS) {
         return projectDTOS.stream()
-                .map(this::toEntity)
-                .collect(Collectors.toCollection(ArrayList::new));
+                          .map(this::toEntity)
+                          .collect(Collectors.toCollection(ArrayList::new));
     }
 }

@@ -27,13 +27,13 @@ public class OrganizationMapper {
 
     public List<OrganizationDTO> toDTOList(@NotNull List<Organization> organizations) {
         return organizations.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toCollection(ArrayList::new));
+                            .map(this::toDTO)
+                            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public List<Organization> toListEntity(@NotNull List<OrganizationDTO> organizationDTOS) {
         return organizationDTOS.stream()
-                .map(this::toEntity)
-                .collect(Collectors.toCollection(ArrayList::new));
+                               .map(this::toEntity)
+                               .collect(Collectors.toCollection(ArrayList::new));
     }
 }

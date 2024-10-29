@@ -28,7 +28,7 @@ import java.util.Set;
 public class Organization implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "organization_seq")
     @SequenceGenerator(name = "organization_seq", sequenceName = "organization_seq", allocationSize = 1)
