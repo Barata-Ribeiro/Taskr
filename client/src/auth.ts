@@ -1,18 +1,14 @@
 import { ApiResponse } from "@/interfaces/actions"
 import { LoginResponse } from "@/interfaces/auth"
 import { AUTH_LOGIN, AUTH_REFRESH_TOKEN } from "@/utils/api-urls"
-import getAuthCookies from "@/utils/get-auth-cookies"
 import Credentials from "@auth/core/providers/credentials"
 import NextAuth, { NextAuthConfig } from "next-auth"
 import { JWT } from "next-auth/jwt"
-import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies"
 import { cookies } from "next/headers"
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 async function refreshToken(token: JWT) {
     const URL = AUTH_REFRESH_TOKEN()
-
-    console.log("Refreshing token...")
 
     const refreshToken = cookies().get("auth_rt")?.value
     if (!refreshToken) {
@@ -84,7 +80,7 @@ export const config = {
                     defaultValue: "false",
                 },
             },
-            async authorize(credentials, req) {
+            async authorize(credentials, _req) {
                 const payload = {
                     username: credentials.username,
                     password: credentials.password,
@@ -157,15 +153,6 @@ export const config = {
             ) {
                 const { refreshToken, refreshTokenExpiresAt, ...rest } = token
 
-                if (token.error === "RefreshAccessTokenError") {
-                    const cookieStore = await getAuthCookies()
-                    if (cookieStore) {
-                        ;(cookieStore as RequestCookie[]).forEach(cookie => cookies().delete(cookie.name))
-                    }
-
-                    await signOut({ redirect: false })
-                }
-
                 return rest
             }
 
@@ -175,6 +162,7 @@ export const config = {
             session.user = { ...session.user, ...token.user }
             session.accessToken = token.accessToken
             session.accessTokenExpiresAt = token.accessTokenExpiresAt
+            session.error = token.error
 
             return session
         },
