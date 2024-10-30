@@ -16,8 +16,10 @@ interface Organization {
 }
 
 interface SimpleOrganization {
-    id: string
+    id: number
     name: string
+    isOwner: boolean
+    isAdmin: boolean
 }
 
 interface OrganizationMembersList {

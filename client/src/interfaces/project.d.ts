@@ -12,8 +12,9 @@ interface Project {
 }
 
 interface SimpleProject {
-    id: string
+    id: number
     name: string
+    isManager: boolean
 }
 
 interface OrganizationProject {
