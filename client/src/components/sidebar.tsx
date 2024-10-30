@@ -1,6 +1,7 @@
 "use client"
 
 import Avatar from "@/components/helpers/avatar"
+import SessionVerifier from "@/components/helpers/session-verifier"
 import { UserContext } from "@/interfaces/user"
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from "@headlessui/react"
 import Image from "next/image"
@@ -49,7 +50,8 @@ export default function Sidebar({ data, children }: Readonly<SidebarProps>) {
         })) ?? []
 
     return (
-        <div>
+        <aside>
+            <SessionVerifier />
             <Dialog open={sidebarOpen} onClose={setSidebarOpen} className="relative z-50 lg:hidden">
                 <DialogBackdrop
                     transition
@@ -301,6 +303,6 @@ export default function Sidebar({ data, children }: Readonly<SidebarProps>) {
             <main className="py-10 lg:pl-72">
                 <div className="px-4 sm:px-6 lg:px-8">{children}</div>
             </main>
-        </div>
+        </aside>
     )
 }
