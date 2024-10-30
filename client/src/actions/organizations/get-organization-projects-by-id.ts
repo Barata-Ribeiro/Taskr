@@ -8,13 +8,25 @@ import { auth } from "auth"
 
 interface GetOrganizationProjectsById {
     id: string
+    page: number
+    perPage: number
+    search: string | null
+    direction: string
+    orderBy: string
 }
 
-export default async function getOrganizationProjectsById({ id }: GetOrganizationProjectsById) {
+export default async function getOrganizationProjectsById({
+    id,
+    page,
+    perPage,
+    search,
+    direction,
+    orderBy,
+}: GetOrganizationProjectsById) {
     const session = await auth()
 
     try {
-        const URL = ORGANIZATIONS_GET_PROJECTS_BY_ID(id)
+        const URL = ORGANIZATIONS_GET_PROJECTS_BY_ID(id, page, perPage, search, direction, orderBy)
 
         const response = await fetch(URL, {
             method: "GET",

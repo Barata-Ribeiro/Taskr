@@ -29,6 +29,28 @@ export const ORGANIZATIONS_GET_LIST = (
     return url
 }
 export const ORGANIZATIONS_GET_BY_ID = (id: string) => `${BACKEND_URL}/api/v1/organizations/${id}`
-export const ORGANIZATIONS_GET_MEMBERS_BY_ID = (id: string) => `${BACKEND_URL}/api/v1/organizations/${id}/members`
-export const ORGANIZATIONS_GET_PROJECTS_BY_ID = (id: string) => `${BACKEND_URL}/api/v1/organizations/${id}/projects`
+export const ORGANIZATIONS_GET_MEMBERS_BY_ID = (
+    id: string,
+    page: number,
+    perPage: number,
+    search: string | null,
+    direction: string,
+    orderBy: string,
+) => {
+    let url = `${BACKEND_URL}/api/v1/organizations/${id}/members?page=${page}&perPage=${perPage}&direction=${direction}&orderBy=${orderBy}`
+    if (search) url += `&search=${search}`
+    return url
+}
+export const ORGANIZATIONS_GET_PROJECTS_BY_ID = (
+    id: string,
+    page: number,
+    perPage: number,
+    search: string | null,
+    direction: string,
+    orderBy: string,
+) => {
+    let url = `${BACKEND_URL}/api/v1/organizations/${id}/projects?page=${page}&perPage=${perPage}&direction=${direction}&orderBy=${orderBy}`
+    if (search) url += `&search=${search}`
+    return url
+}
 export const ORGANIZATIONS_POST_NEW = () => `${BACKEND_URL}/api/v1/organizations`
