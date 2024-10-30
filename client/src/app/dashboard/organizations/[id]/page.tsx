@@ -1,11 +1,13 @@
 import getOrganizationById from "@/actions/organizations/get-organization-by-id"
 import getOrganizationMembersById from "@/actions/organizations/get-organization-members-by-id"
 import getOrganizationProjectsById from "@/actions/organizations/get-organization-projects-by-id"
+import getUserContext from "@/actions/user/get-user-context"
 import StateError from "@/components/feedback/state-error"
 import StackedOrganizationMembersList from "@/components/lists/stacked-organization-members-list"
 import StackedOrganizationProjectsList from "@/components/lists/stacked-organization-projects-list"
 import { ProblemDetails } from "@/interfaces/actions"
 import { Organization, OrganizationMembersList, OrganizationProjectsList } from "@/interfaces/organization"
+import { UserContext } from "@/interfaces/user"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -73,17 +75,20 @@ export default async function OrganizationPage({ params }: Readonly<Organization
         direction: "ASC",
         orderBy: "createdAt",
     })
+    const contextState = getUserContext()
 
-    const [members, projects] = await Promise.all([membersState, projectsState])
+    const [context, members, projects] = await Promise.all([contextState, membersState, projectsState])
     if (!members.ok) return <StateError error={members.error as ProblemDetails} />
     if (!projects.ok && (projects.error as ProblemDetails).status !== 404) {
         return <StateError error={projects.error as ProblemDetails} />
     }
 
+    const contextData = context.response?.data as UserContext
+    if (!context.ok || !contextData) return <StateError error={context.error as ProblemDetails} />
+
     const { organization: data, ...membersData } = members.response?.data as OrganizationMembersList
 
     let projectsData: OrganizationProjectsList
-
     if ((projects.error as ProblemDetails).status === 404) {
         projectsData = {
             organization: data,
@@ -97,9 +102,10 @@ export default async function OrganizationPage({ params }: Readonly<Organization
                 },
             },
         }
-    }
+    } else projectsData = projects.response?.data as OrganizationProjectsList
 
-    projectsData = projects.response?.data as OrganizationProjectsList
+    const isOrgOwner = data.id === contextData.organizationsWhereUserIsMember.find(org => org.isOwner)?.id
+    const isOrgAdmin = data.id === contextData.organizationsWhereUserIsMember.find(org => org.isAdmin)?.id
 
     return (
         <article id="organizations-org-info" aria-labelledby="organizations-org-info-title">
@@ -175,16 +181,29 @@ export default async function OrganizationPage({ params }: Readonly<Organization
                             Projects
                         </h2>
                         {/* */}
-                        <Link
-                            href={`/organizations/${params.id}/projects`}
-                            aria-label={`List all projects of ${data.name}`}
-                            title={`List all projects of ${data.name}`}
-                            className="inline-flex items-center gap-2 text-base font-medium text-english-holly-600 decoration-2 underline-offset-4 hover:text-english-holly-700 hover:underline active:text-english-holly-800">
-                            List all <FaArrowRightLong aria-hidden="true" className="h-3 w-3 flex-none text-inherit" />
-                        </Link>
+                        <div className="inline-flex items-center gap-2">
+                            {(isOrgOwner || isOrgAdmin) && (
+                                <Link
+                                    href={`/organizations/${params.id}/projects/new`}
+                                    aria-label={`Create a new project in ${data.name}`}
+                                    title={`Create a new project in ${data.name}`}
+                                    className="w-max rounded-md bg-ebony-600 px-3 py-1.5 text-center text-sm font-semibold leading-6 text-white shadow-sm hover:bg-ebony-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ebony-600 active:bg-ebony-800">
+                                    Create new
+                                </Link>
+                            )}
+
+                            <Link
+                                href={`/organizations/${params.id}/projects`}
+                                aria-label={`List all projects of ${data.name}`}
+                                title={`List all projects of ${data.name}`}
+                                className="inline-flex items-center gap-2 text-base font-medium text-english-holly-600 decoration-2 underline-offset-4 hover:text-english-holly-700 hover:underline active:text-english-holly-800">
+                                List all{" "}
+                                <FaArrowRightLong aria-hidden="true" className="h-3 w-3 flex-none text-inherit" />
+                            </Link>
+                        </div>
                     </div>
 
-                    {projectsData ? (
+                    {projectsData.projects.content.length > 0 ? (
                         <StackedOrganizationProjectsList data={projectsData.projects} />
                     ) : (
                         <div className="rounded-md bg-white shadow-sm ring-1 ring-gray-900/5">
