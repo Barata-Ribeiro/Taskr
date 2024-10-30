@@ -8,7 +8,7 @@ interface StackedOrganizationMembersListProps {
     data: Paginated<OrganizationMember>
 }
 
-function MemberAvatar(props: { pivot: OrganizationMember }) {
+function MemberAvatar(props: Readonly<{ pivot: OrganizationMember }>) {
     return (
         <>
             {props.pivot.user.avatarUrl ? (
@@ -32,7 +32,7 @@ function MemberAvatar(props: { pivot: OrganizationMember }) {
     )
 }
 
-function MemberBadge(props: { pivot: OrganizationMember }) {
+function MemberBadge(props: Readonly<{ pivot: OrganizationMember }>) {
     return (
         <>
             {props.pivot.roles.includes("Owner") ? (
@@ -66,7 +66,7 @@ export default function StackedOrganizationMembersList({ data }: Readonly<Stacke
 
                         <div className="min-w-0 flex-auto">
                             <p className="text-sm font-semibold leading-6 text-gray-900">
-                                <Link href={`/dashboard/profiles/${pivot.user.id}`}>
+                                <Link href={`/dashboard/profile/${pivot.user.id}`}>
                                     <span className="absolute inset-x-0 -top-px bottom-0" />
                                     {pivot.user.fullName ?? pivot.user.displayName}
                                 </Link>
