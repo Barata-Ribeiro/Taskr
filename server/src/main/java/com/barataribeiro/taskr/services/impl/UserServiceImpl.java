@@ -16,7 +16,6 @@ import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.models.relations.OrganizationUser;
 import com.barataribeiro.taskr.models.relations.ProjectUser;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
-import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository;
 import com.barataribeiro.taskr.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
@@ -35,7 +34,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final OrganizationUserRepository organizationUserRepository;
 
     @Override
     public UserDTO getUserProfileById(String id) {
@@ -59,21 +57,13 @@ public class UserServiceImpl implements UserService {
                                                              Map<String, Object> projectMap = new HashMap<>();
                                                              projectMap.put("id", project.getId());
                                                              projectMap.put("name", project.getName());
+                                                             projectMap.put("isManager", pu.isProjectManager());
                                                              return projectMap;
                                                          })
                                                          .toList();
         projects = projects.isEmpty() ? null : projects;
 
-        Set<OrganizationUser> organizationUsers = user.getOrganizationUsers();
-        List<Map<String, Object>> organizations = organizationUsers.stream()
-                                                                   .map(ou -> {
-                                                                       Organization organization = ou.getOrganization();
-                                                                       Map<String, Object> orgMap = new HashMap<>();
-                                                                       orgMap.put("id", organization.getId());
-                                                                       orgMap.put("name", organization.getName());
-                                                                       return orgMap;
-                                                                   })
-                                                                   .toList();
+        List<Map<String, Object>> organizations = getOrganizationsWhereUserIsMember(user);
         organizations = organizations.isEmpty() ? null : organizations;
 
         int totalProjects = (projects != null) ? projects.size() : 0;
@@ -144,18 +134,7 @@ public class UserServiceImpl implements UserService {
         ContextDTO contextDTO = userMapper.toContextDTO(user);
 
         // Organization related data
-        Set<OrganizationUser> organizationUsers = user.getOrganizationUsers();
-        List<Map<String, Object>> organizations = organizationUsers.stream()
-                                                                   .map(ou -> {
-                                                                       Organization organization = ou.getOrganization();
-                                                                       Map<String, Object> orgMap = new HashMap<>();
-                                                                       orgMap.put("id", organization.getId());
-                                                                       orgMap.put("name", organization.getName());
-                                                                       orgMap.put("isOwner", ou.isOwner());
-                                                                       orgMap.put("isAdmin", ou.isAdmin());
-                                                                       return orgMap;
-                                                                   })
-                                                                   .toList();
+        final List<Map<String, Object>> organizations = getOrganizationsWhereUserIsMember(user);
 
         // Project related data
         Set<ProjectUser> projectUsers = user.getProjectUser();
@@ -187,6 +166,21 @@ public class UserServiceImpl implements UserService {
         result.put("projectsWhereUserIsMember", projects);
 
         return result;
+    }
+
+    private @NotNull List<Map<String, Object>> getOrganizationsWhereUserIsMember(@NotNull User user) {
+        Set<OrganizationUser> organizationUsers = user.getOrganizationUsers();
+        return organizationUsers.stream()
+                                .map(ou -> {
+                                    Organization organization = ou.getOrganization();
+                                    Map<String, Object> orgMap = new HashMap<>();
+                                    orgMap.put("id", organization.getId());
+                                    orgMap.put("name", organization.getName());
+                                    orgMap.put("isOwner", ou.isOwner());
+                                    orgMap.put("isAdmin", ou.isAdmin());
+                                    return orgMap;
+                                })
+                                .toList();
     }
 
     private @NotNull List<Map<String, Object>> getProjectLatestTasksWhereUserIsEitherCreatorOrAssigned(
