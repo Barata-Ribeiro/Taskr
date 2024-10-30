@@ -3,6 +3,7 @@ import getOrganizationMembersById from "@/actions/organizations/get-organization
 import getOrganizationProjectsById from "@/actions/organizations/get-organization-projects-by-id"
 import StateError from "@/components/feedback/state-error"
 import StackedOrganizationMembersList from "@/components/lists/stacked-organization-members-list"
+import StackedOrganizationProjectsList from "@/components/lists/stacked-organization-projects-list"
 import { ProblemDetails } from "@/interfaces/actions"
 import { Organization, OrganizationMembersList, OrganizationProjectsList } from "@/interfaces/organization"
 import Image from "next/image"
@@ -56,8 +57,22 @@ function OrganizationLogo(props: Readonly<{ data: Organization }>) {
 export default async function OrganizationPage({ params }: Readonly<OrganizationPageProps>) {
     if (!params.id) return notFound()
 
-    const membersState = getOrganizationMembersById({ id: params.id })
-    const projectsState = getOrganizationProjectsById({ id: params.id })
+    const membersState = getOrganizationMembersById({
+        id: params.id,
+        page: 0,
+        perPage: 10,
+        search: null,
+        direction: "ASC",
+        orderBy: "username",
+    })
+    const projectsState = getOrganizationProjectsById({
+        id: params.id,
+        page: 0,
+        perPage: 10,
+        search: null,
+        direction: "ASC",
+        orderBy: "createdAt",
+    })
 
     const [members, projects] = await Promise.all([membersState, projectsState])
     if (!members.ok) return <StateError error={members.error as ProblemDetails} />
@@ -136,10 +151,11 @@ export default async function OrganizationPage({ params }: Readonly<Organization
 
                 {/* Members Section */}
                 <section className="mt-12" aria-labelledby="members-section-title">
-                    <div className="flex items-center justify-between">
-                        <h2 id="members-section-title" className="mb-2 font-heading text-2xl font-bold text-ebony-900">
+                    <div className="mb-2 flex items-center justify-between">
+                        <h2 id="members-section-title" className="font-heading text-2xl font-bold text-ebony-900">
                             Members
-                        </h2>{" "}
+                        </h2>
+                        {/* */}
                         <Link
                             href={`/organizations/${params.id}/members`}
                             aria-label={`List all members of ${data.name}`}
@@ -154,10 +170,31 @@ export default async function OrganizationPage({ params }: Readonly<Organization
 
                 {/* Projects Section */}
                 <section className="mt-12" aria-labelledby="projects-section-title">
-                    <h2 id="projects-section-title" className="font-heading text-2xl font-bold text-ebony-900">
-                        Projects
-                    </h2>
-                    <p className="mt-4 text-ebony-500">Soon, the projects of the organization will be listed here.</p>
+                    <div className="mb-2 flex items-center justify-between">
+                        <h2 id="projects-section-title" className="font-heading text-2xl font-bold text-ebony-900">
+                            Projects
+                        </h2>
+                        {/* */}
+                        <Link
+                            href={`/organizations/${params.id}/projects`}
+                            aria-label={`List all projects of ${data.name}`}
+                            title={`List all projects of ${data.name}`}
+                            className="inline-flex items-center gap-2 text-base font-medium text-english-holly-600 decoration-2 underline-offset-4 hover:text-english-holly-700 hover:underline active:text-english-holly-800">
+                            List all <FaArrowRightLong aria-hidden="true" className="h-3 w-3 flex-none text-inherit" />
+                        </Link>
+                    </div>
+
+                    {projectsData ? (
+                        <StackedOrganizationProjectsList data={projectsData.projects} />
+                    ) : (
+                        <div className="rounded-md bg-white shadow-sm ring-1 ring-gray-900/5">
+                            <div className="relative flex justify-between gap-x-6 px-4 py-5 sm:px-6">
+                                <p className="text-base font-semibold leading-6 text-gray-900">
+                                    There are no projects in this organization yet
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </section>
             </div>
         </article>
