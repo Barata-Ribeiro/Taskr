@@ -92,6 +92,8 @@ export default async function OrganizationsPage({ searchParams }: Readonly<Organ
                                                         <Link
                                                             href={`/dashboard/organizations/${organization.id}`}
                                                             target="_self"
+                                                            aria-label={`View ${organization.name}'s details`}
+                                                            title={`View ${organization.name}'s details`}
                                                             className="text-ebony-600 decoration-2 underline-offset-2 hover:text-ebony-700 hover:underline active:text-ebony-800">
                                                             {organization.name}
                                                         </Link>
@@ -112,7 +114,14 @@ export default async function OrganizationsPage({ searchParams }: Readonly<Organ
                                                         )}
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {organization.membersCount}
+                                                        <Link
+                                                            href={`/dashboard/organizations/${organization.id}/members`}
+                                                            target="_self"
+                                                            aria-label={`List ${organization.name}'s members`}
+                                                            title={`List ${organization.name}'s members`}
+                                                            className="text-ebony-600 decoration-2 underline-offset-2 hover:text-ebony-700 hover:underline active:text-ebony-800">
+                                                            {organization.membersCount}
+                                                        </Link>
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                                         {organization.location ?? "N/A"}
