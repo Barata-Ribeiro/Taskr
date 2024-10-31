@@ -1,6 +1,8 @@
 package com.barataribeiro.taskr.services.impl;
 
+import com.barataribeiro.taskr.builder.TaskMapper;
 import com.barataribeiro.taskr.builder.UserMapper;
+import com.barataribeiro.taskr.dtos.task.TaskDTO;
 import com.barataribeiro.taskr.dtos.user.ContextDTO;
 import com.barataribeiro.taskr.dtos.user.UpdateAccountRequestDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
@@ -11,7 +13,6 @@ import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
 import com.barataribeiro.taskr.exceptions.users.InvalidAccountCredentialsException;
 import com.barataribeiro.taskr.models.entities.Organization;
 import com.barataribeiro.taskr.models.entities.Project;
-import com.barataribeiro.taskr.models.entities.Task;
 import com.barataribeiro.taskr.models.entities.User;
 import com.barataribeiro.taskr.models.relations.OrganizationUser;
 import com.barataribeiro.taskr.models.relations.ProjectUser;
@@ -34,12 +35,24 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final TaskMapper taskMapper;
 
     @Override
-    public UserDTO getUserProfileById(String id) {
+    @Transactional(readOnly = true)
+    public Map<String, Object> getUserProfileById(String id) {
         User user = userRepository.findById(id)
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
-        return userMapper.toDTO(user);
+        UserDTO userDTO = userMapper.toDTO(user);
+
+        List<Map<String, Object>> organizations = user.getOrganizationUsers().stream()
+                                                      .map(this::getSimpleOrganizationMap)
+                                                      .toList();
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("profile", userDTO);
+        result.put("organizationsWhichUserIsMember", organizations);
+
+        return result;
     }
 
     @Override
@@ -147,7 +160,7 @@ public class UserServiceImpl implements UserService {
                                                              projectMap.put("isManager", pu.isProjectManager());
 
                                                              // Task related data
-                                                             List<Map<String, Object>> latestTasks =
+                                                             List<TaskDTO> latestTasks =
                                                                      getProjectLatestTasksWhereUserIsEitherCreatorOrAssigned(
                                                                              project, user);
                                                              projectMap.put("latestTasks", latestTasks);
@@ -168,44 +181,31 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
+    private @NotNull Map<String, Object> getSimpleOrganizationMap(@NotNull OrganizationUser ou) {
+        Organization organization = ou.getOrganization();
+        Map<String, Object> orgMap = new HashMap<>();
+        orgMap.put("id", organization.getId());
+        orgMap.put("name", organization.getName());
+        orgMap.put("isOwner", ou.isOwner());
+        orgMap.put("isAdmin", ou.isAdmin());
+        return orgMap;
+    }
+
     private @NotNull List<Map<String, Object>> getOrganizationsWhereUserIsMember(@NotNull User user) {
         Set<OrganizationUser> organizationUsers = user.getOrganizationUsers();
         return organizationUsers.stream()
-                                .map(ou -> {
-                                    Organization organization = ou.getOrganization();
-                                    Map<String, Object> orgMap = new HashMap<>();
-                                    orgMap.put("id", organization.getId());
-                                    orgMap.put("name", organization.getName());
-                                    orgMap.put("isOwner", ou.isOwner());
-                                    orgMap.put("isAdmin", ou.isAdmin());
-                                    return orgMap;
-                                })
+                                .map(this::getSimpleOrganizationMap)
                                 .toList();
     }
 
-    private @NotNull List<Map<String, Object>> getProjectLatestTasksWhereUserIsEitherCreatorOrAssigned(
-            @NotNull Project project,
-            User user) {
+    private List<TaskDTO> getProjectLatestTasksWhereUserIsEitherCreatorOrAssigned(@NotNull Project project, User user) {
         return project.getProjectTask().stream()
                       .flatMap(pt -> pt.getTask().getTaskUser().stream())
                       .filter(tu -> tu.getUser().equals(user) && (tu.isAssigned() || tu.isCreator()))
                       .sorted(Comparator.comparing(taskUser -> taskUser.getTask().getCreatedAt(),
                                                    Comparator.reverseOrder()))
                       .limit(5)
-                      .map(tu -> {
-                          Task task = tu.getTask();
-
-                          Map<String, Object> taskMap = new HashMap<>();
-                          taskMap.put("id", task.getId());
-                          taskMap.put("title", task.getTitle());
-                          taskMap.put("description", task.getDescription());
-                          taskMap.put("status", task.getStatus());
-                          taskMap.put("priority", task.getPriority());
-                          taskMap.put("startDate", task.getStartDate());
-                          taskMap.put("dueDate", task.getDueDate());
-
-                          return taskMap;
-                      })
+                      .map(tu -> taskMapper.toDTO(tu.getTask()))
                       .toList();
     }
 

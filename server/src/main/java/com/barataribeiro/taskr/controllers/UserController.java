@@ -3,7 +3,6 @@ package com.barataribeiro.taskr.controllers;
 import com.barataribeiro.taskr.dtos.RestResponseDTO;
 import com.barataribeiro.taskr.dtos.user.ContextDTO;
 import com.barataribeiro.taskr.dtos.user.UpdateAccountRequestDTO;
-import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.services.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +22,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/profile/{userId}")
-    public ResponseEntity<RestResponseDTO<UserDTO>> getUserProfileById(@PathVariable String userId) {
-        UserDTO response = userService.getUserProfileById(userId);
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getUserProfileById(@PathVariable String userId) {
+        Map<String, Object> response = userService.getUserProfileById(userId);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "User profile retrieved successfully",
@@ -54,7 +53,7 @@ public class UserController {
                                                                          @RequestParam(required = false) String ra,
                                                                          @RequestBody UpdateAccountRequestDTO body,
                                                                          Principal principal) {
-        ContextDTO response = null;
+        ContextDTO response;
 
         if (ra != null) response = userService.removeUserAvatar(userId, principal, ra);
         else response = userService.updateUserProfile(userId, body, principal);
