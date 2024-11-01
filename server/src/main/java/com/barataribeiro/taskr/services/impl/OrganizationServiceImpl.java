@@ -128,6 +128,10 @@ public class OrganizationServiceImpl implements OrganizationService {
         orderBy = orderBy.equalsIgnoreCase(AppConstants.CREATED_AT) ? AppConstants.CREATED_AT : orderBy;
         PageRequest pageable = PageRequest.of(page, perPage, Sort.by(sortDirection, "user." + orderBy));
 
+        Organization organization = organizationRepository.findById(Long.valueOf(orgId))
+                                                          .orElseThrow(() -> new EntityNotFoundException(
+                                                                  Organization.class.getSimpleName()));
+
         Page<OrganizationUser> organizationUsers;
         if (search != null && !search.isBlank()) {
             organizationUsers = organizationUserRepository
@@ -135,12 +139,6 @@ public class OrganizationServiceImpl implements OrganizationService {
         } else {
             organizationUsers = organizationUserRepository.findByOrganization_Id(Long.valueOf(orgId), pageable);
         }
-
-        Organization organization = organizationUsers.stream()
-                                                     .findFirst()
-                                                     .map(OrganizationUser::getOrganization)
-                                                     .orElseThrow(() -> new EntityNotFoundException(
-                                                             Organization.class.getSimpleName()));
 
         Page<OrganizationMemberDTO> membersPage = organizationUsers
                 .stream()
@@ -159,26 +157,23 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getOrganizationProjects(String id, String search, int page, int perPage,
+    public Map<String, Object> getOrganizationProjects(String orgId, String search, int page, int perPage,
                                                        @NotNull String direction, String orderBy) {
         Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         orderBy = orderBy.equalsIgnoreCase(AppConstants.CREATED_AT) ? AppConstants.CREATED_AT : orderBy;
         PageRequest pageable = PageRequest.of(page, perPage, Sort.by(sortDirection, "project." + orderBy));
 
+        Organization organization = organizationRepository.findById(Long.valueOf(orgId))
+                                                          .orElseThrow(() -> new EntityNotFoundException(
+                                                                  Organization.class.getSimpleName()));
+
         Page<OrganizationProject> organizationProjects;
         if (search != null && !search.isBlank()) {
             organizationProjects = organizationProjectRepository
-                    .findAllProjectsWithParamsPaginated(Long.valueOf(id), search, pageable);
+                    .findAllProjectsWithParamsPaginated(Long.valueOf(orgId), search, pageable);
         } else {
-            organizationProjects = organizationProjectRepository.findByOrganization_Id(Long.valueOf(id), pageable);
+            organizationProjects = organizationProjectRepository.findByOrganization_Id(Long.valueOf(orgId), pageable);
         }
-
-        Organization organization = organizationProjects.stream()
-                                                        .findFirst()
-                                                        .map(OrganizationProject::getOrganization)
-                                                        .orElseThrow(() -> new EntityNotFoundException(
-                                                                Organization.class.getSimpleName()));
-
 
         Page<OrganizationProjectDTO> projectsPage = organizationProjects
                 .stream()
