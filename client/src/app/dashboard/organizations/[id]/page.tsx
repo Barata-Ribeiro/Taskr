@@ -163,7 +163,7 @@ export default async function OrganizationPage({ params }: Readonly<Organization
                         </h2>
                         {/* */}
                         <Link
-                            href={`/organizations/${params.id}/members`}
+                            href={`/dashboard/organizations/${params.id}/members`}
                             aria-label={`List all members of ${data.name}`}
                             title={`List all members of ${data.name}`}
                             className="inline-flex items-center gap-2 text-base font-medium text-english-holly-600 decoration-2 underline-offset-4 hover:text-english-holly-700 hover:underline active:text-english-holly-800">
@@ -184,7 +184,7 @@ export default async function OrganizationPage({ params }: Readonly<Organization
                         <div className="inline-flex items-center gap-2">
                             {(isOrgOwner || isOrgAdmin) && (
                                 <Link
-                                    href={`/organizations/${params.id}/projects/new`}
+                                    href={`/dashboard/organizations/${params.id}/projects/new`}
                                     aria-label={`Create a new project in ${data.name}`}
                                     title={`Create a new project in ${data.name}`}
                                     className="w-max rounded-md bg-ebony-600 px-3 py-1.5 text-center text-sm font-semibold leading-6 text-white shadow-sm hover:bg-ebony-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ebony-600 active:bg-ebony-800">
@@ -193,7 +193,7 @@ export default async function OrganizationPage({ params }: Readonly<Organization
                             )}
 
                             <Link
-                                href={`/organizations/${params.id}/projects`}
+                                href={`/dashboard/organizations/${params.id}/projects`}
                                 aria-label={`List all projects of ${data.name}`}
                                 title={`List all projects of ${data.name}`}
                                 className="inline-flex items-center gap-2 text-base font-medium text-english-holly-600 decoration-2 underline-offset-4 hover:text-english-holly-700 hover:underline active:text-english-holly-800">
