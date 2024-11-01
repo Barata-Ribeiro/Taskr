@@ -68,6 +68,7 @@ const config: Config = {
             },
         },
     },
+    safelist: ["fill-gray-500", "fill-red-500", "fill-green-500", "fill-yellow-500"],
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
 }
