@@ -99,8 +99,7 @@ export default async function MembersPage({ params, searchParams }: Readonly<Mem
     const orderBy = (searchParams.orderBy as string) || "createdAt"
 
     const state = await getOrganizationMembersById({ id: params.id, page, perPage, search, direction, orderBy })
-    if (!state.ok && (state.error as ProblemDetails).status !== 404)
-        return <StateError error={state.error as ProblemDetails} />
+    if (!state.ok) return <StateError error={state.error as ProblemDetails} />
 
     const data = state.response?.data as OrganizationMembersList
 
@@ -108,8 +107,6 @@ export default async function MembersPage({ params, searchParams }: Readonly<Mem
     const pagination = data.members
     const content = pagination.content ?? []
     const pageInfo = pagination.page
-
-    const dataNotFound = content.length < 1 || (state.error as ProblemDetails)?.status === 404
 
     return (
         <div
@@ -212,7 +209,7 @@ export default async function MembersPage({ params, searchParams }: Readonly<Mem
                                             </tr>
                                         ))}
 
-                                    {dataNotFound && (
+                                    {content.length < 1 && (
                                         <tr className="border-b border-gray-300 bg-white">
                                             <td
                                                 colSpan={6}
