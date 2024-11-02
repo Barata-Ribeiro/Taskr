@@ -161,7 +161,8 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                        @NotNull String direction, String orderBy) {
         Sort.Direction sortDirection = direction.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         orderBy = orderBy.equalsIgnoreCase(AppConstants.CREATED_AT) ? AppConstants.CREATED_AT : orderBy;
-        PageRequest pageable = PageRequest.of(page, perPage, Sort.by(sortDirection, "project." + orderBy));
+        final String projectOrStatus = !orderBy.equalsIgnoreCase("status") ? "project." + orderBy : orderBy;
+        PageRequest pageable = PageRequest.of(page, perPage, Sort.by(sortDirection, projectOrStatus));
 
         Organization organization = organizationRepository.findById(Long.valueOf(orgId))
                                                           .orElseThrow(() -> new EntityNotFoundException(

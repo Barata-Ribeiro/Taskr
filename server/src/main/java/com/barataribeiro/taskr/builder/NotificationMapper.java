@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,12 +28,12 @@ public class NotificationMapper {
     public List<NotificationDTO> toDTOList(@NotNull List<Notification> notifications) {
         return notifications.stream()
                             .map(this::toDTO)
-                            .collect(Collectors.toList());
+                            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public List<Notification> toListEntity(@NotNull List<NotificationDTO> notificationDTOS) {
         return notificationDTOS.stream()
                                .map(this::toEntity)
-                               .collect(Collectors.toList());
+                               .collect(Collectors.toCollection(ArrayList::new));
     }
 }
