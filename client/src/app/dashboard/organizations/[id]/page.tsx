@@ -78,31 +78,15 @@ export default async function OrganizationPage({ params }: Readonly<Organization
     const contextState = getUserContext()
 
     const [context, members, projects] = await Promise.all([contextState, membersState, projectsState])
-    if (!members.ok) return <StateError error={members.error as ProblemDetails} />
-    if (!projects.ok && (projects.error as ProblemDetails).status !== 404) {
-        return <StateError error={projects.error as ProblemDetails} />
+    if (!members.ok || !projects.ok || !context.ok) {
+        const error = (members.error ?? projects.error ?? context.error) as ProblemDetails
+        return <StateError error={error} />
     }
 
     const contextData = context.response?.data as UserContext
-    if (!context.ok || !contextData) return <StateError error={context.error as ProblemDetails} />
-
     const { organization: data, ...membersData } = members.response?.data as OrganizationMembersList
-
-    let projectsData: OrganizationProjectsList
-    if ((projects.error as ProblemDetails).status === 404) {
-        projectsData = {
-            organization: data,
-            projects: {
-                content: [],
-                page: {
-                    size: 10,
-                    number: 0,
-                    totalElements: 1,
-                    totalPages: 1,
-                },
-            },
-        }
-    } else projectsData = projects.response?.data as OrganizationProjectsList
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { organization: _, ...projectsData } = projects.response?.data as OrganizationProjectsList
 
     const isOrgOwner = data.id === contextData.organizationsWhereUserIsMember.find(org => org.isOwner)?.id
     const isOrgAdmin = data.id === contextData.organizationsWhereUserIsMember.find(org => org.isAdmin)?.id

@@ -1,11 +1,9 @@
 "use client"
 
-import tw from "@/utils/tw"
 import { Button, Field, Input, Label, Select } from "@headlessui/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { FaMagnifyingGlass, FaTrash } from "react-icons/fa6"
-import { twMerge } from "tailwind-merge"
 
 export default function TableCompleteFilter({ allowSearch = true }: Readonly<{ allowSearch?: boolean }>) {
     const pathname = usePathname()
@@ -38,6 +36,7 @@ export default function TableCompleteFilter({ allowSearch = true }: Readonly<{ a
     }
 
     const isOrganizationMembersPage = pathname.includes("/organizations/") && pathname.includes("/members")
+    const isOrganizationProjectsPage = pathname.includes("/organizations/") && pathname.includes("/projects")
 
     return (
         <section aria-labelledby="filter-heading" className="py-6">
@@ -90,6 +89,14 @@ export default function TableCompleteFilter({ allowSearch = true }: Readonly<{ a
                                 <option value="displayName">Display Name</option>
                                 <option value="fullName">Name</option>
                                 <option value="email">Email</option>
+                            </>
+                        )}
+                        {isOrganizationProjectsPage && (
+                            <>
+                                <option value="name">Name</option>
+                                <option value="description">Description</option>
+                                <option value="deadline">Deadline</option>
+                                <option value="status">Status</option>
                             </>
                         )}
                         <option value="createdAt">Created At</option>
