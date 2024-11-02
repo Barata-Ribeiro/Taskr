@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@headlessui/react": "^2.1.10",
+    "@headlessui/react": "^2.2.0",
     "next": "14.2.15",
     "next-auth": "^5.0.0-beta.22",
     "react": "^18.3.1",
@@ -22,10 +22,10 @@
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/typography": "^0.5.15",
-    "@types/node": "^22.8.0",
+    "@types/node": "^22.8.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18",
-    "@typescript-eslint/eslint-plugin": "^8.11.0",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.16",
