@@ -1,3 +1,5 @@
+import { Task } from "@/interfaces/task"
+
 type ProjectStatus = "AWAITING_APPROVAL" | "ACTIVE" | "INACTIVE" | "COMPLETED"
 
 interface Project {
@@ -17,9 +19,14 @@ interface SimpleProject {
     isManager: boolean
 }
 
+interface DashboardSimpleProject extends SimpleProject {
+    latestTasks: Task[]
+    totalTasks: number
+}
+
 interface OrganizationProject {
     project: Project
     status: ProjectStatus
 }
 
-export type { ProjectStatus, Project, SimpleProject, OrganizationProject }
+export type { ProjectStatus, Project, SimpleProject, DashboardSimpleProject, OrganizationProject }

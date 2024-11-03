@@ -1,5 +1,5 @@
 import { SimpleOrganization } from "@/interfaces/organization"
-import { SimpleProject } from "@/interfaces/project"
+import { DashboardSimpleProject, SimpleProject } from "@/interfaces/project"
 
 type UserRoles = "NONE" | "SERVICE_ADMIN" | "SERVICE_USER" | "BANNED"
 
@@ -47,7 +47,7 @@ interface UserContext {
 interface UserDashboard {
     context: User
     organizationsWhereUserIsMember: SimpleOrganization[]
-    projectsWhereUserIsMember: SimpleProject[]
+    projectsWhereUserIsMember: DashboardSimpleProject[]
 }
 
 type OrganizationMemberRole = "Admin" | "Owner" | "Member"
