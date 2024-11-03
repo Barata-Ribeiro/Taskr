@@ -6,12 +6,12 @@ import { redirect } from "next/navigation"
 import { ReactNode } from "react"
 
 export default async function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
-    const session = await auth()
-    const contextState = await getUserContext()
+    const sessionPromise = auth()
+    const userContextPromise = getUserContext()
 
-    if (!session || contextState.error) return redirect("/auth/login")
+    const [session, context] = await Promise.all([sessionPromise, userContextPromise])
 
-    const context = contextState.response?.data as UserContext
+    if (!session || context.error) return redirect("/auth/login")
 
-    return <Sidebar data={context}>{children}</Sidebar>
+    return <Sidebar data={context.response?.data as UserContext}>{children}</Sidebar>
 }
