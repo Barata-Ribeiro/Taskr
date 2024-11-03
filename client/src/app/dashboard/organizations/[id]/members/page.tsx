@@ -2,12 +2,12 @@ import getOrganizationMembersById from "@/actions/organizations/get-organization
 import StateError from "@/components/feedback/state-error"
 import NavigationPagination from "@/components/filters/navigation-pagination"
 import TableCompleteFilter from "@/components/filters/table-complete-filter"
+import Avatar from "@/components/helpers/avatar"
 import BadgePillWithDot from "@/components/helpers/badge-pill-with-dot"
 import { ProblemDetails } from "@/interfaces/actions"
 import { OrganizationMembersList } from "@/interfaces/organization"
 import { OrganizationMember } from "@/interfaces/user"
 import parseDate from "@/utils/parse-date"
-import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -16,34 +16,6 @@ interface MembersPageProps {
         id: string
     }
     searchParams?: { [key: string]: string | string[] | undefined }
-}
-
-function MemberAvatar(props: Readonly<{ pivot: OrganizationMember }>) {
-    return (
-        <>
-            {props.pivot.user.avatarUrl ? (
-                <Image
-                    src={props.pivot.user.avatarUrl}
-                    alt={props.pivot.user.fullName}
-                    className="flex-shrink-0 rounded-full bg-gray-200 shadow-sm"
-                    aria-label={`${props.pivot.user.fullName ?? props.pivot.user.displayName} avatar`}
-                    title={`${props.pivot.user.fullName ?? props.pivot.user.displayName} avatar`}
-                    width={48}
-                    height={48}
-                    sizes="48px"
-                />
-            ) : (
-                <div
-                    className="flex h-12 w-12 flex-shrink-0 select-none items-center justify-center rounded-full bg-gray-200 shadow-sm"
-                    aria-label={`${props.pivot.user.fullName ?? props.pivot.user.displayName} avatar placeholder`}
-                    title={`${props.pivot.user.fullName ?? props.pivot.user.displayName} avatar placeholder`}>
-                    <span className="font-heading text-xl text-gray-500">
-                        {(props.pivot.user.fullName ?? props.pivot.user.displayName).charAt(0)}
-                    </span>
-                </div>
-            )}
-        </>
-    )
 }
 
 function MemberBadge(props: Readonly<{ pivot: OrganizationMember }>) {
@@ -165,7 +137,11 @@ export default async function MembersPage({ params, searchParams }: Readonly<Mem
                                             <tr key={pivot.user.email}>
                                                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                                                     <div className="flex items-center gap-4 rounded-md">
-                                                        <MemberAvatar pivot={pivot} />
+                                                        <Avatar
+                                                            name={pivot.user.fullName ?? pivot.user.displayName}
+                                                            size={48}
+                                                            src={pivot.user.avatarUrl}
+                                                        />
 
                                                         <div className="grid">
                                                             <p className="font-heading font-medium text-gray-900">

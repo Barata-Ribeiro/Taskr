@@ -1,35 +1,11 @@
+import Avatar from "@/components/helpers/avatar"
 import { Paginated } from "@/interfaces/actions"
 import { OrganizationMember } from "@/interfaces/user"
-import Image from "next/image"
 import Link from "next/link"
 import { FaChevronRight } from "react-icons/fa6"
 
 interface StackedOrganizationMembersListProps {
     data: Paginated<OrganizationMember>
-}
-
-function MemberAvatar(props: Readonly<{ pivot: OrganizationMember }>) {
-    return (
-        <>
-            {props.pivot.user.avatarUrl ? (
-                <Image
-                    src={props.pivot.user.avatarUrl}
-                    alt={props.pivot.user.fullName}
-                    width={48}
-                    height={48}
-                    sizes="48px"
-                />
-            ) : (
-                <div
-                    className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gray-200"
-                    aria-label={`${props.pivot.user.fullName ?? props.pivot.user.displayName} avatar placeholder`}>
-                    <span className="font-heading text-xl text-gray-500">
-                        {(props.pivot.user.fullName ?? props.pivot.user.displayName).charAt(0)}
-                    </span>
-                </div>
-            )}
-        </>
-    )
 }
 
 function MemberBadge(props: Readonly<{ pivot: OrganizationMember }>) {
@@ -62,7 +38,11 @@ export default function StackedOrganizationMembersList({ data }: Readonly<Stacke
                     key={pivot.user.email}
                     className="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div className="flex min-w-0 gap-x-4">
-                        <MemberAvatar pivot={pivot} />
+                        <Avatar
+                            name={pivot.user.fullName ?? pivot.user.displayName}
+                            size={48}
+                            src={pivot.user.avatarUrl}
+                        />
 
                         <div className="min-w-0 flex-auto">
                             <p className="text-sm font-semibold leading-6 text-gray-900">

@@ -26,7 +26,11 @@ export default async function HomePage() {
             {/* Header Section */}
             <header className="mb-6 flex items-center justify-between">
                 <div className="flex items-center">
-                    <Avatar src={context.avatarUrl} />
+                    <Avatar
+                        name={data.context.fullName ?? data.context.displayName}
+                        size={48}
+                        src={data.context.avatarUrl}
+                    />
 
                     <div className="ml-4">
                         <h1 className="font-heading text-2xl">{context.displayName}</h1>

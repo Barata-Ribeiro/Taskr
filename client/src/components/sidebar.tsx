@@ -275,7 +275,11 @@ export default function Sidebar({ data, children }: Readonly<SidebarProps>) {
                                 <Link
                                     href="/dashboard/profile"
                                     className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50">
-                                    <Avatar src={data.context.avatarUrl} />
+                                    <Avatar
+                                        name={data.context.fullName ?? data.context.displayName}
+                                        size={32}
+                                        src={data.context.avatarUrl}
+                                    />
                                     <span className="sr-only">Your profile</span>
                                     <span aria-hidden="true">{data.context.fullName}</span>
                                 </Link>
@@ -296,7 +300,11 @@ export default function Sidebar({ data, children }: Readonly<SidebarProps>) {
                 <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">Dashboard</div>
                 <Link href="/dashboard/profile">
                     <span className="sr-only">Your profile</span>
-                    <Avatar src={data.context.avatarUrl} />
+                    <Avatar
+                        name={data.context.fullName ?? data.context.displayName}
+                        size={32}
+                        src={data.context.avatarUrl}
+                    />
                 </Link>
             </div>
 
