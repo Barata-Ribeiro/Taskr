@@ -1,10 +1,13 @@
 import getUserDashboard from "@/actions/user/get-user-dashboard"
 import { auth } from "@/auth"
+import StateError from "@/components/feedback/state-error"
 import Avatar from "@/components/helpers/avatar"
 import BadgePillWithDot from "@/components/helpers/badge-pill-with-dot"
 import SimpleProjectCard from "@/components/simple-project-card"
+import { ProblemDetails } from "@/interfaces/actions"
 import { UserDashboard } from "@/interfaces/user"
 import { Metadata } from "next"
+import { redirect } from "next/navigation"
 import { FaBell } from "react-icons/fa6"
 
 export const metadata: Metadata = {
@@ -12,12 +15,14 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-    const session = await auth()
+    const sessionPromise = auth()
+    const dashboardStatePromise = getUserDashboard()
 
-    const state = await getUserDashboard()
-    if (!state) return null
+    const [session, dashboardState] = await Promise.all([sessionPromise, dashboardStatePromise])
+    if (!session || !dashboardState) return redirect("/auth/login")
+    if (dashboardState.error) return <StateError error={dashboardState.error as ProblemDetails} />
 
-    const data = state.response?.data as UserDashboard
+    const data = dashboardState.response?.data as UserDashboard
 
     const { context, organizationsWhereUserIsMember, projectsWhereUserIsMember } = data
 
