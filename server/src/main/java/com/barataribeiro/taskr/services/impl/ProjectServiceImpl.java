@@ -78,6 +78,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project newProject = projectRepository.save(Project.builder()
                                                            .name(body.name())
                                                            .description(body.description())
+                                                           .deadline(body.deadline())
                                                            .membersCount(1L)
                                                            .build());
 
