@@ -55,3 +55,6 @@ export const ORGANIZATIONS_GET_PROJECTS_BY_ID = (
     return url
 }
 export const ORGANIZATIONS_POST_NEW = () => `${BACKEND_URL}/api/v1/organizations`
+
+// Projects
+export const PROJECTS_POST_NEW = (orgId: string) => `${BACKEND_URL}/api/v1/projects/${orgId}/project-create`
