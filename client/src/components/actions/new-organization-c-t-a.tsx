@@ -31,7 +31,10 @@ function ImageOverlay() {
 
 export default function NewOrganizationCTA() {
     return (
-        <div className="relative rounded-md bg-gray-900 shadow-derek">
+        <section
+            id="organization-new-cta"
+            aria-labelledby="organization-new-cta-title"
+            className="relative rounded-md bg-gray-900 shadow-derek">
             <div className="relative h-80 overflow-hidden bg-ebony-300 max-md:rounded-t-md md:absolute md:left-0 md:h-full md:w-1/3 md:rounded-bl-md md:rounded-tl-md lg:w-1/2">
                 <Image
                     alt="Brown wooden rectangular table with lot of chair inside building photo. Photo by Benjamin Child on Unsplash."
@@ -46,7 +49,11 @@ export default function NewOrganizationCTA() {
             </div>
             <div className="relative mx-auto max-w-7xl py-24 sm:py-32 lg:px-8 lg:py-40">
                 <div className="pl-6 pr-6 md:ml-auto md:w-2/3 md:pl-16 lg:w-1/2 lg:pl-24 lg:pr-0 xl:pl-32">
-                    <h2 className="text-base font-semibold leading-7 text-english-holly-400">Get Started Today</h2>
+                    <h2
+                        id="organization-new-cta-title"
+                        className="text-base font-semibold leading-7 text-english-holly-400">
+                        Get Started Today
+                    </h2>
                     <p className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
                         Manage Projects Easily
                     </p>
@@ -66,6 +73,6 @@ export default function NewOrganizationCTA() {
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     )
 }

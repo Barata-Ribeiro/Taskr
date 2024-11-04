@@ -81,7 +81,7 @@ export default async function MembersPage({ params, searchParams }: Readonly<Mem
     const pageInfo = pagination.page
 
     return (
-        <div
+        <section
             id="organization-members-list"
             aria-labelledby="organization-members-list-title"
             className="mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
@@ -201,6 +201,6 @@ export default async function MembersPage({ params, searchParams }: Readonly<Mem
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     )
 }

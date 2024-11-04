@@ -36,8 +36,10 @@ export default function NewOrgPage() {
     ]
 
     return (
-        <section id="organizations-new-org" aria-labelledby="organizations-new-org-title">
-            <div className="mx-auto max-w-7xl border-b px-6 pb-8 lg:px-8">
+        <section id="organizations-new-org">
+            <article
+                aria-labelledby="organizations-new-org-title"
+                className="mx-auto max-w-7xl border-b px-6 pb-8 lg:px-8">
                 <div className="mx-auto max-w-2xl lg:text-center">
                     <h2 id="organizations-new-org-title" className="text-base font-semibold leading-7 text-ebony-600">
                         A New Beginning
@@ -66,7 +68,7 @@ export default function NewOrgPage() {
                         ))}
                     </dl>
                 </div>
-            </div>
+            </article>
 
             <NewOrganizationForm />
         </section>
