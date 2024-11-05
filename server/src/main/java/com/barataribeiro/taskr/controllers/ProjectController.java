@@ -33,6 +33,16 @@ public class ProjectController {
                                                        response));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getProjectsWhereUserIsMember(@PathVariable String orgId,
+                                                                                             Principal principal) {
+        Map<String, Object> response = projectService.getProjectsWhereUserIsMember(orgId, principal);
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Projects retrieved successfully",
+                                                       response));
+    }
+
     @GetMapping("/project/{projectId}")
     public ResponseEntity<RestResponseDTO<Map<String, Object>>> getProjectInfo(@PathVariable String orgId,
                                                                                @PathVariable String projectId) {
