@@ -10,6 +10,8 @@ import java.util.Map;
 public interface ProjectService {
     ProjectDTO createProject(String orgId, ProjectCreateRequestDTO body, Principal principal);
 
+    Map<String, Object> getProjectsWhereUserIsMember(String orgId, Principal principal);
+
     Map<String, Object> getProjectInfo(String orgId, String projectId);
 
     Map<String, Object> getProjectMembers(String orgId, String projectId);
@@ -22,4 +24,5 @@ public interface ProjectService {
     Map<String, Object> changeProjectStatus(String projectId, String taskId, String status, Principal principal);
 
     void deleteProject(String orgId, String projectId, Principal principal);
+
 }

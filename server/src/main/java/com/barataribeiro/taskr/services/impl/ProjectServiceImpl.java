@@ -13,6 +13,7 @@ import com.barataribeiro.taskr.models.entities.*;
 import com.barataribeiro.taskr.models.enums.ProjectStatus;
 import com.barataribeiro.taskr.models.enums.TaskPriority;
 import com.barataribeiro.taskr.models.relations.OrganizationProject;
+import com.barataribeiro.taskr.models.relations.OrganizationUser;
 import com.barataribeiro.taskr.models.relations.ProjectTask;
 import com.barataribeiro.taskr.models.relations.ProjectUser;
 import com.barataribeiro.taskr.repositories.entities.NotificationRepository;
@@ -108,6 +109,45 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
+    public Map<String, Object> getProjectsWhereUserIsMember(String orgId, @NotNull Principal principal) {
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        OrganizationUser organizationUser = user.getOrganizationUsers().stream()
+                                                .filter(ou -> ou.getOrganization()
+                                                                .getId()
+                                                                .equals(Long.valueOf(orgId)))
+                                                .findFirst()
+                                                .orElseThrow(() -> new IllegalRequestException(
+                                                        "You are not a member of this organization or it does not " +
+                                                                "exist."));
+
+        Set<ProjectUser> userProjects = organizationUser.getOrganization().getOrganizationProjects().stream()
+                                                        .flatMap(op -> op.getProject().getProjectUser().stream())
+                                                        .filter(pu -> pu.getUser().getId().equals(user.getId()))
+                                                        .collect(Collectors.toSet());
+
+        List<Map<String, Object>> projects = userProjects.stream()
+                                                         .map(pu -> {
+                                                             Project project = pu.getProject();
+                                                             Map<String, Object> projectMap = new HashMap<>();
+                                                             projectMap.put(AppConstants.PROJECT,
+                                                                            projectMapper.toDTO(project));
+                                                             projectMap.put("status", getProjectStatus(orgId, project));
+                                                             projectMap.put("isManager", pu.isProjectManager());
+                                                             return projectMap;
+                                                         })
+                                                         .toList();
+
+        Map<String, Object> returnData = new HashMap<>();
+        returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organizationUser.getOrganization()));
+        returnData.put("projects", projects.isEmpty() ? Collections.emptyList() : projects);
+
+        return returnData;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getProjectInfo(String orgId, String projectId) {
         OrganizationProject organizationProject = organizationProjectRepository
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
@@ -169,7 +209,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         return returnData;
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -266,6 +305,14 @@ public class ProjectServiceImpl implements ProjectService {
         projectUserRepository.deleteByProject(project);
         organizationProjectRepository.deleteByProject(project);
         projectRepository.delete(project);
+    }
+
+    private ProjectStatus getProjectStatus(String orgId, @NotNull Project project) {
+        return project.getOrganizationProjects().stream()
+                      .filter(op -> op.getOrganization().getId().equals(Long.valueOf(orgId)))
+                      .findFirst()
+                      .map(OrganizationProject::getStatus)
+                      .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
     }
 
     private void sendNotificationForUsersAdded(@NotNull Principal principal, @NotNull List<User> usersAdded,
