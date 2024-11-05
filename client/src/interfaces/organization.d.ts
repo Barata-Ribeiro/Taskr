@@ -5,7 +5,7 @@ import { OrganizationMember } from "@/interfaces/user"
 interface Organization {
     id: number
     name: string
-    description: string | null
+    description: string
     membersCount: number
     projectsCount: number
     logoUrl: string | null
