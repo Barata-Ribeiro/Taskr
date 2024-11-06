@@ -36,7 +36,7 @@ export default function Sidebar({ data, children }: Readonly<SidebarProps>) {
     const projects =
         data.projectsWhereUserIsMember?.map(project => ({
             name: project.name,
-            href: `/dashboard/projects/${project.id}`,
+            href: `/dashboard/organizations/${project.organizationId}/projects/${project.id}`,
             initial: project.name.charAt(0).toUpperCase(),
             current: pathname.endsWith(`/projects/${project.id}`),
         })) ?? []

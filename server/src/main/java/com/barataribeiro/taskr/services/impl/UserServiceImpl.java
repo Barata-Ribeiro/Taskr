@@ -71,6 +71,12 @@ public class UserServiceImpl implements UserService {
                                                              projectMap.put("id", project.getId());
                                                              projectMap.put("name", project.getName());
                                                              projectMap.put("isManager", pu.isProjectManager());
+                                                             projectMap.put("organizationId", project
+                                                                     .getOrganizationProjects()
+                                                                     .iterator()
+                                                                     .next()
+                                                                     .getOrganization()
+                                                                     .getId());
                                                              return projectMap;
                                                          })
                                                          .toList();
