@@ -34,7 +34,7 @@ export default function NewOrganizationCTA() {
         <section
             id="organization-new-cta"
             aria-labelledby="organization-new-cta-title"
-            className="relative rounded-md bg-gray-900 shadow-derek">
+            className="relative rounded-lg bg-gray-900 shadow-derek">
             <div className="relative h-80 overflow-hidden bg-ebony-300 max-md:rounded-t-md md:absolute md:left-0 md:h-full md:w-1/3 md:rounded-bl-md md:rounded-tl-md lg:w-1/2">
                 <Image
                     alt="Brown wooden rectangular table with lot of chair inside building photo. Photo by Benjamin Child on Unsplash."

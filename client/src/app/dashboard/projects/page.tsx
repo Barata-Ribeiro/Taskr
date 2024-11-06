@@ -160,13 +160,15 @@ export default async function ProjectsPage() {
 
                                     <div className="min-w-0 flex-auto">
                                         <p className="text-sm font-semibold leading-6 text-gray-900">
-                                            <Link href={`/dashboard/projects/${orgProject.project.id}`}>
+                                            <Link
+                                                href={`/dashboard/organizations/${data.organization.id}/projects/${orgProject.project.id}`}>
                                                 <span className="absolute inset-x-0 -top-px bottom-0" />
                                                 {orgProject.project.id}
                                             </Link>
                                         </p>
                                         <p className="mt-1 flex text-xs leading-5 text-gray-500">
-                                            <Link href={`/dashboard/organizations/${data.organization.id}`}>
+                                            <Link
+                                                href={`/dashboard/organizations/${data.organization.id}/projects/${orgProject.project.id}`}>
                                                 <span className="absolute inset-x-0 -top-px bottom-0" />
                                                 {data.organization.name}
                                             </Link>

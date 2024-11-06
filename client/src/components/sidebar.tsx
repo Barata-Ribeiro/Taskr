@@ -31,7 +31,7 @@ export default function Sidebar({ data, children }: Readonly<SidebarProps>) {
             icon: FaBuilding,
             current: pathname.endsWith("/organizations"),
         },
-        { name: "Projects", href: "/dasboard/projects", icon: FaFolder, current: pathname.endsWith("/projects") },
+        { name: "Projects", href: "/dashboard/projects", icon: FaFolder, current: pathname.endsWith("/projects") },
     ]
     const projects =
         data.projectsWhereUserIsMember?.map(project => ({

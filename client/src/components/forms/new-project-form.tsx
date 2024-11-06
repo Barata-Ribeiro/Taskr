@@ -22,9 +22,9 @@ export default function NewProjectForm({ orgId }: Readonly<{ orgId: string }>) {
     useEffect(() => {
         if (formState.ok) {
             const formData = formState.response?.data as Project
-            router.push("/dashboard/projects/" + formData.id)
+            router.push("/dashboard/organizations/" + orgId + "/projects/" + formData.id)
         }
-    }, [formState.ok, formState.response?.data, router])
+    }, [formState.ok, formState.response?.data, orgId, router])
 
     return (
         <form action={formAction} onSubmit={onSubmit} className="mx-auto mt-8 grid max-w-4xl gap-y-8">
