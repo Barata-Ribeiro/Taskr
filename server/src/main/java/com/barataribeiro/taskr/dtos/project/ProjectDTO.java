@@ -18,6 +18,7 @@ public class ProjectDTO implements Serializable {
     private Long id;
     private String name;
     private String description;
+    private String deadline;
     private Long membersCount;
     private Long tasksCount;
     private String createdAt;

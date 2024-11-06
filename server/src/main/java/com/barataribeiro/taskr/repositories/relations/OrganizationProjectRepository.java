@@ -25,6 +25,7 @@ public interface OrganizationProjectRepository extends JpaRepository<Organizatio
     Page<OrganizationProject> findAllProjectsWithParamsPaginated(Long id, @Param("term") String term,
                                                                  Pageable pageable);
 
+    @EntityGraph(attributePaths = {"project", "organization"})
     Optional<OrganizationProject> findByOrganization_IdAndProject_Id(Long id, Long projectId);
 
     void deleteByProject(Project project);
