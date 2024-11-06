@@ -2,7 +2,7 @@
 
 import ResponseError from "@/actions/response-error"
 import { ApiResponse, ProblemDetails } from "@/interfaces/actions"
-import { Project } from "@/interfaces/project"
+import { ProjectResponse } from "@/interfaces/project"
 import { PROJECTS_GET_BY_ORG_ID_AND_PROJECT_ID } from "@/utils/api-urls"
 import { auth } from "auth"
 
@@ -35,7 +35,7 @@ export default async function getProjectByOrgIdAndProjectId({ orgId, projectId }
 
         const responseData = json as ApiResponse
 
-        const data = responseData.data as Project
+        const data = responseData.data as ProjectResponse
 
         return {
             ok: true,

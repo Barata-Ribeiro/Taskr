@@ -1,5 +1,6 @@
 import { Organization } from "@/interfaces/organization"
 import { Task } from "@/interfaces/task"
+import { User } from "@/interfaces/user"
 
 type ProjectStatus = "AWAITING_APPROVAL" | "ACTIVE" | "INACTIVE" | "COMPLETED"
 
@@ -12,12 +13,16 @@ interface Project {
     tasksCount: number
     createdAt: string
     updatedAt: string
+    status?: ProjectStatus
+    manager?: User
+    isManager?: boolean
 }
 
 interface SimpleProject {
     id: number
     name: string
     isManager: boolean
+    organizationId: number
 }
 
 interface DashboardSimpleProject extends SimpleProject {
@@ -36,4 +41,17 @@ interface OrganizationProjects {
     projects: OrganizationProject[]
 }
 
-export type { ProjectStatus, Project, SimpleProject, DashboardSimpleProject, OrganizationProject, OrganizationProjects }
+interface ProjectInfoResponse {
+    organization: Organization
+    project: Project
+}
+
+export type {
+    ProjectStatus,
+    Project,
+    SimpleProject,
+    DashboardSimpleProject,
+    OrganizationProject,
+    OrganizationProjects,
+    ProjectResponse,
+}

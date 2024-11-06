@@ -5,6 +5,7 @@ import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
 import com.barataribeiro.taskr.dtos.task.TaskDTO;
+import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
 import com.barataribeiro.taskr.models.embeddables.OrganizationProjectId;
@@ -30,7 +31,6 @@ import com.barataribeiro.taskr.utils.AppConstants;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -149,19 +149,23 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getProjectInfo(String orgId, String projectId) {
+    public Map<String, Object> getProjectInfo(String orgId, String projectId, @NotNull Principal principal) {
         OrganizationProject organizationProject = organizationProjectRepository
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
                 .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
         ProjectDTO projectDTO = projectMapper.toDTO(organizationProject.getProject());
         ProjectStatus projectStatus = organizationProject.getStatus();
+        UserDTO projectManager = getProjectManagerFromOrganizationProjectPivotAsDTO(organizationProject);
+        boolean isManager = projectManager.getUsername().equalsIgnoreCase(principal.getName());
 
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> projectMap = objectMapper.convertValue(projectDTO, new TypeReference<>() {});
         projectMap.put("status", projectStatus);
+        projectMap.put(AppConstants.MANAGER, projectManager);
+        projectMap.put("isManager", isManager);
 
-        Map<String, Object> projectInfo = new HashMap<>();
+        Map<String, Object> projectInfo = new LinkedHashMap<>();
         projectInfo.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organizationProject.getOrganization()));
         projectInfo.put(AppConstants.PROJECT, projectMap);
 
@@ -201,7 +205,7 @@ public class ProjectServiceImpl implements ProjectService {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> projectMap = objectMapper.convertValue(projectMapper.toDTO(project),
                                                                    new TypeReference<>() {});
-        projectMap.put("manager", userMapper.toDTO(projectManager));
+        projectMap.put(AppConstants.MANAGER, userMapper.toDTO(projectManager));
         projectMap.put("members", userMapper.toDTOList(new ArrayList<>(projectMembers)));
 
         Map<String, Object> returnData = new HashMap<>();
@@ -293,7 +297,7 @@ public class ProjectServiceImpl implements ProjectService {
         returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organizationProject.getOrganization()));
         returnData.put(AppConstants.PROJECT, projectMapper.toDTO(organizationProject.getProject()));
         returnData.put("newStatus", projectStatus);
-        returnData.put("manager", userMapper.toDTO(user));
+        returnData.put(AppConstants.MANAGER, userMapper.toDTO(user));
 
         return returnData;
     }
@@ -306,6 +310,17 @@ public class ProjectServiceImpl implements ProjectService {
         projectUserRepository.deleteByProject(project);
         organizationProjectRepository.deleteByProject(project);
         projectRepository.delete(project);
+    }
+
+    private UserDTO getProjectManagerFromOrganizationProjectPivotAsDTO(
+            @NotNull OrganizationProject organizationProject) {
+        return organizationProject.getProject().getProjectUser().stream()
+                                  .filter(ProjectUser::isProjectManager)
+                                  .findFirst()
+                                  .map(ProjectUser::getUser)
+                                  .map(userMapper::toDTO)
+                                  .orElseThrow(() -> new EntityNotFoundException(
+                                          User.class.getSimpleName()));
     }
 
     private ProjectStatus getProjectStatus(String orgId, @NotNull Project project) {
