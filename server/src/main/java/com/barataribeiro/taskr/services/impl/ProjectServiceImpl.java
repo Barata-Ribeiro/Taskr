@@ -30,6 +30,7 @@ import com.barataribeiro.taskr.utils.AppConstants;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -161,7 +162,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectMap.put("status", projectStatus);
 
         Map<String, Object> projectInfo = new HashMap<>();
-        projectInfo.put(AppConstants.ORGANIZATION, organizationProject.getOrganization());
+        projectInfo.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organizationProject.getOrganization()));
         projectInfo.put(AppConstants.PROJECT, projectMap);
 
         return projectInfo;
