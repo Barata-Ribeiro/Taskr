@@ -23,7 +23,7 @@ export default async function getProjectByOrgIdAndProjectId({ orgId, projectId }
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + session?.accessToken,
             },
-            cache: "no-cache",
+            next: { revalidate: 10 },
         })
 
         const json = await response.json()
