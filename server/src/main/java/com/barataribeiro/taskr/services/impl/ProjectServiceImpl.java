@@ -154,6 +154,11 @@ public class ProjectServiceImpl implements ProjectService {
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
                 .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
+        if (organizationProject.getOrganization().getOrganizationUsers().stream()
+                               .noneMatch(ou -> ou.getUser().getUsername().equalsIgnoreCase(principal.getName()))) {
+            throw new IllegalRequestException("You are not a member of this organization.");
+        }
+
         ProjectDTO projectDTO = projectMapper.toDTO(organizationProject.getProject());
         ProjectStatus projectStatus = organizationProject.getStatus();
         UserDTO projectManager = getProjectManagerFromOrganizationProjectPivotAsDTO(organizationProject);
@@ -208,7 +213,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectMap.put(AppConstants.MANAGER, userMapper.toDTO(projectManager));
         projectMap.put("members", userMapper.toDTOList(new ArrayList<>(projectMembers)));
 
-        Map<String, Object> returnData = new HashMap<>();
+        Map<String, Object> returnData = new LinkedHashMap<>();
         returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
         returnData.put(AppConstants.PROJECT, projectMap);
 
@@ -218,19 +223,19 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public Map<String, Object> getProjectTasks(String orgId, String projectId) {
-        Set<ProjectTask> projectTasks = projectTaskRepository.findAllByProject_id(Long.valueOf(projectId));
+        Project project = organizationProjectRepository
+                .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
+                .map(OrganizationProject::getProject)
+                .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
-        if (projectTasks.isEmpty()) {
-            throw new EntityNotFoundException(Task.class.getSimpleName());
-        }
+        Set<ProjectTask> projectTasks = project.getProjectTask();
 
-        Project project = getProjectFromTasks(projectTasks);
         Set<Task> tasks = getTasksFromProjectTasks(projectTasks);
-        Map<String, Object> sortedTasks = sortTasksByPriority(tasks);
+        Map<String, List<TaskDTO>> sortedTasks = sortTasksByPriority(tasks);
 
-        Map<String, Object> returnData = new HashMap<>();
+        Map<String, Object> returnData = new LinkedHashMap<>();
         returnData.put(AppConstants.PROJECT, projectMapper.toDTO(project));
-        returnData.put("tasks", sortedTasks);
+        returnData.put("tasks", sortedTasks.isEmpty() ? Collections.emptyMap() : sortedTasks);
 
         return returnData;
     }
@@ -260,7 +265,7 @@ public class ProjectServiceImpl implements ProjectService {
             sendNotificationForUsersAdded(principal, usersAdded, project);
         }
 
-        Map<String, Object> returnData = new HashMap<>();
+        Map<String, Object> returnData = new LinkedHashMap<>();
         returnData.put(AppConstants.PROJECT, projectMapper.toDTO(project));
         returnData.put("usersAdded", usersAdded);
         returnData.put("usersNotAdded", usersNotAdded);
@@ -293,7 +298,7 @@ public class ProjectServiceImpl implements ProjectService {
         organizationProject.setStatus(projectStatus);
         organizationProjectRepository.save(organizationProject);
 
-        Map<String, Object> returnData = new HashMap<>();
+        Map<String, Object> returnData = new LinkedHashMap<>();
         returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organizationProject.getOrganization()));
         returnData.put(AppConstants.PROJECT, projectMapper.toDTO(organizationProject.getProject()));
         returnData.put("newStatus", projectStatus);
@@ -349,8 +354,8 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
-    private @NotNull Map<String, Object> sortTasksByPriority(Set<Task> tasks) {
-        Map<String, Object> sortedTasks = new HashMap<>();
+    private @NotNull Map<String, List<TaskDTO>> sortTasksByPriority(Set<Task> tasks) {
+        Map<String, List<TaskDTO>> sortedTasks = new LinkedHashMap<>();
         sortedTasks.put("lowPriority", filterTasksByPriority(tasks, TaskPriority.LOW));
         sortedTasks.put("mediumPriority", filterTasksByPriority(tasks, TaskPriority.MEDIUM));
         sortedTasks.put("highPriority", filterTasksByPriority(tasks, TaskPriority.HIGH));
@@ -362,13 +367,6 @@ public class ProjectServiceImpl implements ProjectService {
                     .filter(task -> task.getPriority().equals(priority))
                     .map(taskMapper::toDTO)
                     .toList();
-    }
-
-    private Project getProjectFromTasks(@NotNull Set<ProjectTask> projectTasks) {
-        return projectTasks.stream()
-                           .findFirst()
-                           .map(ProjectTask::getProject)
-                           .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
     }
 
     private Set<Task> getTasksFromProjectTasks(@NotNull Set<ProjectTask> projectTasks) {
