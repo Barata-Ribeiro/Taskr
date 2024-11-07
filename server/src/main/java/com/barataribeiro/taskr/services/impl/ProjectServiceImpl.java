@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.builder.*;
 import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
+import com.barataribeiro.taskr.dtos.task.CompleteTaskDTO;
 import com.barataribeiro.taskr.dtos.task.TaskDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
@@ -13,10 +14,7 @@ import com.barataribeiro.taskr.models.embeddables.ProjectUserId;
 import com.barataribeiro.taskr.models.entities.*;
 import com.barataribeiro.taskr.models.enums.ProjectStatus;
 import com.barataribeiro.taskr.models.enums.TaskPriority;
-import com.barataribeiro.taskr.models.relations.OrganizationProject;
-import com.barataribeiro.taskr.models.relations.OrganizationUser;
-import com.barataribeiro.taskr.models.relations.ProjectTask;
-import com.barataribeiro.taskr.models.relations.ProjectUser;
+import com.barataribeiro.taskr.models.relations.*;
 import com.barataribeiro.taskr.repositories.entities.NotificationRepository;
 import com.barataribeiro.taskr.repositories.entities.OrganizationRepository;
 import com.barataribeiro.taskr.repositories.entities.ProjectRepository;
@@ -222,7 +220,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getProjectTasks(String orgId, String projectId) {
+    public Map<String, Object> getProjectTasks(String orgId, String projectId, Principal principal) {
         Project project = organizationProjectRepository
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
                 .map(OrganizationProject::getProject)
@@ -231,7 +229,7 @@ public class ProjectServiceImpl implements ProjectService {
         Set<ProjectTask> projectTasks = project.getProjectTask();
 
         Set<Task> tasks = getTasksFromProjectTasks(projectTasks);
-        Map<String, List<TaskDTO>> sortedTasks = sortTasksByPriority(tasks);
+        Map<String, List<CompleteTaskDTO>> sortedTasks = sortTasksByPriority(tasks);
 
         Map<String, Object> returnData = new LinkedHashMap<>();
         returnData.put(AppConstants.PROJECT, projectMapper.toDTO(project));
@@ -354,18 +352,42 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
-    private @NotNull Map<String, List<TaskDTO>> sortTasksByPriority(Set<Task> tasks) {
-        Map<String, List<TaskDTO>> sortedTasks = new LinkedHashMap<>();
+    private @NotNull Map<String, List<CompleteTaskDTO>> sortTasksByPriority(Set<Task> tasks) {
+        Map<String, List<CompleteTaskDTO>> sortedTasks = new LinkedHashMap<>();
         sortedTasks.put("lowPriority", filterTasksByPriority(tasks, TaskPriority.LOW));
         sortedTasks.put("mediumPriority", filterTasksByPriority(tasks, TaskPriority.MEDIUM));
         sortedTasks.put("highPriority", filterTasksByPriority(tasks, TaskPriority.HIGH));
         return sortedTasks;
     }
 
-    private List<TaskDTO> filterTasksByPriority(@NotNull Set<Task> tasks, TaskPriority priority) {
+    private List<CompleteTaskDTO> filterTasksByPriority(@NotNull Set<Task> tasks, TaskPriority priority) {
         return tasks.stream()
                     .filter(task -> task.getPriority().equals(priority))
-                    .map(taskMapper::toDTO)
+                    .map(task -> {
+                        TaskDTO taskDTO = taskMapper.toDTO(task);
+                        UserDTO userAssigned = task.getTaskUser().stream()
+                                                   .filter(TaskUser::isAssigned)
+                                                   .findFirst()
+                                                   .map(taskUser -> userMapper.toDTO(taskUser.getUser()))
+                                                   .orElseThrow(() -> new EntityNotFoundException(
+                                                           User.class.getSimpleName()));
+                        UserDTO userCreator = task.getTaskUser().stream()
+                                                  .filter(TaskUser::isCreator)
+                                                  .findFirst()
+                                                  .map(taskUser -> userMapper.toDTO(taskUser.getUser()))
+                                                  .orElseThrow(() -> new EntityNotFoundException(
+                                                          User.class.getSimpleName()));
+
+                        Map<String, Object> taskMap = new LinkedHashMap<>();
+                        taskMap.put("task", taskDTO);
+                        taskMap.put("userAssigned", userAssigned);
+                        taskMap.put("userCreator", userCreator);
+                        return CompleteTaskDTO.builder()
+                                              .task(taskDTO)
+                                              .userAssigned(userAssigned)
+                                              .userCreator(userCreator)
+                                              .build();
+                    })
                     .toList();
     }
 

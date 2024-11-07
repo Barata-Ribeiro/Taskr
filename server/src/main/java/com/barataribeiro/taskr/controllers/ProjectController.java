@@ -66,8 +66,9 @@ public class ProjectController {
 
     @GetMapping("/project/{projectId}/tasks")
     public ResponseEntity<RestResponseDTO<Map<String, Object>>> getProjectTasks(@PathVariable String orgId,
-                                                                                @PathVariable String projectId) {
-        Map<String, Object> response = projectService.getProjectTasks(orgId, projectId);
+                                                                                @PathVariable String projectId,
+                                                                                Principal principal) {
+        Map<String, Object> response = projectService.getProjectTasks(orgId, projectId, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "Project tasks retrieved successfully",
