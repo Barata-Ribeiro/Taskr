@@ -188,7 +188,7 @@ export default async function OrganizationPage({ params }: Readonly<Organization
                     </div>
 
                     {projectsData.projects.content.length > 0 ? (
-                        <StackedOrganizationProjectsList data={projectsData.projects} />
+                        <StackedOrganizationProjectsList orgId={params.id} data={projectsData.projects} />
                     ) : (
                         <div className="rounded-md bg-white shadow-sm ring-1 ring-gray-900/5">
                             <div className="relative flex justify-between gap-x-6 px-4 py-5 sm:px-6">
