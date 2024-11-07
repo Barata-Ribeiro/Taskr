@@ -53,5 +53,5 @@ export type {
     DashboardSimpleProject,
     OrganizationProject,
     OrganizationProjects,
-    ProjectResponse,
+    ProjectInfoResponse,
 }
