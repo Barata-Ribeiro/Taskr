@@ -2,14 +2,16 @@ import getProjectByOrgIdAndProjectId from "@/actions/projects/get-project-by-org
 import getAllTasksByProjectId from "@/actions/tasks/get-all-tasks-by-project-id"
 import StateError from "@/components/feedback/state-error"
 import Avatar from "@/components/helpers/avatar"
+import ProjectStatusBadge from "@/components/helpers/project-status-badge"
 import { ProblemDetails } from "@/interfaces/actions"
-import { ProjectInfoResponse, ProjectStatus } from "@/interfaces/project"
-import { CompleteTask, ProjectSortedTasks, TaskPriority, TaskStatus } from "@/interfaces/task"
+import { ProjectInfoResponse } from "@/interfaces/project"
+import { CompleteTask, ProjectSortedTasks } from "@/interfaces/task"
+import { getTaskPriorityColor, getTaskStatusColor } from "@/utils/get-color-functions"
 import parseDate from "@/utils/parse-date"
+import { Button } from "@headlessui/react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Fragment } from "react"
-import { twMerge } from "tailwind-merge"
 
 interface ProjectPageProps {
     params: {
@@ -46,17 +48,6 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
     const projectData = projectState.response?.data as ProjectInfoResponse
     const tasksData = taskState.response?.data as ProjectSortedTasks
 
-    const projectStatus = projectData.project.status
-        ? projectData.project.status
-              .toLowerCase()
-              .replace(/_/g, " ")
-              .replace(/\b\w/g, (char: string) => char.toUpperCase())
-        : "N/A"
-
-    const projectStatusColor = projectData.project.status
-        ? getProjectStatusColor(projectData.project.status)
-        : "text-ebony-500 bg-ebony-100"
-
     return (
         <Fragment>
             {/* Project Details */}
@@ -64,14 +55,9 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                 id="project-info-section"
                 aria-labelledby="project-info-section-title"
                 className="mb-12 mt-8 rounded-lg bg-white shadow-derek">
-                <header className="flex flex-col items-start justify-between gap-x-8 gap-y-4 px-4 py-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+                <header className="flex flex-col items-start justify-between gap-x-8 gap-y-4 px-4 py-6 sm:flex-row sm:items-center sm:px-6">
                     <div className="inline-flex items-center gap-x-3">
-                        <span
-                            aria-label={`Project Status: ${projectStatus}`}
-                            title={`Project Status: ${projectStatus}`}
-                            className={twMerge("flex-none rounded-full bg-opacity-10 p-1", projectStatusColor)}>
-                            <div aria-hidden="true" className="h-2 w-2 rounded-full bg-current" />
-                        </span>
+                        <ProjectStatusBadge status={projectData.project?.status} type="icon-only" />
                         <h1 id="project-info-section-title" className="text-4xl font-medium text-ebony-900">
                             {projectData.project.name}
                         </h1>
@@ -83,7 +69,7 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                 </header>
 
                 <div className="border-t border-gray-100 px-4 py-6 sm:px-6">
-                    <h3 className="text-base font-semibold leading-7 text-gray-900">Project Details</h3>
+                    <h2 className="text-base font-semibold leading-7 text-gray-900">Project Details</h2>
                     <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">{projectData.project.description}</p>
                 </div>
 
@@ -94,16 +80,7 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                                 <span className="sr-only">Project Status</span>Status
                             </dt>
                             <dd className="mt-1 inline-flex items-center gap-x-2 sm:col-span-2 sm:mt-0">
-                                <span
-                                    aria-hidden="true"
-                                    className={twMerge("flex-none rounded-full bg-opacity-10 p-1", projectStatusColor)}>
-                                    <div aria-hidden="true" className="h-2 w-2 rounded-full bg-current" />
-                                </span>
-                                <p
-                                    aria-label={`Project Status: ${projectStatus}`}
-                                    className="text-sm leading-6 text-gray-700">
-                                    {projectStatus}
-                                </p>
+                                <ProjectStatusBadge status={projectData.project?.status} type="full" />
                             </dd>
                         </div>
                         <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -174,10 +151,22 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
             </section>
 
             {/* Tasks Section */}
-            <section id="project-tasks-section" aria-labelledby="project-tasks-section-title" className="mb-8">
-                <h2 id="project-tasks-section-title" className="mb-6 font-heading text-3xl text-ebony-700">
-                    Tasks
-                </h2>
+            <section
+                id="project-tasks-section"
+                aria-labelledby="project-tasks-section-title"
+                className="mb-12 mt-8 rounded-lg bg-white shadow-derek">
+                <header className="flex flex-col items-start justify-between gap-x-8 gap-y-4 px-4 py-6 sm:flex-row sm:items-center sm:px-6">
+                    <div className="inline-flex items-center gap-x-2">
+                        <h2 id="project-tasks-section-title" className="text-3xl font-medium text-ebony-900">
+                            Tasks
+                        </h2>
+                        <span className="text-sm font-medium text-ebony-400">
+                            ({projectData.project.tasksCount} tasks)
+                        </span>
+                    </div>
+
+                    <Button>New Task</Button>
+                </header>
 
                 {/* High Priority Tasks */}
                 <TaskCategory
@@ -279,47 +268,4 @@ const TaskCard: React.FC<TaskCardProps> = ({ data }) => {
             </div>
         </div>
     )
-}
-
-const getProjectStatusColor = (status: ProjectStatus) => {
-    switch (status) {
-        case "AWAITING_APPROVAL":
-            return "text-yellow-500 bg-yellow-500"
-        case "ACTIVE":
-            return "text-green-500 bg-green-100"
-        case "INACTIVE":
-            return "text-gray-500 bg-gray-100"
-        case "COMPLETED":
-            return "text-blue-500 bg-blue-100"
-        default:
-            return "text-ebony-500 bg-ebony-100"
-    }
-}
-
-const getTaskStatusColor = (status: TaskStatus) => {
-    switch (status) {
-        case "OPEN":
-            return "text-green-500"
-        case "IN_PROGRESS":
-            return "text-yellow-500"
-        case "IN_REVIEW":
-            return "text-blue-500"
-        case "DONE":
-            return "text-gray-500"
-        default:
-            return "text-ebony-500"
-    }
-}
-
-const getTaskPriorityColor = (priority: TaskPriority) => {
-    switch (priority) {
-        case "HIGH":
-            return "text-english-holly-600"
-        case "MEDIUM":
-            return "text-yellow-500"
-        case "LOW":
-            return "text-green-500"
-        default:
-            return "text-ebony-500"
-    }
 }
