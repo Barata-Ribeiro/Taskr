@@ -1,6 +1,7 @@
 import getUserProjectsByOrgId from "@/actions/projects/get-user-projects-by-org-id"
 import getUserContext from "@/actions/user/get-user-context"
 import StateError from "@/components/feedback/state-error"
+import ProjectStatusBadge from "@/components/helpers/project-status-badge"
 import { ProblemDetails } from "@/interfaces/actions"
 import { OrganizationProjects } from "@/interfaces/project"
 import { UserContext } from "@/interfaces/user"
@@ -148,54 +149,64 @@ export default async function ProjectsPage() {
                         </div>
                     </header>
 
-                    <ul className="divide-y divide-gray-100 overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-gray-900/5">
-                        {data.projects.map(orgProject => (
-                            <li
-                                key={orgProject.project.id}
-                                className="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
-                                <div className="flex min-w-0 gap-x-4">
-                                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-ebony-200 shadow-sm">
-                                        <FaDiagramProject className="h-6 w-6 text-gray-500" />
-                                    </div>
+                    {data.projects.length > 0 ? (
+                        <ul className="divide-y divide-gray-100 overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-gray-900/5">
+                            {data.projects.map(pivot => {
+                                const orgId = data.organization.id
+                                const projectKey = pivot.project.name + "_" + pivot.project.id
+                                const projectUrl = `/dashboard/projects/${pivot.project.id}?orgId=${orgId}`
+                                return (
+                                    <li
+                                        key={projectKey}
+                                        className="relative flex items-center justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6"
+                                        aria-labelledby={`project-${projectKey}-title`}>
+                                        <div className="min-w-0">
+                                            <div className="flex items-start gap-x-3">
+                                                <h3
+                                                    id={`project-${projectKey}-title`}
+                                                    className="text-sm font-semibold leading-6 text-gray-900">
+                                                    <Link href={projectUrl}>
+                                                        <span className="absolute inset-x-0 -top-px bottom-0" />
+                                                        {pivot.project.name}
+                                                    </Link>
+                                                </h3>
 
-                                    <div className="min-w-0 flex-auto">
-                                        <p className="text-sm font-semibold leading-6 text-gray-900">
-                                            <Link
-                                                href={`/dashboard/organizations/${data.organization.id}/projects/${orgProject.project.id}`}>
-                                                <span className="absolute inset-x-0 -top-px bottom-0" />
-                                                {orgProject.project.id}
-                                            </Link>
-                                        </p>
-                                        <p className="mt-1 flex text-xs leading-5 text-gray-500">
-                                            <Link
-                                                href={`/dashboard/organizations/${data.organization.id}/projects/${orgProject.project.id}`}>
-                                                <span className="absolute inset-x-0 -top-px bottom-0" />
-                                                {data.organization.name}
-                                            </Link>
-                                        </p>
-                                    </div>
-                                </div>
+                                                <ProjectStatusBadge status={pivot.status} type="text-only" />
+                                            </div>
+                                            <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
+                                                <p className="whitespace-nowrap">
+                                                    Due on{" "}
+                                                    <time dateTime={pivot.project.deadline}>
+                                                        {parseDate(pivot.project.deadline)}
+                                                    </time>
+                                                </p>
+                                                <svg viewBox="0 0 2 2" className="h-0.5 w-0.5 fill-current">
+                                                    <circle r={1} cx={1} cy={1} />
+                                                </svg>
+                                                <p className="truncate">
+                                                    {pivot.project.membersCount} member(s), {pivot.project.tasksCount}{" "}
+                                                    task(s)
+                                                </p>
+                                            </div>
+                                        </div>
 
-                                <div className="flex shrink-0 items-center gap-x-4">
-                                    <div className="hidden sm:flex sm:flex-col sm:items-end">
-                                        <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                            {orgProject.status}
-                                        </span>
-                                    </div>
-                                    <FaChevronRight aria-hidden="true" className="h-3 w-3 flex-none text-gray-400" />
-                                </div>
-                            </li>
-                        ))}
-
-                        {/*EMPTY STATE*/}
-                        {data.projects.length === 0 && (
-                            <li className="px-4 py-5 sm:px-6">
-                                <div className="flex items-center justify-center">
-                                    <p className="text-sm text-gray-500">No projects found for this organization.</p>
-                                </div>
-                            </li>
-                        )}
-                    </ul>
+                                        <FaChevronRight
+                                            aria-hidden="true"
+                                            className="h-3 w-3 flex-none text-gray-400"
+                                        />
+                                    </li>
+                                )
+                            })}
+                        </ul>
+                    ) : (
+                        <div className="rounded-md bg-white shadow-sm ring-1 ring-gray-900/5">
+                            <div className="relative flex justify-between gap-x-6 px-4 py-5 sm:px-6">
+                                <p className="text-base font-semibold leading-6 text-gray-900">
+                                    There are no projects in this organization yet
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </section>
             ))}
         </Fragment>
