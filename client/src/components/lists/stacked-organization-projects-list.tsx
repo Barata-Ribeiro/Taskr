@@ -1,9 +1,9 @@
+import ProjectStatusBadge from "@/components/helpers/project-status-badge"
 import { Paginated } from "@/interfaces/actions"
 import { OrganizationProject } from "@/interfaces/project"
 import parseDate from "@/utils/parse-date"
 import Link from "next/link"
 import { FaChevronRight } from "react-icons/fa6"
-import { twMerge } from "tailwind-merge"
 
 interface StackedOrganizationProjectsListProps {
     orgId: string
@@ -15,13 +15,6 @@ export default function StackedOrganizationProjectsList({
     data,
 }: Readonly<StackedOrganizationProjectsListProps>) {
     if (!data) return <p>No projects found</p>
-
-    const statuses = {
-        COMPLETED: "text-green-700 bg-green-50 ring-green-600/20",
-        ACTIVE: "text-blue-600 bg-blue-50 ring-blue-500/10",
-        INACTIVE: "text-gray-600 bg-gray-50 ring-gray-500/10",
-        AWAITING_APPROVAL: "text-yellow-800 bg-yellow-50 ring-yellow-600/20",
-    }
 
     return (
         <ul className="divide-y divide-gray-100 overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-gray-900/5">
@@ -43,14 +36,7 @@ export default function StackedOrganizationProjectsList({
                                         {pivot.project.name}
                                     </Link>
                                 </h3>
-                                <p
-                                    className={twMerge(
-                                        statuses[pivot.status],
-                                        "mt-0.5 select-none whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs font-medium capitalize ring-1 ring-inset",
-                                    )}
-                                    aria-label={pivot.status}>
-                                    {pivot.status.replace(/_/g, " ").toLowerCase()}
-                                </p>
+                                <ProjectStatusBadge status={pivot.project.status} type="text-only" />
                             </div>
                             <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
                                 <p className="whitespace-nowrap">
