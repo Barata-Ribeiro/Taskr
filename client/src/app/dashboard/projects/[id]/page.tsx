@@ -12,7 +12,7 @@ interface DashboardProjectPageProps {
 }
 
 export async function generateMetadata({ params, searchParams }: DashboardProjectPageProps) {
-    if (!params.id || !searchParams || !searchParams.orgId) return notFound()
+    if (!params.id || !searchParams?.orgId) return notFound()
 
     const projectState = await getProjectByOrgIdAndProjectId({
         projectId: +params.id,
@@ -30,8 +30,8 @@ export async function generateMetadata({ params, searchParams }: DashboardProjec
     }
 }
 
-export default async function DashboardProjectPage({ params, searchParams }: DashboardProjectPageProps) {
-    if (!params.id || !searchParams || !searchParams.orgId) return notFound()
+export default async function DashboardProjectPage({ params, searchParams }: Readonly<DashboardProjectPageProps>) {
+    if (!params.id || !searchParams?.orgId) return notFound()
 
     return <ProjectPage params={{ id: searchParams.orgId as string, projectId: params.id }} />
 }
