@@ -240,8 +240,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public Map<String, Object> updateProject(String orgId, String projectId,
-                                             @NotNull ProjectUpdateRequestDTO body, @NotNull Principal principal) {
+    public ProjectDTO updateProject(String orgId, String projectId, @NotNull ProjectUpdateRequestDTO body,
+                                    @NotNull Principal principal) {
+        if (body.name() == null && body.description() == null) {
+            throw new IllegalRequestException("You must provide at least one field to update.");
+        }
+
         Project project = getManagedProjectByUser(projectId, principal);
 
         if (body.name() != null) {
@@ -252,23 +256,7 @@ public class ProjectServiceImpl implements ProjectService {
             project.setDescription(body.description());
         }
 
-        List<String> usersNotAdded = new ArrayList<>();
-        List<User> usersAdded = new ArrayList<>();
-
-        if (body.usersToAdd() != null) {
-            attemptAddUsersToProject(body, usersNotAdded, project, usersAdded);
-
-            projectRepository.save(project);
-
-            sendNotificationForUsersAdded(principal, usersAdded, project);
-        }
-
-        Map<String, Object> returnData = new LinkedHashMap<>();
-        returnData.put(AppConstants.PROJECT, projectMapper.toDTO(project));
-        returnData.put("usersAdded", usersAdded);
-        returnData.put("usersNotAdded", usersNotAdded);
-
-        return returnData;
+        return projectMapper.toDTO(project);
     }
 
     @Override
