@@ -12,6 +12,8 @@ import { Button } from "@headlessui/react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Fragment } from "react"
+import { FaPencil } from "react-icons/fa6"
+import { twMerge } from "tailwind-merge"
 
 interface ProjectPageProps {
     params: {
@@ -48,6 +50,8 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
     const projectData = projectState.response?.data as ProjectInfoResponse
     const tasksData = taskState.response?.data as ProjectSortedTasks
 
+    const isManager = projectData.project.isManager
+
     return (
         <Fragment>
             {/* Project Details */}
@@ -63,9 +67,20 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                         </h1>
                     </div>
 
-                    <span className="order-first flex-none select-none rounded-md bg-ebony-50 px-2 py-1 text-xs font-medium text-ebony-700 ring-1 ring-inset ring-ebony-700/10 sm:order-none">
-                        {projectData.project.isManager ? "Project Manager" : "Project Member"}
-                    </span>
+                    <div className="order-first inline-flex items-center gap-x-2 sm:order-none">
+                        <Link
+                            href={`/dashboard/projects/${projectData.project.id}/manage?orgId=${params.id}`}
+                            className={twMerge(
+                                "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50",
+                                !isManager ? "pointer-events-none cursor-default opacity-50" : "",
+                            )}>
+                            <FaPencil aria-hidden="true" className="-ml-0.5 mr-1.5 h-4 w-4 text-gray-400" />
+                            Manage
+                        </Link>
+                        <span className="flex-none select-none rounded-md bg-ebony-50 px-2 py-1 text-xs font-medium text-ebony-700 ring-1 ring-inset ring-ebony-700/10 sm:order-none">
+                            {isManager ? "Project Manager" : "Project Member"}
+                        </span>
+                    </div>
                 </header>
 
                 <div className="border-t border-gray-100 px-4 py-6 sm:px-6">
