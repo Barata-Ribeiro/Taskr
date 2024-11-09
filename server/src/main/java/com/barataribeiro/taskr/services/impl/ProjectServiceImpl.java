@@ -282,11 +282,12 @@ public class ProjectServiceImpl implements ProjectService {
         User user = userRepository.findByUsername(principal.getName())
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
-        boolean isManager = projectUserRepository
-                .existsProjectWhereUserByIdIsManager(organizationProject.getProject().getId(), user.getId(), true);
+        boolean isOrganizationOwnerOrAdmin = organizationUserRepository
+                .existsByOrganizationIdAndUserIdAndIsAdminOrIsOwner(
+                        organizationProject.getOrganization().getId(), Long.valueOf(user.getId()));
 
-        if (!isManager) {
-            throw new IllegalRequestException("You are not a manager of this project.");
+        if (!isOrganizationOwnerOrAdmin) {
+            throw new IllegalRequestException("You are not an owner or admin of this organization.");
         }
 
         ProjectStatus projectStatus = status == null
