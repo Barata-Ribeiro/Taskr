@@ -85,7 +85,10 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
 
                 <div className="border-t border-gray-100 px-4 py-6 sm:px-6">
                     <h2 className="text-base font-semibold leading-7 text-gray-900">Project Details</h2>
-                    <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">{projectData.project.description}</p>
+                    <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
+                        Here are the details of the project you are currently viewing. If you are the project manager,
+                        you can manage the project by clicking on the &ldquo;Manage&rdquo; button.
+                    </p>
                 </div>
 
                 <div className="border-t border-gray-100">
