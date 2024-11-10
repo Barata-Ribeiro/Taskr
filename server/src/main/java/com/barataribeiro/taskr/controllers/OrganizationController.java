@@ -101,10 +101,10 @@ public class OrganizationController {
     }
 
     @PatchMapping("/{orgId}/management")
-    public ResponseEntity<RestResponseDTO<Map<String, Object>>> addMemberToOrganization(@PathVariable String orgId,
-                                                                                        @RequestBody
-                                                                                        ManagementRequestDTO body,
-                                                                                        Principal principal) {
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> manageOrganizationMembers(
+            @PathVariable String orgId,
+            @RequestBody ManagementRequestDTO body,
+            Principal principal) {
         Map<String, Object> response = organizationService.manageOrganizationMembers(orgId, body, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
