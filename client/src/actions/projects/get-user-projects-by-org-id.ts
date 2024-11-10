@@ -22,7 +22,7 @@ export default async function getUserProjectsByOrgId({ id }: GetUserProjectsByOr
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + session?.accessToken,
             },
-            next: { revalidate: 120 },
+            next: { revalidate: 120, tags: ["projects"] },
         })
 
         const json = await response.json()

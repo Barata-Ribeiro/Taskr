@@ -5,6 +5,7 @@ import { ApiResponse, ProblemDetails, State } from "@/interfaces/actions"
 import { Project } from "@/interfaces/project"
 import { PROJECTS_POST_NEW } from "@/utils/api-urls"
 import { auth } from "auth"
+import { revalidateTag } from "next/cache"
 import { z } from "zod"
 
 const newProjectSchema = z.object({
@@ -54,6 +55,9 @@ export default async function postNewProject(state: State, formData: FormData) {
         const responseData = json as ApiResponse
 
         const registerResponse = responseData.data as Project
+
+        revalidateTag("organizations")
+        revalidateTag("organization")
 
         return {
             ok: true,
