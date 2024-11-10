@@ -42,7 +42,7 @@ public class Project implements Serializable {
     private String name;
 
     @NotBlank(message = "Project description is required.")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT", length = 1000)
     private String description;
 
     @NotNull(message = "Deadline is required.")
