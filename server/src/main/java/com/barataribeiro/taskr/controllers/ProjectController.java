@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.controllers;
 
 import com.barataribeiro.taskr.dtos.RestResponseDTO;
+import com.barataribeiro.taskr.dtos.organization.ManagementRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
@@ -76,16 +77,30 @@ public class ProjectController {
     }
 
     @PatchMapping("/project/{projectId}")
-    public ResponseEntity<RestResponseDTO<Map<String, Object>>> updateProject(@PathVariable String orgId,
-                                                                              @PathVariable String projectId,
-                                                                              @RequestBody ProjectUpdateRequestDTO body,
-                                                                              Principal principal) {
-        Map<String, Object> response = projectService.updateProject(orgId, projectId, body, principal);
+    public ResponseEntity<RestResponseDTO<ProjectDTO>> updateProject(@PathVariable String orgId,
+                                                                     @PathVariable String projectId,
+                                                                     @RequestBody ProjectUpdateRequestDTO body,
+                                                                     Principal principal) {
+        ProjectDTO response = projectService.updateProject(orgId, projectId, body, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "Project updated successfully",
                                                        response));
     }
+
+    @PatchMapping("/project/{projectId}/management")
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> manageProjectMembers(
+            @PathVariable String orgId,
+            @PathVariable String projectId,
+            @RequestBody ManagementRequestDTO body,
+            Principal principal) {
+        Map<String, Object> response = projectService.manageProjectMembers(orgId, projectId, body, principal);
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Project members managed successfully",
+                                                       response));
+    }
+
 
     @PatchMapping("/project/{projectId}/status")
     public ResponseEntity<RestResponseDTO<Map<String, Object>>> changeProjectStatus(@PathVariable String orgId,

@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.services;
 
+import com.barataribeiro.taskr.dtos.organization.ManagementRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
@@ -20,6 +21,9 @@ public interface ProjectService {
 
     ProjectDTO updateProject(String orgId, String projectId, ProjectUpdateRequestDTO body,
                              Principal principal);
+
+    Map<String, Object> manageProjectMembers(String orgId, String projectId, ManagementRequestDTO body,
+                                             Principal principal);
 
     Map<String, Object> changeProjectStatus(String projectId, String taskId, String status, Principal principal);
 

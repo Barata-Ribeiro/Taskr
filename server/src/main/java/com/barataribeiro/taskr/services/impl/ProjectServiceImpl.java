@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.services.impl;
 
 import com.barataribeiro.taskr.builder.*;
+import com.barataribeiro.taskr.dtos.organization.ManagementRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
@@ -21,7 +22,6 @@ import com.barataribeiro.taskr.repositories.entities.ProjectRepository;
 import com.barataribeiro.taskr.repositories.entities.UserRepository;
 import com.barataribeiro.taskr.repositories.relations.OrganizationProjectRepository;
 import com.barataribeiro.taskr.repositories.relations.OrganizationUserRepository;
-import com.barataribeiro.taskr.repositories.relations.ProjectTaskRepository;
 import com.barataribeiro.taskr.repositories.relations.ProjectUserRepository;
 import com.barataribeiro.taskr.services.NotificationService;
 import com.barataribeiro.taskr.services.ProjectService;
@@ -29,6 +29,7 @@ import com.barataribeiro.taskr.utils.AppConstants;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ProjectServiceImpl implements ProjectService {
@@ -51,7 +53,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserMapper userMapper;
     private final ProjectMapper projectMapper;
     private final TaskMapper taskMapper;
-    private final ProjectTaskRepository projectTaskRepository;
     private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
     private final NotificationMapper notificationMapper;
@@ -261,6 +262,48 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
+    public Map<String, Object> manageProjectMembers(String orgId, String projectId, @NotNull ManagementRequestDTO body,
+                                                    @NotNull Principal principal) {
+        User user = userRepository.findByUsername(principal.getName())
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        log.atInfo().log("User {} is attempting to manage project {} members.", user.getUsername(), projectId);
+
+        verifyIfRequestingUserIsProjectManager(Long.valueOf(projectId), user.getId());
+
+        Project project = projectRepository
+                .findById(Long.valueOf(projectId))
+                .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
+
+        List<String> usersNotAdded = new ArrayList<>();
+        List<User> usersAdded = new ArrayList<>();
+        List<String> usersNotRemoved = new ArrayList<>();
+        List<User> usersRemoved = new ArrayList<>();
+
+        if (body.usersToAdd() != null) attemptAddUsersToProject(body, usersNotAdded, project, usersAdded);
+
+        if (body.usersToRemove() != null) attemptRemoveUsersToProject(body, usersNotRemoved, project, usersRemoved);
+
+        Map<String, Object> returnData = new HashMap<>();
+        returnData.put(AppConstants.PROJECT, projectMapper.toDTO(projectRepository.save(project)));
+        returnData.put("usersAdded", userMapper.toDTOList(usersAdded));
+        returnData.put("usersNotAdded", usersNotAdded);
+        returnData.put("usersRemoved", userMapper.toDTOList(usersRemoved));
+        returnData.put("usersNotRemoved", usersNotRemoved);
+
+        if (!usersAdded.isEmpty()) {
+            sendNotificationForUsersAdded(principal, usersAdded, project);
+        }
+
+        if (!usersRemoved.isEmpty()) {
+            sendNotificationForUsersRemoved(principal, usersAdded, project);
+        }
+
+        return returnData;
+    }
+
+    @Override
+    @Transactional
     public Map<String, Object> changeProjectStatus(String orgId, String projectId, String status,
                                                    @NotNull Principal principal) {
         OrganizationProject organizationProject = organizationProjectRepository
@@ -341,6 +384,24 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
+    private void sendNotificationForUsersRemoved(@NotNull Principal principal, @NotNull List<User> usersRemoved,
+                                                 Project project) {
+        for (User userRemoved : usersRemoved) {
+            Notification notification = Notification.builder()
+                                                    .title("Removed from Project")
+                                                    .message(String.format(
+                                                            "You have been removed from the project %s, by its " +
+                                                                    "manager %s.",
+                                                            project.getName(), principal.getName()))
+                                                    .user(userRemoved)
+                                                    .build();
+            notificationRepository.save(notification);
+
+            notificationService.sendNotificationThroughWebsocket(userRemoved.getUsername(),
+                                                                 notificationMapper.toDTO(notification));
+        }
+    }
+
     private @NotNull Map<String, List<CompleteTaskDTO>> sortTasksByPriority(Set<Task> tasks) {
         Map<String, List<CompleteTaskDTO>> sortedTasks = new LinkedHashMap<>();
         sortedTasks.put("lowPriority", filterTasksByPriority(tasks, TaskPriority.LOW));
@@ -367,10 +428,6 @@ public class ProjectServiceImpl implements ProjectService {
                                                   .orElseThrow(() -> new EntityNotFoundException(
                                                           User.class.getSimpleName()));
 
-                        Map<String, Object> taskMap = new LinkedHashMap<>();
-                        taskMap.put("task", taskDTO);
-                        taskMap.put("userAssigned", userAssigned);
-                        taskMap.put("userCreator", userCreator);
                         return CompleteTaskDTO.builder()
                                               .task(taskDTO)
                                               .userAssigned(userAssigned)
@@ -386,7 +443,7 @@ public class ProjectServiceImpl implements ProjectService {
                            .collect(Collectors.toSet());
     }
 
-    private void attemptAddUsersToProject(@NotNull ProjectUpdateRequestDTO body, List<String> usersNotAdded,
+    private void attemptAddUsersToProject(@NotNull ManagementRequestDTO body, List<String> usersNotAdded,
                                           Project project, List<User> usersAdded) {
         for (String username : body.usersToAdd()) {
             userRepository.findByUsername(username)
@@ -402,6 +459,18 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
+    private void attemptRemoveUsersToProject(@NotNull ManagementRequestDTO body, List<String> usersNotRemoved,
+                                             Project project, List<User> usersRemoved) {
+        for (String username : body.usersToRemove()) {
+            userRepository.findByUsername(username)
+                          .ifPresentOrElse(user -> {
+                              projectUserRepository.deleteById_ProjectIdAndId_UserId(project.getId(), user.getId());
+                              project.decrementMembersCount();
+                              usersRemoved.add(user);
+                          }, () -> usersNotRemoved.add(username));
+        }
+    }
+
     private @NotNull Project getManagedProjectByUser(String projectId, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName())
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
@@ -410,13 +479,16 @@ public class ProjectServiceImpl implements ProjectService {
                 .findById(Long.valueOf(projectId))
                 .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
-        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(project.getId(), user.getId(),
-                                                                                      true);
+        verifyIfRequestingUserIsProjectManager(project.getId(), user.getId());
+
+        return project;
+    }
+
+    private void verifyIfRequestingUserIsProjectManager(Long projectId, String userId) {
+        boolean isManager = projectUserRepository.existsProjectWhereUserByIdIsManager(projectId, userId, true);
 
         if (!isManager) {
             throw new IllegalRequestException("You are not a manager of this project.");
         }
-
-        return project;
     }
 }
