@@ -1,5 +1,7 @@
 import getProjectByOrgIdAndProjectId from "@/actions/projects/get-project-by-org-id-and-project-id"
+import DeleteProject from "@/components/actions/delete-project"
 import StateError from "@/components/feedback/state-error"
+import EditProjectStatusForm from "@/components/forms/edit-projecet-status-form"
 import EditProjectDetailsForm from "@/components/forms/edit-project-details-form"
 import { ProblemDetails } from "@/interfaces/actions"
 import { ProjectInfoResponse } from "@/interfaces/project"
@@ -28,55 +30,60 @@ export default async function ManageProjectPage({ params, searchParams }: Readon
     const projectData = projectState.response?.data as ProjectInfoResponse
 
     const isManager = projectData.project.isManager
-    if (!isManager) return redirect(`/dashboard/projects/${params.id}?orgId=${searchParams?.orgId}`)
+    const isOrgOwnerOrAdmin = projectData.organization.isOwner || projectData.organization.isAdmin
+    if (!isManager || !isOrgOwnerOrAdmin) {
+        return redirect(`/dashboard/projects/${params.id}?orgId=${searchParams?.orgId}`)
+    }
 
     return (
         <div className="space-y-10 divide-y divide-gray-900/10">
-            <div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
-                <div className="px-4 sm:px-0">
-                    <h2 className="text-base font-semibold leading-7 text-gray-900">Project</h2>
+            <section
+                id="edit-project-status"
+                aria-labelledby="edit-project-status-title"
+                className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+                <header className="px-4 sm:px-0">
+                    <h2 id="edit-project-status-title" className="text-base font-semibold leading-7 text-gray-900">
+                        Project Status
+                    </h2>
+                    <p className="mt-1 text-sm leading-6 text-gray-600">
+                        Update the project status. This will affect the team&apos;s ability to interact with the
+                        project.
+                    </p>
+                </header>
+
+                <EditProjectStatusForm org={projectData.organization} project={projectData.project} />
+            </section>
+
+            <section
+                id="edit-project-details"
+                aria-labelledby="edit-project-details-title"
+                className="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
+                <header className="px-4 sm:px-0">
+                    <h2 id="edit-project-details-title" className="text-base font-semibold leading-7 text-gray-900">
+                        Project Details
+                    </h2>
                     <p className="mt-1 text-sm leading-6 text-gray-600">
                         Edit the project details such as its name, description, and deadline.
                     </p>
-                </div>
+                </header>
 
                 <EditProjectDetailsForm orgId={projectData.organization.id} project={projectData.project} />
-            </div>
+            </section>
 
-            <div className="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
-                <div className="px-4 sm:px-0">
-                    <h2 className="text-base font-semibold leading-7 text-gray-900">Project Deadline</h2>
-                    <p className="mt-1 text-sm leading-6 text-gray-600">
-                        Change the project deadline. This will affect the project&apos;s timeline.
-                    </p>
-                </div>
-
-                <form className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
-                    <div className="px-4 py-6 sm:p-8">
-                        <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">{/*ADD FIELD*/}</div>
-                    </div>
-                    <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-                        <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                            Update
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div className="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
-                <div className="px-4 sm:px-0">
-                    <h2 className="text-base font-semibold leading-7 text-gray-900">Project Team</h2>
+            <section
+                id="manage-project-members"
+                aria-labelledby="manage-project-members-title"
+                className="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
+                <header className="px-4 sm:px-0">
+                    <h2 id="manage-project-members-title" className="text-base font-semibold leading-7 text-gray-900">
+                        Project Team
+                    </h2>
                     <p className="mt-1 text-sm leading-6 text-gray-600">
                         Add or remove members from the project&apos;s team.
                     </p>
-                </div>
+                </header>
 
-                <form className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
+                <form className="rounded-lg bg-white shadow-derek ring-1 ring-gray-900/5 md:col-span-2">
                     <div className="px-4 py-6 sm:p-8">
                         <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                             {/*ADD FIELDS*/}
@@ -93,19 +100,26 @@ export default async function ManageProjectPage({ params, searchParams }: Readon
                         </button>
                     </div>
                 </form>
-            </div>
+            </section>
 
-            <div className="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
-                <div className="px-4 sm:px-0">
-                    <h2 className="text-base font-semibold leading-7 text-gray-900">Danger Zone</h2>
+            <div
+                id="project-danger-zone"
+                aria-labelledby="project-danger-zone-title"
+                className="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
+                <header className="px-4 sm:px-0">
+                    <h2 id="project-danger-zone-title" className="text-base font-semibold leading-7 text-gray-900">
+                        Danger Zone
+                    </h2>
                     <p className="mt-1 text-sm leading-6 text-gray-600">
                         Delete the project. This action is irreversible. All data will be lost.
                     </p>
-                </div>
+                </header>
 
-                <form className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
-                    {/*ADD PROJECT DELETION*/}
-                </form>
+                <DeleteProject
+                    orgId={projectData.organization.id}
+                    projectId={projectData.project.id}
+                    isManager={isManager}
+                />
             </div>
         </div>
     )
