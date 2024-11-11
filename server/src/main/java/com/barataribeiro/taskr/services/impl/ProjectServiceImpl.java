@@ -145,7 +145,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         return returnData;
     }
-
+    
     @Override
     @Transactional(readOnly = true)
     public Map<String, Object> getProjectInfo(String orgId, String projectId, @NotNull Principal principal) {
@@ -153,10 +153,31 @@ public class ProjectServiceImpl implements ProjectService {
                 .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
                 .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
-        if (organizationProject.getOrganization().getOrganizationUsers().stream()
-                               .noneMatch(ou -> ou.getUser().getUsername().equalsIgnoreCase(principal.getName()))) {
+        boolean isMember = organizationProject.getOrganization().getOrganizationUsers().stream()
+                                              .anyMatch(ou -> ou
+                                                      .getUser()
+                                                      .getUsername()
+                                                      .equalsIgnoreCase(principal.getName()));
+        if (!isMember) {
             throw new IllegalRequestException("You are not a member of this organization.");
         }
+
+        Organization organization = organizationProject.getOrganization();
+        Map<String, Object> simplifiedOrgInfo = new LinkedHashMap<>();
+        simplifiedOrgInfo.put("id", organization.getId());
+        simplifiedOrgInfo.put("name", organization.getName());
+        simplifiedOrgInfo.put("isOwner", organization.getOrganizationUsers().stream()
+                                                     .filter(OrganizationUser::isOwner)
+                                                     .anyMatch(ou -> ou
+                                                             .getUser()
+                                                             .getUsername()
+                                                             .equalsIgnoreCase(principal.getName())));
+        simplifiedOrgInfo.put("isAdmin", organization.getOrganizationUsers().stream()
+                                                     .filter(OrganizationUser::isAdmin)
+                                                     .anyMatch(ou -> ou
+                                                             .getUser()
+                                                             .getUsername()
+                                                             .equalsIgnoreCase(principal.getName())));
 
         ProjectDTO projectDTO = projectMapper.toDTO(organizationProject.getProject());
         ProjectStatus projectStatus = organizationProject.getStatus();
@@ -170,7 +191,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectMap.put("isManager", isManager);
 
         Map<String, Object> projectInfo = new LinkedHashMap<>();
-        projectInfo.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organizationProject.getOrganization()));
+        projectInfo.put(AppConstants.ORGANIZATION, simplifiedOrgInfo);
         projectInfo.put(AppConstants.PROJECT, projectMap);
 
         return projectInfo;

@@ -1,4 +1,4 @@
-import { Organization } from "@/interfaces/organization"
+import { Organization, SimpleOrganization } from "@/interfaces/organization"
 import { Task } from "@/interfaces/task"
 import { User } from "@/interfaces/user"
 
@@ -42,7 +42,7 @@ interface OrganizationProjects {
 }
 
 interface ProjectInfoResponse {
-    organization: Organization
+    organization: SimpleOrganization
     project: Project
 }
 
