@@ -21,6 +21,7 @@ const newProjectSchema = z.object({
         .string({ message: "Description is required" })
         .trim()
         .min(20, "Description must be at least 20 characters"),
+    deadline: z.string({ message: "Deadline is required" }).date(),
 })
 
 export default async function patchUpdateProject(state: State, formData: FormData) {

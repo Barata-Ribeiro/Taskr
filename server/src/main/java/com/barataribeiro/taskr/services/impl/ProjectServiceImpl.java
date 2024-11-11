@@ -249,13 +249,9 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project project = getManagedProjectByUser(projectId, principal);
 
-        if (body.name() != null) {
-            project.setName(body.name());
-        }
-
-        if (body.description() != null) {
-            project.setDescription(body.description());
-        }
+        Optional.ofNullable(body.name()).ifPresent(project::setName);
+        Optional.ofNullable(body.description()).ifPresent(project::setDescription);
+        Optional.ofNullable(body.deadline()).ifPresent(project::setDeadline);
 
         return projectMapper.toDTO(project);
     }
@@ -280,9 +276,11 @@ public class ProjectServiceImpl implements ProjectService {
         List<String> usersNotRemoved = new ArrayList<>();
         List<User> usersRemoved = new ArrayList<>();
 
-        if (body.usersToAdd() != null) attemptAddUsersToProject(body, usersNotAdded, project, usersAdded);
+        Optional.ofNullable(body.usersToAdd())
+                .ifPresent(users -> attemptAddUsersToProject(body, usersNotAdded, project, usersAdded));
 
-        if (body.usersToRemove() != null) attemptRemoveUsersToProject(body, usersNotRemoved, project, usersRemoved);
+        Optional.ofNullable(body.usersToRemove())
+                .ifPresent(users -> attemptRemoveUsersToProject(body, usersNotRemoved, project, usersRemoved));
 
         Map<String, Object> returnData = new HashMap<>();
         returnData.put(AppConstants.PROJECT, projectMapper.toDTO(projectRepository.save(project)));
