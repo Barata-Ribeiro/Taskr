@@ -8,7 +8,7 @@ import { auth } from "auth"
 import { revalidateTag } from "next/cache"
 import { z } from "zod"
 
-const newProjectSchema = z.object({
+const updateProjectSchema = z.object({
     organizationId: z.string(),
     projectId: z.string(),
     name: z
@@ -29,7 +29,7 @@ export default async function patchUpdateProject(state: State, formData: FormDat
 
     try {
         const rawFormData = Object.fromEntries(formData.entries())
-        const parsedFormData = newProjectSchema.safeParse(rawFormData)
+        const parsedFormData = updateProjectSchema.safeParse(rawFormData)
 
         if (!parsedFormData.success) {
             return ResponseError(parsedFormData.error)
