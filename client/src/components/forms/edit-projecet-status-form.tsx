@@ -1,13 +1,16 @@
 "use client"
 
-import patchUpdateProject from "@/actions/projects/patch-update-project"
+import patchUpdateProjectStatus from "@/actions/projects/patch-update-project-status"
+import ProjectStatusBadge from "@/components/helpers/project-status-badge"
 import Spinner from "@/components/helpers/spinner"
 import { useForm } from "@/hooks/use-form"
 import { SimpleOrganization } from "@/interfaces/organization"
-import { Project } from "@/interfaces/project"
-import { Button } from "@headlessui/react"
+import { Project, ProjectStatus } from "@/interfaces/project"
+import { Button, Input, Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/react"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { FaCheck } from "react-icons/fa6"
+import { HiChevronUpDown } from "react-icons/hi2"
 
 interface EditProjectStatusFormProps {
     org: SimpleOrganization
@@ -15,8 +18,10 @@ interface EditProjectStatusFormProps {
 }
 
 export default function EditProjectStatusForm({ org, project }: Readonly<EditProjectStatusFormProps>) {
+    const [selected, setSelected] = useState<ProjectStatus>(project.status ?? "AWAITING_APPROVAL")
+
     const router = useRouter()
-    const { isPending, formState, formAction, onSubmit } = useForm(patchUpdateProject, {
+    const { isPending, formState, formAction, onSubmit } = useForm(patchUpdateProjectStatus, {
         ok: false,
         error: null,
         response: null,
@@ -28,13 +33,57 @@ export default function EditProjectStatusForm({ org, project }: Readonly<EditPro
 
     const isAllowedToChangeStatus = org.isOwner || org.isAdmin
 
+    const statusOptions: ProjectStatus[] = ["AWAITING_APPROVAL", "ACTIVE", "INACTIVE", "COMPLETED"]
+
     return (
         <form
             action={formAction}
             onSubmit={onSubmit}
             className="rounded-lg bg-white shadow-derek ring-1 ring-gray-900/5 md:col-span-2">
             <div className="px-4 py-6 sm:p-8">
-                <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">{/*ADD FIELD*/}</div>
+                <Input type="hidden" name="organizationId" value={org.id} />
+                <Input type="hidden" name="projectId" value={project.id} />
+
+                <Listbox value={selected} onChange={setSelected} name="status" defaultValue={project.status}>
+                    <Label className="block text-sm font-medium leading-6 text-gray-900">Project Status</Label>
+                    <div className="relative mt-2">
+                        <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-ebony-600 sm:text-sm sm:leading-6">
+                            <span className="inline-flex items-center gap-x-2 truncate">
+                                {selected
+                                    .toLowerCase()
+                                    .replace(/_/g, " ")
+                                    .replace(/\b\w/g, (char: string) => char.toUpperCase())}
+                                <ProjectStatusBadge type="icon-only" status={selected} />
+                            </span>
+                            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                <HiChevronUpDown aria-hidden="true" className="h-5 w-5 text-gray-400" />
+                            </span>
+                        </ListboxButton>
+
+                        <ListboxOptions
+                            transition
+                            className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm">
+                            {statusOptions.map((status, idx) => (
+                                <ListboxOption
+                                    key={status + "_" + idx}
+                                    value={status}
+                                    className="group relative cursor-default select-none py-2 pl-8 pr-4 text-gray-900 data-[focus]:bg-ebony-600 data-[focus]:text-white">
+                                    <span className="inline-flex items-center gap-x-2 truncate font-normal group-data-[selected]:font-semibold">
+                                        {status
+                                            .toLowerCase()
+                                            .replace(/_/g, " ")
+                                            .replace(/\b\w/g, (char: string) => char.toUpperCase())}
+                                        <ProjectStatusBadge type="icon-only" status={status} />
+                                    </span>
+
+                                    <span className="absolute inset-y-0 left-0 flex items-center pl-1.5 text-ebony-600 group-data-[focus]:text-white [.group:not([data-selected])_&]:hidden">
+                                        <FaCheck aria-hidden="true" className="h-4 w-4" />
+                                    </span>
+                                </ListboxOption>
+                            ))}
+                        </ListboxOptions>
+                    </div>
+                </Listbox>
             </div>
             <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
                 <button
