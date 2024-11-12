@@ -36,11 +36,28 @@ export default async function ManageProjectPage({ params, searchParams }: Readon
     }
 
     return (
-        <div className="space-y-10 divide-y divide-gray-900/10">
+        <div
+            id="project-management"
+            aria-labelledby="project-management-title"
+            className="space-y-10 divide-y divide-gray-900/10">
+            <div className="px-6 py-12 sm:py-16 lg:px-8">
+                <header className="mx-auto max-w-2xl text-center">
+                    <h1
+                        id="project-management-title"
+                        className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+                        Manage Project
+                    </h1>
+                    <p className="mt-6 text-lg leading-8 text-gray-600">
+                        This page allows you to manage the project. With necessary credentials, you can update the
+                        project status, edit the project details, manage the project team, or delete the project.
+                    </p>
+                </header>
+            </div>
+
             <section
                 id="edit-project-status"
                 aria-labelledby="edit-project-status-title"
-                className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+                className="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
                 <header className="px-4 sm:px-0">
                     <h2 id="edit-project-status-title" className="text-base font-semibold leading-7 text-gray-900">
                         Project Status
