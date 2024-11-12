@@ -105,9 +105,9 @@ public class ProjectController {
     @PatchMapping("/project/{projectId}/status")
     public ResponseEntity<RestResponseDTO<Map<String, Object>>> changeProjectStatus(@PathVariable String orgId,
                                                                                     @PathVariable String projectId,
-                                                                                    @RequestParam String status,
+                                                                                    @RequestParam String option,
                                                                                     Principal principal) {
-        Map<String, Object> response = projectService.changeProjectStatus(orgId, projectId, status, principal);
+        Map<String, Object> response = projectService.changeProjectStatus(orgId, projectId, option, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "Project status updated successfully",
