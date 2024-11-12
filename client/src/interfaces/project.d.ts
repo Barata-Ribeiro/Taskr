@@ -46,6 +46,13 @@ interface ProjectInfoResponse {
     project: Project
 }
 
+interface ProjectStatusResponse {
+    organization: Organization
+    project: Project
+    newStatus: ProjectStatus
+    manager: User
+}
+
 export type {
     ProjectStatus,
     Project,
@@ -54,4 +61,5 @@ export type {
     OrganizationProject,
     OrganizationProjects,
     ProjectInfoResponse,
+    ProjectStatusResponse,
 }
