@@ -17,14 +17,19 @@ export function WebsocketProvider({ children }: Readonly<{ children: ReactNode }
     const [notifications, setNotifications] = useState<Notification[]>([])
     const [subscription, setSubscription] = useState<StompSubscription | null>(null)
 
+    function addNewNotification(notification: Notification) {
+        return (prev: Notification[]) => [notification, ...prev]
+    }
+
     useEffect(() => {
         if (session) {
             const handleConnect = () => {
                 if (!subscription) {
                     const sub = websocketClient.subscribe("/user/notifications", (message: IMessage) => {
                         const notification = JSON.parse(message.body) as Notification
-                        setNotifications(prev => [notification, ...prev])
+                        setNotifications(addNewNotification(notification))
                     })
+
                     setSubscription(sub)
                 }
             }
@@ -34,7 +39,7 @@ export function WebsocketProvider({ children }: Readonly<{ children: ReactNode }
 
             return () => {
                 if (subscription) {
-                    subscription.unsubscribe()
+                    websocketClient.unSubscribe("/user/notifications")
                     setSubscription(null)
                 }
 

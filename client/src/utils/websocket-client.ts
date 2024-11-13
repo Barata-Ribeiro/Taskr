@@ -5,7 +5,7 @@ const BACKEND_URL = process.env.BACKEND_ORIGIN ?? "http://localhost:8080"
 
 class WebSocketClient {
     private readonly client: Client
-    private readonly subscriptions: { [key: string]: StompSubscription } = {}
+    private readonly subscriptions: { [destination: string]: StompSubscription } = {}
     private readonly onConnectCallbacks: Array<() => void> = []
 
     constructor() {
@@ -52,12 +52,15 @@ class WebSocketClient {
     }
 
     subscribe(destination: string, callback: (message: IMessage) => void): StompSubscription {
-        return this.client.subscribe(destination, callback)
+        const sub = this.client.subscribe(destination, callback)
+        this.subscriptions[destination] = sub
+        return sub
     }
 
     unSubscribe(destination: string) {
-        if (this.subscriptions[destination]) {
-            this.subscriptions[destination].unsubscribe()
+        const sub = this.subscriptions[destination]
+        if (sub) {
+            sub.unsubscribe()
             delete this.subscriptions[destination]
         }
     }
