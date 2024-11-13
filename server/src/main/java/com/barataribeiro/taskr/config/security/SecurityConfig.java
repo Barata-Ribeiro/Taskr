@@ -38,7 +38,8 @@ public class SecurityConfig {
             // -- Taskr
             "/",
             "/api/v1/auth/**",
-            };
+            "/ws/**"
+    };
 
     private static final String CONTENT_SECURITY_POLICY_VALUE = "default-src 'self'; base-uri 'self'; " +
             "font-src 'self' https: data:; form-action 'self'; frame-ancestors 'self'; img-src 'self' data:; " +

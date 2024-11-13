@@ -38,7 +38,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(final @NonNull HttpServletRequest request,
                                     final @NonNull HttpServletResponse response,
                                     final @NonNull FilterChain filterChain) throws ServletException, IOException {
-        if (request.getServletPath().startsWith("/api/v1/auth/")) {
+        if (request.getServletPath().startsWith("/api/v1/auth/") || request.getServletPath().contains("/ws")) {
             filterChain.doFilter(request, response);
             return;
         }
