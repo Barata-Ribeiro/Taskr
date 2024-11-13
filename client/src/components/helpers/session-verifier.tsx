@@ -6,7 +6,7 @@ import { Route } from "next"
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
-import { Fragment, useCallback, useEffect } from "react"
+import { useCallback, useEffect } from "react"
 
 export default function SessionVerifier() {
     const router = useRouter()
@@ -23,11 +23,11 @@ export default function SessionVerifier() {
                     router.push(`${window.location.origin}/auth/login` as Route<string>)
                 })
             })
-    }, [router, session])
+    }, [router])
 
     useEffect(() => {
         if (session?.error === "RefreshAccessTokenError") logout()
     }, [session, logout])
 
-    return <Fragment></Fragment>
+    return <></>
 }
