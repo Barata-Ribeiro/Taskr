@@ -3,12 +3,12 @@ import { auth } from "@/auth"
 import StateError from "@/components/feedback/state-error"
 import Avatar from "@/components/helpers/avatar"
 import BadgePillWithDot from "@/components/helpers/badge-pill-with-dot"
+import NotificationIcon from "@/components/notification-icon"
 import SimpleProjectCard from "@/components/simple-project-card"
 import { ProblemDetails } from "@/interfaces/actions"
 import { UserDashboard } from "@/interfaces/user"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
-import { FaBell } from "react-icons/fa6"
 
 export const metadata: Metadata = {
     title: "Dashboard",
@@ -45,16 +45,7 @@ export default async function HomePage() {
                 </div>
 
                 {/* Notifications Icon Placeholder */}
-                <div>
-                    <button className="relative">
-                        <FaBell aria-hidden="true" className="h-6 w-6 text-gray-700" />
-                        {context.totalUnreadNotifications > 0 && (
-                            <span className="absolute right-0 top-0 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-1 text-xs font-bold leading-none text-red-100">
-                                {context.totalUnreadNotifications}
-                            </span>
-                        )}
-                    </button>
-                </div>
+                <NotificationIcon context={context} />
             </header>
 
             {/* Main Content Grid */}
