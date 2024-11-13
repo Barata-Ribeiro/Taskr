@@ -10,11 +10,9 @@ import java.time.Instant;
 /**
  * DTO for {@link com.barataribeiro.taskr.models.entities.Notification}
  */
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NotificationDTO implements Serializable {
     private Long id;

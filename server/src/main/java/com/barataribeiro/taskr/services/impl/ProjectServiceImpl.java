@@ -145,7 +145,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         return returnData;
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public Map<String, Object> getProjectInfo(String orgId, String projectId, @NotNull Principal principal) {
@@ -334,7 +334,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         boolean isOrganizationOwnerOrAdmin = organizationUserRepository
                 .existsByOrganizationIdAndUserIdAndIsAdminOrIsOwner(
-                        organizationProject.getOrganization().getId(), Long.valueOf(user.getId()));
+                        organizationProject.getOrganization().getId(), user.getId());
 
         if (!isOrganizationOwnerOrAdmin) {
             throw new IllegalRequestException("You are not an owner or admin of this organization.");
@@ -347,11 +347,30 @@ public class ProjectServiceImpl implements ProjectService {
         organizationProject.setStatus(projectStatus);
         organizationProjectRepository.save(organizationProject);
 
+        User manager = organizationProject.getProject().getProjectUser().stream()
+                                          .filter(ProjectUser::isProjectManager)
+                                          .findFirst()
+                                          .map(ProjectUser::getUser)
+                                          .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
         Map<String, Object> returnData = new LinkedHashMap<>();
         returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organizationProject.getOrganization()));
         returnData.put(AppConstants.PROJECT, projectMapper.toDTO(organizationProject.getProject()));
         returnData.put("newStatus", projectStatus);
-        returnData.put(AppConstants.MANAGER, userMapper.toDTO(user));
+        returnData.put(AppConstants.MANAGER, userMapper.toDTO(manager));
+
+        Notification notification = Notification.builder()
+                                                .title("Project Status Updated")
+                                                .message(String.format(
+                                                        "The status of the project %s has been updated to %s by %s.",
+                                                        organizationProject.getProject().getName(), projectStatus,
+                                                        principal.getName()))
+                                                .user(manager)
+                                                .build();
+        notificationRepository.save(notification);
+
+        notificationService.sendNotificationThroughWebsocket(manager.getUsername(),
+                                                             notificationMapper.toDTO(notification));
 
         return returnData;
     }

@@ -23,7 +23,7 @@ public interface OrganizationUserRepository extends JpaRepository<OrganizationUs
            AND (o.isAdmin = true OR o.isOwner = true)
            """)
     boolean existsByOrganizationIdAndUserIdAndIsAdminOrIsOwner(@Param("orgId") Long orgId,
-                                                               @Param("userId") Long userId);
+                                                               @Param("userId") String userId);
 
     boolean existsByOrganization_IdAndUser_Id(Long id, String userId);
 
