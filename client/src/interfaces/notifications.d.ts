@@ -4,7 +4,7 @@ interface Notification {
     id: number
     title: string
     message: string
-    isRead: boolean
+    read: boolean
     issuedAt: string
     readAt: string
     user: UserContext

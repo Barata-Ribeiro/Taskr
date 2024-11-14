@@ -33,7 +33,7 @@ public class Notification implements Serializable {
     private String message;
 
     @Builder.Default
-    @Column(columnDefinition = "BOOLEAN default 'false'", nullable = false)
+    @Column(name = "is_read", columnDefinition = "BOOLEAN default 'false'", nullable = false)
     private boolean isRead = false;
 
     @Column(name = "issued_at", updatable = false)
