@@ -2,7 +2,9 @@ package com.barataribeiro.taskr.dtos.notification;
 
 import com.barataribeiro.taskr.dtos.user.ContextDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.Instant;
