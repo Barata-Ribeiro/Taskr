@@ -14,7 +14,14 @@ const nextConfig = {
         ],
     },
     experimental: {
-        optimizePackageImports: ["tailwindcss", "@headlessui/react", "react-icons/fa", "react-icons/fa6"],
+        optimizePackageImports: [
+            "tailwindcss",
+            "@headlessui/react",
+            "react-icons/fa",
+            "react-icons/fa6",
+            "react-icons/hi2",
+            "react-icons/md",
+        ],
     },
 }
 
