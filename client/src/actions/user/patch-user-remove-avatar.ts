@@ -8,11 +8,22 @@ import { auth } from "auth"
 import { revalidateTag } from "next/cache"
 
 export default async function patchUserRemoveAvatar() {
-    try {
-        const session = await auth()
-        if (!session) return ResponseError("You must be logged in to perform this action.")
+    const session = await auth()
+    if (!session)
+        return {
+            ok: false,
+            error: {
+                type: "https://httpstatuses.com/401",
+                title: "Not Authenticated",
+                status: 401,
+                detail: "User is not authenticated.",
+                instance: "_Blank",
+            },
+            response: null,
+        }
 
-        const URL = USER_PATCH_UPDATE_ACCOUNT(session.user.id, true)
+    try {
+        const URL = USER_PATCH_UPDATE_ACCOUNT(session?.user.id, true)
 
         const response = await fetch(URL, {
             method: "PATCH",

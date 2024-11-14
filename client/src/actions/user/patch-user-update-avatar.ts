@@ -14,10 +14,21 @@ const updateAvatarSchema = z.object({
 })
 
 export default async function patchUserUpdateAvatar(state: State, formData: FormData) {
-    try {
-        const session = await auth()
-        if (!session) return ResponseError("You must be logged in to perform this action.")
+    const session = await auth()
+    if (!session)
+        return {
+            ok: false,
+            error: {
+                type: "https://httpstatuses.com/401",
+                title: "Not Authenticated",
+                status: 401,
+                detail: "User is not authenticated.",
+                instance: "_Blank",
+            },
+            response: null,
+        }
 
+    try {
         const URL = USER_PATCH_UPDATE_ACCOUNT(session?.user.id)
 
         const rawFormData = Object.fromEntries(formData.entries())
