@@ -1,7 +1,7 @@
 "use client"
 
-import Avatar from "@/components/helpers/avatar"
 import SessionVerifier from "@/components/helpers/session-verifier"
+import NotificationIcon from "@/components/notification-icon"
 import { UserContext } from "@/interfaces/user"
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from "@headlessui/react"
 import Image from "next/image"
@@ -272,17 +272,7 @@ export default function Sidebar({ data, children }: Readonly<SidebarProps>) {
                                 </ul>
                             </li>
                             <li className="-mx-6 mt-auto">
-                                <Link
-                                    href="/dashboard/profile"
-                                    className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50">
-                                    <Avatar
-                                        name={data.context.fullName ?? data.context.displayName}
-                                        size={32}
-                                        src={data.context.avatarUrl}
-                                    />
-                                    <span className="sr-only">Your profile</span>
-                                    <span aria-hidden="true">{data.context.fullName}</span>
-                                </Link>
+                                <NotificationIcon type="avatar-plus-name" context={data.context} />
                             </li>
                         </ul>
                     </nav>
@@ -298,14 +288,7 @@ export default function Sidebar({ data, children }: Readonly<SidebarProps>) {
                     <FaBars aria-hidden="true" className="h-6 w-6" />
                 </button>
                 <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">Dashboard</div>
-                <Link href="/dashboard/profile">
-                    <span className="sr-only">Your profile</span>
-                    <Avatar
-                        name={data.context.fullName ?? data.context.displayName}
-                        size={32}
-                        src={data.context.avatarUrl}
-                    />
-                </Link>
+                <NotificationIcon type="avatar" context={data.context} />
             </div>
 
             <main className="py-10 lg:pl-72">
