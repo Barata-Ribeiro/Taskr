@@ -17,6 +17,9 @@ export const USER_PATCH_UPDATE_ACCOUNT = (id: string, ra?: boolean) => {
 }
 export const USER_DELETE_ACCOUNT = (id: string) => `${BACKEND_URL}/api/v1/users/me/${id}`
 
+// Notifications
+export const NOTIFICATIONS_GET_LATEST = () => `${BACKEND_URL}/api/v1/notifications/latest`
+
 // Organizations
 export const ORGANIZATIONS_GET_LIST = (
     page: number,
