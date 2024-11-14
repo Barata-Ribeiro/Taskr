@@ -19,6 +19,7 @@ export const USER_DELETE_ACCOUNT = (id: string) => `${BACKEND_URL}/api/v1/users/
 
 // Notifications
 export const NOTIFICATIONS_GET_LATEST = () => `${BACKEND_URL}/api/v1/notifications/latest`
+export const NOTIFICATIONS_PATCH_MARK_AS_READ = (id: string) => `${BACKEND_URL}/api/v1/notifications/${id}/read`
 
 // Organizations
 export const ORGANIZATIONS_GET_LIST = (
