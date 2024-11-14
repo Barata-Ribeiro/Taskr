@@ -13,4 +13,6 @@ public interface NotificationService {
 
     Page<NotificationDTO> getAllUserNotifications(int page, int perPage, String direction, String orderBy,
                                                   Principal principal);
+
+    NotificationDTO markNotificationAsRead(String id, Principal principal);
 }

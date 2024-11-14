@@ -2,6 +2,7 @@ package com.barataribeiro.taskr.services.impl;
 
 import com.barataribeiro.taskr.builder.NotificationMapper;
 import com.barataribeiro.taskr.dtos.notification.NotificationDTO;
+import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.models.entities.Notification;
 import com.barataribeiro.taskr.repositories.entities.NotificationRepository;
 import com.barataribeiro.taskr.services.NotificationService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -53,5 +55,18 @@ public class NotificationServiceImpl implements NotificationService {
         Page<Notification> notifications = notificationRepository.findByUser_Username(principal.getName(), pageable);
 
         return notifications.map(notificationMapper::toDTO);
+    }
+
+    @Override
+    @Transactional
+    public NotificationDTO markNotificationAsRead(String id, @NotNull Principal principal) {
+        Notification notification = notificationRepository
+                .findByIdAndUser_Username(Long.valueOf(id), principal.getName())
+                .orElseThrow(() -> new EntityNotFoundException(Notification.class.getSimpleName()));
+
+        notification.setRead(true);
+        notification.setReadAt(Instant.now());
+
+        return notificationMapper.toDTO(notificationRepository.saveAndFlush(notification));
     }
 }

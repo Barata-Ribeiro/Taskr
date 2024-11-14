@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     @EntityGraph(attributePaths = {"user"})
@@ -14,4 +15,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @EntityGraph(attributePaths = {"user"})
     Page<Notification> findByUser_Username(String username, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user"})
+    Optional<Notification> findByIdAndUser_Username(Long id, String username);
 }

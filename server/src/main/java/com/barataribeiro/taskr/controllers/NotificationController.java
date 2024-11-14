@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -45,6 +42,16 @@ public class NotificationController {
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "Notifications retrieved successfully.",
+                                                       response));
+    }
+
+    @PatchMapping("/{id}/read")
+    public ResponseEntity<RestResponseDTO<NotificationDTO>> markNotificationAsRead(@PathVariable String id,
+                                                                                   Principal principal) {
+        NotificationDTO response = notificationService.markNotificationAsRead(id, principal);
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Notification marked as read successfully.",
                                                        response));
     }
 }
