@@ -68,16 +68,16 @@ export default function InlineNotification({ notification }: Readonly<InlineNoti
         <article
             id={notification.id.toString()}
             aria-labelledby={notification.id + "_" + notification.title}
-            className="min-w-0 px-6 py-4 lg:flex lg:items-center lg:justify-between">
+            className="min-w-0 p-4 lg:flex lg:items-center lg:justify-between">
             <div className="flex flex-col items-start gap-x-2 gap-y-4 md:flex-row md:items-center">
                 <span aria-hidden="true" className="rounded-lg bg-blue-100 p-2">
                     <HiOutlineInformationCircle aria-hidden="true" className="aspect-auto h-6 w-6 text-blue-500" />
                 </span>
                 <header className="grid grid-rows-2 items-start gap-y-1">
                     <div className="inline-flex items-center gap-x-2">
-                        <h2 id={notification.id + "_" + notification.title} className="text-sm font-semibold">
+                        <h3 id={notification.id + "_" + notification.title} className="text-sm font-semibold">
                             {notification.title}
-                        </h2>
+                        </h3>
                         <ReadNotificationBadge isread={isRead} />
                     </div>
                     <time dateTime={notification.issuedAt} className="text-xs text-gray-500">
