@@ -1,6 +1,8 @@
 "use client"
 
 import patchMarkNotifAsRead from "@/actions/notifications/patch-mark-notif-as-read"
+import NotificationReadBadge from "@/components/items/notification-read-badge"
+import DeletedNotification from "@/components/skeletons/deleted-notification"
 import { Notification } from "@/interfaces/notifications"
 import parseDate from "@/utils/parse-date"
 import { Button } from "@headlessui/react"
@@ -12,26 +14,6 @@ import { MdMailOutline, MdMarkEmailUnread } from "react-icons/md"
 
 interface InlineNotificationProps {
     notification: Notification
-}
-
-function ReadNotificationBadge({ isread }: { isread?: boolean }) {
-    return isread ? (
-        <span className="inline-flex select-none items-center rounded-md bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-            Read
-        </span>
-    ) : (
-        <span className="inline-flex select-none items-center rounded-md bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-            Unread
-        </span>
-    )
-}
-
-function DeletedNotif() {
-    return (
-        <div className="block w-full min-w-0 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-4 text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            <span className="block text-sm font-semibold text-gray-900">Deleted!</span>
-        </div>
-    )
 }
 
 export default function InlineNotification({ notification }: Readonly<InlineNotificationProps>) {
@@ -63,7 +45,7 @@ export default function InlineNotification({ notification }: Readonly<InlineNoti
     }
 
     return isDeleted ? (
-        <DeletedNotif />
+        <DeletedNotification />
     ) : (
         <article
             id={notification.id.toString()}
@@ -78,7 +60,7 @@ export default function InlineNotification({ notification }: Readonly<InlineNoti
                         <h3 id={notification.id + "_" + notification.title} className="text-sm font-semibold">
                             {notification.title}
                         </h3>
-                        <ReadNotificationBadge isread={isRead} />
+                        <NotificationReadBadge isRead={isRead} />
                     </div>
                     <time dateTime={notification.issuedAt} className="text-xs text-gray-500">
                         {parseDate(notification.issuedAt)}
