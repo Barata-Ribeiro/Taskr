@@ -23,6 +23,7 @@ export const NOTIFICATIONS_GET_ALL_PAGINATED = (page: number, perPage: number, d
 }
 export const NOTIFICATIONS_GET_LATEST = () => `${BACKEND_URL}/api/v1/notifications/latest`
 export const NOTIFICATIONS_PATCH_MARK_AS_READ = (id: string) => `${BACKEND_URL}/api/v1/notifications/${id}/read`
+export const NOTIFICATIONS_DELETE_BY_ID = (id: string) => `${BACKEND_URL}/api/v1/notifications/${id}`
 
 // Organizations
 export const ORGANIZATIONS_GET_LIST = (
