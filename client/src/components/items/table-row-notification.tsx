@@ -1,5 +1,6 @@
 "use client"
 
+import deleteNotificationById from "@/actions/notifications/delete-notification-by-id"
 import patchMarkNotifAsRead from "@/actions/notifications/patch-mark-notif-as-read"
 import NotificationReadBadge from "@/components/items/notification-read-badge"
 import DeletedNotification from "@/components/skeletons/deleted-notification"
@@ -42,10 +43,15 @@ export default function TableRowNotification({ notification }: Readonly<TableRow
 
         setIsPending(true)
 
-        // TODO: ADD DELETE NOTIFICATION ACTION
+        const state = await deleteNotificationById({ id: notification.id })
+
+        if (state.error) {
+            setIsPending(false)
+            return router.refresh()
+        }
 
         setIsPending(false)
-        setIsDeleted(true)
+        setIsDeleted(state.ok)
     }
 
     const isDisabled = isRead || isPending || isDeleted

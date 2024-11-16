@@ -1,5 +1,6 @@
 "use client"
 
+import deleteNotificationById from "@/actions/notifications/delete-notification-by-id"
 import patchMarkNotifAsRead from "@/actions/notifications/patch-mark-notif-as-read"
 import NotificationReadBadge from "@/components/items/notification-read-badge"
 import DeletedNotification from "@/components/skeletons/deleted-notification"
@@ -41,7 +42,19 @@ export default function InlineNotification({ notification }: Readonly<InlineNoti
     }
 
     async function deleteNotification() {
-        setIsDeleted(true)
+        if (isPending || isDeleted) return
+
+        setIsPending(true)
+
+        const state = await deleteNotificationById({ id: notification.id })
+
+        if (state.error) {
+            setIsPending(false)
+            return router.refresh()
+        }
+
+        setIsPending(false)
+        setIsDeleted(state.ok)
     }
 
     return isDeleted ? (
