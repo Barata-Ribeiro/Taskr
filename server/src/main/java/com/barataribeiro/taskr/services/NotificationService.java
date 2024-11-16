@@ -15,4 +15,6 @@ public interface NotificationService {
                                                   Principal principal);
 
     NotificationDTO markNotificationAsRead(String id, Principal principal);
+
+    void deleteNotification(String id, Principal principal);
 }

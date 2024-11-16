@@ -54,4 +54,14 @@ public class NotificationController {
                                                        "Notification marked as read successfully.",
                                                        response));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<RestResponseDTO<NotificationDTO>> deleteNotification(@PathVariable String id,
+                                                                               Principal principal) {
+        notificationService.deleteNotification(id, principal);
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Notification deleted successfully.",
+                                                       null));
+    }
 }

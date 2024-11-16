@@ -69,4 +69,16 @@ public class NotificationServiceImpl implements NotificationService {
 
         return notificationMapper.toDTO(notificationRepository.saveAndFlush(notification));
     }
+
+    @Override
+    @Transactional
+    public void deleteNotification(String id, @NotNull Principal principal) {
+        log.atInfo().log("User {} is attempting to delete notificaiton {}.", principal.getName(), id);
+
+        Notification notification = notificationRepository
+                .findByIdAndUser_Username(Long.valueOf(id), principal.getName())
+                .orElseThrow(() -> new EntityNotFoundException(Notification.class.getSimpleName()));
+
+        notificationRepository.delete(notification);
+    }
 }
