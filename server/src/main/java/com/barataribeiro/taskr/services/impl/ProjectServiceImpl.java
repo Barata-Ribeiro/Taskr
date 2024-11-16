@@ -270,9 +270,27 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project project = getManagedProjectByUser(projectId, principal);
 
-        Optional.ofNullable(body.name()).ifPresent(project::setName);
-        Optional.ofNullable(body.description()).ifPresent(project::setDescription);
-        Optional.ofNullable(body.deadline()).ifPresent(project::setDeadline);
+        List<String> changesMade = new ArrayList<>();
+
+        Optional.ofNullable(body.name()).ifPresent(name -> {
+            changesMade.add("Name");
+            project.setName(name);
+        });
+        Optional.ofNullable(body.description()).ifPresent(description -> {
+            changesMade.add("Description");
+            project.setDescription(description);
+        });
+        Optional.ofNullable(body.deadline()).ifPresent(deadline -> {
+            changesMade.add("Deadline");
+            project.setDeadline(deadline);
+        });
+
+        if (!changesMade.isEmpty()) {
+            log.atInfo().log("User {} updated the project {} with the following changes: {}.",
+                             principal.getName(), project.getName(), changesMade);
+
+            notifyProjectMembersOfChangesPatchedInProject(principal, project, changesMade);
+        }
 
         return projectMapper.toDTO(project);
     }
@@ -383,6 +401,31 @@ public class ProjectServiceImpl implements ProjectService {
         projectUserRepository.deleteByProject(project);
         organizationProjectRepository.deleteByProject(project);
         projectRepository.delete(project);
+    }
+
+    private void notifyProjectMembersOfChangesPatchedInProject(@NotNull Principal principal, @NotNull Project project,
+                                                               List<String> changesMade) {
+        List<User> usersToNotify = project.getProjectUser().stream()
+                                          .map(ProjectUser::getUser)
+                                          .filter(user -> !user.getUsername().equalsIgnoreCase(principal.getName()))
+                                          .toList();
+
+        for (User user : usersToNotify) {
+            Notification notification = Notification.builder()
+                                                    .title("Project Updated")
+                                                    .message(String.format(
+                                                            "The project %s has been updated by its manager %s. " +
+                                                                    "Changes were made to the following fields: " +
+                                                                    "%s.",
+                                                            project.getName(), principal.getName(),
+                                                            String.join(", ", changesMade)))
+                                                    .user(user)
+                                                    .build();
+            notificationRepository.save(notification);
+
+            notificationService.sendNotificationThroughWebsocket(user.getUsername(),
+                                                                 notificationMapper.toDTO(notification));
+        }
     }
 
     private UserDTO getProjectManagerFromOrganizationProjectPivotAsDTO(

@@ -241,11 +241,34 @@ public class OrganizationServiceImpl implements OrganizationService {
                                                       @NotNull Principal principal) {
         final Organization organization = getOrganizationIfUserIsOwner(id, principal);
 
-        if (body.name() != null) organization.setName(body.name());
-        if (body.description() != null) organization.setDescription(body.description());
-        if (body.logoUrl() != null) organization.setLogoUrl(body.logoUrl());
-        if (body.websiteUrl() != null) organization.setWebsiteUrl(body.websiteUrl());
-        if (body.location() != null) organization.setLocation(body.location());
+        List<String> changesMade = new ArrayList<>();
+
+        Optional.ofNullable(body.name()).ifPresent(name -> {
+            changesMade.add("Name");
+            organization.setName(name);
+        });
+        Optional.ofNullable(body.description()).ifPresent(description -> {
+            changesMade.add("Description");
+            organization.setDescription(description);
+        });
+        Optional.ofNullable(body.logoUrl()).ifPresent(logoUrl -> {
+            changesMade.add("Logo");
+            organization.setLogoUrl(logoUrl);
+        });
+        Optional.ofNullable(body.websiteUrl()).ifPresent(websiteUrl -> {
+            changesMade.add("Website");
+            organization.setWebsiteUrl(websiteUrl);
+        });
+        Optional.ofNullable(body.location()).ifPresent(location -> {
+            changesMade.add("Location");
+            organization.setLocation(location);
+        });
+
+
+        if (!changesMade.isEmpty()) {
+            log.atInfo().log("User {} updated organization {} with changes: {}.", principal.getName(), id, changesMade);
+            notifyOrganizationMembersOfChangesPatchedInOrganization(principal, organization, changesMade);
+        }
 
         return Map.of(AppConstants.ORGANIZATION,
                       organizationMapper.toDTO(organizationRepository.saveAndFlush(organization)));
@@ -265,6 +288,35 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         organizationUserRepository.delete(relation);
         organizationRepository.delete(organization);
+    }
+
+    private void notifyOrganizationMembersOfChangesPatchedInOrganization(@NotNull Principal principal,
+                                                                         @NotNull Organization organization,
+                                                                         List<String> changesMade) {
+        List<User> usersToNotify = organization.getOrganizationUsers()
+                                               .stream()
+                                               .map(OrganizationUser::getUser)
+                                               .filter(user -> !user
+                                                       .getUsername()
+                                                       .equals(principal.getName()))
+                                               .toList();
+
+        for (User user : usersToNotify) {
+            Notification notification = Notification.builder()
+                                                    .title("Organization Updated")
+                                                    .message(String.format(
+                                                            "The organization %s has been updated by its owner %s. " +
+                                                                    "Changes were made to the following fields: %s.",
+                                                            organization.getName(), principal.getName(),
+                                                            String.join(", ", changesMade)))
+                                                    .user(user)
+                                                    .build();
+
+            notificationRepository.save(notification);
+
+            notificationService.sendNotificationThroughWebsocket(user.getUsername(),
+                                                                 notificationMapper.toDTO(notification));
+        }
     }
 
     private @NotNull List<String> getRole(@NotNull OrganizationUser organizationUser) {
