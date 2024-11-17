@@ -5,7 +5,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { FaMagnifyingGlass, FaTrash } from "react-icons/fa6"
 
-export default function TableCompleteFilter({ allowSearch = true }: Readonly<{ allowSearch?: boolean }>) {
+interface TableCompleteFilterProps {
+    allowSearch?: boolean
+    filterType: "members" | "projects" | "notifications"
+}
+
+export default function TableCompleteFilter({ allowSearch = true, filterType }: Readonly<TableCompleteFilterProps>) {
     const pathname = usePathname()
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -35,13 +40,19 @@ export default function TableCompleteFilter({ allowSearch = true }: Readonly<{ a
         setOrderBy("")
     }
 
-    const isOrganizationMembersPage = pathname.includes("/organizations/") && pathname.includes("/members")
-    const isOrganizationProjectsPage = pathname.includes("/organizations/") && pathname.includes("/projects")
+    const isOrganizationMembersFilter =
+        (pathname.includes("/organizations/") && pathname.includes("/members")) || filterType === "members"
+    const isOrganizationProjectsFilter =
+        (pathname.includes("/organizations/") && pathname.includes("/projects")) || filterType === "projects"
+    const isNotificationsFilter = pathname.includes("/notifications") || filterType === "notifications"
+
+    const filterTypeToTitle =
+        filterType === "members" ? "Members" : filterType === "projects" ? "Projects" : "Notifications"
 
     return (
         <section aria-labelledby="filter-heading" className="py-6">
             <h2 id="filter-heading" className="sr-only">
-                Product filters
+                {filterTypeToTitle} Filter
             </h2>
 
             <div className="flex flex-wrap items-center justify-evenly gap-4 md:flex-nowrap">
@@ -83,7 +94,7 @@ export default function TableCompleteFilter({ allowSearch = true }: Readonly<{ a
                         name="orderBy"
                         value={orderBy}
                         onChange={e => setOrderBy(e.target.value)}>
-                        {isOrganizationMembersPage && (
+                        {isOrganizationMembersFilter && (
                             <>
                                 <option value="username">Username</option>
                                 <option value="displayName">Display Name</option>
@@ -91,7 +102,7 @@ export default function TableCompleteFilter({ allowSearch = true }: Readonly<{ a
                                 <option value="email">Email</option>
                             </>
                         )}
-                        {isOrganizationProjectsPage && (
+                        {isOrganizationProjectsFilter && (
                             <>
                                 <option value="name">Name</option>
                                 <option value="description">Description</option>
@@ -99,8 +110,20 @@ export default function TableCompleteFilter({ allowSearch = true }: Readonly<{ a
                                 <option value="status">Status</option>
                             </>
                         )}
-                        <option value="createdAt">Created At</option>
-                        <option value="updatedAt">Updated At</option>
+                        {isNotificationsFilter && (
+                            <>
+                                <option value="title">Title</option>
+                                <option value="isRead">Is Read</option>
+                                <option value="readAt">Read At</option>
+                                <option value="issuedAt">Issued At</option>
+                            </>
+                        )}
+                        {!isNotificationsFilter && (
+                            <>
+                                <option value="createdAt">Created At</option>
+                                <option value="updatedAt">Updated At</option>
+                            </>
+                        )}
                     </Select>
                 </Field>
 
