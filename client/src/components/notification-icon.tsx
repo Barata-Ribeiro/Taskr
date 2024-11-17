@@ -20,7 +20,7 @@ export default function NotificationIcon({ context, type }: Readonly<Notificatio
 
     useEffect(() => {
         if (notifications.length > 0) {
-            const unread = notifications.filter(n => !n.isRead).length
+            const unread = notifications.filter(n => !n.read).length
             setUnreadCount(prevCount => prevCount + unread)
         }
     }, [notifications])
