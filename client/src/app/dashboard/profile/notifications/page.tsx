@@ -1,6 +1,7 @@
 import getAllNotificationsPaginated from "@/actions/notifications/get-all-notifications-paginated"
 import StateError from "@/components/feedback/state-error"
 import NavigationPagination from "@/components/filters/navigation-pagination"
+import TableCompleteFilter from "@/components/filters/table-complete-filter"
 import TableRowNotification from "@/components/items/table-row-notification"
 import { Paginated, ProblemDetails } from "@/interfaces/actions"
 import { Notification } from "@/interfaces/notifications"
@@ -51,11 +52,7 @@ export default async function NotificationsPage({ searchParams }: Readonly<Notif
                     </p>
                 </div>
                 <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                    <button
-                        type="button"
-                        className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                        ...
-                    </button>
+                    <TableCompleteFilter allowSearch={false} filterType="notifications" />
                 </div>
             </div>
             <div className="mt-8 flow-root">

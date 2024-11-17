@@ -95,7 +95,7 @@ export default async function MembersPage({ params, searchParams }: Readonly<Mem
                 </p>
             </header>
 
-            <TableCompleteFilter />
+            <TableCompleteFilter filterType="members" />
 
             <div className="flow-root px-4 sm:mt-6 sm:px-0">
                 <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">

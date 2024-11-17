@@ -70,7 +70,7 @@ export default async function OrganizationProjectsPage({
                 </p>
             </header>
 
-            <TableCompleteFilter />
+            <TableCompleteFilter filterType="projects" />
         </div>
     )
 }
