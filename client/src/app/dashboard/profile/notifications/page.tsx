@@ -42,7 +42,7 @@ export default async function NotificationsPage({ searchParams }: Readonly<Notif
             id="notifications-list-section"
             aria-labelledby="notifications-list-title"
             className="px-4 sm:px-6 lg:px-8">
-            <div className="sm:flex sm:items-center">
+            <header className="sm:flex sm:items-center">
                 <div className="sm:flex-auto">
                     <h1 id="notifications-list-title" className="text-base font-semibold leading-6 text-gray-900">
                         Notifications
@@ -54,7 +54,8 @@ export default async function NotificationsPage({ searchParams }: Readonly<Notif
                 <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                     <TableCompleteFilter allowSearch={false} filterType="notifications" />
                 </div>
-            </div>
+            </header>
+
             <div className="mt-8 flow-root">
                 <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
