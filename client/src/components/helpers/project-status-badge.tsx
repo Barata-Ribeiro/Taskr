@@ -41,7 +41,8 @@ export default function ProjectStatusBadge({ status, type }: Readonly<ProjectSta
             return (
                 <p
                     className={twMerge(
-                        "mt-0.5 select-none whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs font-medium capitalize ring-1 ring-inset",
+                        "mt-0.5 w-max select-none whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs font-medium" +
+                            " capitalize ring-1 ring-inset",
                         statusTextStyle,
                     )}
                     aria-label={status}>
