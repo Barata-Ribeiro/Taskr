@@ -1,14 +1,15 @@
 import getProjectByOrgIdAndProjectId from "@/actions/projects/get-project-by-org-id-and-project-id"
 import getAllTasksByProjectId from "@/actions/tasks/get-all-tasks-by-project-id"
+import NewTaskButton from "@/components/actions/new-task-button"
 import StateError from "@/components/feedback/state-error"
 import Avatar from "@/components/helpers/avatar"
 import ProjectStatusBadge from "@/components/helpers/project-status-badge"
+import TaskCategory from "@/components/items/task-category"
 import { ProblemDetails } from "@/interfaces/actions"
 import { ProjectInfoResponse } from "@/interfaces/project"
 import { CompleteTask, ProjectSortedTasks } from "@/interfaces/task"
 import { getTaskPriorityColor, getTaskStatusColor } from "@/utils/get-color-functions"
 import parseDate from "@/utils/parse-date"
-import { Button } from "@headlessui/react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Fragment } from "react"
@@ -183,7 +184,7 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                         </span>
                     </div>
 
-                    <Button>New Task</Button>
+                    <NewTaskButton projectId={params.projectId} />
                 </header>
 
                 {/* High Priority Tasks */}
@@ -204,86 +205,5 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                 <TaskCategory title="Low Priority" tasks={tasksData.tasks.lowPriority} priorityColor="text-green-500" />
             </section>
         </Fragment>
-    )
-}
-
-interface TaskCategoryProps {
-    title: string
-    tasks: CompleteTask[]
-    priorityColor: string
-}
-
-const TaskCategory: React.FC<TaskCategoryProps> = ({ title, tasks, priorityColor }) => {
-    if (tasks.length === 0) return null
-
-    return (
-        <div className="mb-8">
-            <h3 className={`mb-4 font-heading text-2xl ${priorityColor}`}>{title}</h3>
-            <div className="space-y-4">
-                {tasks.map(completeTask => (
-                    <TaskCard key={completeTask.task.id} data={completeTask} />
-                ))}
-            </div>
-        </div>
-    )
-}
-
-interface TaskCardProps {
-    data: CompleteTask
-}
-
-const TaskCard: React.FC<TaskCardProps> = ({ data }) => {
-    const statusColor = getTaskStatusColor(data.task.status)
-    const priorityColor = getTaskPriorityColor(data.task.priority)
-
-    return (
-        <div className="flex flex-col rounded-lg bg-white p-6 shadow-standard md:flex-row md:justify-between">
-            <div>
-                <h4 className="mb-2 font-heading text-xl text-ebony-800">{data.task.title}</h4>
-                <p className="mb-4 font-body text-base text-ebony-500">{data.task.description}</p>
-                <div className="flex flex-wrap items-center text-sm text-ebony-400">
-                    <span className={`mr-6 flex items-center ${statusColor}`}>
-                        <span className={`mr-2 inline-block h-2 w-2 rounded-full bg-current`}></span>
-                        {data.task.status.replace("_", " ")}
-                    </span>
-                    <span className={`mr-6 ${priorityColor}`}>
-                        <strong>Priority:</strong> {data.task.priority}
-                    </span>
-                    <span className="mr-6">
-                        <strong>Start:</strong> {parseDate(data.task.startDate)}
-                    </span>
-                    <span>
-                        <strong>Due:</strong> {parseDate(data.task.dueDate)}
-                    </span>
-                </div>
-            </div>
-            <div className="mt-4 flex items-center md:mt-0">
-                {data.userAssigned && (
-                    <div className="mr-4 flex items-center">
-                        <Avatar
-                            src={data.userAssigned.avatarUrl}
-                            size={32}
-                            name={data.userAssigned.fullName ?? data.userAssigned.displayName}
-                        />
-                        <span className="ml-2 text-sm text-ebony-600">
-                            {data.userAssigned.fullName ?? data.userAssigned.displayName}
-                        </span>
-                    </div>
-                )}
-                {data.userCreator && (
-                    <div className="flex items-center">
-                        <span className="text-sm text-ebony-400">Created by:</span>
-                        <Avatar
-                            src={data.userCreator.avatarUrl}
-                            size={32}
-                            name={data.userCreator.fullName ?? data.userCreator.displayName}
-                        />
-                        <span className="ml-2 text-sm text-ebony-600">
-                            {data.userCreator.fullName ?? data.userCreator.displayName}
-                        </span>
-                    </div>
-                )}
-            </div>
-        </div>
     )
 }
