@@ -10,6 +10,8 @@ import java.util.Map;
 public interface TaskService {
     TaskDTO createTask(String projectId, TaskCreateRequestDTO body, Principal principal);
 
+    Map<String, Object> getProjectTasks(String projectId, Principal principal);
+
     Map<String, Object> getTaskInfo(String projectId, String taskId);
 
     TaskDTO updateTask(String projectId, String taskId,

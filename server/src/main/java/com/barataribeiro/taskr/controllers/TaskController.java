@@ -33,6 +33,16 @@ public class TaskController {
                                                        response));
     }
 
+    @GetMapping
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getProjectTasks(@PathVariable String projectId,
+                                                                                Principal principal) {
+        Map<String, Object> response = taskService.getProjectTasks(projectId, principal);
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Project tasks retrieved successfully",
+                                                       response));
+    }
+
     @GetMapping("/task/{taskId}")
     public ResponseEntity<RestResponseDTO<Map<String, Object>>> getTaskInfo(@PathVariable String projectId,
                                                                             @PathVariable String taskId) {
