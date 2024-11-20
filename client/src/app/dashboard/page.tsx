@@ -85,7 +85,7 @@ export default async function HomePage() {
                                 />
                             ))}
                             {projectsWhereUserIsMember.length === 0 && (
-                                <p className="text-gray-500">No projects found.</p>
+                                <p className="text-gray-500">You are not a member of any projects.</p>
                             )}
                         </div>
                     </article>
