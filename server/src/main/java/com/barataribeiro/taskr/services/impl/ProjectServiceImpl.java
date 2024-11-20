@@ -6,7 +6,6 @@ import com.barataribeiro.taskr.dtos.project.ProjectCreateRequestDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectDTO;
 import com.barataribeiro.taskr.dtos.project.ProjectUpdateRequestDTO;
 import com.barataribeiro.taskr.dtos.task.CompleteTaskDTO;
-import com.barataribeiro.taskr.dtos.task.TaskDTO;
 import com.barataribeiro.taskr.dtos.user.UserDTO;
 import com.barataribeiro.taskr.exceptions.generics.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.generics.IllegalRequestException;
@@ -15,7 +14,10 @@ import com.barataribeiro.taskr.models.embeddables.ProjectUserId;
 import com.barataribeiro.taskr.models.entities.*;
 import com.barataribeiro.taskr.models.enums.ProjectStatus;
 import com.barataribeiro.taskr.models.enums.TaskPriority;
-import com.barataribeiro.taskr.models.relations.*;
+import com.barataribeiro.taskr.models.relations.OrganizationProject;
+import com.barataribeiro.taskr.models.relations.OrganizationUser;
+import com.barataribeiro.taskr.models.relations.ProjectTask;
+import com.barataribeiro.taskr.models.relations.ProjectUser;
 import com.barataribeiro.taskr.repositories.entities.NotificationRepository;
 import com.barataribeiro.taskr.repositories.entities.OrganizationRepository;
 import com.barataribeiro.taskr.repositories.entities.ProjectRepository;
@@ -56,6 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
     private final NotificationMapper notificationMapper;
+    private final TaskServiceImpl taskServiceImpl;
 
 
     @Override
@@ -485,37 +488,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     private @NotNull Map<String, List<CompleteTaskDTO>> sortTasksByPriority(Set<Task> tasks) {
         Map<String, List<CompleteTaskDTO>> sortedTasks = new LinkedHashMap<>();
-        sortedTasks.put("lowPriority", filterTasksByPriority(tasks, TaskPriority.LOW));
-        sortedTasks.put("mediumPriority", filterTasksByPriority(tasks, TaskPriority.MEDIUM));
-        sortedTasks.put("highPriority", filterTasksByPriority(tasks, TaskPriority.HIGH));
+        sortedTasks.put("lowPriority", taskServiceImpl.filterTasksByPriority(tasks, TaskPriority.LOW));
+        sortedTasks.put("mediumPriority", taskServiceImpl.filterTasksByPriority(tasks, TaskPriority.MEDIUM));
+        sortedTasks.put("highPriority", taskServiceImpl.filterTasksByPriority(tasks, TaskPriority.HIGH));
         return sortedTasks;
-    }
-
-    private List<CompleteTaskDTO> filterTasksByPriority(@NotNull Set<Task> tasks, TaskPriority priority) {
-        return tasks.stream()
-                    .filter(task -> task.getPriority().equals(priority))
-                    .map(task -> {
-                        TaskDTO taskDTO = taskMapper.toDTO(task);
-                        UserDTO userAssigned = task.getTaskUser().stream()
-                                                   .filter(TaskUser::isAssigned)
-                                                   .findFirst()
-                                                   .map(taskUser -> userMapper.toDTO(taskUser.getUser()))
-                                                   .orElseThrow(() -> new EntityNotFoundException(
-                                                           User.class.getSimpleName()));
-                        UserDTO userCreator = task.getTaskUser().stream()
-                                                  .filter(TaskUser::isCreator)
-                                                  .findFirst()
-                                                  .map(taskUser -> userMapper.toDTO(taskUser.getUser()))
-                                                  .orElseThrow(() -> new EntityNotFoundException(
-                                                          User.class.getSimpleName()));
-
-                        return CompleteTaskDTO.builder()
-                                              .task(taskDTO)
-                                              .userAssigned(userAssigned)
-                                              .userCreator(userCreator)
-                                              .build();
-                    })
-                    .toList();
     }
 
     private Set<Task> getTasksFromProjectTasks(@NotNull Set<ProjectTask> projectTasks) {
