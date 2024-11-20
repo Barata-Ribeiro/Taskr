@@ -185,28 +185,38 @@ public class TaskServiceImpl implements TaskService {
                               @NotNull TaskUpdateRequestDTO body, Principal principal) {
         Task task = getTaskIfRequestingUserIsManagerOrAdmin(projectId, taskId, principal);
 
-        LocalDate parsedStartDate = body.startDate() == null ? LocalDate.now() : parseDate(body.startDate());
-        LocalDate parsedDueDate = parseDate(body.dueDate());
+        Optional.ofNullable(body.title()).ifPresent(task::setTitle);
+        Optional.ofNullable(body.description()).ifPresent(task::setDescription);
 
-        if (parsedDueDate.isBefore(LocalDate.now())) {
-            throw new IllegalRequestException("Due date cannot be in the past.");
-        }
+        Optional.ofNullable(body.status())
+                .ifPresent(bodyStatus -> task.setStatus(TaskStatus.valueOf(bodyStatus.toUpperCase())));
 
-        if (parsedStartDate.isAfter(parsedDueDate)) {
-            throw new IllegalRequestException("Start date cannot be after due date.");
-        }
+        Optional.ofNullable(body.priority())
+                .ifPresent(bodyPriority -> task.setPriority(TaskPriority.valueOf(bodyPriority.toUpperCase())));
 
-        TaskStatus status = body.status() == null ? task.getStatus()
-                                                  : TaskStatus.valueOf(body.status().toUpperCase());
-        TaskPriority priority = body.priority() == null ? task.getPriority()
-                                                        : TaskPriority.valueOf(body.priority().toUpperCase());
+        Optional.ofNullable(body.startDate()).ifPresent(date -> {
+            LocalDate parsedDate = parseDate(date);
 
-        if (body.title() != null) task.setTitle(body.title());
-        if (body.description() != null) task.setDescription(body.description());
-        if (body.status() != null) task.setStatus(status);
-        if (body.priority() != null) task.setPriority(priority);
-        if (body.startDate() != null) task.setStartDate(parsedStartDate);
-        if (body.dueDate() != null) task.setDueDate(parsedDueDate);
+            if (parsedDate.isAfter(task.getDueDate())) {
+                throw new IllegalRequestException("Start date cannot be after due date.");
+            }
+
+            task.setStartDate(parsedDate);
+        });
+
+        Optional.ofNullable(body.dueDate()).ifPresent(date -> {
+            LocalDate parsedDate = parseDate(date);
+
+            if (parsedDate.isBefore(LocalDate.now())) {
+                throw new IllegalRequestException("Due date cannot be in the past.");
+            }
+
+            if (task.getStartDate().isAfter(parsedDate)) {
+                throw new IllegalRequestException("Start date cannot be after due date.");
+            }
+
+            task.setDueDate(parsedDate);
+        });
 
         sendNotificationToAssignedUser(task, principal);
 
