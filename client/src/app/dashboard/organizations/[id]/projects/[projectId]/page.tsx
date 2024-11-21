@@ -44,8 +44,10 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
     const tasksStatePromise = getAllTasksByProjectId({ orgId: +params.id, projectId: +params.projectId })
 
     const [projectState, taskState] = await Promise.all([projectStatePromise, tasksStatePromise])
-    if (projectState.error || taskState.error)
-        return <StateError error={(projectState ?? taskState).error as ProblemDetails} />
+    if (projectState.error || taskState.error) {
+        const errorData = projectState.error ?? taskState.error
+        return <StateError error={errorData as ProblemDetails} />
+    }
 
     const projectData = projectState.response?.data as ProjectInfoResponse
     const tasksData = taskState.response?.data as ProjectSortedTasks
