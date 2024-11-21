@@ -1,8 +1,9 @@
 import getUserDashboard from "@/actions/user/get-user-dashboard"
 import { auth } from "@/auth"
+import Badge from "@/components/badges/badge"
+import BadgePillWithDot from "@/components/badges/badge-pill-with-dot"
 import StateError from "@/components/feedback/state-error"
 import Avatar from "@/components/helpers/avatar"
-import BadgePillWithDot from "@/components/helpers/badge-pill-with-dot"
 import NotificationIcon from "@/components/notification-icon"
 import SimpleProjectCard from "@/components/simple-project-card"
 import { ProblemDetails } from "@/interfaces/actions"
@@ -29,22 +30,21 @@ export default async function HomePage() {
     return (
         <div className="container mx-auto p-4">
             {/* Header Section */}
-            <header className="mb-6 flex items-center justify-between">
-                <div className="flex items-center">
+            <header className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-6">
+                <div className="order-2 flex items-start gap-4 sm:order-1 sm:items-center">
                     <Avatar
                         name={data.context.fullName ?? data.context.displayName}
                         size={48}
                         src={data.context.avatarUrl}
                     />
 
-                    <div className="ml-4">
+                    <div>
                         <h1 className="font-heading text-2xl">{context.displayName}</h1>
                         <p className="text-gray-600">{context.email}</p>
                         <BadgePillWithDot role={context.role} />
                     </div>
                 </div>
 
-                {/* Notifications Icon Placeholder */}
                 <NotificationIcon context={context} />
             </header>
 
@@ -52,28 +52,29 @@ export default async function HomePage() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {/* Sidebar - Organizations */}
                 <aside className="rounded-lg bg-white p-4 shadow-derek md:col-span-1">
-                    <h2 className="mb-4 font-heading text-xl">Organizations</h2>
-                    <ul>
-                        {organizationsWhereUserIsMember.map(org => (
-                            <li key={org.id} className="mb-2">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-medium">{org.name}</span>
-                                    {org.isOwner && <span className="text-sm text-green-500">Owner</span>}
-                                    {org.isAdmin && <span className="text-sm text-blue-500">Admin</span>}
-                                </div>
-                            </li>
-                        ))}
-                        {organizationsWhereUserIsMember.length === 0 && (
-                            <p className="text-gray-500">No organizations found.</p>
-                        )}
-                    </ul>
+                    <h2 className="mb-4 text-2xl font-semibold leading-none tracking-tight">Organizations</h2>
+                    {organizationsWhereUserIsMember.length > 0 ? (
+                        <ul className="space-y-2">
+                            {organizationsWhereUserIsMember.map(org => (
+                                <li key={org.id} className="flex items-center justify-between">
+                                    <span>{org.name}</span>
+                                    <div className="space-x-2">
+                                        {org.isOwner && <Badge variant="default">Owner</Badge>}
+                                        {org.isAdmin && <Badge variant="secondary">Admin</Badge>}
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-gray-500">No organizations found.</p>
+                    )}
                 </aside>
 
                 {/* Projects and Tasks */}
                 <section className="md:col-span-2">
                     {/* Projects Section */}
                     <article className="mb-6">
-                        <h2 className="mb-4 font-heading text-xl">Projects</h2>
+                        <h2 className="mb-4 text-2xl font-semibold leading-none tracking-tight">Projects</h2>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             {projectsWhereUserIsMember.map(project => (
                                 <SimpleProjectCard
