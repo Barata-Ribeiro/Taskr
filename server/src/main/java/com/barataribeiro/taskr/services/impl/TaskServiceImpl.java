@@ -71,7 +71,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public TaskDTO createTask(String projectId, @NotNull TaskCreateRequestDTO body, @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName())
-                                  .orElseThrow(() -> new EntityNotFoundException("User"));
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
         Project project = projectRepository
                 .findById(Long.valueOf(projectId))
                 .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
@@ -246,12 +246,11 @@ public class TaskServiceImpl implements TaskService {
                     .filter(task -> task.getPriority().equals(priority))
                     .map(task -> {
                         TaskDTO taskDTO = taskMapper.toDTO(task);
-                        UserDTO userAssigned = task.getTaskUser().stream()
-                                                   .filter(TaskUser::isAssigned)
-                                                   .findFirst()
-                                                   .map(taskUser -> userMapper.toDTO(taskUser.getUser()))
-                                                   .orElseThrow(() -> new EntityNotFoundException(
-                                                           User.class.getSimpleName()));
+                        Optional<UserDTO> userAssigned = task.getTaskUser().stream()
+                                                             .filter(TaskUser::isAssigned)
+                                                             .findFirst()
+                                                             .map(taskUser -> userMapper.toDTO(taskUser.getUser()));
+
                         UserDTO userCreator = task.getTaskUser().stream()
                                                   .filter(TaskUser::isCreator)
                                                   .findFirst()
@@ -261,7 +260,7 @@ public class TaskServiceImpl implements TaskService {
 
                         return CompleteTaskDTO.builder()
                                               .task(taskDTO)
-                                              .userAssigned(userAssigned)
+                                              .userAssigned(userAssigned.orElse(null))
                                               .userCreator(userCreator)
                                               .build();
                     })
@@ -312,12 +311,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private @NotNull LocalDate parseDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         try {
             return LocalDate.parse(date, formatter);
         } catch (DateTimeParseException e) {
             log.atError().log("Error parsing date: {}", e.getMessage());
-            throw new IllegalRequestException("Invalid date format. Use dd-MM-yyyy.");
+            throw new IllegalRequestException("Invalid date format. Use yyyy-MM-dd.");
         }
     }
 }
