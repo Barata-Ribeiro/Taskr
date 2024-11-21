@@ -81,7 +81,7 @@ export default function NotificationIcon({ context, type }: Readonly<Notificatio
             return (
                 <Link
                     href="/dashboard/profile/notifications"
-                    className="relative rounded-full bg-ebony-50 p-1 text-gray-400 hover:text-gray-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 disabled:cursor-default disabled:opacity-50"
+                    className="relative order-1 rounded-full bg-ebony-50 p-1 text-gray-400 hover:text-gray-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 disabled:cursor-default disabled:opacity-50 sm:order-2"
                     aria-label="View notifications"
                     title="View notifications">
                     <FaBell aria-hidden="true" className="h-5 w-5 text-ebony-500" />
