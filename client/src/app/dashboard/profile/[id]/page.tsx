@@ -1,6 +1,6 @@
 import getUserPublicProfile from "@/actions/user/get-user-public-profile"
+import BadgePillWithDot from "@/components/badges/badge-pill-with-dot"
 import StateError from "@/components/feedback/state-error"
-import BadgePillWithDot from "@/components/helpers/badge-pill-with-dot"
 import { ProblemDetails } from "@/interfaces/actions"
 import { Profile } from "@/interfaces/user"
 import parseDate from "@/utils/parse-date"

@@ -23,7 +23,7 @@ function getStatusTextStyle(statusColor: "green" | "blue" | "gray" | "yellow" | 
     }
 }
 
-export default function ProjectStatusBadge({ status, type }: Readonly<ProjectStatusBadgeProps>) {
+export default function BadgeProjectStatus({ status, type }: Readonly<ProjectStatusBadgeProps>) {
     if (!status || typeof status === "undefined") return null
 
     const statusText = status

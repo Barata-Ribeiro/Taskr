@@ -1,7 +1,7 @@
 import getUserProjectsByOrgId from "@/actions/projects/get-user-projects-by-org-id"
 import getUserContext from "@/actions/user/get-user-context"
+import BadgeProjectStatus from "@/components/badges/badge-project-status"
 import StateError from "@/components/feedback/state-error"
-import ProjectStatusBadge from "@/components/helpers/project-status-badge"
 import { ProblemDetails } from "@/interfaces/actions"
 import { OrganizationProjects } from "@/interfaces/project"
 import { UserContext } from "@/interfaces/user"
@@ -171,7 +171,7 @@ export default async function ProjectsPage() {
                                                     </Link>
                                                 </h3>
 
-                                                <ProjectStatusBadge status={pivot.status} type="text-only" />
+                                                <BadgeProjectStatus status={pivot.status} type="text-only" />
                                             </div>
                                             <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
                                                 <p className="whitespace-nowrap">

@@ -1,8 +1,8 @@
 import getOrganizationProjectsById from "@/actions/organizations/get-organization-projects-by-id"
+import BadgeProjectStatus from "@/components/badges/badge-project-status"
 import StateError from "@/components/feedback/state-error"
 import NavigationPagination from "@/components/filters/navigation-pagination"
 import TableCompleteFilter from "@/components/filters/table-complete-filter"
-import ProjectStatusBadge from "@/components/helpers/project-status-badge"
 import { ProblemDetails } from "@/interfaces/actions"
 import { OrganizationProjectsList } from "@/interfaces/organization"
 import parseDate from "@/utils/parse-date"
@@ -135,7 +135,7 @@ export default async function OrganizationProjectsPage({
                                                 {parseDate(pivot.project.deadline)}
                                             </td>
                                             <td className="px-3 py-4">
-                                                <ProjectStatusBadge type="text-only" status={pivot.status} />
+                                                <BadgeProjectStatus type="text-only" status={pivot.status} />
                                             </td>
                                             <td align="right" className="py-4 pl-3 pr-4 sm:pr-6">
                                                 <Link

@@ -1,4 +1,4 @@
-import ProjectStatusBadge from "@/components/helpers/project-status-badge"
+import BadgeProjectStatus from "@/components/badges/badge-project-status"
 import { Paginated } from "@/interfaces/actions"
 import { OrganizationProject } from "@/interfaces/project"
 import parseDate from "@/utils/parse-date"
@@ -36,7 +36,7 @@ export default function StackedOrganizationProjectsList({
                                         {pivot.project.name}
                                     </Link>
                                 </h3>
-                                <ProjectStatusBadge status={pivot.project.status} type="text-only" />
+                                <BadgeProjectStatus status={pivot.project.status} type="text-only" />
                             </div>
                             <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
                                 <p className="whitespace-nowrap">

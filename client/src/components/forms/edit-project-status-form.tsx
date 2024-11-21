@@ -1,7 +1,7 @@
 "use client"
 
 import patchUpdateProjectStatus from "@/actions/projects/patch-update-project-status"
-import ProjectStatusBadge from "@/components/helpers/project-status-badge"
+import BadgeProjectStatus from "@/components/badges/badge-project-status"
 import Spinner from "@/components/helpers/spinner"
 import { useForm } from "@/hooks/use-form"
 import { SimpleOrganization } from "@/interfaces/organization"
@@ -53,7 +53,7 @@ export default function EditProjectStatusForm({ org, project }: Readonly<EditPro
                                     .toLowerCase()
                                     .replace(/_/g, " ")
                                     .replace(/\b\w/g, (char: string) => char.toUpperCase())}
-                                <ProjectStatusBadge type="icon-only" status={selected} />
+                                <BadgeProjectStatus type="icon-only" status={selected} />
                             </span>
                             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                 <HiChevronUpDown aria-hidden="true" className="h-5 w-5 text-gray-400" />
@@ -73,7 +73,7 @@ export default function EditProjectStatusForm({ org, project }: Readonly<EditPro
                                             .toLowerCase()
                                             .replace(/_/g, " ")
                                             .replace(/\b\w/g, (char: string) => char.toUpperCase())}
-                                        <ProjectStatusBadge type="icon-only" status={status} />
+                                        <BadgeProjectStatus type="icon-only" status={status} />
                                     </span>
 
                                     <span className="absolute inset-y-0 left-0 flex items-center pl-1.5 text-ebony-600 group-data-[focus]:text-white [.group:not([data-selected])_&]:hidden">

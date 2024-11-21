@@ -1,9 +1,9 @@
 import getProjectByOrgIdAndProjectId from "@/actions/projects/get-project-by-org-id-and-project-id"
 import getAllTasksByProjectId from "@/actions/tasks/get-all-tasks-by-project-id"
 import NewTaskButton from "@/components/actions/new-task-button"
+import BadgeProjectStatus from "@/components/badges/badge-project-status"
 import StateError from "@/components/feedback/state-error"
 import Avatar from "@/components/helpers/avatar"
-import ProjectStatusBadge from "@/components/helpers/project-status-badge"
 import TaskCategory from "@/components/items/task-category"
 import { ProblemDetails } from "@/interfaces/actions"
 import { ProjectInfoResponse } from "@/interfaces/project"
@@ -63,7 +63,7 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                 className="mb-12 mt-8 rounded-lg bg-white shadow-derek">
                 <header className="flex flex-col items-start justify-between gap-x-8 gap-y-4 px-4 py-6 sm:flex-row sm:items-center sm:px-6">
                     <div className="inline-flex items-center gap-x-3">
-                        <ProjectStatusBadge status={projectData.project?.status} type="icon-only" />
+                        <BadgeProjectStatus status={projectData.project?.status} type="icon-only" />
                         <h1 id="project-info-section-title" className="text-4xl font-medium text-ebony-900">
                             {projectData.project.name}
                         </h1>
@@ -100,7 +100,7 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                                 <span className="sr-only">Project Status</span>Status
                             </dt>
                             <dd className="mt-1 inline-flex items-center gap-x-2 sm:col-span-2 sm:mt-0">
-                                <ProjectStatusBadge status={projectData.project?.status} type="full" />
+                                <BadgeProjectStatus status={projectData.project?.status} type="full" />
                             </dd>
                         </div>
                         <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
