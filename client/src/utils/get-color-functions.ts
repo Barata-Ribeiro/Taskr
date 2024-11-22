@@ -34,11 +34,11 @@ export function getTaskStatusColor(status: TaskStatus) {
 export function getTaskPriorityColor(priority: TaskPriority) {
     switch (priority) {
         case "HIGH":
-            return "text-english-holly-600"
+            return "text-red-700"
         case "MEDIUM":
-            return "text-yellow-500"
+            return "text-yellow-800"
         case "LOW":
-            return "text-green-500"
+            return "text-gray-600"
         default:
             return "text-ebony-500"
     }
