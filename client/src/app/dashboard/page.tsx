@@ -73,9 +73,9 @@ export default async function HomePage() {
                 {/* Projects and Tasks */}
                 <section className="md:col-span-2">
                     {/* Projects Section */}
-                    <article className="mb-6">
+                    <article className="rounded-lg bg-white p-4 shadow-derek md:col-span-1">
                         <h2 className="mb-4 text-2xl font-semibold leading-none tracking-tight">Projects</h2>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div className="w-full space-y-1.5 divide-y divide-gray-200">
                             {projectsWhereUserIsMember.map(project => (
                                 <SimpleProjectCard
                                     key={project.id}
