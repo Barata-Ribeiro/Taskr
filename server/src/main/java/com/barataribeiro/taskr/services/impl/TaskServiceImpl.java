@@ -84,11 +84,11 @@ public class TaskServiceImpl implements TaskService {
         LocalDate parsedDueDate = parseDate(body.dueDate());
 
         if (parsedDueDate.isBefore(LocalDate.now())) {
-            throw new IllegalRequestException("Due date cannot be in the past.");
+            throw new IllegalRequestException(AppConstants.CANNOT_BE_IN_THE_PAST);
         }
 
         if (parsedStartDate.isAfter(parsedDueDate)) {
-            throw new IllegalRequestException("Start date cannot be after due date.");
+            throw new IllegalRequestException(AppConstants.CANNOT_BE_AFTER_DUE_DATE);
         }
 
         TaskStatus status = body.status() == null ? TaskStatus.OPEN : TaskStatus.valueOf(body.status().toUpperCase());
@@ -198,7 +198,7 @@ public class TaskServiceImpl implements TaskService {
             LocalDate parsedDate = parseDate(date);
 
             if (parsedDate.isAfter(task.getDueDate())) {
-                throw new IllegalRequestException("Start date cannot be after due date.");
+                throw new IllegalRequestException(AppConstants.CANNOT_BE_AFTER_DUE_DATE);
             }
 
             task.setStartDate(parsedDate);
@@ -208,11 +208,11 @@ public class TaskServiceImpl implements TaskService {
             LocalDate parsedDate = parseDate(date);
 
             if (parsedDate.isBefore(LocalDate.now())) {
-                throw new IllegalRequestException("Due date cannot be in the past.");
+                throw new IllegalRequestException(AppConstants.CANNOT_BE_IN_THE_PAST);
             }
 
             if (task.getStartDate().isAfter(parsedDate)) {
-                throw new IllegalRequestException("Start date cannot be after due date.");
+                throw new IllegalRequestException(AppConstants.CANNOT_BE_AFTER_DUE_DATE);
             }
 
             task.setDueDate(parsedDate);

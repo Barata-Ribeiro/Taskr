@@ -54,7 +54,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final OrganizationMapper organizationMapper;
     private final UserMapper userMapper;
     private final ProjectMapper projectMapper;
-    private final TaskMapper taskMapper;
     private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
     private final NotificationMapper notificationMapper;
