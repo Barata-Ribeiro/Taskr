@@ -225,12 +225,74 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    public TaskDTO assignTask(String projectId, String taskId, String username, Principal principal) {
+        if (taskUserRepository.existsByTask_IdAndUser_UsernameAndIsAssigned(Long.valueOf(taskId), username, true)) {
+            throw new IllegalRequestException("User is already assigned to the task.");
+        }
+
+        Task task = getTaskIfRequestingUserIsManagerOrAdmin(projectId, taskId, principal);
+
+        User userToAssign = userRepository.findByUsername(username)
+                                          .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        if (!projectUserRepository.existsByProject_IdAndUser_Id(Long.valueOf(projectId), userToAssign.getId())) {
+            throw new IllegalRequestException("User is not part of the project.");
+        }
+
+        TaskUser taskUser = taskUserRepository
+                .findByTask_Id(Long.valueOf(taskId))
+                .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
+
+        if (userToAssign.getUsername().equals(principal.getName())) {
+            taskUser.setAssigned(true);
+            taskUserRepository.save(taskUser);
+            return taskMapper.toDTO(task);
+        }
+
+        if (taskUser.isCreator() && !taskUser.isAssigned()) {
+            taskUser.setAssigned(true);
+            taskUserRepository.save(taskUser);
+            sendNotificationToNowAssignedUser(principal, task, userToAssign);
+            return taskMapper.toDTO(task);
+        }
+
+        TaskUserId taskUserId = new TaskUserId(task.getId(), userToAssign.getId());
+        TaskUser newTaskUser = TaskUser.builder()
+                                       .id(taskUserId)
+                                       .task(task)
+                                       .user(userToAssign)
+                                       .isAssigned(true)
+                                       .build();
+        taskUserRepository.save(newTaskUser);
+
+        sendNotificationToNowAssignedUser(principal, task, userToAssign);
+
+        return taskMapper.toDTO(task);
+    }
+
+    @Override
+    @Transactional
     public void deleteTask(String projectId, String taskId, Principal principal) {
         Task task = getTaskIfRequestingUserIsManagerOrAdmin(projectId, taskId, principal);
 
         projectTaskRepository.deleteByTask(task);
         taskUserRepository.deleteByTask(task);
         taskRepository.delete(task);
+    }
+
+    private void sendNotificationToNowAssignedUser(@NotNull Principal principal, @NotNull Task task,
+                                                   User userToAssign) {
+        Notification notification = Notification.builder()
+                                                .title("Task Assigned")
+                                                .message(String.format("You have been assigned to the task %s by %s.",
+                                                                       task.getTitle(),
+                                                                       principal.getName()))
+                                                .user(userToAssign)
+                                                .build();
+        notificationRepository.save(notification);
+
+        notificationService.sendNotificationThroughWebsocket(userToAssign.getUsername(),
+                                                             notificationMapper.toDTO(notification));
     }
 
     private @NotNull Map<String, List<CompleteTaskDTO>> sortTasksByPriority(Set<Task> tasks) {
@@ -285,8 +347,7 @@ public class TaskServiceImpl implements TaskService {
 
                               notificationService
                                       .sendNotificationThroughWebsocket(taskUser.getUser().getUsername(),
-                                                                        notificationMapper.toDTO(
-                                                                                notification));
+                                                                        notificationMapper.toDTO(notification));
                           });
     }
 

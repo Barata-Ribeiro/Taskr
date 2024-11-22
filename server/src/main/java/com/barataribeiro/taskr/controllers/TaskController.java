@@ -65,6 +65,18 @@ public class TaskController {
                                                        response));
     }
 
+    @PatchMapping("/task/{taskId}/assign")
+    public ResponseEntity<RestResponseDTO<TaskDTO>> assignTask(@PathVariable String projectId,
+                                                               @PathVariable String taskId,
+                                                               @RequestParam String username,
+                                                               Principal principal) {
+        TaskDTO response = taskService.assignTask(projectId, taskId, username, principal);
+        return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
+                                                       HttpStatus.OK.value(),
+                                                       "Task assigned successfully",
+                                                       response));
+    }
+
     @DeleteMapping("/task/{taskId}")
     public ResponseEntity<RestResponseDTO<Void>> deleteTask(@PathVariable String projectId, @PathVariable String taskId,
                                                             Principal principal) {

@@ -17,5 +17,7 @@ public interface TaskService {
     TaskDTO updateTask(String projectId, String taskId,
                        TaskUpdateRequestDTO body, Principal principal);
 
+    TaskDTO assignTask(String projectId, String taskId, String username, Principal principal);
+
     void deleteTask(String projectId, String taskId, Principal principal);
 }
