@@ -293,21 +293,19 @@ public class TaskServiceImpl implements TaskService {
     private Task getTaskIfRequestingUserIsManagerOrAdmin(String projectId, String taskId,
                                                          @NotNull Principal principal) {
         User user = userRepository.findByUsername(principal.getName())
-                                  .orElseThrow(() -> new EntityNotFoundException("User"));
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
-        Task task = taskRepository.findById(Long.valueOf(taskId))
-                                  .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
         boolean isManager = projectUserRepository
                 .existsProjectWhereUserByIdIsManager(Long.valueOf(projectId), user.getId(), true);
 
-        boolean isOrgAdmin = organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(),
-                                                                                               true);
+        boolean isOrgAdmin = organizationUserRepository.existsOrganizationWhereUserByIdIsOwner(user.getId(), true);
 
         if (!isManager && !isOrgAdmin) {
             throw new ForbiddenRequestException();
         }
 
-        return task;
+        return taskRepository.findById(Long.valueOf(taskId))
+                             .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
     }
 
     private @NotNull LocalDate parseDate(String date) {
