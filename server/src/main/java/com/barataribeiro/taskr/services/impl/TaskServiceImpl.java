@@ -35,6 +35,7 @@ import com.barataribeiro.taskr.services.TaskService;
 import com.barataribeiro.taskr.utils.AppConstants;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -167,6 +168,7 @@ public class TaskServiceImpl implements TaskService {
 
 
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
         Map<String, Object> taskMap = objectMapper.convertValue(taskMapper.toDTO(projectTask.getTask()),
                                                                 new TypeReference<>() {});
         taskMap.put("creator", userMapper.toDTO(taskCreator));
