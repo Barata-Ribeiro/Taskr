@@ -6,16 +6,16 @@ import { notFound } from "next/navigation"
 
 interface DashboardProjectPageProps {
     params: {
-        id: string
+        projectId: string
     }
     searchParams?: { [key: string]: string | string[] | undefined }
 }
 
 export async function generateMetadata({ params, searchParams }: DashboardProjectPageProps) {
-    if (!params.id || !searchParams?.orgId) return notFound()
+    if (!params.projectId || !searchParams?.orgId) return notFound()
 
     const projectState = await getProjectByOrgIdAndProjectId({
-        projectId: +params.id,
+        projectId: +params.projectId,
         orgId: +searchParams?.orgId,
     })
 
@@ -31,7 +31,7 @@ export async function generateMetadata({ params, searchParams }: DashboardProjec
 }
 
 export default async function DashboardProjectPage({ params, searchParams }: Readonly<DashboardProjectPageProps>) {
-    if (!params.id || !searchParams?.orgId) return notFound()
+    if (!params.projectId || !searchParams?.orgId) return notFound()
 
-    return <ProjectPage params={{ id: searchParams.orgId as string, projectId: params.id }} />
+    return <ProjectPage params={{ id: searchParams.orgId as string, projectId: params.projectId }} />
 }

@@ -10,7 +10,7 @@ import { notFound, redirect } from "next/navigation"
 
 interface ManageProjectPageProps {
     params: {
-        id: string
+        projectId: string
     }
     searchParams?: { [key: string]: string | string[] | undefined }
 }
@@ -22,9 +22,12 @@ export const metadata: Metadata = {
 }
 
 export default async function ManageProjectPage({ params, searchParams }: Readonly<ManageProjectPageProps>) {
-    if (!params.id || !searchParams?.orgId) return notFound()
+    if (!params.projectId || !searchParams?.orgId) return notFound()
 
-    const projectState = await getProjectByOrgIdAndProjectId({ orgId: +searchParams?.orgId, projectId: +params.id })
+    const projectState = await getProjectByOrgIdAndProjectId({
+        orgId: +searchParams?.orgId,
+        projectId: +params.projectId,
+    })
     if (projectState.error) return <StateError error={projectState.error as ProblemDetails} />
 
     const projectData = projectState.response?.data as ProjectInfoResponse
@@ -32,7 +35,7 @@ export default async function ManageProjectPage({ params, searchParams }: Readon
     const isManager = projectData.project.isManager
     const isOrgOwnerOrAdmin = projectData.organization.isOwner || projectData.organization.isAdmin
     if (!isManager || !isOrgOwnerOrAdmin) {
-        return redirect(`/dashboard/projects/${params.id}?orgId=${searchParams?.orgId}`)
+        return redirect(`/dashboard/projects/${params.projectId}?orgId=${searchParams?.orgId}`)
     }
 
     return (
