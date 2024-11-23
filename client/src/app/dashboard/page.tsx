@@ -77,13 +77,7 @@ export default async function HomePage() {
                         <h2 className="mb-4 text-2xl font-semibold leading-none tracking-tight">Projects</h2>
                         <div className="w-full space-y-1.5 divide-y divide-gray-200">
                             {projectsWhereUserIsMember.map(project => (
-                                <SimpleProjectCard
-                                    key={project.id}
-                                    name={project.name}
-                                    isManager={project.isManager}
-                                    totalTasks={project.totalTasks}
-                                    latestTasks={project.latestTasks}
-                                />
+                                <SimpleProjectCard key={project.id} project={project} />
                             ))}
                             {projectsWhereUserIsMember.length === 0 && (
                                 <p className="text-gray-500">You are not a member of any projects.</p>

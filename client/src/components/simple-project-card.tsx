@@ -2,25 +2,18 @@
 
 import Badge from "@/components/badges/badge"
 import BadgePriority from "@/components/badges/badge-priority"
-import { Task } from "@/interfaces/task"
+import { DashboardSimpleProject } from "@/interfaces/project"
 import parseDate from "@/utils/parse-date"
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react"
+import Link from "next/link"
 import { FaChevronDown } from "react-icons/fa6"
 import { twMerge } from "tailwind-merge"
 
 interface SimpleProjectCardProps {
-    name: string
-    isManager: boolean
-    totalTasks: number
-    latestTasks: Task[]
+    project: DashboardSimpleProject
 }
 
-export default function SimpleProjectCard({
-    name,
-    isManager,
-    totalTasks,
-    latestTasks,
-}: Readonly<SimpleProjectCardProps>) {
+export default function SimpleProjectCard({ project }: Readonly<SimpleProjectCardProps>) {
     return (
         <Disclosure>
             {({ open }) => (
@@ -28,12 +21,12 @@ export default function SimpleProjectCard({
                     <DisclosureButton className="flex w-full items-center justify-between">
                         <div className="flex items-center gap-x-4">
                             <div className="inline-flex items-center gap-x-2">
-                                <h3 className="text-base font-semibold hover:underline">{name}</h3>{" "}
+                                <h3 className="text-base font-semibold hover:underline">{project.name}</h3>
                                 <span className="flex-none select-none rounded-md bg-ebony-50 px-1.5 py-0.5 text-xs font-medium text-ebony-700 ring-1 ring-inset ring-ebony-700/10 sm:order-none">
-                                    {isManager ? "Manager" : "Member"}
+                                    {project.isManager ? "Manager" : "Member"}
                                 </span>
                             </div>
-                            <span className="text-sm text-gray-500">({totalTasks}) task(s)</span>
+                            <span className="text-sm text-gray-500">({project.totalTasks}) task(s)</span>
                         </div>
 
                         <FaChevronDown
@@ -77,10 +70,16 @@ export default function SimpleProjectCard({
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200 bg-white">
-                                            {latestTasks.map(task => (
+                                            {project.latestTasks.map(task => (
                                                 <tr key={task.id}>
                                                     <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-0">
-                                                        {task.title}
+                                                        <Link
+                                                            aria-label={`View task: ${task.title}`}
+                                                            title={`View task: ${task.title}`}
+                                                            href={`/dashboard/projects/${project.id}/tasks/${task.id}`}
+                                                            className="hover:underline">
+                                                            {task.title}
+                                                        </Link>
                                                     </td>
                                                     <td className="whitespace-nowrap px-2 py-2 text-sm capitalize text-gray-900">
                                                         <Badge
