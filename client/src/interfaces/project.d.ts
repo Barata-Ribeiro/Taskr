@@ -5,7 +5,7 @@ import { User } from "@/interfaces/user"
 type ProjectStatus = "AWAITING_APPROVAL" | "ACTIVE" | "INACTIVE" | "COMPLETED"
 
 interface Project {
-    id: string
+    id: number
     name: string
     description: string
     deadline: string

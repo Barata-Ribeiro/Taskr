@@ -22,6 +22,11 @@ interface CompleteTask {
     userCreator: User
 }
 
+interface TaskPayload extends Task {
+    creator: User
+    assigned: User[]
+}
+
 interface SortedTasks {
     lowPriority: CompleteTask[]
     mediumPriority: CompleteTask[]
@@ -33,4 +38,9 @@ interface ProjectSortedTasks {
     tasks: SortedTasks
 }
 
-export type { TaskStatus, TaskPriority, Task, CompleteTask, SortedTasks, ProjectSortedTasks }
+interface TaskResponse {
+    project: Project
+    task: TaskPayload
+}
+
+export type { TaskStatus, TaskPriority, Task, CompleteTask, SortedTasks, ProjectSortedTasks, TaskPayload, TaskResponse }
