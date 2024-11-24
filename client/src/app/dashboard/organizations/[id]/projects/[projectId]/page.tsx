@@ -4,7 +4,7 @@ import NewTaskButton from "@/components/actions/new-task-button"
 import BadgeProjectStatus from "@/components/badges/badge-project-status"
 import StateError from "@/components/feedback/state-error"
 import Avatar from "@/components/helpers/avatar"
-import TaskCategory from "@/components/items/task-category"
+import StackedTasks from "@/components/lists/stacked-tasks"
 import { ProblemDetails } from "@/interfaces/actions"
 import { ProjectInfoResponse } from "@/interfaces/project"
 import { ProjectSortedTasks } from "@/interfaces/task"
@@ -51,6 +51,11 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
 
     const projectData = projectState.response?.data as ProjectInfoResponse
     const tasksData = taskState.response?.data as ProjectSortedTasks
+
+    console.group("DATA")
+    console.log("PROJECT: ", projectData)
+    console.log("TASKS: ", tasksData)
+    console.groupEnd()
 
     const isManager = projectData.project.isManager
 
@@ -188,22 +193,9 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                     <NewTaskButton projectId={params.projectId} />
                 </header>
 
-                {/* High Priority Tasks */}
-                <TaskCategory
-                    title="High Priority"
-                    tasks={tasksData.tasks.highPriority}
-                    priorityColor="text-english-holly-600"
-                />
-
-                {/* Medium Priority Tasks */}
-                <TaskCategory
-                    title="Medium Priority"
-                    tasks={tasksData.tasks.mediumPriority}
-                    priorityColor="text-yellow-500"
-                />
-
-                {/* Low Priority Tasks */}
-                <TaskCategory title="Low Priority" tasks={tasksData.tasks.lowPriority} priorityColor="text-green-500" />
+                <div className="border-t border-gray-100 px-4 py-4 sm:px-6">
+                    <StackedTasks tasks={tasksData.tasks} />
+                </div>
             </section>
         </Fragment>
     )
