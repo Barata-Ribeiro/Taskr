@@ -12,5 +12,9 @@ export default function Badge({ variant, children }: Readonly<BadgeProps>) {
     const badgeColors = variant === "default" ? tw`bg-gray-100 text-gray-600` : tw`bg-gray-800 text-gray-100`
     const badgeStyles = twMerge(badgeDefaultStyles, badgeColors)
 
-    return <span className={badgeStyles}>{children}</span>
+    return (
+        <span className={badgeStyles} title={children?.toString()}>
+            {children}
+        </span>
+    )
 }

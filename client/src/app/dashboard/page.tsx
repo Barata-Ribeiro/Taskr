@@ -9,10 +9,12 @@ import SimpleProjectCard from "@/components/simple-project-card"
 import { ProblemDetails } from "@/interfaces/actions"
 import { UserDashboard } from "@/interfaces/user"
 import { Metadata } from "next"
+import Link from "next/link"
 import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
     title: "Dashboard",
+    description: "This is your dashboard where you can see all your organizations and projects.",
 }
 
 export default async function HomePage() {
@@ -54,11 +56,17 @@ export default async function HomePage() {
                 <aside className="rounded-lg bg-white p-4 shadow-derek md:col-span-1">
                     <h2 className="mb-4 text-2xl font-semibold leading-none tracking-tight">Organizations</h2>
                     {organizationsWhereUserIsMember.length > 0 ? (
-                        <ul className="space-y-2">
+                        <ul className="space-y-2 divide-y divide-gray-200">
                             {organizationsWhereUserIsMember.map(org => (
-                                <li key={org.id} className="flex items-center justify-between">
-                                    <span>{org.name}</span>
-                                    <div className="space-x-2">
+                                <li key={org.id} className="flex flex-wrap items-center justify-between">
+                                    <Link
+                                        href={`/dashboard/organizations/${org.id}`}
+                                        title={`Go to ${org.name} organization page`}
+                                        aria-label={`Go to ${org.name} organization page`}
+                                        className="text-base font-semibold hover:underline">
+                                        {org.name}
+                                    </Link>
+                                    <div className="inline-flex items-center gap-x-2">
                                         {org.isOwner && <Badge variant="default">Owner</Badge>}
                                         {org.isAdmin && <Badge variant="secondary">Admin</Badge>}
                                     </div>
