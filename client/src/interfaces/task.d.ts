@@ -18,7 +18,7 @@ interface Task {
 
 interface CompleteTask {
     task: Task
-    userAssigned: User
+    userAssigned: User | null
     userCreator: User
 }
 
