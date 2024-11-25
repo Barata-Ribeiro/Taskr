@@ -20,7 +20,7 @@ export default function BadgePriority({ priority }: Readonly<BadgePriorityProps>
     const circleMergedStyles = twMerge("h-1.5 w-1.5", fillPriorityColor)
 
     return (
-        <span className={wrapperMergedStyles}>
+        <span className={wrapperMergedStyles} title={`Priority: ${priorityTitle}`}>
             <svg viewBox="0 0 6 6" aria-hidden="true" className={circleMergedStyles}>
                 <circle r={3} cx={3} cy={3} />
             </svg>
