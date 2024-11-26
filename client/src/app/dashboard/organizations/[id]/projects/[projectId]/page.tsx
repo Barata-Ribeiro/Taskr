@@ -183,7 +183,13 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                 <header className="flex flex-col items-start justify-between gap-x-8 gap-y-4 px-4 py-6 sm:flex-row sm:items-center sm:px-6">
                     <div className="inline-flex items-center gap-x-2">
                         <h2 id="project-tasks-section-title" className="text-3xl font-medium text-ebony-900">
-                            Tasks
+                            <Link
+                                aria-label="List all Tasks"
+                                title="List all Tasks"
+                                href={`/dashboard/projects/${params.projectId}/tasks`}
+                                className="hover:underline">
+                                Tasks
+                            </Link>
                         </h2>
                         <span className="text-sm font-medium text-ebony-400">
                             ({projectData.project.tasksCount} tasks)
