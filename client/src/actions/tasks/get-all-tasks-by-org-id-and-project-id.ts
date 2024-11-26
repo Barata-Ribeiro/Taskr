@@ -3,7 +3,7 @@
 import ResponseError from "@/actions/response-error"
 import { ApiResponse, ProblemDetails } from "@/interfaces/actions"
 import { ProjectSortedTasks } from "@/interfaces/task"
-import { TASKS_GET_ALL_BY_PROJECT_ID } from "@/utils/api-urls"
+import { TASKS_GET_ALL_BY_ORG_ID_AND_PROJECT_ID } from "@/utils/api-urls"
 import { auth } from "auth"
 
 interface GetAllTasksByProjectId {
@@ -11,11 +11,11 @@ interface GetAllTasksByProjectId {
     projectId: number
 }
 
-export default async function getAllTasksByProjectId({ orgId, projectId }: GetAllTasksByProjectId) {
+export default async function getAllTasksByOrgIdAndProjectId({ orgId, projectId }: GetAllTasksByProjectId) {
     const session = await auth()
 
     try {
-        const URL = TASKS_GET_ALL_BY_PROJECT_ID(orgId, projectId)
+        const URL = TASKS_GET_ALL_BY_ORG_ID_AND_PROJECT_ID(orgId, projectId)
 
         const response = await fetch(URL, {
             method: "GET",

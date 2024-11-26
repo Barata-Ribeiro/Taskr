@@ -1,5 +1,5 @@
 import getProjectByOrgIdAndProjectId from "@/actions/projects/get-project-by-org-id-and-project-id"
-import getAllTasksByProjectId from "@/actions/tasks/get-all-tasks-by-project-id"
+import getAllTasksByOrgIdAndProjectId from "@/actions/tasks/get-all-tasks-by-org-id-and-project-id"
 import NewTaskButton from "@/components/actions/new-task-button"
 import BadgeProjectStatus from "@/components/badges/badge-project-status"
 import StateError from "@/components/feedback/state-error"
@@ -41,7 +41,7 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
     if (!params.id || !params.projectId) return notFound()
 
     const projectStatePromise = getProjectByOrgIdAndProjectId({ orgId: +params.id, projectId: +params.projectId })
-    const tasksStatePromise = getAllTasksByProjectId({ orgId: +params.id, projectId: +params.projectId })
+    const tasksStatePromise = getAllTasksByOrgIdAndProjectId({ orgId: +params.id, projectId: +params.projectId })
 
     const [projectState, taskState] = await Promise.all([projectStatePromise, tasksStatePromise])
     if (projectState.error || taskState.error) {
