@@ -10,6 +10,7 @@ import { TaskResponse } from "@/interfaces/task"
 import { UserContext } from "@/interfaces/user"
 import parseDate from "@/utils/parse-date"
 import { notFound, redirect } from "next/navigation"
+import { Fragment } from "react"
 import { FaUserGroup } from "react-icons/fa6"
 
 interface TaskPageProps {
@@ -49,104 +50,115 @@ export default async function TaskPage({ params }: Readonly<TaskPageProps>) {
     if (context.projectsWhereUserIsMember.find(project => project.id !== data.project.id)) return redirect("/dashboard")
 
     return (
-        <article
-            id="task-info"
-            aria-labelledby="task-info-title"
-            aria-describedby="task-info-description"
-            className="rounded-lg bg-white shadow-derek">
-            <header className="flex flex-col space-y-1.5 p-6">
-                <h1 id="task-info-title" className="text-2xl font-semibold leading-none tracking-tight text-ebony-900">
-                    {data.task.title}
-                </h1>
-                <p id="task-info-description" className="mt-1 max-w-2xl text-sm/6 text-gray-500">
-                    {data.task.description}
+        <Fragment>
+            <div className="mb-5 border-b border-gray-200 pb-5">
+                <h1 className="text-base font-semibold leading-6 text-gray-900">Task</h1>
+                <p className="mt-2 max-w-4xl text-sm text-gray-500">
+                    You are viewing a task from the project <span className="font-semibold">{data.project.name}</span>.
                 </p>
-            </header>
-
-            <div className="p-6 pt-0">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div>
-                        <h3 className="mb-2 text-lg font-semibold">Task Details</h3>
-                        <p className="text-muted-foreground mb-4 text-sm">{data.task.description}</p>
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <span className="font-medium">Status:</span>
-                                <Badge variant={data.task.status === "OPEN" ? "default" : "secondary"}>
-                                    {data.task.status}
-                                </Badge>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="font-medium">Priority:</span>
-                                <BadgePriority priority={data.task.priority} />
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="font-medium">Start Date:</span>
-                                <span>{parseDate(data.task.startDate)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="font-medium">Due Date:</span>
-                                <span>{parseDate(data.task.dueDate)}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 className="mb-2 text-lg font-semibold">Project Details</h3>
-                        <p className="text-muted-foreground mb-4 text-sm">{data.project.description}</p>
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <span className="font-medium">Deadline:</span>
-                                <span>{parseDate(data.project.deadline)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="font-medium">Members:</span>
-                                <span>{data.project.membersCount}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="font-medium">Total Tasks:</span>
-                                <span>{data.project.tasksCount}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <Divider>
-                    <FaUserGroup aria-hidden="true" className="h-5 w-5 text-gray-500" />
-                </Divider>
-
-                <div>
-                    <h3 className="mb-2 text-lg font-semibold">People</h3>
-                    <div className="flex items-center space-x-4">
-                        <div>
-                            <p className="text-sm font-medium">Creator:</p>
-                            <div className="mt-1 flex items-center">
-                                <Avatar
-                                    name={data.task.creator.fullName ?? data.task.creator.displayName}
-                                    size={32}
-                                    src={data.task.creator.avatarUrl}
-                                />
-                                <span className="ml-2 text-sm">{data.task.creator.displayName}</span>
-                            </div>
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium">Assigned:</p>
-                            {data.task.assigned.length > 0 ? (
-                                <div className="mt-1 flex items-center">
-                                    {data.task.assigned.map(user => (
-                                        <Avatar
-                                            key={user.id}
-                                            name={user.fullName ?? user.displayName}
-                                            size={32}
-                                            src={user.avatarUrl}
-                                        />
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-muted-foreground mt-1 text-sm">No one assigned</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
             </div>
-        </article>
+
+            <article
+                id="task-info"
+                aria-labelledby="task-info-title"
+                aria-describedby="task-info-description"
+                className="rounded-lg bg-white shadow-derek">
+                <header className="flex flex-col space-y-1.5 p-6">
+                    <h2
+                        id="task-info-title"
+                        className="text-2xl font-semibold leading-none tracking-tight text-ebony-900">
+                        {data.task.title}
+                    </h2>
+                    <p id="task-info-description" className="mt-1 max-w-4xl text-sm text-gray-500">
+                        {data.task.description}
+                    </p>
+                </header>
+
+                <div className="p-6 pt-0">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <h3 className="mb-2 text-lg font-semibold">Task Details</h3>
+                            <p className="text-muted-foreground mb-4 text-sm">{data.task.description}</p>
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="font-medium">Status:</span>
+                                    <Badge variant={data.task.status === "OPEN" ? "default" : "secondary"}>
+                                        {data.task.status}
+                                    </Badge>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="font-medium">Priority:</span>
+                                    <BadgePriority priority={data.task.priority} />
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="font-medium">Start Date:</span>
+                                    <span>{parseDate(data.task.startDate)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="font-medium">Due Date:</span>
+                                    <span>{parseDate(data.task.dueDate)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="mb-2 text-lg font-semibold">Project Details</h3>
+                            <p className="text-muted-foreground mb-4 text-sm">{data.project.description}</p>
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="font-medium">Deadline:</span>
+                                    <span>{parseDate(data.project.deadline)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="font-medium">Members:</span>
+                                    <span>{data.project.membersCount}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="font-medium">Total Tasks:</span>
+                                    <span>{data.project.tasksCount}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <Divider>
+                        <FaUserGroup aria-hidden="true" className="h-5 w-5 text-gray-500" />
+                    </Divider>
+
+                    <div>
+                        <h3 className="mb-2 text-lg font-semibold">People</h3>
+                        <div className="flex items-center space-x-4">
+                            <div>
+                                <p className="text-sm font-medium">Creator:</p>
+                                <div className="mt-1 flex items-center">
+                                    <Avatar
+                                        name={data.task.creator.fullName ?? data.task.creator.displayName}
+                                        size={32}
+                                        src={data.task.creator.avatarUrl}
+                                    />
+                                    <span className="ml-2 text-sm">{data.task.creator.displayName}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium">Assigned:</p>
+                                {data.task.assigned.length > 0 ? (
+                                    <div className="mt-1 flex items-center">
+                                        {data.task.assigned.map(user => (
+                                            <Avatar
+                                                key={user.id}
+                                                name={user.fullName ?? user.displayName}
+                                                size={32}
+                                                src={user.avatarUrl}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-muted-foreground mt-1 text-sm">No one assigned</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </Fragment>
     )
 }
