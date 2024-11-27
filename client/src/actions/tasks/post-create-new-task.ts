@@ -42,8 +42,6 @@ export default async function postCreateNewTask(state: State, formData: FormData
     try {
         const rawFormData = Object.fromEntries(formData.entries())
 
-        console.log("DATA: ", rawFormData)
-
         const parsedFormData = newTaskSchema.safeParse(rawFormData)
 
         if (!parsedFormData.success) {

@@ -52,11 +52,6 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
     const projectData = projectState.response?.data as ProjectInfoResponse
     const tasksData = taskState.response?.data as ProjectSortedTasks
 
-    console.group("DATA")
-    console.log("PROJECT: ", projectData)
-    console.log("TASKS: ", tasksData)
-    console.groupEnd()
-
     const isManager = projectData.project.isManager
 
     return (

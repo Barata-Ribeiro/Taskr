@@ -50,7 +50,7 @@ export default async function TasksPage({ params }: TasksPageProps) {
                 </p>
             </header>
 
-            <div className="rounded-lg bg-white p-4 shadow-derek">
+            <div className="rounded-lg bg-white p-2 shadow-derek">
                 <StackedTasks tasks={tasksData.tasks} />
             </div>
         </section>
