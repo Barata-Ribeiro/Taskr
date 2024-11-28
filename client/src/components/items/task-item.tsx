@@ -6,14 +6,15 @@ import Link from "next/link"
 import { FaChevronRight } from "react-icons/fa6"
 
 interface TaskItemProps {
+    projectId: number
     data: CompleteTask
 }
 
-export default function TaskItem({ data }: TaskItemProps) {
+export default function TaskItem({ projectId, data }: TaskItemProps) {
     return (
         <li id={data.task.id + "_" + data.task.title}>
             <Link
-                href={`/dashboard/projects/tasks/${data.task.id}`}
+                href={`/dashboard/projects/${projectId}/tasks/${data.task.id}`}
                 aria-label={`View task: ${data.task.title}`}
                 title={`View task: ${data.task.title}`}
                 className="relative flex items-center gap-4 rounded-lg px-2 hover:bg-gray-50">

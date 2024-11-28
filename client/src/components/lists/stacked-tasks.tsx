@@ -1,13 +1,15 @@
 import TaskItem from "@/components/items/task-item"
 import NoTaskAvailable from "@/components/skeletons/no-task-available"
+import { Project } from "@/interfaces/project"
 import { CompleteTask, SortedTasks } from "@/interfaces/task"
 import { Fragment } from "react"
 
 interface StackedTasksProps {
+    project: Project
     tasks: SortedTasks
 }
 
-export default function StackedTasks({ tasks }: StackedTasksProps) {
+export default function StackedTasks({ project, tasks }: StackedTasksProps) {
     const renderTaskGroup = (tasks: CompleteTask[], title: string) => {
         if (tasks.length === 0) return <NoTaskAvailable title={title} />
 
@@ -18,7 +20,7 @@ export default function StackedTasks({ tasks }: StackedTasksProps) {
                 </h2>
                 <ul className="divide-y divide-gray-200" aria-labelledby={`task-group-${title}`}>
                     {tasks.map((completeTask, idx) => (
-                        <TaskItem key={completeTask.task.id + "_" + idx} data={completeTask} />
+                        <TaskItem key={completeTask.task.id + "_" + idx} projectId={+project.id} data={completeTask} />
                     ))}
                 </ul>
             </Fragment>

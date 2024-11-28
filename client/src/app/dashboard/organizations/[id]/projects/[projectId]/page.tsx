@@ -195,7 +195,7 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                 </header>
 
                 <div className="border-t border-gray-100 px-4 py-4 sm:px-6">
-                    <StackedTasks tasks={tasksData.tasks} />
+                    <StackedTasks project={tasksData.project} tasks={tasksData.tasks} />
                 </div>
             </section>
         </Fragment>
