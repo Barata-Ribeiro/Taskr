@@ -1,5 +1,6 @@
 import getTaskByProjectAndTaskId from "@/actions/tasks/get-task-by-project-and-task-id"
 import getUserContext from "@/actions/user/get-user-context"
+import UpdateTaskButton from "@/components/actions/update-task-button"
 import Badge from "@/components/badges/badge"
 import BadgePriority from "@/components/badges/badge-priority"
 import Divider from "@/components/divider"
@@ -49,6 +50,9 @@ export default async function TaskPage({ params }: Readonly<TaskPageProps>) {
 
     if (context.projectsWhereUserIsMember.find(project => project.id !== data.project.id)) return redirect("/dashboard")
 
+    const isManager =
+        context.projectsWhereUserIsMember.find(project => project.id === data.project.id)?.isManager ?? false
+
     return (
         <Fragment>
             <div className="mb-5 border-b border-gray-200 pb-5">
@@ -63,18 +67,28 @@ export default async function TaskPage({ params }: Readonly<TaskPageProps>) {
                 aria-labelledby="task-info-title"
                 aria-describedby="task-info-description"
                 className="rounded-lg bg-white shadow-derek">
-                <header className="flex flex-col space-y-1.5 p-6">
-                    <h2
-                        id="task-info-title"
-                        className="text-2xl font-semibold leading-none tracking-tight text-ebony-900">
-                        {data.task.title}
-                    </h2>
-                    <p id="task-info-description" className="mt-1 max-w-4xl text-sm text-gray-500">
-                        {data.task.description}
-                    </p>
+                <header className="flex flex-col items-start justify-between gap-x-8 gap-y-4 border-b border-gray-100 px-4 py-6 sm:flex-row sm:items-center sm:px-6">
+                    <div className="grid gap-x-2">
+                        <h2
+                            id="task-info-title"
+                            className="text-2xl font-semibold leading-none tracking-tight text-ebony-900">
+                            {data.task.title}
+                        </h2>
+                        <p id="task-info-description" className="mt-1 max-w-4xl text-base text-gray-500">
+                            {data.task.description}
+                        </p>
+                    </div>
+
+                    <div className="order-first inline-flex items-center gap-x-2 sm:order-none">
+                        <UpdateTaskButton projectId={params.projectId} isManager={isManager} />
+
+                        <span className="flex-none select-none rounded-md bg-ebony-50 px-2 py-1 text-xs font-medium text-ebony-700 ring-1 ring-inset ring-ebony-700/10">
+                            {isManager ? "Project Manager" : "Project Member"}
+                        </span>
+                    </div>
                 </header>
 
-                <div className="p-6 pt-0">
+                <div className="p-6">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <h3 className="mb-2 text-lg font-semibold">Task Details</h3>
