@@ -52,7 +52,7 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
     const projectData = projectState.response?.data as ProjectInfoResponse
     const tasksData = taskState.response?.data as ProjectSortedTasks
 
-    const isManager = projectData.project.isManager
+    const isManager = projectData.project.isManager ?? false
 
     return (
         <Fragment>
@@ -191,7 +191,7 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                         </span>
                     </div>
 
-                    <NewTaskButton projectId={params.projectId} />
+                    <NewTaskButton isManager={isManager} projectId={params.projectId} />
                 </header>
 
                 <div className="border-t border-gray-100 px-4 py-4 sm:px-6">

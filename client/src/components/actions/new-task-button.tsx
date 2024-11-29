@@ -7,16 +7,18 @@ import { FaPlus } from "react-icons/fa6"
 
 interface NewTaskButtonProps {
     projectId: string
+    isManager: boolean
 }
 
-export default function NewTaskButton({ projectId }: NewTaskButtonProps) {
+export default function NewTaskButton({ projectId, isManager }: NewTaskButtonProps) {
     const [isOpen, setIsOpen] = useState(false)
     return (
         <Fragment>
             <Button
                 type="button"
+                disabled={!isManager}
                 onClick={() => setIsOpen(true)}
-                className="inline-flex w-max items-center gap-x-2 rounded-md bg-ebony-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-ebony-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ebony-600 active:bg-ebony-800">
+                className="inline-flex w-max items-center gap-x-2 rounded-md bg-ebony-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-ebony-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ebony-600 active:bg-ebony-800 disabled:pointer-events-none disabled:cursor-default disabled:opacity-50">
                 New Task <FaPlus aria-hidden="true" className="h-4 w-4 text-inherit" />
             </Button>
 
