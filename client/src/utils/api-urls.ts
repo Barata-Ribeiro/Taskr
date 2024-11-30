@@ -83,3 +83,5 @@ export const TASKS_GET_ALL_BY_ORG_ID_AND_PROJECT_ID = (orgId: number, projectId:
 export const TASKS_GET_ALL_BY_PROJECT_ID = (projectId: number) => `${BACKEND_URL}/api/v1/tasks/${projectId}`
 export const TASKS_GET_BY_PROJECT_ID_AND_TASK_ID = (projectId: number, taskId: number) =>
     `${BACKEND_URL}/api/v1/tasks/${projectId}/task/${taskId}`
+export const TASKS_PATCH_UPDATE_TASK_BY_PROJECT_ID_AND_TASK_ID = (projectId: number, taskId: number) =>
+    `${BACKEND_URL}/api/v1/tasks/${projectId}/task/${taskId}`
