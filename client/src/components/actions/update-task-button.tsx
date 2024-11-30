@@ -1,5 +1,7 @@
 "use client"
 
+import UpdateTaskForm from "@/components/forms/update-task-form"
+import { TaskPayload } from "@/interfaces/task"
 import { Button, Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react"
 import { Fragment, useState } from "react"
 import { FaPencil } from "react-icons/fa6"
@@ -7,9 +9,10 @@ import { FaPencil } from "react-icons/fa6"
 interface UpdateTaskButtonProps {
     projectId: string
     isManager: boolean
+    task: TaskPayload
 }
 
-export default function UpdateTaskButton({ projectId, isManager }: Readonly<UpdateTaskButtonProps>) {
+export default function UpdateTaskButton({ projectId, isManager, task }: Readonly<UpdateTaskButtonProps>) {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
@@ -33,7 +36,12 @@ export default function UpdateTaskButton({ projectId, isManager }: Readonly<Upda
                         <DialogPanel
                             transition
                             className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-lg data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95">
-                            {/*TODO: ADD UPDATE TASK FORM HERE*/}
+                            <UpdateTaskForm
+                                projectId={projectId}
+                                task={task}
+                                isManager={isManager}
+                                setIsOpen={setIsOpen}
+                            />
                         </DialogPanel>
                     </div>
                 </div>

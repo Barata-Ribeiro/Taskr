@@ -53,6 +53,11 @@ export default async function TaskPage({ params }: Readonly<TaskPageProps>) {
     const isManager =
         context.projectsWhereUserIsMember.find(project => project.id === data.project.id)?.isManager ?? false
 
+    const statusText = data.task.status
+        .toLowerCase()
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (char: string) => char.toUpperCase())
+
     return (
         <Fragment>
             <div className="mb-5 border-b border-gray-200 pb-5">
@@ -80,7 +85,7 @@ export default async function TaskPage({ params }: Readonly<TaskPageProps>) {
                     </div>
 
                     <div className="order-first inline-flex items-center gap-x-2 sm:order-none">
-                        <UpdateTaskButton projectId={params.projectId} isManager={isManager} />
+                        <UpdateTaskButton projectId={params.projectId} isManager={isManager} task={data.task} />
 
                         <span className="flex-none select-none rounded-md bg-ebony-50 px-2 py-1 text-xs font-medium text-ebony-700 ring-1 ring-inset ring-ebony-700/10">
                             {isManager ? "Project Manager" : "Project Member"}
@@ -97,7 +102,7 @@ export default async function TaskPage({ params }: Readonly<TaskPageProps>) {
                                 <div className="flex justify-between">
                                     <span className="font-medium">Status:</span>
                                     <Badge variant={data.task.status === "OPEN" ? "default" : "secondary"}>
-                                        {data.task.status}
+                                        {statusText}
                                     </Badge>
                                 </div>
                                 <div className="flex justify-between">
