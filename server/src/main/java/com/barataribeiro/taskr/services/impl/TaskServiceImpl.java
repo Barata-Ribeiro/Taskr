@@ -199,7 +199,7 @@ public class TaskServiceImpl implements TaskService {
         Optional.ofNullable(body.startDate()).ifPresent(date -> {
             LocalDate parsedDate = parseDate(date);
 
-            if (parsedDate.isAfter(task.getDueDate())) {
+            if (parsedDate.isAfter(body.dueDate() == null ? task.getDueDate() : parseDate(body.dueDate()))) {
                 throw new IllegalRequestException(AppConstants.CANNOT_BE_AFTER_DUE_DATE);
             }
 
