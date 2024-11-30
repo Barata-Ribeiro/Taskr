@@ -72,6 +72,8 @@ export default function NewTaskForm({ projectId, setIsOpen }: NewTaskFormProps) 
                                 placeholder="A complete description of the task"
                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ebony-600 sm:text-sm sm:leading-6"
                                 defaultValue={""}
+                                required
+                                aria-required
                             />
                         </Field>
                         <Fieldset>
@@ -86,6 +88,8 @@ export default function NewTaskForm({ projectId, setIsOpen }: NewTaskFormProps) 
                                             name="priority"
                                             type="radio"
                                             value={choice.id}
+                                            required
+                                            aria-required
                                             className="h-4 w-4 border-gray-300 text-english-holly-600 focus:ring-english-holly-600"
                                         />
                                         <Label
@@ -112,6 +116,8 @@ export default function NewTaskForm({ projectId, setIsOpen }: NewTaskFormProps) 
                                         name="startDate"
                                         type="date"
                                         min={new Date().toISOString().split("T")[0]}
+                                        required
+                                        aria-required
                                         className="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
                                     />
                                 </Field>
@@ -124,6 +130,8 @@ export default function NewTaskForm({ projectId, setIsOpen }: NewTaskFormProps) 
                                         name="dueDate"
                                         type="date"
                                         min={new Date().toISOString().split("T")[0]}
+                                        required
+                                        aria-required
                                         className="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
                                     />
                                 </Field>
