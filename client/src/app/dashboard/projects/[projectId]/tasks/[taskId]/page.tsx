@@ -10,6 +10,7 @@ import { ProblemDetails } from "@/interfaces/actions"
 import { TaskResponse } from "@/interfaces/task"
 import { UserContext } from "@/interfaces/user"
 import parseDate from "@/utils/parse-date"
+import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { Fragment } from "react"
 import { FaUserGroup } from "react-icons/fa6"
@@ -146,32 +147,43 @@ export default async function TaskPage({ params }: Readonly<TaskPageProps>) {
                     <div>
                         <h3 className="mb-2 text-lg font-semibold">People</h3>
                         <div className="flex items-center space-x-4">
-                            <div>
+                            <div className="grid gap-1">
                                 <p className="text-sm font-medium">Creator:</p>
-                                <div className="mt-1 flex items-center">
+                                <Link
+                                    href={`/dashboard/profile/${data.task.creator.id}`}
+                                    aria-label={`View ${data.task.creator.displayName}'s profile`}
+                                    title={`View ${data.task.creator.displayName}'s profile`}
+                                    className="group flex items-center">
                                     <Avatar
                                         name={data.task.creator.fullName ?? data.task.creator.displayName}
                                         size={32}
                                         src={data.task.creator.avatarUrl}
                                     />
-                                    <span className="ml-2 text-sm">{data.task.creator.displayName}</span>
-                                </div>
+                                    <span className="ml-2 text-sm underline-offset-2 group-hover:underline">
+                                        {data.task.creator.displayName}
+                                    </span>
+                                </Link>
                             </div>
-                            <div>
+                            <div className="grid items-start gap-1">
                                 <p className="text-sm font-medium">Assigned:</p>
                                 {data.task.assigned.length > 0 ? (
-                                    <div className="mt-1 flex items-center">
+                                    <div className="flex items-center -space-x-2 overflow-hidden">
                                         {data.task.assigned.map(user => (
-                                            <Avatar
+                                            <Link
                                                 key={user.id}
-                                                name={user.fullName ?? user.displayName}
-                                                size={32}
-                                                src={user.avatarUrl}
-                                            />
+                                                aria-label={`View ${user.displayName}'s profile`}
+                                                title={`View ${user.displayName}'s profile`}
+                                                href={`/dashboard/profile/${user.id}`}>
+                                                <Avatar
+                                                    name={user.fullName ?? user.displayName}
+                                                    size={32}
+                                                    src={user.avatarUrl}
+                                                />
+                                            </Link>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-muted-foreground mt-1 text-sm">No one assigned</p>
+                                    <p className="h-8 min-h-0 text-sm text-gray-400">No one assigned</p>
                                 )}
                             </div>
                         </div>
