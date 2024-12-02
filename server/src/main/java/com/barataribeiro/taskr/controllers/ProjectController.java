@@ -56,9 +56,12 @@ public class ProjectController {
     }
 
     @GetMapping("/project/{projectId}/members")
-    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getProjectMembers(@PathVariable String orgId,
-                                                                                  @PathVariable String projectId) {
-        Map<String, Object> response = projectService.getProjectMembers(orgId, projectId);
+    public ResponseEntity<RestResponseDTO<Map<String, Object>>> getProjectMembers(
+            @PathVariable String orgId,
+            @PathVariable String projectId,
+            @RequestParam(required = false, defaultValue = "false") boolean simplified,
+            Principal principal) {
+        Map<String, Object> response = projectService.getProjectMembers(orgId, projectId, simplified, principal);
         return ResponseEntity.ok(new RestResponseDTO<>(HttpStatus.OK,
                                                        HttpStatus.OK.value(),
                                                        "Project members retrieved successfully",

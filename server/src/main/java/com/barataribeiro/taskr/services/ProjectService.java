@@ -15,7 +15,7 @@ public interface ProjectService {
 
     Map<String, Object> getProjectInfo(String orgId, String projectId, Principal principal);
 
-    Map<String, Object> getProjectMembers(String orgId, String projectId);
+    Map<String, Object> getProjectMembers(String orgId, String projectId, boolean simplified, Principal principal);
 
     Map<String, Object> getProjectTasks(String orgId, String projectId, Principal principal);
 

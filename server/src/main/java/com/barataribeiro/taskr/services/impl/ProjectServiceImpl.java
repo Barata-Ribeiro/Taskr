@@ -201,44 +201,58 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getProjectMembers(String orgId, String projectId) {
+    public Map<String, Object> getProjectMembers(String orgId, String projectId, boolean simplified,
+                                                 Principal principal) {
         Set<ProjectUser> projectUsers = projectUserRepository.findAllByProject_Id(Long.valueOf(projectId));
 
         if (projectUsers.isEmpty()) {
             throw new EntityNotFoundException(Project.class.getSimpleName());
         }
 
-        Project project = projectUsers.stream()
-                                      .findFirst()
-                                      .map(ProjectUser::getProject)
-                                      .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
+        Map<String, Object> returnData = null;
 
-        Organization organization = organizationProjectRepository
-                .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
-                .map(OrganizationProject::getOrganization)
-                .orElseThrow(() -> new EntityNotFoundException(Organization.class.getSimpleName()));
-
-        User projectManager = projectUsers.stream()
-                                          .filter(ProjectUser::isProjectManager)
+        if (!simplified) {
+            Project project = projectUsers.stream()
                                           .findFirst()
-                                          .map(ProjectUser::getUser)
-                                          .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+                                          .map(ProjectUser::getProject)
+                                          .orElseThrow(
+                                                  () -> new EntityNotFoundException(Project.class.getSimpleName()));
 
-        Set<User> projectMembers = projectUsers.stream()
-                                               .filter(entity -> !entity.isProjectManager())
-                                               .map(ProjectUser::getUser)
-                                               .collect(Collectors.toSet());
+            Organization organization = organizationProjectRepository
+                    .findByOrganization_IdAndProject_Id(Long.valueOf(orgId), Long.valueOf(projectId))
+                    .map(OrganizationProject::getOrganization)
+                    .orElseThrow(() -> new EntityNotFoundException(Organization.class.getSimpleName()));
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> projectMap = objectMapper.convertValue(projectMapper.toDTO(project),
-                                                                   new TypeReference<>() {});
-        projectMap.put(AppConstants.MANAGER, userMapper.toDTO(projectManager));
-        projectMap.put("members", userMapper.toDTOList(new ArrayList<>(projectMembers)));
+            User projectManager = projectUsers.stream()
+                                              .filter(ProjectUser::isProjectManager)
+                                              .findFirst()
+                                              .map(ProjectUser::getUser)
+                                              .orElseThrow(
+                                                      () -> new EntityNotFoundException(User.class.getSimpleName()));
 
-        Map<String, Object> returnData = new LinkedHashMap<>();
-        returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
-        returnData.put(AppConstants.PROJECT, projectMap);
+            Set<User> projectMembers = projectUsers.stream()
+                                                   .filter(entity -> !entity.isProjectManager())
+                                                   .map(ProjectUser::getUser)
+                                                   .collect(Collectors.toSet());
 
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> projectMap = objectMapper.convertValue(projectMapper.toDTO(project),
+                                                                       new TypeReference<>() {});
+            projectMap.put(AppConstants.MANAGER, userMapper.toDTO(projectManager));
+            projectMap.put("members", userMapper.toDTOList(new ArrayList<>(projectMembers)));
+
+            returnData = new LinkedHashMap<>();
+            returnData.put(AppConstants.ORGANIZATION, organizationMapper.toDTO(organization));
+            returnData.put(AppConstants.PROJECT, projectMap);
+
+            return returnData;
+        }
+
+        returnData = new LinkedHashMap<>();
+        returnData.put("members", userMapper.toDTOList(projectUsers.stream()
+                                                                   .filter(entity -> !entity.isProjectManager())
+                                                                   .map(ProjectUser::getUser)
+                                                                   .toList()));
         return returnData;
     }
 
