@@ -54,6 +54,9 @@ export default async function TaskPage({ params }: Readonly<TaskPageProps>) {
     const isManager =
         context.projectsWhereUserIsMember.find(project => project.id === data.project.id)?.isManager ?? false
 
+    const organizationId =
+        context.projectsWhereUserIsMember.find(project => project.id === data.project.id)?.organizationId ?? null
+
     const statusText = data.task.status
         .toLowerCase()
         .replace(/_/g, " ")
@@ -190,6 +193,26 @@ export default async function TaskPage({ params }: Readonly<TaskPageProps>) {
                     </div>
                 </div>
             </article>
+
+            <section
+                id="task-member-assignment-section"
+                aria-labelledby="task-member-assignment-section-title"
+                aria-describedby="task-member-assignment-section-description"
+                className="mt-6 rounded-lg bg-white shadow-derek">
+                <header className="px-4 py-6 sm:px-6">
+                    <h3
+                        id="task-member-assignment-section-title"
+                        className="text-base font-semibold leading-7 text-gray-900">
+                        Task Member Assignment
+                    </h3>
+                    <p
+                        id="task-member-assignment-section-description"
+                        className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
+                        The project manager can assign or remove members from this task.
+                    </p>
+                </header>
+                <div className="border-t border-gray-100"></div>
+            </section>
         </Fragment>
     )
 }
