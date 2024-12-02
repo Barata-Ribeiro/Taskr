@@ -53,6 +53,10 @@ interface ProjectStatusResponse {
     manager: User
 }
 
+interface ProjectMembersResponse {
+    members: User[]
+}
+
 export type {
     ProjectStatus,
     Project,
@@ -62,4 +66,5 @@ export type {
     OrganizationProjects,
     ProjectInfoResponse,
     ProjectStatusResponse,
+    ProjectMembersResponse,
 }

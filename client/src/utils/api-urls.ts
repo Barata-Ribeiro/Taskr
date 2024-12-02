@@ -66,11 +66,20 @@ export const ORGANIZATIONS_POST_NEW = () => `${BACKEND_URL}/api/v1/organizations
 
 // Projects
 export const PROJECTS_POST_NEW = (orgId: string) => `${BACKEND_URL}/api/v1/projects/${orgId}/project-create`
-export const PROJECTS_PATCH_UPDATE_PROJECT = (orgId: string, projectId: string) =>
-    `${BACKEND_URL}/api/v1/projects/${orgId}/project/${projectId}`
 export const PROJECTS_GET_BY_ORG_ID_AND_PROJECT_ID = (orgId: number, projectId: number) =>
     `${BACKEND_URL}/api/v1/projects/${orgId}/project/${projectId}`
 export const PROJECTS_GET_OWN_PROJECTS_BY_ORG_ID = (orgId: number) => `${BACKEND_URL}/api/v1/projects/${orgId}/me`
+export const PROJECTS_GET_PROJECT_MEMBERS_BY_ORG_ID_AND_PROJECT_ID = (
+    orgId: number,
+    projectId: number,
+    simplified?: boolean,
+) => {
+    let url = `${BACKEND_URL}/api/v1/projects/${orgId}/project/${projectId}/members`
+    if (simplified) url += `?simplified=true`
+    return url
+}
+export const PROJECTS_PATCH_UPDATE_PROJECT = (orgId: string, projectId: string) =>
+    `${BACKEND_URL}/api/v1/projects/${orgId}/project/${projectId}`
 export const PROJECTS_DELETE_PROJECT_BY_ORG_ID_AND_PROJECT_ID = (orgId: number, projectId: string) =>
     `${BACKEND_URL}/api/v1/projects/${orgId}/project/${projectId}`
 export const PROJECTS_PATCH_UPDATE_PROJECT_STATUS = (orgId: number, projectId: string, status: string) =>
