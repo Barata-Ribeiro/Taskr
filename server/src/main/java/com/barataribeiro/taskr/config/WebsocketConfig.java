@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.config;
 
+import com.barataribeiro.taskr.services.security.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -30,13 +32,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
+    private final TokenService tokenService;
+
     @Value("${api.security.cors.origins}")
     private String allowedOrigins;
 
     @Override
     public void registerStompEndpoints(@NotNull StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns(allowedOrigins.split(","))
+                .setAllowedOriginPatterns(Arrays.stream(allowedOrigins.split(",")).toArray(String[]::new))
+                .setHandshakeHandler(new UserHandshakeHandler(tokenService))
                 .withSockJS();
     }
 
