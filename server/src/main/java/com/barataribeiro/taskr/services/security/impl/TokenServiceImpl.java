@@ -94,6 +94,13 @@ public class TokenServiceImpl implements TokenService {
         }
     }
 
+    @Override
+    public String getUsernameFromToken(String token) {
+        DecodedJWT decodedJWT = validateToken(token);
+        if (decodedJWT == null) throw new TaskrMainException();
+        return decodedJWT.getSubject();
+    }
+
     private Instant generateExpirationDateOfFifteenMinutes() {
         return LocalDateTime.now(ZoneOffset.UTC).plusMinutes(15).toInstant(ZoneOffset.UTC);
     }

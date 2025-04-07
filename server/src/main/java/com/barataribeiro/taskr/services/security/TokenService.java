@@ -12,4 +12,6 @@ public interface TokenService {
     Map.Entry<String, Instant> generateRefreshToken(User user, Boolean rememberMe);
 
     DecodedJWT validateToken(String token);
+
+    String getUsernameFromToken(String token);
 }
