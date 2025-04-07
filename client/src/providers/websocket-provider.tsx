@@ -1,10 +1,11 @@
 "use client"
 
-import { Notification } from "@/interfaces/notifications"
-import websocketClient from "@/utils/websocket-client"
-import { IMessage, StompSubscription } from "@stomp/stompjs"
-import { useSession } from "next-auth/react"
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react"
+import { Notification }                                                                     from "@/interfaces/notifications"
+import websocketClient
+                                                                                            from "@/utils/websocket-client"
+import { IMessage, StompSubscription }                                                      from "@stomp/stompjs"
+import { useSession }                                                                       from "next-auth/react"
+import { createContext, ReactNode, useContext, useLayoutEffect, useMemo, useRef, useState } from "react"
 
 interface WebSocketContextProps {
     notifications: Notification[]
@@ -14,43 +15,44 @@ const WebSocketContext = createContext<WebSocketContextProps>({ notifications: [
 
 export function WebsocketProvider({ children }: Readonly<{ children: ReactNode }>) {
     const { data: session } = useSession()
-    const [notifications, setNotifications] = useState<Notification[]>([])
-    const [subscription, setSubscription] = useState<StompSubscription | null>(null)
-
+    const [ notifications, setNotifications ] = useState<Notification[]>([])
+    const subscriptionRef = useRef<StompSubscription | null>(null)
+    
     function addNewNotification(notification: Notification) {
-        return (prev: Notification[]) => [notification, ...prev]
+        return (prev: Notification[]) => [ notification, ...prev ]
     }
-
-    useEffect(() => {
-        if (session) {
-            const handleConnect = () => {
-                if (!subscription) {
-                    const sub = websocketClient.subscribe("/user/notifications", (message: IMessage) => {
-                        const notification = JSON.parse(message.body) as Notification
-                        setNotifications(addNewNotification(notification))
-                    })
-
-                    setSubscription(sub)
-                }
-            }
-
-            websocketClient.registerOnConnectCallback(handleConnect)
-            websocketClient.connect()
-
-            return () => {
-                if (subscription) {
-                    websocketClient.unSubscribe("/user/notifications")
-                    setSubscription(null)
-                }
-
-                websocketClient.disconnect()
+    
+    useLayoutEffect(() => {
+        if (!session) return
+        
+        websocketClient.connect()
+        
+        const handleConnect = () => {
+            if (subscriptionRef && !subscriptionRef.current) {
+                subscriptionRef.current = websocketClient
+                    .subscribe(`/user/${ session.user.username }/notifications`,
+                               (message: IMessage) => {
+                                   const notification = JSON.parse(message.body) as Notification
+                                   setNotifications(addNewNotification(notification))
+                               }
+                    )
             }
         }
-    }, [session])
-
-    const value = useMemo(() => ({ notifications }), [notifications])
-
-    return <WebSocketContext.Provider value={value}>{children}</WebSocketContext.Provider>
+        
+        websocketClient.registerOnConnectCallback(handleConnect)
+        
+        return () => {
+            if (subscriptionRef.current) {
+                subscriptionRef.current.unsubscribe()
+                subscriptionRef.current = null
+            }
+            websocketClient.disconnect()
+        }
+    }, [ session ])
+    
+    const value = useMemo(() => ({ notifications }), [ notifications ])
+    
+    return <WebSocketContext.Provider value={ value }>{ children }</WebSocketContext.Provider>
 }
 
 export function useWebsocket() {
