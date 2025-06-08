@@ -1,0 +1,26 @@
+name: taskr
+
+services:
+  taskr_database:
+    image: 'postgres:alpine'
+    container_name: 'taskr_database'
+    restart: 'always'
+    environment:
+      POSTGRES_DB: taskr_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - taskr_network
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  taskr_network:
+    driver: bridge
