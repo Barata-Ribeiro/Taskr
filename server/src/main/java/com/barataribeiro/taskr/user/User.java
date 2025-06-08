@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.user;
 
+import com.barataribeiro.taskr.project.Membership;
 import com.barataribeiro.taskr.project.Project;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -86,11 +87,16 @@ public class User implements UserDetails, Serializable {
     // Relations
 
     @Builder.Default
-
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @JsonIgnore
     private Set<Project> projects = new HashSet<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    private Set<Membership> memberships = new HashSet<>();
 
     // UserDetails methods
 

@@ -11,6 +11,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -62,4 +64,12 @@ public class Project implements Serializable {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    // Relationships
+
+    @Builder.Default
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    private Set<Membership> memberships = new HashSet<>();
 }

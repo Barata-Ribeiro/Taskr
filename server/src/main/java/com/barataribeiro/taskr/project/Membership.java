@@ -1,0 +1,52 @@
+package com.barataribeiro.taskr.project;
+
+import com.barataribeiro.taskr.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
+@Entity
+@Table(name = "tb_memberships", indexes = {
+        @Index(name = "idx_membership_id_project_user", columnList = "id, project_id, user_id"),
+        @Index(name = "idx_membership_project_user_unq", columnList = "project_id, user_id", unique = true)
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "uc_membership_project_user", columnNames = {"project_id", "user_id"})
+})
+public class Membership implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(updatable = false, nullable = false, unique = true)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = false)
+    @ToString.Exclude
+    @JsonIgnore
+    private Project project;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @JsonIgnore
+    private User user;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private ProjectRole role = ProjectRole.MEMBER;
+
+    private LocalDateTime joinedAt;
+}
