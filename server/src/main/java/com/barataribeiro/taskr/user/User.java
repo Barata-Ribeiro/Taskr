@@ -2,6 +2,7 @@ package com.barataribeiro.taskr.user;
 
 import com.barataribeiro.taskr.project.Membership;
 import com.barataribeiro.taskr.project.Project;
+import com.barataribeiro.taskr.task.Task;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -97,6 +98,12 @@ public class User implements UserDetails, Serializable {
     @ToString.Exclude
     @JsonIgnore
     private Set<Membership> memberships = new HashSet<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "assignee", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    private Set<Task> tasks = new HashSet<>();
 
     // UserDetails methods
 

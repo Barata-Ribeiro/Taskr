@@ -1,6 +1,6 @@
-package com.barataribeiro.taskr.project;
+package com.barataribeiro.taskr.task;
 
-import com.barataribeiro.taskr.task.Task;
+import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -11,9 +11,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -22,13 +19,12 @@ import java.util.Set;
 @Setter
 @ToString
 @Entity
-@Table(name = "tb_projects", indexes = {
-        @Index(name = "idx_project_id_title", columnList = "id, title"),
-        @Index(name = "idx_project_owner", columnList = "owner_id")
+@Table(name = "tb_tasks", indexes = {
+        @Index(name = "idx_task_id", columnList = "id")
 }, uniqueConstraints = {
-        @UniqueConstraint(name = "uc_project_title_owner", columnNames = {"title", "owner_id"})
+        @UniqueConstraint(name = "uc_task_title", columnNames = {"title"})
 })
-public class Project implements Serializable {
+public class Task implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -45,18 +41,17 @@ public class Project implements Serializable {
     private String description;
 
     @Column(name = "due_date")
-    private LocalDateTime dueDate;
+    private String dueDate;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private ProjectStatus status = ProjectStatus.NOT_STARTED;
+    private TaskStatus status = TaskStatus.TO_DO;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
-    @ToString.Exclude
-    @JsonIgnore
-    private User owner;
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "priority", nullable = false)
+    private TaskPriority priority = TaskPriority.LOW;
 
     // Timestamps
 
@@ -69,15 +64,15 @@ public class Project implements Serializable {
 
     // Relationships
 
-    @Builder.Default
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = false)
     @ToString.Exclude
     @JsonIgnore
-    private Set<Membership> memberships = new HashSet<>();
+    private Project project;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assignee_id", nullable = false)
     @ToString.Exclude
     @JsonIgnore
-    private Set<Task> tasks = new HashSet<>();
+    private User assignee;
 }
