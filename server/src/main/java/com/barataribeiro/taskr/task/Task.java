@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.task;
 
+import com.barataribeiro.taskr.comment.Comment;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,6 +12,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -75,4 +78,10 @@ public class Task implements Serializable {
     @ToString.Exclude
     @JsonIgnore
     private User assignee;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    private Set<Comment> comments = new LinkedHashSet<>();
 }

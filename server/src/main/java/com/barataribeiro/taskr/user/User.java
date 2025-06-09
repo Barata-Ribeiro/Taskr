@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.user;
 
+import com.barataribeiro.taskr.comment.Comment;
 import com.barataribeiro.taskr.project.Membership;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.task.Task;
@@ -104,6 +105,12 @@ public class User implements UserDetails, Serializable {
     @ToString.Exclude
     @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    private Set<Comment> comments = new HashSet<>();
 
     // UserDetails methods
 
