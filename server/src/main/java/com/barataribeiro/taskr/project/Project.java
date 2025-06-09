@@ -1,5 +1,7 @@
 package com.barataribeiro.taskr.project;
 
+import com.barataribeiro.taskr.activity.Activity;
+import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.task.Task;
 import com.barataribeiro.taskr.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;

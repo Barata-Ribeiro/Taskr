@@ -1,4 +1,4 @@
-package com.barataribeiro.taskr.project;
+package com.barataribeiro.taskr.activity;
 
 public enum ActivityType {
     CREATE_PROJECT,
