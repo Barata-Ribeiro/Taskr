@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Builder
@@ -74,6 +75,12 @@ public class Project implements Serializable {
     @ToString.Exclude
     @JsonIgnore
     private Set<Membership> memberships = new HashSet<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    private Set<Activity> feed = new LinkedHashSet<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
