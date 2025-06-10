@@ -1,5 +1,7 @@
 package com.barataribeiro.taskr.authentication;
 
+import com.barataribeiro.taskr.authentication.dto.LoginRequestDTO;
+import com.barataribeiro.taskr.authentication.dto.LoginResponseDTO;
 import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
 import com.barataribeiro.taskr.authentication.services.AuthenticationService;
 import com.barataribeiro.taskr.helpers.RestResponse;
@@ -32,5 +34,14 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.CREATED)
                              .body(new RestResponse<>(HttpStatus.CREATED, HttpStatus.CREATED.value(),
                                                       "Account created successfully", response));
+    }
+
+    @Operation(summary = "Login user",
+               description = "Logs in a user with the provided username or email and password.")
+    @PostMapping("/login")
+    public ResponseEntity<RestResponse<LoginResponseDTO>> loginUser(@RequestBody @Valid LoginRequestDTO body) {
+        LoginResponseDTO response = authenticationService.loginUser(body);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Login successful", response));
     }
 }
