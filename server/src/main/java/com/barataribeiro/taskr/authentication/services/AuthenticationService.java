@@ -1,6 +1,9 @@
 package com.barataribeiro.taskr.authentication.services;
 
+import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.barataribeiro.taskr.authentication.Token;
+import com.barataribeiro.taskr.authentication.TokenRepository;
 import com.barataribeiro.taskr.authentication.dto.LoginRequestDTO;
 import com.barataribeiro.taskr.authentication.dto.LoginResponseDTO;
 import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
@@ -31,6 +34,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final UserBuilder userBuilder;
     private final TokenService tokenService;
+    private final TokenRepository tokenRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public UserSecurityDTO createAccount(@Valid @NotNull RegistrationRequestDTO body) {
@@ -87,5 +91,23 @@ public class AuthenticationService {
 
         return new LoginResponseDTO(userBuilder.toUserSecurityDTO(user), accessTokenEntry.getKey(),
                                     accessTokenEntry.getValue(), null, null);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void logoutUser(String refreshToken) {
+        if (tokenService.validateToken(refreshToken) == null) {
+            throw new InvalidCredentialsException("Invalid or expired refresh token.");
+        }
+
+        DecodedJWT decodedJWT = JWT.decode(refreshToken);
+
+        Token blackListedToken = Token.builder()
+                                      .id(decodedJWT.getId())
+                                      .tokenValue(decodedJWT.getToken())
+                                      .ownerUsername(decodedJWT.getSubject())
+                                      .expirationDate(decodedJWT.getExpiresAt().toInstant())
+                                      .build();
+
+        tokenRepository.save(blackListedToken);
     }
 }

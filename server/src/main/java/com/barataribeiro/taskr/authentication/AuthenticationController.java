@@ -51,4 +51,14 @@ public class AuthenticationController {
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Token refreshed successfully", response));
     }
+
+    @Operation(summary = "Logout user",
+               description = "Logs out the user by invalidating the current authentication token.")
+    @DeleteMapping("/logout")
+    public ResponseEntity<RestResponse<Void>> logoutUser(@RequestHeader("X-Refresh-Token")
+                                                         String refreshToken) {
+        authenticationService.logoutUser(refreshToken);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Logout successful", null));
+    }
 }
