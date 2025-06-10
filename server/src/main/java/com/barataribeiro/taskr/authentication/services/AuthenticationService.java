@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.authentication.services;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.barataribeiro.taskr.authentication.dto.LoginRequestDTO;
 import com.barataribeiro.taskr.authentication.dto.LoginResponseDTO;
 import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
@@ -68,5 +69,23 @@ public class AuthenticationService {
 
         return new LoginResponseDTO(userBuilder.toUserSecurityDTO(user), accessToken.getKey(), accessToken.getValue(),
                                     refreshToken.getKey(), refreshToken.getValue());
+    }
+
+    @Transactional(rollbackFor = Exception.class, readOnly = true)
+    public LoginResponseDTO refreshToken(String refreshToken) {
+        DecodedJWT decodedJWT = tokenService.validateToken(refreshToken);
+
+        if (decodedJWT == null) {
+            throw new InvalidCredentialsException("Invalid or expired refresh token.");
+        }
+
+        String username = decodedJWT.getSubject();
+        User user = userRepository.findByUsername(username)
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        Map.Entry<String, Instant> accessTokenEntry = tokenService.generateAccessToken(user);
+
+        return new LoginResponseDTO(userBuilder.toUserSecurityDTO(user), accessTokenEntry.getKey(),
+                                    accessTokenEntry.getValue(), null, null);
     }
 }
