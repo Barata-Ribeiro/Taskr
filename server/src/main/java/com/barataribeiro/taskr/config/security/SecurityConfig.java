@@ -1,5 +1,7 @@
 package com.barataribeiro.taskr.config.security;
 
+import com.barataribeiro.taskr.authentication.services.SecurityFilter;
+import com.barataribeiro.taskr.config.ApplicationConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,15 +14,20 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class SecurityConfig {
+    private final SecurityFilter securityFilter;
 
     @Value("${api.security.argon2.salt}")
     private int salt;
@@ -36,7 +43,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-            .cors(Customizer.withDefaults());
+            .cors(Customizer.withDefaults())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .headers(headers -> headers
+                    .httpStrictTransportSecurity(Customizer.withDefaults())
+                    .xssProtection(xXssConfig -> xXssConfig
+                            .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                    .contentSecurityPolicy(csp -> csp
+                            .policyDirectives(ApplicationConstants.CONTENT_SECURITY_POLICY_VALUE))
+                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                    .permissionsPolicyHeader(policy -> policy.policy("geolocation=(), microphone=(), camera=()")))
+            .authorizeHttpRequests(authorize -> authorize
+                    .requestMatchers(ApplicationConstants.getAuthWhitelist()).permitAll()
+                    .anyRequest().authenticated())
+            .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
