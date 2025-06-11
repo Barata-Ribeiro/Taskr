@@ -9,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
@@ -17,11 +16,10 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
-@TestPropertySource(properties = "CORS_ORIGINS=http://localhost:3000,http://localhost:8080,http://localhost:4200")
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 class CorsConfigTest {
     private final MockMvcTester mockMvcTester;
-    
+
     @Test
     @DisplayName("CORS headers are set for allowed origin")
     void corsHeadersAreSetForAllowedOrigin() {
