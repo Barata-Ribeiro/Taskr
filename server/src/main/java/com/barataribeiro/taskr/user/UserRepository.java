@@ -22,5 +22,5 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
 
     boolean existsByUsernameOrEmailAllIgnoreCase(String username, String email);
 
-
+    long countByUsername(String username);
 }
