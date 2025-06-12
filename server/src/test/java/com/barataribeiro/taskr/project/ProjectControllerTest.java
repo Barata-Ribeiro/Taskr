@@ -123,4 +123,30 @@ class ProjectControllerTest {
                                       "First project title should match");
                      });
     }
+
+    @Test
+    @Order(3)
+    @DisplayName("Get project by ID")
+    void getProjectById() {
+        mockMvcTester.get().uri("/api/v1/projects/" + createdProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .assertThat()
+                     .hasStatus2xxSuccessful()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         assertEquals(createdProject.getId(),
+                                      ((Number) JsonPath.read(jsonContent.getJson(), "$.data.id")).longValue(),
+                                      "Project ID should match");
+                         assertEquals(createdProject.getTitle(),
+                                      JsonPath.read(jsonContent.getJson(), "$.data.title"),
+                                      "Project title should match");
+                         assertEquals(createdProject.getDescription(),
+                                      JsonPath.read(jsonContent.getJson(), "$.data.description"),
+                                      "Project description should match");
+                         assertEquals(String.valueOf(createdProject.getDueDate()),
+                                      JsonPath.read(jsonContent.getJson(), "$.data.dueDate"),
+                                      "Project due date should match"
+                         );
+                     });
+    }
 }
