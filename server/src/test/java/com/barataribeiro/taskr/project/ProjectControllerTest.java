@@ -9,6 +9,7 @@ import com.barataribeiro.taskr.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -96,5 +98,29 @@ class ProjectControllerTest {
                      });
 
         assertNotNull(createdProject, "Created project should not be null");
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("Get all projects for the authenticated user")
+    void getMyProjects() {
+        mockMvcTester.get().uri("/api/v1/projects/my")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .param("page", "0")
+                     .param("perPage", "10")
+                     .param("direction", "ASC")
+                     .param("orderBy", "createdAt")
+                     .assertThat()
+                     .hasStatus2xxSuccessful()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         assertNotNull(JsonPath.read(jsonContent.getJson(), "$.data.content"),
+                                       "Project content should not be null");
+                         assertNotNull(JsonPath.read(jsonContent.getJson(), "$.data.content[0]"),
+                                       "First project should not be null");
+                         assertEquals(createdProject.getTitle(),
+                                      JsonPath.read(jsonContent.getJson(), "$.data.content[0].title"),
+                                      "First project title should match");
+                     });
     }
 }
