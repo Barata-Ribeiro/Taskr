@@ -2,11 +2,14 @@ package com.barataribeiro.taskr.user;
 
 import com.barataribeiro.taskr.comment.Comment;
 import com.barataribeiro.taskr.membership.Membership;
+import com.barataribeiro.taskr.notification.Notification;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.task.Task;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -112,6 +115,13 @@ public class User implements UserDetails, Serializable {
     @JsonIgnore
     private Set<Comment> comments = new HashSet<>();
 
+    @Builder.Default
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Notification> notifications = new LinkedHashSet<>();
+
+
     // UserDetails methods
 
     @Override
@@ -141,5 +151,35 @@ public class User implements UserDetails, Serializable {
     @Override
     public boolean isEnabled() {
         return this.role != Roles.BANNED;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getId())
+                .append(getUsername())
+                .append(getEmail())
+                .append(getRole())
+                .append(getDisplayName())
+                .append(getIsPrivate())
+                .append(getIsVerified())
+                .toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof User user)) return false;
+
+        return new EqualsBuilder()
+                .append(getId(), user.getId())
+                .append(getUsername(), user.getUsername())
+                .append(getEmail(), user.getEmail())
+                .append(getRole(), user.getRole())
+                .append(getDisplayName(), user.getDisplayName())
+                .append(getIsPrivate(), user.getIsPrivate())
+                .append(getIsVerified(), user.getIsVerified())
+                .isEquals();
     }
 }

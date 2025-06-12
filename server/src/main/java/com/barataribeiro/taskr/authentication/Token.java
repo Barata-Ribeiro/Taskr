@@ -2,6 +2,8 @@ package com.barataribeiro.taskr.authentication;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -35,4 +37,26 @@ public class Token {
     @Column(name = "blacklisted_at", nullable = false)
     @CreationTimestamp
     private Instant blacklistedAt;
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getId())
+                .append(getTokenValue())
+                .append(getOwnerUsername())
+                .toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof Token token)) return false;
+
+        return new EqualsBuilder()
+                .append(getId(), token.getId())
+                .append(getTokenValue(), token.getTokenValue())
+                .append(getOwnerUsername(), token.getOwnerUsername())
+                .isEquals();
+    }
 }

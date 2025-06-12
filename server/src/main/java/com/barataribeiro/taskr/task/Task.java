@@ -6,6 +6,8 @@ import com.barataribeiro.taskr.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -84,4 +86,30 @@ public class Task implements Serializable {
     @ToString.Exclude
     @JsonIgnore
     private Set<Comment> comments = new LinkedHashSet<>();
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getId())
+                .append(getTitle())
+                .append(getDueDate())
+                .append(getStatus())
+                .append(getPriority())
+                .toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof Task task)) return false;
+
+        return new EqualsBuilder()
+                .append(getId(), task.getId())
+                .append(getTitle(), task.getTitle())
+                .append(getDueDate(), task.getDueDate())
+                .append(getStatus(), task.getStatus())
+                .append(getPriority(), task.getPriority())
+                .isEquals();
+    }
 }

@@ -7,6 +7,8 @@ import com.barataribeiro.taskr.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -89,4 +91,22 @@ public class Project implements Serializable {
     @ToString.Exclude
     @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getId()).append(getTitle()).append(getStatus()).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof Project project)) return false;
+
+        return new EqualsBuilder()
+                .append(getId(), project.getId())
+                .append(getTitle(), project.getTitle())
+                .append(getStatus(), project.getStatus())
+                .isEquals();
+    }
 }

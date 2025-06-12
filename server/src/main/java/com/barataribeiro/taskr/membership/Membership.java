@@ -6,6 +6,8 @@ import com.barataribeiro.taskr.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -51,4 +53,18 @@ public class Membership implements Serializable {
     private ProjectRole role = ProjectRole.MEMBER;
 
     private LocalDateTime joinedAt;
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof Membership that)) return false;
+
+        return new EqualsBuilder().append(getId(), that.getId()).isEquals();
+    }
 }

@@ -3,6 +3,8 @@ package com.barataribeiro.taskr.notification;
 import com.barataribeiro.taskr.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -55,4 +57,28 @@ public class Notification implements Serializable {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getId())
+                .append(getTitle())
+                .append(getType())
+                .append(isRead())
+                .toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof Notification that)) return false;
+
+        return new EqualsBuilder()
+                .append(isRead(), that.isRead())
+                .append(getId(), that.getId())
+                .append(getTitle(), that.getTitle())
+                .append(getType(), that.getType())
+                .isEquals();
+    }
 }

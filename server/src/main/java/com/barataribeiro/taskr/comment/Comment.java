@@ -67,16 +67,7 @@ public class Comment implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(getId())
-                .append(getContent())
-                .append(getAuthor())
-                .append(getTask())
-                .append(getParent())
-                .append(getChildren())
-                .append(getCreatedAt())
-                .append(getUpdatedAt())
-                .toHashCode();
+        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
     }
 
     @Override
@@ -85,15 +76,6 @@ public class Comment implements Serializable {
 
         if (!(o instanceof Comment comment)) return false;
 
-        return new EqualsBuilder()
-                .append(getId(), comment.getId())
-                .append(getContent(), comment.getContent())
-                .append(getAuthor(), comment.getAuthor())
-                .append(getTask(), comment.getTask())
-                .append(getParent(), comment.getParent())
-                .append(getChildren(), comment.getChildren())
-                .append(getCreatedAt(), comment.getCreatedAt())
-                .append(getUpdatedAt(), comment.getUpdatedAt())
-                .isEquals();
+        return new EqualsBuilder().append(getId(), comment.getId()).isEquals();
     }
 }

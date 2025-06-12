@@ -4,6 +4,8 @@ import com.barataribeiro.taskr.project.Project;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -59,4 +61,22 @@ public class Activity implements Serializable {
     @ToString.Exclude
     @JsonIgnore
     private Project project;
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getId()).append(getUsername()).append(getAction()).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof Activity activity)) return false;
+
+        return new EqualsBuilder()
+                .append(getId(), activity.getId())
+                .append(getUsername(), activity.getUsername())
+                .append(getAction(), activity.getAction())
+                .isEquals();
+    }
 }
