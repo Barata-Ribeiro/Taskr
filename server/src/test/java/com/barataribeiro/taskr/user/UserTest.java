@@ -72,6 +72,7 @@ class UserTest {
         assertNotNull(user.getMemberships());
         assertNotNull(user.getTasks());
         assertNotNull(user.getComments());
+        assertNotNull(user.getNotifications());
     }
 
     @Test
@@ -97,6 +98,7 @@ class UserTest {
                         .memberships(Set.of())
                         .tasks(Set.of())
                         .comments(Set.of())
+                        .notifications(Set.of())
                         .build();
 
         assertEquals(id, user.getId());
@@ -115,5 +117,6 @@ class UserTest {
         assertNotNull(user.getMemberships());
         assertNotNull(user.getTasks());
         assertNotNull(user.getComments());
+        assertNotNull(user.getNotifications());
     }
 }
