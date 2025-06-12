@@ -2,6 +2,8 @@ package com.barataribeiro.taskr.project;
 
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
+import com.barataribeiro.taskr.membership.Membership;
+import com.barataribeiro.taskr.membership.MembershipRepository;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
 import com.barataribeiro.taskr.user.User;
@@ -26,6 +28,7 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final ProjectBuilder projectBuilder;
     private final ProjectRepository projectRepository;
+    private final MembershipRepository membershipRepository;
 
     public Page<ProjectDTO> getMyProjects(@NotNull PageQueryParamsDTO pageQueryParams,
                                           @NotNull Authentication authentication) {
@@ -35,8 +38,22 @@ public class ProjectService {
         return projects.map(projectBuilder::toProjectDTO);
     }
 
+    @Transactional(readOnly = true)
+    public ProjectDTO getProjectById(Long projectId, @NotNull Authentication authentication) {
+        if (!membershipRepository.existsByProject_IdAndUser_Username(projectId, authentication.getName())) {
+            throw new EntityNotFoundException("Project not found or you do not have access to it.");
+        }
+
+        Project project = projectRepository
+                .findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
+
+        return projectBuilder.toProjectDTO(project);
+    }
+
     @Transactional
-    public ProjectDTO createProject(@Valid @NotNull ProjectRequestDTO body, @NotNull Authentication authentication) {
+    public ProjectDTO createProject(@Valid @NotNull ProjectRequestDTO body,
+                                    @NotNull Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName())
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
@@ -50,7 +67,18 @@ public class ProjectService {
                                  .owner(user)
                                  .build();
 
-        return projectBuilder.toProjectDTO(projectRepository.saveAndFlush(project));
+        Project savedProject = projectRepository.save(project);
+
+        Membership membership = Membership.builder()
+                                          .user(user)
+                                          .project(savedProject)
+                                          .role(ProjectRole.OWNER)
+                                          .joinedAt(LocalDateTime.now())
+                                          .build();
+
+        membershipRepository.save(membership);
+
+        return projectBuilder.toProjectDTO(savedProject);
     }
 
     private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {

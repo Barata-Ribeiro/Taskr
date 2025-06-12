@@ -33,7 +33,17 @@ public class ProjectController {
                                                     "Projects retrieved successfully", projects));
     }
 
-    @RequestMapping("/create")
+    @GetMapping("/{projectId}")
+    @Operation(summary = "Get project by ID",
+               description = "Retrieves a project by its unique identifier.")
+    public ResponseEntity<RestResponse<ProjectDTO>> getProjectById(@PathVariable Long projectId,
+                                                                   Authentication authentication) {
+        ProjectDTO project = projectService.getProjectById(projectId, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Project retrieved successfully", project));
+    }
+
+    @PostMapping("/new")
     @Operation(summary = "Create a new project", description = "Creates a new project with the provided details.")
     public ResponseEntity<RestResponse<ProjectDTO>> createProject(@RequestBody @Valid ProjectRequestDTO body,
                                                                   Authentication authentication) {
