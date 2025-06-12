@@ -1,13 +1,12 @@
 package com.barataribeiro.taskr.membership.dtos;
 
 import com.barataribeiro.taskr.project.ProjectRole;
-import com.barataribeiro.taskr.project.dtos.ProjectSimpleDTO;
+import com.barataribeiro.taskr.user.dtos.UserAuthorDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -17,9 +16,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MembershipDTO implements Serializable {
+public class MembershipUsersDTO {
     private Long id;
-    private ProjectSimpleDTO project;
+    private UserAuthorDTO user;
     private ProjectRole role;
     private LocalDateTime joinedAt;
 }

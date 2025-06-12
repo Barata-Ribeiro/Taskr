@@ -1,6 +1,6 @@
 package com.barataribeiro.taskr.user.dtos;
 
-import com.barataribeiro.taskr.membership.dtos.MembershipDTO;
+import com.barataribeiro.taskr.membership.dtos.MembershipProjectsDTO;
 import com.barataribeiro.taskr.user.Roles;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -34,7 +34,7 @@ public class UserAccountDTO implements Serializable {
 
     private Long totalCreatedProjects;
     private Long totalCommentsMade;
-    private Set<MembershipDTO> memberships;
+    private Set<MembershipProjectsDTO> memberships;
     private Long readNotificationsCount;
     private Long unreadNotificationsCount;
 }
