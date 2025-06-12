@@ -2,6 +2,7 @@ package com.barataribeiro.taskr.project;
 
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.helpers.RestResponse;
+import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,14 +37,14 @@ public class ProjectController {
     @GetMapping("/{projectId}")
     @Operation(summary = "Get project by ID",
                description = "Retrieves a project by its unique identifier.")
-    public ResponseEntity<RestResponse<ProjectDTO>> getProjectById(@PathVariable Long projectId,
-                                                                   Authentication authentication) {
-        ProjectDTO project = projectService.getProjectById(projectId, authentication);
+    public ResponseEntity<RestResponse<ProjectCompleteDTO>> getProjectById(@PathVariable Long projectId,
+                                                                           Authentication authentication) {
+        ProjectCompleteDTO project = projectService.getProjectById(projectId, authentication);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Project retrieved successfully", project));
     }
 
-    @PostMapping("/new")
+    @PostMapping("/create")
     @Operation(summary = "Create a new project", description = "Creates a new project with the provided details.")
     public ResponseEntity<RestResponse<ProjectDTO>> createProject(@RequestBody @Valid ProjectRequestDTO body,
                                                                   Authentication authentication) {

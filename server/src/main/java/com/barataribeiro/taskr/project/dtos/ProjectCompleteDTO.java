@@ -1,7 +1,7 @@
 package com.barataribeiro.taskr.project.dtos;
 
+import com.barataribeiro.taskr.membership.dtos.MembershipUsersDTO;
 import com.barataribeiro.taskr.project.ProjectStatus;
-import com.barataribeiro.taskr.user.dtos.UserAuthorDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
  * DTO for {@link com.barataribeiro.taskr.project.Project}
@@ -18,13 +19,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ProjectDTO implements Serializable {
+public class ProjectCompleteDTO implements Serializable {
     private Long id;
     private String title;
     private String description;
     private LocalDateTime dueDate;
     private ProjectStatus status;
-    private UserAuthorDTO owner;
     private Instant createdAt;
     private Instant updatedAt;
+
+    private Set<MembershipUsersDTO> memberships;
+    private Long totalTasks;
 }

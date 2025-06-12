@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.membership.MembershipRepository;
+import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
 import com.barataribeiro.taskr.user.User;
@@ -39,7 +40,7 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public ProjectDTO getProjectById(Long projectId, @NotNull Authentication authentication) {
+    public ProjectCompleteDTO getProjectById(Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByProject_IdAndUser_Username(projectId, authentication.getName())) {
             throw new EntityNotFoundException("Project not found or you do not have access to it.");
         }
@@ -48,7 +49,7 @@ public class ProjectService {
                 .findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
-        return projectBuilder.toProjectDTO(project);
+        return projectBuilder.toProjectCompleteDTO(project);
     }
 
     @Transactional
@@ -67,18 +68,16 @@ public class ProjectService {
                                  .owner(user)
                                  .build();
 
-        Project savedProject = projectRepository.save(project);
-
         Membership membership = Membership.builder()
                                           .user(user)
-                                          .project(savedProject)
+                                          .project(projectRepository.save(project))
                                           .role(ProjectRole.OWNER)
                                           .joinedAt(LocalDateTime.now())
                                           .build();
 
         membershipRepository.save(membership);
 
-        return projectBuilder.toProjectDTO(savedProject);
+        return projectBuilder.toProjectDTO(projectRepository.saveAndFlush(project));
     }
 
     private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {
