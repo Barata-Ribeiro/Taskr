@@ -1,11 +1,10 @@
 package com.barataribeiro.taskr.project;
 
-import com.barataribeiro.taskr.authentication.dto.LoginRequestDTO;
-import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
@@ -42,32 +41,12 @@ class ProjectControllerTest {
     static void setUp(@Autowired @NotNull UserRepository userRepository,
                       @Autowired @NotNull UserBuilder userBuilder,
                       @Autowired @NotNull MockMvcTester mockMvcTester) throws Exception {
-        RegistrationRequestDTO body = new RegistrationRequestDTO();
-        body.setUsername("projectuser");
-        body.setEmail("projectuser@example.com");
-        body.setPassword("Gqe9rvtO5Bl@ZkBP5mTu#4$Nw");
-        body.setDisplayName("Project User");
-
-        LoginRequestDTO loginBody = new LoginRequestDTO();
-        loginBody.setUsernameOrEmail(body.getUsername());
-        loginBody.setPassword(body.getPassword());
-
-        userRepository.save(userBuilder.toUser(body));
-
-        mockMvcTester.post().uri("/api/v1/auth/login")
-                     .contentType(MediaType.APPLICATION_JSON)
-                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(loginBody))
-                     .assertThat()
-                     .bodyJson()
-                     .satisfies(jsonContent -> {
-                         accessToken = JsonPath.read(jsonContent.getJson(), "$.data.accessToken");
-                         assertNotNull(accessToken, "Access token should not be null");
-                     });
+        accessToken = TestSetupUtil.registerAndLoginDefaultUser(userRepository, userBuilder, mockMvcTester);
     }
 
     @Test
     @Order(1)
-    @DisplayName("Create a new project")
+    @DisplayName("It should create a new project for the authenticated user")
     void createProject() throws Exception {
         projectRequestDTO.setTitle("Test Project");
         projectRequestDTO.setDescription("This is a test project.");
@@ -102,7 +81,7 @@ class ProjectControllerTest {
 
     @Test
     @Order(2)
-    @DisplayName("Get all projects for the authenticated user")
+    @DisplayName("It should get all projects of the authenticated user")
     void getMyProjects() {
         mockMvcTester.get().uri("/api/v1/projects/my")
                      .header("Authorization", "Bearer " + accessToken)
@@ -126,7 +105,7 @@ class ProjectControllerTest {
 
     @Test
     @Order(3)
-    @DisplayName("Get project by ID")
+    @DisplayName("It should get a project by ID")
     void getProjectById() {
         mockMvcTester.get().uri("/api/v1/projects/" + createdProject.getId())
                      .header("Authorization", "Bearer " + accessToken)

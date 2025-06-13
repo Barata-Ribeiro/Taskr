@@ -41,7 +41,7 @@ class AuthenticationControllerTest {
 
     @Test
     @Order(1)
-    @DisplayName("Register a new user account")
+    @DisplayName("It should create a new user account")
     void createAccount() throws Exception {
         mockMvcTester.post().uri("/api/v1/auth/register")
                      .contentType(MediaType.APPLICATION_JSON)
@@ -61,7 +61,7 @@ class AuthenticationControllerTest {
 
     @Test
     @Order(2)
-    @DisplayName("Login user with valid credentials")
+    @DisplayName("It should log in an existing user successfully")
     void loginUser() throws Exception {
         LoginRequestDTO loginRequestDTO = new LoginRequestDTO();
         loginRequestDTO.setUsernameOrEmail(registrationRequestDTO.getUsername());
@@ -85,7 +85,7 @@ class AuthenticationControllerTest {
 
     @Test
     @Order(3)
-    @DisplayName("Refresh the access token")
+    @DisplayName("It should refresh the access token using the refresh token")
     void refreshToken() {
         mockMvcTester.post().uri("/api/v1/auth/refresh-token")
                      .header("X-Refresh-Token", refreshToken)
@@ -104,7 +104,7 @@ class AuthenticationControllerTest {
 
     @Test
     @Order(4)
-    @DisplayName("Logout user")
+    @DisplayName("It should log out the user successfully, invalidating the refresh token")
     void logoutUser() {
         mockMvcTester.delete().uri("/api/v1/auth/logout")
                      .header("X-Refresh-Token", refreshToken)
@@ -116,7 +116,7 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    @DisplayName("Test concurrent registration attempts to ensure idempotency")
+    @DisplayName("It should not allow several registrations with the same username concurrently")
     void testConcurrentRegistration() {
         RegistrationRequestDTO concurrentRequest = new RegistrationRequestDTO();
         concurrentRequest.setUsername("concurrentuser");

@@ -1,10 +1,9 @@
 package com.barataribeiro.taskr.user;
 
-import com.barataribeiro.taskr.authentication.dto.LoginRequestDTO;
-import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.exceptions.throwables.InvalidCredentialsException;
 import com.barataribeiro.taskr.user.dtos.UserUpdateRequestDTO;
+import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,41 +32,12 @@ class UserControllerTest {
     private static String accessToken;
 
     private final MockMvcTester mockMvcTester;
-    private final UserBuilder userBuilder;
-    private final UserRepository userRepository;
 
     @BeforeAll
     static void setUp(@Autowired @NotNull UserRepository userRepository,
                       @Autowired @NotNull UserBuilder userBuilder,
                       @Autowired @NotNull MockMvcTester mockMvcTester) throws Exception {
-        RegistrationRequestDTO body = new RegistrationRequestDTO();
-        body.setUsername("newuser");
-        body.setEmail("newuser@example.com");
-        body.setPassword("Gqe9rvtO5Bl@ZkBP5mTu#4$Nw");
-        body.setDisplayName("New User");
-
-        RegistrationRequestDTO secondBody = new RegistrationRequestDTO();
-        secondBody.setUsername("awesomenewuser");
-        secondBody.setEmail("awesomenewuser@example.com");
-        secondBody.setPassword("ovC1ZHL!&xE1ALbv*bdk$ANzN");
-        secondBody.setDisplayName("Awesome New User");
-
-
-        LoginRequestDTO loginBody = new LoginRequestDTO();
-        loginBody.setUsernameOrEmail(body.getUsername());
-        loginBody.setPassword(body.getPassword());
-
-        userRepository.saveAll(List.of(userBuilder.toUser(body), userBuilder.toUser(secondBody)));
-
-        mockMvcTester.post().uri("/api/v1/auth/login")
-                     .contentType(MediaType.APPLICATION_JSON)
-                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(loginBody))
-                     .assertThat()
-                     .bodyJson()
-                     .satisfies(jsonContent -> {
-                         accessToken = JsonPath.read(jsonContent.getJson(), "$.data.accessToken");
-                         assertNotNull(accessToken, "Access token should not be null");
-                     });
+        accessToken = TestSetupUtil.registerAndLoginDefaultUser(userRepository, userBuilder, mockMvcTester);
     }
 
     @Test
