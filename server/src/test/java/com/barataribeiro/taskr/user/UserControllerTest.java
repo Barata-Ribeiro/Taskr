@@ -2,20 +2,29 @@ package com.barataribeiro.taskr.user;
 
 import com.barataribeiro.taskr.authentication.dto.LoginRequestDTO;
 import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
+import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
+import com.barataribeiro.taskr.exceptions.throwables.InvalidCredentialsException;
+import com.barataribeiro.taskr.user.dtos.UserUpdateRequestDTO;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -33,16 +42,23 @@ class UserControllerTest {
                       @Autowired @NotNull UserBuilder userBuilder,
                       @Autowired @NotNull MockMvcTester mockMvcTester) throws Exception {
         RegistrationRequestDTO body = new RegistrationRequestDTO();
-        body.setUsername("projectuser");
-        body.setEmail("projectuser@example.com");
+        body.setUsername("newuser");
+        body.setEmail("newuser@example.com");
         body.setPassword("Gqe9rvtO5Bl@ZkBP5mTu#4$Nw");
-        body.setDisplayName("Project User");
+        body.setDisplayName("New User");
+
+        RegistrationRequestDTO secondBody = new RegistrationRequestDTO();
+        secondBody.setUsername("awesomenewuser");
+        secondBody.setEmail("awesomenewuser@example.com");
+        secondBody.setPassword("ovC1ZHL!&xE1ALbv*bdk$ANzN");
+        secondBody.setDisplayName("Awesome New User");
+
 
         LoginRequestDTO loginBody = new LoginRequestDTO();
         loginBody.setUsernameOrEmail(body.getUsername());
         loginBody.setPassword(body.getPassword());
 
-        userRepository.save(userBuilder.toUser(body));
+        userRepository.saveAll(List.of(userBuilder.toUser(body), userBuilder.toUser(secondBody)));
 
         mockMvcTester.post().uri("/api/v1/auth/login")
                      .contentType(MediaType.APPLICATION_JSON)
@@ -57,7 +73,7 @@ class UserControllerTest {
 
     @Test
     @Order(1)
-    @DisplayName("Get logged-in user's account details")
+    @DisplayName("It should retrieve account details successfully")
     void getAccountDetails() {
         mockMvcTester.get().uri("/api/v1/users/me")
                      .header("Authorization", "Bearer " + accessToken)
@@ -95,4 +111,67 @@ class UserControllerTest {
                      });
     }
 
+    @Test
+    @Order(2)
+    @DisplayName("It should update account details successfully")
+    void updateAccountDetails() throws Exception {
+        UserUpdateRequestDTO body = new UserUpdateRequestDTO();
+        body.setCurrentPassword("Gqe9rvtO5Bl@ZkBP5mTu#4$Nw");
+        body.setDisplayName("Updated User");
+        body.setFullName("Updated Full Name");
+        body.setAvatarUrl("https://example.com/avatar.jpg");
+
+        mockMvcTester.patch().uri("/api/v1/users/me")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(body))
+                     .assertThat()
+                     .hasStatusOk()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+
+                         assertEquals(body.getDisplayName(), JsonPath.read(json, "$.data.displayName"),
+                                      "Display name should be updated");
+                         assertEquals(body.getFullName(), JsonPath.read(json, "$.data.fullName"),
+                                      "Full name should be updated");
+                         assertInstanceOf(LinkedHashMap.class, JsonPath.read(json, "$.data"), "Data should be a list");
+                         assertEquals(body.getAvatarUrl(),
+                                      JsonPath.read(json, "$.data.avatarUrl"), "Avatar URL should be updated");
+                     });
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("It should fail to update account details with invalid password")
+    void updateAccountDetailsWithInvalidPassword() throws Exception {
+        UserUpdateRequestDTO body = new UserUpdateRequestDTO();
+        body.setCurrentPassword("WrongPassword123!");
+        body.setDisplayName("Invalid Update");
+
+        mockMvcTester.patch().uri("/api/v1/users/me")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(body))
+                     .assertThat()
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.UNAUTHORIZED)
+                     .failure().isInstanceOf(InvalidCredentialsException.class);
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("It should fail to update account details with existing username")
+    void updateAccountDetailsWithExistingUsername() throws Exception {
+        UserUpdateRequestDTO body = new UserUpdateRequestDTO();
+        body.setCurrentPassword("Gqe9rvtO5Bl@ZkBP5mTu#4$Nw");
+        body.setUsername("awesomenewuser");
+
+        mockMvcTester.patch().uri("/api/v1/users/me")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(body))
+                     .assertThat()
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
+                     .failure().isInstanceOf(IllegalRequestException.class);
+    }
 }
