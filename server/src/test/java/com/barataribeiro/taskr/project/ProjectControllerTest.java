@@ -8,7 +8,6 @@ import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +18,12 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -34,13 +35,13 @@ class ProjectControllerTest {
     private static ProjectDTO createdProject;
 
     private final MockMvcTester mockMvcTester;
-    private final UserBuilder userBuilder;
-    private final UserRepository userRepository;
 
     @BeforeAll
     static void setUp(@Autowired @NotNull UserRepository userRepository,
                       @Autowired @NotNull UserBuilder userBuilder,
                       @Autowired @NotNull MockMvcTester mockMvcTester) throws Exception {
+        userRepository.deleteAll();
+
         accessToken = TestSetupUtil.registerAndLoginDefaultUser(userRepository, userBuilder, mockMvcTester);
     }
 
@@ -50,7 +51,8 @@ class ProjectControllerTest {
     void createProject() throws Exception {
         projectRequestDTO.setTitle("Test Project");
         projectRequestDTO.setDescription("This is a test project.");
-        projectRequestDTO.setDueDate("2024-12-31T23:59:59");
+        projectRequestDTO.setDueDate(LocalDateTime.now().plusDays(30)
+                                                  .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
 
         mockMvcTester.post().uri("/api/v1/projects/create")
                      .header("Authorization", "Bearer " + accessToken)

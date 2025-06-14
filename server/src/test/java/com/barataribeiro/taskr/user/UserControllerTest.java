@@ -37,6 +37,8 @@ class UserControllerTest {
     static void setUp(@Autowired @NotNull UserRepository userRepository,
                       @Autowired @NotNull UserBuilder userBuilder,
                       @Autowired @NotNull MockMvcTester mockMvcTester) throws Exception {
+        userRepository.deleteAll();
+
         accessToken = TestSetupUtil.registerAndLoginDefaultUser(userRepository, userBuilder, mockMvcTester);
     }
 
