@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.project;
 
+import com.barataribeiro.taskr.activity.ActivityRepository;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
 import com.barataribeiro.taskr.user.UserBuilder;
@@ -8,6 +9,7 @@ import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +23,9 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -43,6 +45,17 @@ class ProjectControllerTest {
         userRepository.deleteAll();
 
         accessToken = TestSetupUtil.registerAndLoginDefaultUser(userRepository, userBuilder, mockMvcTester);
+    }
+
+    @AfterAll
+    static void tearDown(@Autowired @NotNull UserRepository userRepository,
+                         @Autowired @NotNull ActivityRepository activityRepository) {
+        assertNotNull(activityRepository, "Activity repository should not be null");
+        assertFalse(activityRepository.count() <= 0, "Activity repository should not be empty");
+
+        userRepository.deleteAll();
+        accessToken = null;
+        createdProject = null;
     }
 
     @Test

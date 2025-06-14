@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.task;
 
+import com.barataribeiro.taskr.activity.ActivityRepository;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.task.dtos.TaskDTO;
 import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
@@ -23,8 +24,7 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,6 +48,17 @@ class TaskControllerTest {
         defaultProject = TestSetupUtil.createDefaultProject(mockMvcTester, accessToken).get();
         assertNotNull(accessToken, "Access token should not be null");
         assertNotNull(defaultProject, "Default project should not be null");
+    }
+
+    @AfterAll
+    static void tearDown(@Autowired @NotNull UserRepository userRepository,
+                         @Autowired @NotNull ActivityRepository activityRepository) {
+        assertNotNull(activityRepository, "Activity repository should not be null");
+        assertFalse(activityRepository.count() <= 0, "Activity repository should not be empty");
+
+        userRepository.deleteAll();
+        accessToken = null;
+        createdTask = null;
     }
 
     @Test()
