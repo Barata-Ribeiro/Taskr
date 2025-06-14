@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +17,11 @@ class CommentTest {
     @DisplayName("Comment builder sets all fields correctly")
     void builderSetsAllFieldsCorrectly() {
         User author = User.builder().username("author").build();
-        Task task = Task.builder().title("Task 1").description("desc").assignee(author).project(null).build();
+        HashSet<User> assignees = new HashSet<>();
+        assignees.add(author);
+
+        Task task =
+                Task.builder().title("Task 1").description("desc").assignees(assignees).project(null).build();
         Comment parent = Comment.builder().id(1L).content("parent").author(author).task(task).build();
         Instant now = Instant.now();
 
@@ -44,7 +49,10 @@ class CommentTest {
     @DisplayName("Comment equals and hashCode with same values")
     void equalsAndHashCodeWithSameValues() {
         User author = User.builder().username("author").build();
-        Task task = Task.builder().title("Task 1").description("desc").assignee(author).project(null).build();
+        HashSet<User> assignees = new HashSet<>();
+        assignees.add(author);
+
+        Task task = Task.builder().title("Task 1").description("desc").assignees(assignees).project(null).build();
         Instant now = Instant.now();
 
         Comment comment1 = Comment.builder()

@@ -6,6 +6,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -18,30 +21,33 @@ class TaskTest {
         User assignee = User.builder().username("assignee").build();
         Project project = Project.builder().title("Project").description("desc").owner(assignee).build();
         Instant now = Instant.now();
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneOffset.UTC);
+        HashSet<User> assignees = new HashSet<>();
+        assignees.add(assignee);
 
         Task task = Task.builder()
                         .id(1L)
                         .title("Task 1")
                         .description("Task description")
-                        .dueDate("2024-12-31")
+                        .dueDate(localDateTime)
                         .status(TaskStatus.DONE)
                         .priority(TaskPriority.HIGH)
                         .createdAt(now)
                         .updatedAt(now)
                         .project(project)
-                        .assignee(assignee)
+                        .assignees(assignees)
                         .build();
 
         assertEquals(1L, task.getId());
         assertEquals("Task 1", task.getTitle());
         assertEquals("Task description", task.getDescription());
-        assertEquals("2024-12-31", task.getDueDate());
+        assertEquals(localDateTime, task.getDueDate());
         assertEquals(TaskStatus.DONE, task.getStatus());
         assertEquals(TaskPriority.HIGH, task.getPriority());
         assertEquals(now, task.getCreatedAt());
         assertEquals(now, task.getUpdatedAt());
         assertEquals(project, task.getProject());
-        assertEquals(assignee, task.getAssignee());
+        assertEquals(assignees, task.getAssignees());
         assertNotNull(task.getComments());
     }
 

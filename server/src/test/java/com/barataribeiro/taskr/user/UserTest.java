@@ -70,7 +70,7 @@ class UserTest {
         assertFalse(user.getIsVerified());
         assertNotNull(user.getProjects());
         assertNotNull(user.getMemberships());
-        assertNotNull(user.getTasks());
+        assertNotNull(user.getAssignedTasks());
         assertNotNull(user.getComments());
         assertNotNull(user.getNotifications());
     }
@@ -96,7 +96,7 @@ class UserTest {
                         .updatedAt(now)
                         .projects(Set.of())
                         .memberships(Set.of())
-                        .tasks(Set.of())
+                        .assignedTasks(Set.of())
                         .comments(Set.of())
                         .notifications(Set.of())
                         .build();
@@ -115,7 +115,7 @@ class UserTest {
         assertEquals(now, user.getUpdatedAt());
         assertNotNull(user.getProjects());
         assertNotNull(user.getMemberships());
-        assertNotNull(user.getTasks());
+        assertNotNull(user.getAssignedTasks());
         assertNotNull(user.getComments());
         assertNotNull(user.getNotifications());
     }
