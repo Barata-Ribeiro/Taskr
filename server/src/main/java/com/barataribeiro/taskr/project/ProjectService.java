@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.project;
 
+import com.barataribeiro.taskr.activity.events.project.ProjectCreatedEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.membership.Membership;
@@ -13,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -30,6 +32,7 @@ public class ProjectService {
     private final ProjectBuilder projectBuilder;
     private final ProjectRepository projectRepository;
     private final MembershipRepository membershipRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Page<ProjectDTO> getMyProjects(@NotNull PageQueryParamsDTO pageQueryParams,
                                           @NotNull Authentication authentication) {
@@ -76,6 +79,8 @@ public class ProjectService {
                                           .build();
 
         membershipRepository.save(membership);
+
+        eventPublisher.publishEvent(new ProjectCreatedEvent(project, authentication.getName()));
 
         return projectBuilder.toProjectDTO(projectRepository.saveAndFlush(project));
     }

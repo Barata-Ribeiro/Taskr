@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.task;
 
+import com.barataribeiro.taskr.activity.events.task.TaskCreatedEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.membership.MembershipRepository;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ public class TaskService {
     private final TaskBuilder taskBuilder;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public TaskDTO getTaskById(Long taskId, Long projectId, @NotNull Authentication authentication) {
@@ -72,6 +75,8 @@ public class TaskService {
                            .project(project)
                            .assignees(Set.of(user))
                            .build();
+
+        eventPublisher.publishEvent(new TaskCreatedEvent(project, newTask, authentication.getName()));
 
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(newTask));
     }
