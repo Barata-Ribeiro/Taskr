@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Set;
 
 /**
  * DTO for {@link com.barataribeiro.taskr.task.Task}
@@ -27,5 +28,5 @@ public class TaskDTO implements Serializable {
     private TaskPriority priority;
     private Instant createdAt;
     private Instant updatedAt;
-    private UserAuthorDTO assignee;
+    private Set<UserAuthorDTO> assignees;
 }

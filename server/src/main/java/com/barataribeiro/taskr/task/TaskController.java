@@ -2,17 +2,16 @@ package com.barataribeiro.taskr.task;
 
 import com.barataribeiro.taskr.helpers.RestResponse;
 import com.barataribeiro.taskr.task.dtos.TaskDTO;
+import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
@@ -30,5 +29,16 @@ public class TaskController {
         TaskDTO task = taskService.getTaskById(taskId, projectId, authentication);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Task retrieved successfully", task));
+    }
+
+    @PostMapping
+    @Operation(summary = "Create a new task",
+               description = "Creates a new task within a specified project.")
+    public ResponseEntity<RestResponse<TaskDTO>> createTask(@RequestBody @Valid TaskRequestDTO body,
+                                                            Authentication authentication) {
+        TaskDTO task = taskService.createTask(body, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                             .body(new RestResponse<>(HttpStatus.CREATED, HttpStatus.CREATED.value(),
+                                                      "Task created successfully", task));
     }
 }
