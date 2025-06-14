@@ -104,10 +104,10 @@ public class User implements UserDetails, Serializable {
     private Set<Membership> memberships = new HashSet<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "assignee", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy = "assignees")
     @ToString.Exclude
     @JsonIgnore
-    private Set<Task> tasks = new HashSet<>();
+    private Set<Task> assignedTasks = new HashSet<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

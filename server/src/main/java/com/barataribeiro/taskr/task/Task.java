@@ -14,6 +14,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public class Task implements Serializable {
     private String description;
 
     @Column(name = "due_date")
-    private String dueDate;
+    private LocalDateTime dueDate;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
@@ -75,17 +76,20 @@ public class Task implements Serializable {
     @JsonIgnore
     private Project project;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assignee_id", nullable = false)
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "task_assignee", joinColumns = @JoinColumn(name = "task_id"),
+               inverseJoinColumns = @JoinColumn(name = "user_id"))
     @ToString.Exclude
     @JsonIgnore
-    private User assignee;
+    private Set<User> assignees = new LinkedHashSet<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @JsonIgnore
     private Set<Comment> comments = new LinkedHashSet<>();
+
 
     @Override
     public int hashCode() {
