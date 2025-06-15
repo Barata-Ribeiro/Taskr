@@ -1,6 +1,8 @@
 package com.barataribeiro.taskr.task;
 
 import com.barataribeiro.taskr.project.Project;
+import com.barataribeiro.taskr.task.enums.TaskPriority;
+import com.barataribeiro.taskr.task.enums.TaskStatus;
 import com.barataribeiro.taskr.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

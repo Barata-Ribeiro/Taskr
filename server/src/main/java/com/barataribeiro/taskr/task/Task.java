@@ -2,6 +2,8 @@ package com.barataribeiro.taskr.task;
 
 import com.barataribeiro.taskr.comment.Comment;
 import com.barataribeiro.taskr.project.Project;
+import com.barataribeiro.taskr.task.enums.TaskPriority;
+import com.barataribeiro.taskr.task.enums.TaskStatus;
 import com.barataribeiro.taskr.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

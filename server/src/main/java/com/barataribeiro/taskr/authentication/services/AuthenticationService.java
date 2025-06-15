@@ -11,11 +11,11 @@ import com.barataribeiro.taskr.exceptions.throwables.EntityAlreadyExistsExceptio
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.exceptions.throwables.InvalidCredentialsException;
-import com.barataribeiro.taskr.user.Roles;
 import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
+import com.barataribeiro.taskr.user.enums.Roles;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;

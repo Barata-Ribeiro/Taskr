@@ -1,4 +1,4 @@
-package com.barataribeiro.taskr.notification;
+package com.barataribeiro.taskr.notification.enums;
 
 public enum NotificationType {
     INFO,

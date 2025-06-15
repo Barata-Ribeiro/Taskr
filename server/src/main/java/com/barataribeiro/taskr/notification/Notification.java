@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.notification;
 
+import com.barataribeiro.taskr.notification.enums.NotificationType;
 import com.barataribeiro.taskr.user.User;
 import jakarta.persistence.*;
 import lombok.*;

@@ -8,6 +8,7 @@ import com.barataribeiro.taskr.membership.MembershipRepository;
 import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
+import com.barataribeiro.taskr.project.enums.ProjectRole;
 import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserRepository;
 import jakarta.validation.Valid;

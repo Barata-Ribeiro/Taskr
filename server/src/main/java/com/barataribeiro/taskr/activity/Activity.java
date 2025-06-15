@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.activity;
 
+import com.barataribeiro.taskr.activity.enums.ActivityType;
 import com.barataribeiro.taskr.project.Project;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

@@ -1,4 +1,4 @@
-package com.barataribeiro.taskr.task;
+package com.barataribeiro.taskr.task.enums;
 
 public enum TaskPriority {
     LOW,

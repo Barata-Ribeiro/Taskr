@@ -5,6 +5,7 @@ import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.notification.Notification;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.task.Task;
+import com.barataribeiro.taskr.user.enums.Roles;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,4 +1,4 @@
-package com.barataribeiro.taskr.user;
+package com.barataribeiro.taskr.user.enums;
 
 public enum Roles {
     NONE,

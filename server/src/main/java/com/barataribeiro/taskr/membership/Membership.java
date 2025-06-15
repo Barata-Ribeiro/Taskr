@@ -1,7 +1,7 @@
 package com.barataribeiro.taskr.membership;
 
 import com.barataribeiro.taskr.project.Project;
-import com.barataribeiro.taskr.project.ProjectRole;
+import com.barataribeiro.taskr.project.enums.ProjectRole;
 import com.barataribeiro.taskr.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

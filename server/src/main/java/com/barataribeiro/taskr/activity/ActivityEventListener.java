@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.activity;
 
+import com.barataribeiro.taskr.activity.enums.ActivityType;
 import com.barataribeiro.taskr.activity.events.project.ProjectCreatedEvent;
 import com.barataribeiro.taskr.activity.events.task.TaskCreatedEvent;
 import lombok.RequiredArgsConstructor;

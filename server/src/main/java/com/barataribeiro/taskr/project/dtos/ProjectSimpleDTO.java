@@ -1,6 +1,6 @@
 package com.barataribeiro.taskr.project.dtos;
 
-import com.barataribeiro.taskr.project.ProjectStatus;
+import com.barataribeiro.taskr.project.enums.ProjectStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;

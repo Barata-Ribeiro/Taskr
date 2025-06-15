@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.user;
 
+import com.barataribeiro.taskr.user.enums.Roles;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,7 +1,7 @@
 package com.barataribeiro.taskr.task.dtos;
 
-import com.barataribeiro.taskr.task.TaskPriority;
-import com.barataribeiro.taskr.task.TaskStatus;
+import com.barataribeiro.taskr.task.enums.TaskPriority;
+import com.barataribeiro.taskr.task.enums.TaskStatus;
 import com.barataribeiro.taskr.user.dtos.UserAuthorDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;

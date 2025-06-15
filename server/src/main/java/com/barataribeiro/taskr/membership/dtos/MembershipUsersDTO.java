@@ -1,6 +1,6 @@
 package com.barataribeiro.taskr.membership.dtos;
 
-import com.barataribeiro.taskr.project.ProjectRole;
+import com.barataribeiro.taskr.project.enums.ProjectRole;
 import com.barataribeiro.taskr.user.dtos.UserAuthorDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
