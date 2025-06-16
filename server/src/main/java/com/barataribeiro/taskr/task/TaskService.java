@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.activity.events.task.TaskCreatedEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.membership.MembershipRepository;
+import com.barataribeiro.taskr.notification.events.NewTaskNotificationEvent;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.project.ProjectRepository;
 import com.barataribeiro.taskr.project.enums.ProjectStatus;
@@ -37,7 +38,7 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public TaskDTO getTaskById(Long taskId, Long projectId, @NotNull Authentication authentication) {
-        if (!membershipRepository.existsByProject_IdAndUser_Username(projectId, authentication.getName())) {
+        if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
             throw new EntityNotFoundException("Task not found or you do not have access to it.");
         }
 
@@ -50,7 +51,7 @@ public class TaskService {
 
     @Transactional
     public TaskDTO createTask(@Valid @NotNull TaskRequestDTO body, @NotNull Authentication authentication) {
-        if (!membershipRepository.existsByProject_IdAndUser_Username(body.getProjectId(), authentication.getName())) {
+        if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), body.getProjectId())) {
             throw new EntityNotFoundException("Project not found or you do not have access to it.");
         }
 
@@ -78,7 +79,9 @@ public class TaskService {
                            .assignees(Set.of(user))
                            .build();
 
-        eventPublisher.publishEvent(new TaskCreatedEvent(project, newTask, authentication.getName()));
+        eventPublisher.publishEvent(new TaskCreatedEvent(this, project, newTask, authentication.getName()));
+        eventPublisher.publishEvent(new NewTaskNotificationEvent(this, project.getId(), project.getTitle(),
+                                                                 user.getUsername(), newTask.getTitle()));
 
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(newTask));
     }

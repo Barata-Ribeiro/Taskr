@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.notification;
 
+import com.barataribeiro.taskr.notification.dtos.NotificationDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
