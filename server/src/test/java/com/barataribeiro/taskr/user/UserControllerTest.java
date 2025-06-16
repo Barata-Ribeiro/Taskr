@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.LinkedHashMap;
 
@@ -29,8 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 class UserControllerTest {
+    private static final String DEFAULT_PASSWORD = "Gqe9rvtO5Bl@ZkBP5mTu#4$Nw";
     private static String accessToken;
-
     private final MockMvcTester mockMvcTester;
 
     @BeforeAll
@@ -87,7 +88,7 @@ class UserControllerTest {
     @DisplayName("It should update account details successfully")
     void updateAccountDetails() throws Exception {
         UserUpdateRequestDTO body = new UserUpdateRequestDTO();
-        body.setCurrentPassword("Gqe9rvtO5Bl@ZkBP5mTu#4$Nw");
+        body.setCurrentPassword(DEFAULT_PASSWORD);
         body.setDisplayName("Updated User");
         body.setFullName("Updated Full Name");
         body.setAvatarUrl("https://example.com/avatar.jpg");
@@ -134,7 +135,7 @@ class UserControllerTest {
     @DisplayName("It should fail to update account details with existing username")
     void updateAccountDetailsWithExistingUsername() throws Exception {
         UserUpdateRequestDTO body = new UserUpdateRequestDTO();
-        body.setCurrentPassword("Gqe9rvtO5Bl@ZkBP5mTu#4$Nw");
+        body.setCurrentPassword(DEFAULT_PASSWORD);
         body.setUsername("awesomenewuser");
 
         mockMvcTester.patch().uri("/api/v1/users/me")
@@ -144,5 +145,60 @@ class UserControllerTest {
                      .assertThat()
                      .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
                      .failure().isInstanceOf(IllegalRequestException.class);
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("It should fail to update account details with existing email")
+    void updateAccountDetailsWithExistingEmail() throws Exception {
+        UserUpdateRequestDTO body = new UserUpdateRequestDTO();
+        body.setCurrentPassword(DEFAULT_PASSWORD);
+        body.setEmail("awesomenewuser@example.com");
+
+        mockMvcTester.patch().uri("/api/v1/users/me")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(body))
+                     .assertThat()
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
+                     .failure().isInstanceOf(IllegalRequestException.class);
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("It should fail to update account details with invalid properties")
+    void updateAccountDetailsWithInvalidProperties() throws Exception {
+        UserUpdateRequestDTO body = new UserUpdateRequestDTO();
+        body.setCurrentPassword(DEFAULT_PASSWORD);
+        body.setDisplayName("A");
+        body.setFullName("12345");
+        body.setAvatarUrl("invalid-url");
+        body.setNewPassword("short");
+
+        mockMvcTester.patch().uri("/api/v1/users/me")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(body))
+                     .assertThat()
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
+                     .failure().isInstanceOf(MethodArgumentNotValidException.class);
+    }
+    
+    @Test
+    @Order(7)
+    @DisplayName("It should delete account successfully")
+    void deleteAccount() {
+        mockMvcTester.delete().uri("/api/v1/users/me")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .accept(MediaType.APPLICATION_JSON)
+                     .assertThat()
+                     .hasStatus2xxSuccessful()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         assertNotNull(JsonPath.read(json, "$.message"), "Message should not be null");
+                         assertEquals("Account deleted successfully", JsonPath.read(json, "$.message"),
+                                      "Message should match expected value");
+                     });
     }
 }
