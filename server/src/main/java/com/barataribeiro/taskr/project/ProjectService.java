@@ -2,13 +2,16 @@ package com.barataribeiro.taskr.project;
 
 import com.barataribeiro.taskr.activity.events.project.ProjectCreatedEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
+import com.barataribeiro.taskr.exceptions.throwables.ForbiddenRequestException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.membership.MembershipRepository;
 import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
+import com.barataribeiro.taskr.project.dtos.ProjectUpdateRequestDTO;
 import com.barataribeiro.taskr.project.enums.ProjectRole;
+import com.barataribeiro.taskr.project.enums.ProjectStatus;
 import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserRepository;
 import jakarta.validation.Valid;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -84,6 +88,77 @@ public class ProjectService {
         eventPublisher.publishEvent(new ProjectCreatedEvent(project, authentication.getName()));
 
         return projectBuilder.toProjectDTO(projectRepository.saveAndFlush(project));
+    }
+
+    @Transactional
+    public ProjectCompleteDTO updateProject(Long projectId, @Valid ProjectUpdateRequestDTO body,
+                                            @NotNull Authentication authentication) {
+        Project project = projectRepository
+                .findById(projectId).orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
+
+        if (!project.getOwner().getUsername().equals(authentication.getName())) {
+            throw new ForbiddenRequestException();
+        }
+
+        Optional.ofNullable(body.getTitle()).ifPresent(project::setTitle);
+        Optional.ofNullable(body.getDescription()).ifPresent(project::setDescription);
+        Optional.ofNullable(body.getDueDate()).ifPresent(dueDate -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            LocalDateTime dateTime = LocalDateTime.parse(dueDate, formatter);
+
+            if (dateTime.isBefore(LocalDateTime.now())) {
+                throw new IllegalArgumentException("Due date cannot be in the past.");
+            }
+
+            if (dateTime.isEqual(project.getDueDate())) {
+                throw new IllegalArgumentException("Due date must be different from the current one.");
+            }
+
+            project.setDueDate(dateTime);
+        });
+        Optional.ofNullable(body.getStatus()).ifPresent(status -> project.setStatus(ProjectStatus.valueOf(status)));
+        Optional.ofNullable(body.getMembersToAdd())
+                .ifPresent(membersToAdd -> membersToAdd.parallelStream().forEach(member -> {
+                    if (membershipRepository.existsByUser_UsernameAndProject_Id(member, projectId)) {
+                        return; // Skip if the user is already a member
+                    }
+
+                    User user = userRepository
+                            .findByUsername(member)
+                            .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+                    Membership membership = Membership.builder()
+                                                      .user(user)
+                                                      .project(project)
+                                                      .role(ProjectRole.MEMBER)
+                                                      .joinedAt(LocalDateTime.now())
+                                                      .build();
+
+                    // TODO: Add activity event for user being added to the project
+                    // TODO: Add notification for the user being added to the project
+
+                    membershipRepository.save(membership);
+                }));
+        Optional.ofNullable(body.getMembersToRemove()).ifPresent(
+                membersToRemove -> membersToRemove.parallelStream().forEach(member -> {
+                    Membership membership = membershipRepository.findByUser_UsernameAndProject_Id(member, projectId)
+                                                                .orElse(null);
+
+                    if (membership == null) return; // Skip if the user is not a member
+
+                    boolean isOwner = membership.getRole() == ProjectRole.OWNER;
+                    boolean isRequestingUser = membership.getUser().getUsername()
+                                                         .equals(authentication.getName());
+
+                    if (isOwner || isRequestingUser) return; // Skip if the user is the owner or the requesting user
+
+                    // TODO: Add activity event for user being removed from the project
+                    // TODO: Add notification for the user being removed from the project
+
+                    membershipRepository.delete(membership);
+                }));
+
+        return projectBuilder.toProjectCompleteDTO(projectRepository.saveAndFlush(project));
     }
 
     private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {

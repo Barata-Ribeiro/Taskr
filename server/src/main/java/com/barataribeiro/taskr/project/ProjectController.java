@@ -5,6 +5,7 @@ import com.barataribeiro.taskr.helpers.RestResponse;
 import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
+import com.barataribeiro.taskr.project.dtos.ProjectUpdateRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -53,4 +54,16 @@ public class ProjectController {
                              .body(new RestResponse<>(HttpStatus.CREATED, HttpStatus.CREATED.value(),
                                                       "Project created successfully", project));
     }
+
+    @PatchMapping("/{projectId}")
+    @Operation(summary = "Update an existing project",
+               description = "Updates the details of an existing project identified by its ID.")
+    public ResponseEntity<RestResponse<ProjectCompleteDTO>> updateProject(
+            @PathVariable Long projectId,
+            @RequestBody @Valid ProjectUpdateRequestDTO body, Authentication authentication) {
+        ProjectCompleteDTO updatedProject = projectService.updateProject(projectId, body, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Project updated successfully", updatedProject));
+    }
+
 }
