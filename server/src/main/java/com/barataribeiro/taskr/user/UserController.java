@@ -34,4 +34,12 @@ public class UserController {
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Account details updated successfully", updatedUser));
     }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<RestResponse<Void>> deleteAccount(Authentication authentication) {
+        userService.deleteAccount(authentication);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                             .body(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                      "Account deleted successfully", null));
+    }
 }

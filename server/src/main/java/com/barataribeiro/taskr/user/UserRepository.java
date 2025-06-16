@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.user;
 
+import com.barataribeiro.taskr.user.enums.Roles;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
     boolean existsByUsernameOrEmailAllIgnoreCase(String username, String email);
 
     long countByUsername(String username);
+
+    long deleteByUsername(String username);
 }

@@ -5,6 +5,7 @@ import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.exceptions.throwables.InvalidCredentialsException;
 import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
 import com.barataribeiro.taskr.user.dtos.UserUpdateRequestDTO;
+import com.barataribeiro.taskr.user.enums.Roles;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,5 +79,14 @@ public class UserService {
         Optional.ofNullable(body.getFullName()).ifPresent(userToUpdate::setFullName);
         Optional.ofNullable(body.getAvatarUrl()).ifPresent(userToUpdate::setAvatarUrl);
         Optional.ofNullable(body.getNewPassword()).ifPresent(s -> userToUpdate.setPassword(passwordEncoder.encode(s)));
+    }
+
+    @Transactional
+    public void deleteAccount(@NotNull Authentication authentication) {
+        long wasDeleted = userRepository.deleteByUsername(authentication.getName());
+
+        if (wasDeleted == 0) {
+            throw new IllegalRequestException("Account deletion failed; Account not found or not authorized.");
+        }
     }
 }
