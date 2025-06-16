@@ -5,13 +5,15 @@ import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 @Getter
-public class ProjectCreatedEvent extends ApplicationEvent {
+public class ProjectUpdateEvent extends ApplicationEvent {
     private final Project project;
     private final String username;
+    private final String reason;
 
-    public ProjectCreatedEvent(Object source, Project project, String username) {
+    public ProjectUpdateEvent(Object source, Project project, String username, String reason) {
         super(source);
         this.project = project;
         this.username = username;
+        this.reason = reason;
     }
 }

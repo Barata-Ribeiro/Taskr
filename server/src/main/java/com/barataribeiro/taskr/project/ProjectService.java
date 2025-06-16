@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.project;
 
 import com.barataribeiro.taskr.activity.events.project.ProjectCreatedEvent;
+import com.barataribeiro.taskr.activity.events.project.ProjectUpdateEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.ForbiddenRequestException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
@@ -14,6 +15,7 @@ import com.barataribeiro.taskr.project.enums.ProjectRole;
 import com.barataribeiro.taskr.project.enums.ProjectStatus;
 import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.utils.StringNormalizer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -85,7 +89,7 @@ public class ProjectService {
 
         membershipRepository.save(membership);
 
-        eventPublisher.publishEvent(new ProjectCreatedEvent(project, authentication.getName()));
+        eventPublisher.publishEvent(new ProjectCreatedEvent(this, project, authentication.getName()));
 
         return projectBuilder.toProjectDTO(projectRepository.saveAndFlush(project));
     }
@@ -100,8 +104,18 @@ public class ProjectService {
             throw new ForbiddenRequestException();
         }
 
-        Optional.ofNullable(body.getTitle()).ifPresent(project::setTitle);
-        Optional.ofNullable(body.getDescription()).ifPresent(project::setDescription);
+        List<String> updates = new ArrayList<>();
+
+        Optional.ofNullable(body.getTitle()).ifPresent(title -> {
+            project.setTitle(title);
+            updates.add(String.format("changed the project title to '%s'.", title));
+        });
+
+        Optional.ofNullable(body.getDescription()).ifPresent(desc -> {
+            project.setDescription(desc);
+            updates.add("changed the project description.");
+        });
+
         Optional.ofNullable(body.getDueDate()).ifPresent(dueDate -> {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime dateTime = LocalDateTime.parse(dueDate, formatter);
@@ -115,8 +129,16 @@ public class ProjectService {
             }
 
             project.setDueDate(dateTime);
+            updates.add(String.format("changed the project due date to %s.",
+                                      dateTime.format(DateTimeFormatter.ofPattern("d MMMM, yyyy HH:mm"))));
         });
-        Optional.ofNullable(body.getStatus()).ifPresent(status -> project.setStatus(ProjectStatus.valueOf(status)));
+
+        Optional.ofNullable(body.getStatus()).ifPresent(status -> {
+            project.setStatus(ProjectStatus.valueOf(status));
+            updates.add(String.format("changed the project status to '%s'.",
+                                      StringNormalizer.formatStatus(status)));
+        });
+
         Optional.ofNullable(body.getMembersToAdd())
                 .ifPresent(membersToAdd -> membersToAdd.parallelStream().forEach(member -> {
                     if (membershipRepository.existsByUser_UsernameAndProject_Id(member, projectId)) {
@@ -134,13 +156,13 @@ public class ProjectService {
                                                       .joinedAt(LocalDateTime.now())
                                                       .build();
 
-                    // TODO: Add activity event for user being added to the project
+                    updates.add(String.format("added '%s' to the project.", user.getUsername()));
                     // TODO: Add notification for the user being added to the project
 
                     membershipRepository.save(membership);
                 }));
-        Optional.ofNullable(body.getMembersToRemove()).ifPresent(
-                membersToRemove -> membersToRemove.parallelStream().forEach(member -> {
+        Optional.ofNullable(body.getMembersToRemove())
+                .ifPresent(membersToRemove -> membersToRemove.parallelStream().forEach(member -> {
                     Membership membership = membershipRepository.findByUser_UsernameAndProject_Id(member, projectId)
                                                                 .orElse(null);
 
@@ -152,11 +174,16 @@ public class ProjectService {
 
                     if (isOwner || isRequestingUser) return; // Skip if the user is the owner or the requesting user
 
-                    // TODO: Add activity event for user being removed from the project
+                    updates.add(String.format("removed '%s' from the project.", membership.getUser().getUsername()));
                     // TODO: Add notification for the user being removed from the project
 
                     membershipRepository.delete(membership);
                 }));
+
+        if (updates.isEmpty()) throw new IllegalArgumentException("At least one field must be updated.");
+
+        updates.parallelStream().forEachOrdered(reason -> eventPublisher
+                .publishEvent(new ProjectUpdateEvent(this, project, authentication.getName(), reason)));
 
         return projectBuilder.toProjectCompleteDTO(projectRepository.saveAndFlush(project));
     }
@@ -166,4 +193,5 @@ public class ProjectService {
         orderBy = orderBy.equalsIgnoreCase("createdAt") ? "createdAt" : orderBy;
         return PageRequest.of(page, perPage, Sort.by(sortDirection, orderBy));
     }
+
 }
