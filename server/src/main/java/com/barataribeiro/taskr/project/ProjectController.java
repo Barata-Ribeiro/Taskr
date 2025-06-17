@@ -66,4 +66,14 @@ public class ProjectController {
                                                     "Project updated successfully", updatedProject));
     }
 
+    @DeleteMapping("/{projectId}")
+    @Operation(summary = "Delete a project",
+               description = "Deletes a project identified by its ID.")
+    public ResponseEntity<RestResponse<Void>> deleteProject(@PathVariable Long projectId,
+                                                            Authentication authentication) {
+        projectService.deleteProject(projectId, authentication);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                             .body(new RestResponse<>(HttpStatus.NO_CONTENT, HttpStatus.NO_CONTENT.value(),
+                                                      "Project deleted successfully", null));
+    }
 }

@@ -43,6 +43,7 @@ public class ProjectService {
     private final MembershipRepository membershipRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+    @Transactional(readOnly = true)
     public Page<ProjectDTO> getMyProjects(@NotNull PageQueryParamsDTO pageQueryParams,
                                           @NotNull Authentication authentication) {
         final PageRequest pageable = getPageRequest(pageQueryParams.getPage(), pageQueryParams.getPerPage(),
@@ -188,10 +189,19 @@ public class ProjectService {
         return projectBuilder.toProjectCompleteDTO(projectRepository.saveAndFlush(project));
     }
 
+    @Transactional
+    public void deleteProject(Long projectId, @NotNull Authentication authentication) {
+        if (!membershipRepository
+                .existsByUser_UsernameAndProject_IdAndRoleIs(authentication.getName(), projectId, ProjectRole.OWNER)) {
+            throw new EntityNotFoundException(Project.class.getSimpleName());
+        }
+
+        projectRepository.deleteById(projectId);
+    }
+
     private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {
         Sort.Direction sortDirection = Sort.Direction.fromString(direction);
         orderBy = orderBy.equalsIgnoreCase("createdAt") ? "createdAt" : orderBy;
         return PageRequest.of(page, perPage, Sort.by(sortDirection, orderBy));
     }
-
 }
