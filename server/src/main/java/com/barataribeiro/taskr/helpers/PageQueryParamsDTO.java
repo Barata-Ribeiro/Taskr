@@ -13,7 +13,7 @@ public class PageQueryParamsDTO {
     private int page = 0;
 
     @Schema(description = "Number of items per page", example = "10")
-    @Length(min = 0, max = 25, message = "PerPage must be between 0 and 25")
+    @Length(max = 25, message = "PerPage must be a positive value up to 25")
     private int perPage = 10;
 
     @Schema(description = "Sort direction (ASC or DESC)", example = "ASC")
