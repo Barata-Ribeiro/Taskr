@@ -23,8 +23,8 @@ public class NotificationEventListener {
     @EventListener
     public void onNewTaskNotificationEvent(@NotNull NewTaskNotificationEvent event) {
         Streamable<Membership> memberships = membershipRepository.findByProject_Id(event.getProjectId());
-        memberships.stream().parallel().filter(
-                           membership -> !membership.getUser().getUsername().equals(event.getUsername()))
+        memberships.stream().parallel()
+                   .filter(membership -> !membership.getUser().getUsername().equals(event.getUsername()))
                    .forEach(membership -> {
                        User user = membership.getUser();
                        final String message = String

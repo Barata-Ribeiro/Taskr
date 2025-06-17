@@ -23,10 +23,8 @@ import java.time.Instant;
 @Entity
 @Table(name = "tb_activities", indexes = {
         @Index(name = "idx_activity_id_username", columnList = "id, username"),
-        @Index(name = "idx_activity_project", columnList = "project_id")
-}, uniqueConstraints = {
-        @UniqueConstraint(name = "uc_activity_username_action_project",
-                          columnNames = {"username", "action", "project_id"})
+        @Index(name = "idx_activity_project", columnList = "project_id"),
+        @Index(name = "idx_activity_username", columnList = "username, project_id")
 })
 public class Activity implements Serializable {
     @Serial

@@ -7,7 +7,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.spi.MappingContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +22,6 @@ public class ProjectBuilder {
         modelMapper.addMappings(new PropertyMap<Project, ProjectCompleteDTO>() {
             @Override
             protected void configure() {
-                using(MappingContext::getSource).map(source.getMemberships(), destination.getMemberships());
-                
                 using(ctx -> {
                     Set<?> totalTasks = (Set<?>) ctx.getSource();
                     return totalTasks == null ? 0L : totalTasks.size();
