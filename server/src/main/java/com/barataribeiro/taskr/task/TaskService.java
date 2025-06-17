@@ -39,12 +39,12 @@ public class TaskService {
     @Transactional(readOnly = true)
     public TaskDTO getTaskById(Long taskId, Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
-            throw new EntityNotFoundException("Task not found or you do not have access to it.");
+            throw new EntityNotFoundException(Task.class.getSimpleName());
         }
 
         Task task = taskRepository
                 .findByIdAndProject_Id(taskId, projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found or you do not have access to it."));
+                .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
 
         return taskBuilder.toTaskDTO(task);
     }
@@ -52,11 +52,12 @@ public class TaskService {
     @Transactional
     public TaskDTO createTask(@Valid @NotNull TaskRequestDTO body, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), body.getProjectId())) {
-            throw new EntityNotFoundException("Project not found or you do not have access to it.");
+            throw new EntityNotFoundException(Project.class.getSimpleName());
         }
 
-        Project project = projectRepository.findById(body.getProjectId())
-                                           .orElseThrow(() -> new EntityNotFoundException("Project not found."));
+        Project project = projectRepository
+                .findById(body.getProjectId())
+                .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
         if (project.getStatus() == ProjectStatus.COMPLETED || project.getStatus() == ProjectStatus.CANCELLED) {
             throw new IllegalRequestException("Cannot create task in a completed or cancelled project.");
@@ -67,7 +68,7 @@ public class TaskService {
         }
 
         User user = userRepository.findByUsername(authentication.getName())
-                                  .orElseThrow(() -> new EntityNotFoundException("User not found."));
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         Task newTask = Task.builder()
                            .title(body.getTitle())

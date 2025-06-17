@@ -55,7 +55,7 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public ProjectCompleteDTO getProjectById(Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
-            throw new EntityNotFoundException("Project not found or you do not have access to it.");
+            throw new EntityNotFoundException(Project.class.getSimpleName());
         }
 
         Project project = projectRepository
