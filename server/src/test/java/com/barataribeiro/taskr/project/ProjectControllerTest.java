@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.project;
 import com.barataribeiro.taskr.activity.ActivityRepository;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
+import com.barataribeiro.taskr.project.dtos.ProjectUpdateRequestDTO;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
 import com.barataribeiro.taskr.utils.TestSetupUtil;
@@ -15,13 +16,16 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -120,7 +124,7 @@ class ProjectControllerTest {
 
     @Test
     @Order(3)
-    @DisplayName("It should get a project by ID")
+    @DisplayName("It should get the project by its ID")
     void getProjectById() {
         mockMvcTester.get().uri("/api/v1/projects/" + createdProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
@@ -141,6 +145,116 @@ class ProjectControllerTest {
                                       JsonPath.read(jsonContent.getJson(), "$.data.dueDate"),
                                       "Project due date should match"
                          );
+                     });
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("It should update the project title and description successfully")
+    void updateProjectTitleAndDescription() throws Exception {
+        ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
+        updateRequest.setTitle("Updated Project Title");
+        updateRequest.setDescription("Updated project description.");
+
+        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
+                     .assertThat()
+                     .hasStatus2xxSuccessful()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         assertEquals("Updated Project Title", JsonPath.read(json, "$.data.title"),
+                                      "Project title should be updated");
+                         assertEquals("Updated project description.", JsonPath.read(json, "$.data.description"),
+                                      "Project description should be updated");
+                     });
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("It should not update the project with a past due date")
+    void updateProjectWithPastDueDateShouldFail() throws Exception {
+        ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
+        updateRequest.setDueDate(LocalDateTime.now().minusDays(1)
+                                              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+
+        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
+                     .assertThat()
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
+                     .failure().isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("It should not update the project if no fields are provided")
+    void updateProjectWithNoFieldsShouldFail() throws Exception {
+        ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
+
+        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
+                     .assertThat()
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
+                     .failure().isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("It should not update the project with an invalid status")
+    void updateProjectWithInvalidStatusShouldFail() throws Exception {
+        ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
+        updateRequest.setStatus("INVALID_STATUS");
+
+        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
+                     .assertThat()
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
+                     .failure().isInstanceOf(MethodArgumentNotValidException.class);
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("It should add a member and then remove then from the project")
+    void addAndRemoveMemberFromProject() throws Exception {
+        ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
+        updateRequest.setMembersToAdd(List.of("awesomenewuser"));
+
+        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
+                     .assertThat()
+                     .hasStatus2xxSuccessful()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         String username = updateRequest.getMembersToAdd().getFirst();
+                         List<String> members = JsonPath.read(json, "$.data.memberships[*].user.username");
+                         assertTrue(members.contains(username), "New member should be added to the project");
+                     });
+
+        updateRequest.setMembersToAdd(List.of());
+        updateRequest.setMembersToRemove(List.of("awesomenewuser"));
+
+        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
+                     .assertThat()
+                     .hasStatus2xxSuccessful()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         List<String> members = JsonPath.read(json, "$.data.memberships[*].user.username");
+                         assertEquals(1, members.size(), "Member should be removed from the project");
                      });
     }
 }
