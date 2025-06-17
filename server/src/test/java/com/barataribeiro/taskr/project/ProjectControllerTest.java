@@ -52,11 +52,7 @@ class ProjectControllerTest {
     }
 
     @AfterAll
-    static void tearDown(@Autowired @NotNull UserRepository userRepository,
-                         @Autowired @NotNull ActivityRepository activityRepository) {
-        assertNotNull(activityRepository, "Activity repository should not be null");
-        assertFalse(activityRepository.count() <= 0, "Activity repository should not be empty");
-
+    static void tearDown(@Autowired @NotNull UserRepository userRepository) {
         userRepository.deleteAll();
         accessToken = null;
         createdProject = null;
@@ -255,6 +251,51 @@ class ProjectControllerTest {
                          String json = jsonContent.getJson();
                          List<String> members = JsonPath.read(json, "$.data.memberships[*].user.username");
                          assertEquals(1, members.size(), "Member should be removed from the project");
+                     });
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("It should not delete a project that does not exist")
+    void deleteNonExistentProject() {
+        mockMvcTester.delete().uri("/api/v1/projects/999999")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .assertThat()
+                     .hasStatus4xxClientError()
+                     .hasStatus(HttpStatus.NOT_FOUND)
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         assertEquals("Project was not found or does not exist", JsonPath.read(json, "$.detail"),
+                                      "Response message should indicate project not found");
+                     });
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("It should assert that activity repository is not empty")
+    void assertActivityRepositoryNotEmpty(@Autowired @NotNull ActivityRepository activityRepository) {
+        assertNotNull(activityRepository, "Activity repository should not be null");
+        assertFalse(activityRepository.count() <= 0, "Activity repository should not be empty");
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("It should delete the project successfully")
+    void deleteProject() {
+        mockMvcTester.delete().uri("/api/v1/projects/" + createdProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .assertThat()
+                     .hasStatus2xxSuccessful()
+                     .hasStatus(HttpStatus.NO_CONTENT)
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         assertTrue(JsonPath.read(json, "$.data") == null || JsonPath.read(json, "$.data") == "",
+                                    "Response data should be empty for successful deletion");
+                         assertEquals("Project deleted successfully",
+                                      JsonPath.read(json, "$.message"),
+                                      "Response message should indicate successful deletion");
                      });
     }
 }
