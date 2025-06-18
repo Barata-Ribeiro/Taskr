@@ -22,7 +22,12 @@ import java.util.Set;
 @Setter
 @ToString
 @Entity
-@Table(name = "tb_comments")
+@Table(name = "tb_comments", indexes = {
+        @Index(name = "idx_comment_author_id", columnList = "author_id"),
+        @Index(name = "idx_comment_task_id", columnList = "task_id"),
+        @Index(name = "idx_comment_parent_id", columnList = "parent_id"),
+        @Index(name = "idx_comment_created_at", columnList = "created_at")
+})
 public class Comment implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
