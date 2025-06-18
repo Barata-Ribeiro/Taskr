@@ -3,6 +3,13 @@ package com.barataribeiro.taskr;
 import com.barataribeiro.taskr.authentication.AuthenticationController;
 import com.barataribeiro.taskr.authentication.services.AuthenticationService;
 import com.barataribeiro.taskr.authentication.services.TokenService;
+import com.barataribeiro.taskr.notification.NotificationService;
+import com.barataribeiro.taskr.project.ProjectController;
+import com.barataribeiro.taskr.project.ProjectService;
+import com.barataribeiro.taskr.task.TaskController;
+import com.barataribeiro.taskr.task.TaskService;
+import com.barataribeiro.taskr.user.UserController;
+import com.barataribeiro.taskr.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +30,15 @@ class ServerApplicationTests {
     private final AuthenticationService authenticationService;
     private final TokenService tokenService;
 
+    private final NotificationService notificationService;
+
+    private final ProjectController projectController;
+    private final ProjectService projectService;
+    private final TaskController taskController;
+    private final TaskService taskService;
+    private final UserController userController;
+    private final UserService userService;
+
     @Test
     void contextLoads() {
         assertNotNull(serverApplication);
@@ -30,6 +46,14 @@ class ServerApplicationTests {
         assertNotNull(tokenService);
         assertNotNull(authenticationController);
         assertNotNull(authenticationService);
+
+        assertNotNull(notificationService);
+        assertNotNull(projectController);
+        assertNotNull(projectService);
+        assertNotNull(taskController);
+        assertNotNull(taskService);
+        assertNotNull(userController);
+        assertNotNull(userService);
     }
 
 }
