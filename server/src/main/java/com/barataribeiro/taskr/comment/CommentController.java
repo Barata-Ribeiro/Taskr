@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.comment;
 
 import com.barataribeiro.taskr.comment.dtos.CommentDTO;
+import com.barataribeiro.taskr.comment.dtos.CommentRequestDTO;
 import com.barataribeiro.taskr.helpers.RestResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,5 +29,28 @@ public class CommentController {
         List<CommentDTO> comments = commentService.getCommentsByTaskId(taskId, authentication);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Comments retrieved successfully", comments));
+    }
+
+    @PostMapping("/task/{taskId}")
+    @Operation(summary = "Create a new comment",
+               description = "Adds a new comment to a specific task.")
+    public ResponseEntity<RestResponse<CommentDTO>> createComment(@PathVariable Long taskId,
+                                                                  @RequestBody CommentRequestDTO body,
+                                                                  Authentication authentication) {
+        CommentDTO createdComment = commentService.createComment(taskId, body, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                             .body(new RestResponse<>(HttpStatus.CREATED, HttpStatus.CREATED.value(),
+                                                      "Comment created successfully", createdComment));
+    }
+
+    @DeleteMapping("/{commentId}/task/{taskId}")
+    @Operation(summary = "Delete a comment",
+               description = "Removes a comment from a specific task.")
+    public ResponseEntity<RestResponse<Void>> deleteComment(@PathVariable Long commentId, @PathVariable Long taskId,
+                                                            Authentication authentication) {
+        commentService.deleteComment(commentId, taskId, authentication);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                             .body(new RestResponse<>(HttpStatus.NO_CONTENT, HttpStatus.NO_CONTENT.value(),
+                                                      "Comment deleted successfully", null));
     }
 }

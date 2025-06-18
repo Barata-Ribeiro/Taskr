@@ -13,4 +13,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpec
 
     @EntityGraph(attributePaths = {"author", "parent", "children"})
     Streamable<Comment> findByTask_IdOrderByCreatedAtDesc(Long taskId);
+
+    long deleteByIdAndTask_IdAndAuthor_Username(Long id, Long taskId, String username);
 }
