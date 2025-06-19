@@ -4,6 +4,9 @@ import com.barataribeiro.taskr.authentication.dto.LoginRequestDTO;
 import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
+import com.barataribeiro.taskr.project.dtos.ProjectUpdateRequestDTO;
+import com.barataribeiro.taskr.task.dtos.TaskDTO;
+import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
 import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
@@ -104,6 +107,53 @@ public class TestSetupUtil {
                          assertNotNull(createdProject.get(), "Created project should not be null");
                      });
 
+        ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
+        updateRequest.setMembersToAdd(List.of("awesomenewuser"));
+
+        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.get().getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
+                     .assertThat()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         ProjectDTO updatedProject = objectMapper.convertValue(JsonPath.read(json, "$.data"),
+                                                                               ProjectDTO.class);
+                         assertNotNull(updatedProject, "Updated project should not be null");
+                     });
+
         return createdProject;
+    }
+
+    public static @NotNull AtomicReference<TaskDTO> createDefaultTask(@NotNull MockMvcTester mockMvcTester,
+                                                                      @NotNull String accessToken,
+                                                                      @NotNull ProjectDTO project) throws Exception {
+        TaskRequestDTO taskRequestDTO = new TaskRequestDTO();
+        taskRequestDTO.setTitle("Test Task");
+        taskRequestDTO.setDescription("This is a test task.");
+        taskRequestDTO.setDueDate(LocalDateTime.now().plusDays(30)
+                                               .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        taskRequestDTO.setStatus("TO_DO");
+        taskRequestDTO.setPriority("HIGH");
+        taskRequestDTO.setProjectId(project.getId());
+
+        ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
+
+        AtomicReference<TaskDTO> createdTask = new AtomicReference<>();
+
+        mockMvcTester.post().uri("/api/v1/tasks")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(objectMapper.writeValueAsBytes(taskRequestDTO))
+                     .assertThat()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         createdTask.set(objectMapper.convertValue(JsonPath.read(json, "$.data"), TaskDTO.class));
+                         assertNotNull(createdTask.get(), "Created task should not be null");
+                     });
+
+        return createdTask;
     }
 }
