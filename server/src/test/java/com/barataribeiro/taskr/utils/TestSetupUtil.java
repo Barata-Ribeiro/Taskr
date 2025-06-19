@@ -6,6 +6,7 @@ import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Slf4j
 public class TestSetupUtil {
-    public static String registerAndLoginDefaultUser(
+
+    public static @NotNull LoginReturnDTO registerAndLoginDefaultUser(
             @NotNull UserRepository userRepository,
             @NotNull UserBuilder userBuilder,
             @NotNull MockMvcTester mockMvcTester) throws Exception {
@@ -44,9 +46,15 @@ public class TestSetupUtil {
         loginBody.setUsernameOrEmail(body.getUsername());
         loginBody.setPassword(body.getPassword());
 
+        LoginRequestDTO secondLoginBody = new LoginRequestDTO();
+        secondLoginBody.setUsernameOrEmail(secondBody.getUsername());
+        secondLoginBody.setPassword(secondBody.getPassword());
+
         userRepository.saveAll(List.of(userBuilder.toUser(body), userBuilder.toUser(secondBody)));
 
         AtomicReference<String> accessToken = new AtomicReference<>();
+        AtomicReference<String> secondAccessToken = new AtomicReference<>();
+
         mockMvcTester.post().uri("/api/v1/auth/login")
                      .contentType(MediaType.APPLICATION_JSON)
                      .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(loginBody))
@@ -58,7 +66,18 @@ public class TestSetupUtil {
                          assertNotNull(accessToken.get(), "Access token should not be null");
                      });
 
-        return accessToken.get();
+        mockMvcTester.post().uri("/api/v1/auth/login")
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(secondLoginBody))
+                     .assertThat()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         secondAccessToken.set(JsonPath.read(json, "$.data.accessToken"));
+                         assertNotNull(accessToken.get(), "Access token should not be null");
+                     });
+
+        return new LoginReturnDTO(accessToken.get(), secondAccessToken.get());
     }
 
     public static @NotNull AtomicReference<ProjectDTO> createDefaultProject(@NotNull MockMvcTester mockMvcTester,

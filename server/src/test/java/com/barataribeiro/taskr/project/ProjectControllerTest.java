@@ -48,7 +48,8 @@ class ProjectControllerTest {
                       @Autowired @NotNull MockMvcTester mockMvcTester) throws Exception {
         userRepository.deleteAll();
 
-        accessToken = TestSetupUtil.registerAndLoginDefaultUser(userRepository, userBuilder, mockMvcTester);
+        accessToken = TestSetupUtil.registerAndLoginDefaultUser(userRepository, userBuilder, mockMvcTester)
+                                   .getAccessToken();
     }
 
     @AfterAll

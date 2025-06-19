@@ -40,7 +40,8 @@ class UserControllerTest {
                       @Autowired @NotNull MockMvcTester mockMvcTester) throws Exception {
         userRepository.deleteAll();
 
-        accessToken = TestSetupUtil.registerAndLoginDefaultUser(userRepository, userBuilder, mockMvcTester);
+        accessToken = TestSetupUtil.registerAndLoginDefaultUser(userRepository, userBuilder, mockMvcTester)
+                                   .getAccessToken();
     }
 
     @Test
@@ -183,7 +184,7 @@ class UserControllerTest {
                      .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
                      .failure().isInstanceOf(MethodArgumentNotValidException.class);
     }
-    
+
     @Test
     @Order(7)
     @DisplayName("It should delete account successfully")
