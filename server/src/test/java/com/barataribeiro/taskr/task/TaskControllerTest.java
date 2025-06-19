@@ -68,7 +68,7 @@ class TaskControllerTest {
     void createTaskSuccessfully() throws Exception {
         String description = "This is a test task description. It should be detailed enough to understand the task.";
         final String dueDate = LocalDateTime.now().plusDays(30)
-                                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+                                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
 
         taskRequestDTO.setProjectId(defaultProject.getId());
         taskRequestDTO.setTitle("Test Task");
@@ -96,6 +96,28 @@ class TaskControllerTest {
                          assertEquals(taskRequestDTO.getPriority(), JsonPath.read(json, "$.data.priority"));
 
                          createdTask = objectMapper.convertValue(JsonPath.read(json, "$.data"), TaskDTO.class);
+                     });
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("It should retrieve a task by ID successfully")
+    void getTaskByIdSuccessfully() {
+        assertNotNull(createdTask, "Created task should not be null");
+
+        mockMvcTester.get().uri("/api/v1/tasks/{taskId}/project/{projectId}",
+                                createdTask.getId(), defaultProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .assertThat()
+                     .hasStatus(HttpStatus.OK)
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         assertEquals(createdTask.getTitle(), JsonPath.read(json, "$.data.title"));
+                         assertEquals(createdTask.getDescription(), JsonPath.read(json, "$.data.description"));
+                         assertEquals(createdTask.getDueDate(), JsonPath.read(json, "$.data.dueDate"));
+                         assertEquals(createdTask.getStatus().name(), JsonPath.read(json, "$.data.status"));
+                         assertEquals(createdTask.getPriority().name(), JsonPath.read(json, "$.data.priority"));
                      });
     }
 }
