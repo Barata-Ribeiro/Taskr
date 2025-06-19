@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 class ProjectControllerTest {
     private static final ProjectRequestDTO projectRequestDTO = new ProjectRequestDTO();
+
     private static String accessToken;
     private static ProjectDTO createdProject;
 
@@ -123,7 +124,7 @@ class ProjectControllerTest {
     @Order(3)
     @DisplayName("It should get the project by its ID")
     void getProjectById() {
-        mockMvcTester.get().uri("/api/v1/projects/" + createdProject.getId())
+        mockMvcTester.get().uri("/api/v1/projects/{projectId}", createdProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .assertThat()
                      .hasStatus2xxSuccessful()
@@ -153,7 +154,7 @@ class ProjectControllerTest {
         updateRequest.setTitle("Updated Project Title");
         updateRequest.setDescription("Updated project description.");
 
-        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+        mockMvcTester.patch().uri("/api/v1/projects/{projectId}", createdProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .contentType(MediaType.APPLICATION_JSON)
                      .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
@@ -177,7 +178,7 @@ class ProjectControllerTest {
         updateRequest.setDueDate(LocalDateTime.now().minusDays(1)
                                               .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
 
-        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+        mockMvcTester.patch().uri("/api/v1/projects/{projectId}", createdProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .contentType(MediaType.APPLICATION_JSON)
                      .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
@@ -192,7 +193,7 @@ class ProjectControllerTest {
     void updateProjectWithNoFieldsShouldFail() throws Exception {
         ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
 
-        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+        mockMvcTester.patch().uri("/api/v1/projects/{projectId}", createdProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .contentType(MediaType.APPLICATION_JSON)
                      .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
@@ -208,7 +209,7 @@ class ProjectControllerTest {
         ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
         updateRequest.setStatus("INVALID_STATUS");
 
-        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+        mockMvcTester.patch().uri("/api/v1/projects/{projectId}", createdProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .contentType(MediaType.APPLICATION_JSON)
                      .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
@@ -224,7 +225,7 @@ class ProjectControllerTest {
         ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
         updateRequest.setMembersToAdd(List.of("awesomenewuser"));
 
-        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.getId())
+        mockMvcTester.patch().uri("/api/v1/projects/{projectId}", createdProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .contentType(MediaType.APPLICATION_JSON)
                      .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
@@ -259,7 +260,7 @@ class ProjectControllerTest {
     @Order(9)
     @DisplayName("It should not delete a project that does not exist")
     void deleteNonExistentProject() {
-        mockMvcTester.delete().uri("/api/v1/projects/999999")
+        mockMvcTester.delete().uri("/api/v1/projects/{projectId}", 999999L)
                      .header("Authorization", "Bearer " + accessToken)
                      .assertThat()
                      .hasStatus4xxClientError()
@@ -284,7 +285,7 @@ class ProjectControllerTest {
     @Order(11)
     @DisplayName("It should delete the project successfully")
     void deleteProject() {
-        mockMvcTester.delete().uri("/api/v1/projects/" + createdProject.getId())
+        mockMvcTester.delete().uri("/api/v1/projects/{projectId}", createdProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .assertThat()
                      .hasStatus2xxSuccessful()

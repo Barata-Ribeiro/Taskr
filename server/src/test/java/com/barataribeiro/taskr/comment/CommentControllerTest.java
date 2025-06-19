@@ -33,13 +33,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 class CommentControllerTest {
     private static final CommentRequestDTO commentRequestDTO = new CommentRequestDTO();
+
     private static String accessToken;
     private static String secondAccessToken;
-    private static ProjectDTO defaultProject;
     private static TaskDTO defaultTask;
     private static CommentDTO createdComment;
+
     private final MockMvcTester mockMvcTester;
-    @Autowired private CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
 
     @BeforeAll
     static void setUp(@Autowired @NotNull UserRepository userRepository,
@@ -51,7 +52,7 @@ class CommentControllerTest {
         accessToken = tokens.getAccessToken();
         secondAccessToken = tokens.getSecondAccessToken();
 
-        defaultProject = TestSetupUtil.createDefaultProject(mockMvcTester, accessToken).get();
+        ProjectDTO defaultProject = TestSetupUtil.createDefaultProject(mockMvcTester, accessToken).get();
         defaultTask = TestSetupUtil.createDefaultTask(mockMvcTester, accessToken, defaultProject).get();
     }
 
@@ -65,7 +66,7 @@ class CommentControllerTest {
         ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
 
         mockMvcTester.post()
-                     .uri("/api/v1/comments/task/" + defaultTask.getId())
+                     .uri("/api/v1/comments/task/{taskId}", defaultTask.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .contentType(MediaType.APPLICATION_JSON)
                      .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(commentRequestDTO))
@@ -93,7 +94,7 @@ class CommentControllerTest {
         replyRequest.setParentId(createdComment.getId());
 
         mockMvcTester.post()
-                     .uri("/api/v1/comments/task/" + defaultTask.getId())
+                     .uri("/api/v1/comments/task/{taskId}", defaultTask.getId())
                      .header("Authorization", "Bearer " + secondAccessToken)
                      .contentType(MediaType.APPLICATION_JSON)
                      .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(replyRequest))
@@ -115,7 +116,7 @@ class CommentControllerTest {
     @DisplayName("It should get comments by task ID successfully")
     void getCommentsByTaskId() {
         mockMvcTester.get()
-                     .uri("/api/v1/comments/task/" + defaultTask.getId())
+                     .uri("/api/v1/comments/task/{taskId}", defaultTask.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .accept(MediaType.APPLICATION_JSON)
                      .assertThat()
@@ -141,7 +142,7 @@ class CommentControllerTest {
     @DisplayName("It should delete a comment successfully and the children should be deleted as well")
     void deleteComment() {
         mockMvcTester.delete()
-                     .uri("/api/v1/comments/" + createdComment.getId() + "/task/" + defaultTask.getId())
+                     .uri("/api/v1/comments/{commentId}/task/{taskId}", createdComment.getId(), defaultTask.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .accept(MediaType.APPLICATION_JSON)
                      .assertThat()

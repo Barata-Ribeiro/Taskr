@@ -110,7 +110,7 @@ public class TestSetupUtil {
         ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
         updateRequest.setMembersToAdd(List.of("awesomenewuser"));
 
-        mockMvcTester.patch().uri("/api/v1/projects/" + createdProject.get().getId())
+        mockMvcTester.patch().uri("/api/v1/projects/{projectId}", createdProject.get().getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .contentType(MediaType.APPLICATION_JSON)
                      .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
