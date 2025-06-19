@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.task;
 import com.barataribeiro.taskr.activity.events.task.TaskCreatedEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
+import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.membership.MembershipRepository;
 import com.barataribeiro.taskr.notification.events.NewTaskNotificationEvent;
 import com.barataribeiro.taskr.project.Project;
@@ -10,6 +11,7 @@ import com.barataribeiro.taskr.project.ProjectRepository;
 import com.barataribeiro.taskr.project.enums.ProjectStatus;
 import com.barataribeiro.taskr.task.dtos.TaskDTO;
 import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
+import com.barataribeiro.taskr.task.dtos.TaskUpdateRequestDTO;
 import com.barataribeiro.taskr.task.enums.TaskPriority;
 import com.barataribeiro.taskr.task.enums.TaskStatus;
 import com.barataribeiro.taskr.user.User;
@@ -19,11 +21,14 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.util.Streamable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -80,10 +85,96 @@ public class TaskService {
                            .assignees(Set.of(user))
                            .build();
 
+        Streamable<Membership> memberships = membershipRepository.findByProject_Id((project.getId()));
+
         eventPublisher.publishEvent(new TaskCreatedEvent(this, project, newTask, authentication.getName()));
-        eventPublisher.publishEvent(new NewTaskNotificationEvent(this, project.getId(), project.getTitle(),
-                                                                 user.getUsername(), newTask.getTitle()));
+        memberships.stream().parallel()
+                   .filter(membership -> !membership.getUser().getUsername().equals(authentication.getName()))
+                   .forEach(membership -> eventPublisher
+                           .publishEvent(new NewTaskNotificationEvent(this, project.getId(), project.getTitle(),
+                                                                      membership.getUser().getUsername(),
+                                                                      newTask.getTitle())));
 
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(newTask));
+    }
+
+    public TaskDTO updateTask(Long taskId, @NotNull TaskUpdateRequestDTO body, @NotNull Authentication authentication) {
+        if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), body.getProjectId())) {
+            throw new EntityNotFoundException(Project.class.getSimpleName());
+        }
+
+        Task task = taskRepository.findByIdAndProject_Id(taskId, body.getProjectId())
+                                  .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
+
+        Set<User> assignees = task.getAssignees();
+
+        Project project = task.getProject();
+
+        if (project.getStatus() == ProjectStatus.COMPLETED || project.getStatus() == ProjectStatus.CANCELLED) {
+            throw new IllegalRequestException("Cannot update task in a completed or cancelled project.");
+        }
+
+        Optional.ofNullable(body.getTitle()).ifPresent(task::setTitle);
+        Optional.ofNullable(body.getDescription()).ifPresent(task::setDescription);
+        Optional.ofNullable(body.getDueDate()).ifPresent(dueDate -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            LocalDateTime dateTime = LocalDateTime.parse(dueDate, formatter);
+
+            if (dateTime.isBefore(LocalDateTime.now())) {
+                throw new IllegalRequestException("Due date cannot be in the past.");
+            }
+
+            if (dateTime.isEqual(task.getDueDate())) {
+                throw new IllegalRequestException("Due date must be different from the current one.");
+            }
+
+            task.setDueDate(dateTime);
+        });
+        Optional.ofNullable(body.getStatus()).ifPresent(status -> task.setStatus(TaskStatus.valueOf(status)));
+        Optional.ofNullable(body.getPriority()).ifPresent(priority -> task.setPriority(TaskPriority.valueOf(priority)));
+        Optional.ofNullable(body.getMembersToAssign()).ifPresent(members -> members.parallelStream().forEach(member -> {
+            if (!membershipRepository.existsByUser_UsernameAndProject_Tasks_Id(member, task.getId())) {
+                throw new EntityNotFoundException(User.class.getSimpleName());
+            }
+
+            if (assignees.parallelStream().anyMatch(user -> user.getUsername().equals(member)) ||
+                    assignees.parallelStream().anyMatch(user -> user.getUsername().equals(authentication.getName()))) {
+                return;
+            }
+
+            User user = userRepository.findByUsername(member)
+                                      .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+            assignees.add(user);
+        }));
+        Optional.ofNullable(body.getMembersToUnassign())
+                .ifPresent(members -> members.parallelStream().forEach(member -> {
+                    if (!membershipRepository.existsByUser_UsernameAndProject_Tasks_Id(member, task.getId())) {
+                        throw new EntityNotFoundException(User.class.getSimpleName());
+                    }
+
+                    User user = userRepository
+                            .findByUsername(member)
+                            .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+                    if (assignees.parallelStream().noneMatch(u -> u.getUsername().equals(user.getUsername()))) {
+                        throw new IllegalRequestException(String.format("User '%s' is not assigned to this task.",
+                                                                        user.getUsername()));
+                    }
+
+                    if (assignees.size() == 1 && assignees.parallelStream().anyMatch(u -> u.getUsername()
+                                                                                           .equals(authentication.getName()))) {
+                        throw new IllegalRequestException("Cannot unassign the only remaining assignee.");
+                    }
+
+                    assignees.removeIf(u -> u.getUsername().equals(user.getUsername()));
+                }));
+
+        task.setAssignees(assignees);
+
+        // TODO: Publish an event for task update
+        // TODO: Publish a notification event for task update for all assignees except the one who updated it
+
+        return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(task));
     }
 }
