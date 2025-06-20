@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.activity.ActivityRepository;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.task.dtos.TaskDTO;
 import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
+import com.barataribeiro.taskr.task.dtos.TaskUpdateRequestDTO;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
 import com.barataribeiro.taskr.utils.TestSetupUtil;
@@ -20,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -119,5 +121,63 @@ class TaskControllerTest {
                          assertEquals(createdTask.getStatus().name(), JsonPath.read(json, "$.data.status"));
                          assertEquals(createdTask.getPriority().name(), JsonPath.read(json, "$.data.priority"));
                      });
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("It should update a task successfully")
+    void updateTaskSuccessfully() throws Exception {
+        assertNotNull(createdTask, "Created task should not be null");
+
+        String updatedDescription = "This is an updated test task description.";
+        final String updatedDueDate = LocalDateTime.now().plusDays(15)
+                                                   .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+
+        TaskUpdateRequestDTO updateRequest = new TaskUpdateRequestDTO();
+        updateRequest.setProjectId(defaultProject.getId());
+        updateRequest.setTitle("Updated Test Task");
+        updateRequest.setDescription(updatedDescription);
+        updateRequest.setDueDate(updatedDueDate);
+        updateRequest.setStatus("IN_PROGRESS");
+        updateRequest.setPriority("MEDIUM");
+
+        mockMvcTester.patch().uri("/api/v1/tasks/{taskId}", createdTask.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(updateRequest))
+                     .assertThat()
+                     .hasStatus(HttpStatus.OK)
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         assertEquals(updateRequest.getTitle(), JsonPath.read(json, "$.data.title"));
+                         assertEquals(updatedDescription, JsonPath.read(json, "$.data.description"));
+                         assertEquals(updatedDueDate, JsonPath.read(json, "$.data.dueDate"));
+                         assertEquals(updateRequest.getStatus(), JsonPath.read(json, "$.data.status"));
+                         assertEquals(updateRequest.getPriority(), JsonPath.read(json, "$.data.priority"));
+                     });
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("It should fail to update a task with invalid data")
+    void updateTaskWithInvalidData() throws Exception {
+        assertNotNull(createdTask, "Created task should not be null");
+
+        TaskUpdateRequestDTO invalidUpdateRequest = new TaskUpdateRequestDTO();
+        invalidUpdateRequest.setProjectId(defaultProject.getId());
+        invalidUpdateRequest.setTitle("abc");
+        invalidUpdateRequest.setDescription("Too short");
+        invalidUpdateRequest.setDueDate("invalid-date-format");
+        invalidUpdateRequest.setStatus("INVALID_STATUS");
+        invalidUpdateRequest.setPriority("INVALID_PRIORITY");
+
+        mockMvcTester.patch().uri("/api/v1/tasks/{taskId}", createdTask.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(invalidUpdateRequest))
+                     .assertThat()
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
+                     .failure().isInstanceOf(MethodArgumentNotValidException.class);
     }
 }
