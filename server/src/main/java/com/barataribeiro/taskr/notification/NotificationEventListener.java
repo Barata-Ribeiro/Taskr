@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.membership.MembershipRepository;
 import com.barataribeiro.taskr.notification.dtos.NotificationDTO;
 import com.barataribeiro.taskr.notification.events.NewTaskNotificationEvent;
+import com.barataribeiro.taskr.notification.events.UpdateTaskNotification;
 import com.barataribeiro.taskr.user.User;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -42,5 +43,23 @@ public class NotificationEventListener {
 
                        notificationService.sendNotificationThroughWebsocket(user.getUsername(), notificationDTO);
                    });
+    }
+
+    @EventListener
+    public void onUpdateTaskNotificationEvent(@NotNull UpdateTaskNotification event) {
+        User recipient = event.getRecipient();
+        String message = String.format("The task '%s' in project '%s' has been updated by %s.",
+                                       event.getTaskTitle(), event.getProjectTitle(), event.getUsername());
+
+        Notification notification = Notification.builder()
+                                                .title("Task Updated!")
+                                                .message(message)
+                                                .recipient(recipient)
+                                                .build();
+
+        Notification savedNotification = notificationRepository.save(notification);
+        NotificationDTO notificationDTO = notificationBuilder.toNotificationDTO(savedNotification);
+
+        notificationService.sendNotificationThroughWebsocket(recipient.getUsername(), notificationDTO);
     }
 }

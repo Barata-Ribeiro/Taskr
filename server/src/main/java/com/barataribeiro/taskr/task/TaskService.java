@@ -203,6 +203,11 @@ public class TaskService {
                .forEachOrdered(update -> eventPublisher
                        .publishEvent(new TaskUpdatedEvent(this, task.getTitle(), project, authentication.getName(),
                                                           update)));
+        assignees.parallelStream()
+                 .filter(user -> !user.getUsername().equals(authentication.getName()))
+                 .forEach(user -> eventPublisher
+                         .publishEvent(new TaskUpdatedEvent(this, task.getTitle(), project, user.getUsername(),
+                                                            updates.toString())));
 
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(task));
     }
