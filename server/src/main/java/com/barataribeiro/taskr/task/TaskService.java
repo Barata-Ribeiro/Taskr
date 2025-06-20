@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.task;
 
 import com.barataribeiro.taskr.activity.events.task.TaskCreatedEvent;
+import com.barataribeiro.taskr.activity.events.task.TaskUpdatedEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.membership.Membership;
@@ -28,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -114,8 +117,16 @@ public class TaskService {
             throw new IllegalRequestException("Cannot update task in a completed or cancelled project.");
         }
 
-        Optional.ofNullable(body.getTitle()).ifPresent(task::setTitle);
-        Optional.ofNullable(body.getDescription()).ifPresent(task::setDescription);
+        List<String> updates = new ArrayList<>();
+
+        Optional.ofNullable(body.getTitle()).ifPresent(title -> {
+            task.setTitle(title);
+            updates.add(String.format("has updated the task title to '%s'.", title));
+        });
+        Optional.ofNullable(body.getDescription()).ifPresent(desc -> {
+            task.setDescription(desc);
+            updates.add("has updated the task description.");
+        });
         Optional.ofNullable(body.getDueDate()).ifPresent(dueDate -> {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime dateTime = LocalDateTime.parse(dueDate, formatter);
@@ -129,9 +140,23 @@ public class TaskService {
             }
 
             task.setDueDate(dateTime);
+            updates.add(String.format("has updated the task due date to '%s'.", dateTime.format(formatter)));
         });
-        Optional.ofNullable(body.getStatus()).ifPresent(status -> task.setStatus(TaskStatus.valueOf(status)));
-        Optional.ofNullable(body.getPriority()).ifPresent(priority -> task.setPriority(TaskPriority.valueOf(priority)));
+        Optional.ofNullable(body.getStatus()).ifPresent(status -> {
+            TaskStatus newStatus = TaskStatus.valueOf(status);
+            if (newStatus == TaskStatus.DONE && task.getStatus() != TaskStatus.IN_PROGRESS) {
+                throw new IllegalRequestException("Task can only be marked as DONE if it is in progress.");
+            }
+
+            task.setStatus(newStatus);
+            updates.add(String.format("has updated the task status to '%s'.", status));
+        });
+        Optional.ofNullable(body.getPriority()).ifPresent(priority -> {
+            TaskPriority newPriority = TaskPriority.valueOf(priority);
+            task.setPriority(newPriority);
+            updates.add(
+                    String.format("has updated the task priority to '%s'.", priority));
+        });
         Optional.ofNullable(body.getMembersToAssign()).ifPresent(members -> members.parallelStream().forEach(member -> {
             if (!membershipRepository.existsByUser_UsernameAndProject_Tasks_Id(member, task.getId())) {
                 throw new EntityNotFoundException(User.class.getSimpleName());
@@ -146,6 +171,7 @@ public class TaskService {
                                       .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
             assignees.add(user);
+            updates.add(String.format("has assigned '%s' to the task.", member));
         }));
         Optional.ofNullable(body.getMembersToUnassign())
                 .ifPresent(members -> members.parallelStream().forEach(member -> {
@@ -168,12 +194,15 @@ public class TaskService {
                     }
 
                     assignees.removeIf(u -> u.getUsername().equals(user.getUsername()));
+                    updates.add(String.format("has unassigned '%s' from the task.", member));
                 }));
 
         task.setAssignees(assignees);
 
-        // TODO: Publish an event for task update
-        // TODO: Publish a notification event for task update for all assignees except the one who updated it
+        updates.parallelStream()
+               .forEachOrdered(update -> eventPublisher
+                       .publishEvent(new TaskUpdatedEvent(this, task.getTitle(), project, authentication.getName(),
+                                                          update)));
 
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(task));
     }
