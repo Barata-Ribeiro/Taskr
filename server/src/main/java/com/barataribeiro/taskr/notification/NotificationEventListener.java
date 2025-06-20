@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.membership.MembershipRepository;
 import com.barataribeiro.taskr.notification.dtos.NotificationDTO;
 import com.barataribeiro.taskr.notification.events.NewTaskNotificationEvent;
+import com.barataribeiro.taskr.notification.events.TaskMembershipNotificationEvent;
 import com.barataribeiro.taskr.notification.events.UpdateTaskNotification;
 import com.barataribeiro.taskr.user.User;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class NotificationEventListener {
     private final MembershipRepository membershipRepository;
     private final NotificationService notificationService;
     private final NotificationBuilder notificationBuilder;
+
 
     @EventListener
     public void onNewTaskNotificationEvent(@NotNull NewTaskNotificationEvent event) {
@@ -53,6 +55,23 @@ public class NotificationEventListener {
 
         Notification notification = Notification.builder()
                                                 .title("Task Updated!")
+                                                .message(message)
+                                                .recipient(recipient)
+                                                .build();
+
+        Notification savedNotification = notificationRepository.save(notification);
+        NotificationDTO notificationDTO = notificationBuilder.toNotificationDTO(savedNotification);
+
+        notificationService.sendNotificationThroughWebsocket(recipient.getUsername(), notificationDTO);
+    }
+
+    @EventListener
+    public void onTaskMembershipNotificationEvent(@NotNull TaskMembershipNotificationEvent event) {
+        User recipient = event.getRecipient();
+        String message = event.getMessage();
+
+        Notification notification = Notification.builder()
+                                                .title("Task Membership Update")
                                                 .message(message)
                                                 .recipient(recipient)
                                                 .build();

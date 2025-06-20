@@ -7,6 +7,7 @@ import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.membership.MembershipRepository;
 import com.barataribeiro.taskr.notification.events.NewTaskNotificationEvent;
+import com.barataribeiro.taskr.notification.events.TaskMembershipNotificationEvent;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.project.ProjectRepository;
 import com.barataribeiro.taskr.project.enums.ProjectStatus;
@@ -101,6 +102,7 @@ public class TaskService {
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(newTask));
     }
 
+    @Transactional
     public TaskDTO updateTask(Long taskId, @NotNull TaskUpdateRequestDTO body, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), body.getProjectId())) {
             throw new EntityNotFoundException(Project.class.getSimpleName());
@@ -172,6 +174,10 @@ public class TaskService {
 
             assignees.add(user);
             updates.add(String.format("has assigned '%s' to the task.", member));
+            String message = String.format("'%s' has assigned you to the task '%s'.",
+                                           authentication.getName(), task.getTitle());
+            eventPublisher.publishEvent(new TaskMembershipNotificationEvent(this, user, task.getTitle(),
+                                                                            message, task.getTitle()));
         }));
         Optional.ofNullable(body.getMembersToUnassign())
                 .ifPresent(members -> members.parallelStream().forEach(member -> {
@@ -195,6 +201,10 @@ public class TaskService {
 
                     assignees.removeIf(u -> u.getUsername().equals(user.getUsername()));
                     updates.add(String.format("has unassigned '%s' from the task.", member));
+                    String message = String.format("'%s' has unassigned you from the task '%s'.",
+                                                   authentication.getName(), task.getTitle());
+                    eventPublisher.publishEvent(new TaskMembershipNotificationEvent(this, user, task.getTitle(),
+                                                                                    message, task.getTitle()));
                 }));
 
         task.setAssignees(assignees);
