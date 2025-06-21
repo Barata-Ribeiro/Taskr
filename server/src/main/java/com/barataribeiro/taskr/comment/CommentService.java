@@ -5,6 +5,7 @@ import com.barataribeiro.taskr.comment.dtos.CommentRequestDTO;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.membership.MembershipRepository;
+import com.barataribeiro.taskr.notification.events.NewCommentNotificationEvent;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.task.Task;
 import com.barataribeiro.taskr.task.TaskRepository;
@@ -13,6 +14,7 @@ import com.barataribeiro.taskr.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.util.Streamable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class CommentService {
     private final CommentBuilder commentBuilder;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional(readOnly = true)
     public List<CommentDTO> getCommentsByTaskId(Long taskId, @NotNull Authentication authentication) {
@@ -88,7 +91,10 @@ public class CommentService {
                                        .filter(assignee -> !assignee.getUsername().equals(authentication.getName()))
                                        .toList();
 
-        // TODO: Send notification to task assigness
+        taskAssignees.parallelStream()
+                     .forEachOrdered(assignee -> applicationEventPublisher
+                             .publishEvent(new NewCommentNotificationEvent(this, assignee, task.getTitle(),
+                                                                           author.getUsername())));
 
         return commentBuilder.toCommentDTO(commentRepository.saveAndFlush(newComment));
     }
