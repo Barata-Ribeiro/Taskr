@@ -7,6 +7,7 @@ import com.barataribeiro.taskr.exceptions.throwables.ForbiddenRequestException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.membership.MembershipRepository;
+import com.barataribeiro.taskr.notification.events.ProjectMembershipNotificationEvent;
 import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
@@ -158,8 +159,11 @@ public class ProjectService {
                                                       .build();
 
                     updates.add(String.format("added '%s' to the project.", user.getUsername()));
-                    // TODO: Add notification for the user being added to the project
-
+                    String message = String.format("'%s' has added you to the project '%s'.",
+                                                   authentication.getName(), project.getTitle());
+                    eventPublisher
+                            .publishEvent(new ProjectMembershipNotificationEvent(this, user, project.getTitle(),
+                                                                                 message, authentication.getName()));
                     membershipRepository.save(membership);
                 }));
         Optional.ofNullable(body.getMembersToRemove())
@@ -176,7 +180,12 @@ public class ProjectService {
                     if (isOwner || isRequestingUser) return; // Skip if the user is the owner or the requesting user
 
                     updates.add(String.format("removed '%s' from the project.", membership.getUser().getUsername()));
-                    // TODO: Add notification for the user being removed from the project
+                    String message = String.format("'%s' has removed you from the project '%s'.",
+                                                   authentication.getName(), project.getTitle());
+                    eventPublisher
+                            .publishEvent(new ProjectMembershipNotificationEvent(this, membership.getUser(),
+                                                                                 project.getTitle(), message,
+                                                                                 authentication.getName()));
 
                     membershipRepository.delete(membership);
                 }));
