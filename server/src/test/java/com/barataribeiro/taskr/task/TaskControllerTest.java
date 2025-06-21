@@ -40,6 +40,7 @@ class TaskControllerTest {
     private static ProjectDTO defaultProject;
     private static TaskDTO createdTask;
     private final MockMvcTester mockMvcTester;
+    @Autowired private TaskRepository taskRepository;
 
     @BeforeAll
     static void setUp(@Autowired @NotNull UserRepository userRepository,
@@ -184,5 +185,31 @@ class TaskControllerTest {
                      .assertThat()
                      .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
                      .failure().isInstanceOf(MethodArgumentNotValidException.class);
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("It should fail to delete a task with invalid ID")
+    void deleteTaskWithInvalidId() {
+        mockMvcTester.delete().uri("/api/v1/tasks/{taskId}/project/{projectId}", -1, defaultProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .assertThat()
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("It should delete a task successfully")
+    void deleteTaskSuccessfully() {
+        assertNotNull(createdTask, "Created task should not be null");
+
+        mockMvcTester.delete().uri("/api/v1/tasks/{taskId}/project/{projectId}",
+                                   createdTask.getId(), defaultProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .assertThat()
+                     .hasStatus2xxSuccessful().hasStatus(HttpStatus.NO_CONTENT);
+
+        taskRepository.findByIdAndProject_Id(createdTask.getId(), defaultProject.getId())
+                      .ifPresent(task -> fail("Task should have been deleted, but was found: " + task));
     }
 }
