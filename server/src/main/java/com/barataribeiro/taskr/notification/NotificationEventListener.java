@@ -3,9 +3,7 @@ package com.barataribeiro.taskr.notification;
 import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.membership.MembershipRepository;
 import com.barataribeiro.taskr.notification.dtos.NotificationDTO;
-import com.barataribeiro.taskr.notification.events.NewTaskNotificationEvent;
-import com.barataribeiro.taskr.notification.events.TaskMembershipNotificationEvent;
-import com.barataribeiro.taskr.notification.events.UpdateTaskNotification;
+import com.barataribeiro.taskr.notification.events.*;
 import com.barataribeiro.taskr.user.User;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +22,23 @@ public class NotificationEventListener {
 
 
     @EventListener
+    public void onProjectMembershipNotificationEvent(@NotNull ProjectMembershipNotificationEvent event) {
+        User recipient = event.getRecipient();
+        String message = event.getMessage();
+
+        Notification notification = Notification.builder()
+                                                .title("Project Membership Update!")
+                                                .message(message)
+                                                .recipient(recipient)
+                                                .build();
+
+        Notification savedNotification = notificationRepository.save(notification);
+        NotificationDTO notificationDTO = notificationBuilder.toNotificationDTO(savedNotification);
+
+        notificationService.sendNotificationThroughWebsocket(recipient.getUsername(), notificationDTO);
+    }
+
+    @EventListener
     public void onNewTaskNotificationEvent(@NotNull NewTaskNotificationEvent event) {
         Streamable<Membership> memberships = membershipRepository.findByProject_Id(event.getProjectId());
         memberships.stream().parallel()
@@ -35,7 +50,7 @@ public class NotificationEventListener {
                                        event.getTaskTitle(), event.getProjectTitle(), event.getUsername());
 
                        Notification notification = Notification.builder()
-                                                               .title("New Task Created")
+                                                               .title("New Task Created!")
                                                                .message(message)
                                                                .recipient(user)
                                                                .build();
@@ -71,7 +86,24 @@ public class NotificationEventListener {
         String message = event.getMessage();
 
         Notification notification = Notification.builder()
-                                                .title("Task Membership Update")
+                                                .title("Task Membership Update!")
+                                                .message(message)
+                                                .recipient(recipient)
+                                                .build();
+
+        Notification savedNotification = notificationRepository.save(notification);
+        NotificationDTO notificationDTO = notificationBuilder.toNotificationDTO(savedNotification);
+
+        notificationService.sendNotificationThroughWebsocket(recipient.getUsername(), notificationDTO);
+    }
+
+    @EventListener
+    public void onNewCommentNotificationEvent(@NotNull NewCommentNotificationEvent event) {
+        User recipient = event.getRecipient();
+        String message = String.format("'%s' commented on the task '%s'", event.getUsername(), event.getTaskTitle());
+
+        Notification notification = Notification.builder()
+                                                .title("New Comment Added!")
                                                 .message(message)
                                                 .recipient(recipient)
                                                 .build();
