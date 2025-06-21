@@ -1,7 +1,22 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+    reactStrictMode: true,
+    trailingSlash: false,
+    skipTrailingSlashRedirect: true,
+    images: {
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "**",
+                port: "",
+            },
+        ],
+    },
+    experimental: {
+        reactCompiler: true,
+        optimizePackageImports: ["tailwindcss", "@headlessui/react", "lucide-react"],
+    },
+}
 
-export default nextConfig;
+export default nextConfig
