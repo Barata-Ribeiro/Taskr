@@ -53,4 +53,15 @@ public class TaskController {
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Task updated successfully", task));
     }
+
+    @DeleteMapping("/{taskId}/project/{projectId}")
+    @Operation(summary = "Delete a task",
+               description = "Deletes a task by its unique identifier.")
+    public ResponseEntity<RestResponse<Void>> deleteTask(@PathVariable Long taskId, @PathVariable Long projectId,
+                                                         Authentication authentication) {
+        taskService.deleteTask(taskId, projectId, authentication);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                             .body(new RestResponse<>(HttpStatus.NO_CONTENT, HttpStatus.NO_CONTENT.value(),
+                                                      "Task deleted successfully", null));
+    }
 }

@@ -10,6 +10,7 @@ import com.barataribeiro.taskr.notification.events.NewTaskNotificationEvent;
 import com.barataribeiro.taskr.notification.events.TaskMembershipNotificationEvent;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.project.ProjectRepository;
+import com.barataribeiro.taskr.project.enums.ProjectRole;
 import com.barataribeiro.taskr.project.enums.ProjectStatus;
 import com.barataribeiro.taskr.task.dtos.TaskDTO;
 import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
@@ -220,5 +221,16 @@ public class TaskService {
                                                             updates.toString())));
 
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(task));
+    }
+
+
+    @Transactional
+    public void deleteTask(Long taskId, Long projectId, @NotNull Authentication authentication) {
+        if (!membershipRepository
+                .existsByUser_UsernameAndProject_IdAndRoleIs(authentication.getName(), projectId, ProjectRole.OWNER)) {
+            throw new EntityNotFoundException(Project.class.getSimpleName());
+        }
+
+        taskRepository.deleteById(taskId);
     }
 }
