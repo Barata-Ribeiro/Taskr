@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.task;
 
 import com.barataribeiro.taskr.activity.ActivityRepository;
+import com.barataribeiro.taskr.notification.NotificationRepository;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.task.dtos.TaskDTO;
 import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
@@ -55,9 +56,13 @@ class TaskControllerTest {
 
     @AfterAll
     static void tearDown(@Autowired @NotNull UserRepository userRepository,
-                         @Autowired @NotNull ActivityRepository activityRepository) {
+                         @Autowired @NotNull ActivityRepository activityRepository,
+                         @Autowired @NotNull NotificationRepository notificationRepository) {
         assertNotNull(activityRepository, "Activity repository should not be null");
+        assertNotNull(notificationRepository, "Notification repository should not be null");
+
         assertFalse(activityRepository.count() <= 0, "Activity repository should not be empty");
+        assertFalse(notificationRepository.count() <= 0, "Notification repository should not be empty");
 
         userRepository.deleteAll();
         accessToken = null;

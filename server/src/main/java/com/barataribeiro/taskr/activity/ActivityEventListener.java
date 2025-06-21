@@ -33,7 +33,7 @@ public class ActivityEventListener {
 
     @EventListener
     public void onProjectUpdated(@NotNull ProjectUpdateEvent event) {
-        final String description = String.format("'%s' updated the project and %s.",
+        final String description = String.format("'%s' updated the project and %s",
                                                  event.getUsername(), event.getReason());
 
         Activity activity = Activity.builder()
@@ -64,7 +64,7 @@ public class ActivityEventListener {
 
     @EventListener
     public void onTaskUpdated(@NotNull TaskUpdatedEvent event) {
-        final String description = String.format("'%s' updated the task '%s' and %s.",
+        final String description = String.format("'%s' updated the task '%s' and %s",
                                                  event.getUsername(), event.getTaskTitle(), event.getReason());
 
         Activity activity = Activity.builder()
