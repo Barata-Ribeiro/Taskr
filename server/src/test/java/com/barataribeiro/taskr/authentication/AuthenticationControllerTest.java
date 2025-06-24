@@ -87,7 +87,7 @@ class AuthenticationControllerTest {
     @Order(3)
     @DisplayName("It should refresh the access token using the refresh token")
     void refreshToken() {
-        mockMvcTester.post().uri("/api/v1/auth/refresh-token")
+        mockMvcTester.get().uri("/api/v1/auth/refresh-token")
                      .header("X-Refresh-Token", refreshToken)
                      .assertThat()
                      .hasStatusOk()

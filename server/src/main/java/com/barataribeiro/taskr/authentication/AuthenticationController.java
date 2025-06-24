@@ -44,7 +44,7 @@ public class AuthenticationController {
 
     @Operation(summary = "Refresh authentication token",
                description = "Refreshes the authentication token for the user.")
-    @PostMapping("/refresh-token")
+    @GetMapping("/refresh-token")
     public ResponseEntity<RestResponse<LoginResponseDTO>> refreshToken(@RequestHeader("X-Refresh-Token")
                                                                        String refreshToken) {
         LoginResponseDTO response = authenticationService.refreshToken(refreshToken);
