@@ -1,6 +1,7 @@
 import { RestResponse } from "@/@types/application"
 import { LoginResponse } from "@/@types/authentication"
 import createCookie from "@/actions/application/create-cookie"
+import { loginAuthUrl } from "@/helpers/backend-routes"
 import NextAuth, { NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import refreshAccessToken from "./actions/application/refresh-access-token"
@@ -26,7 +27,7 @@ export const config = {
                     rememberMe: credentials.rememberMe,
                 }
 
-                const URL = "" // TODO: Add function to get the API URL FOR AUTHENTICATION
+                const URL = loginAuthUrl()
 
                 const response = await fetch(URL, {
                     method: "POST",

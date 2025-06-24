@@ -1,10 +1,11 @@
 import { RestResponse } from "@/@types/application"
 import { LoginResponse } from "@/@types/authentication"
+import { refreshTokenAuthUrl } from "@/helpers/backend-routes"
 import getTokenAndExpiration from "@/helpers/get-token-and-expiration"
 import { JWT } from "next-auth/jwt"
 
 export default async function refreshAccessToken(token: JWT) {
-    const URL = "" // TODO: TODO: Add function to get the API URL FOR THE REFRESH TOKEN ENDPOINT
+    const URL = refreshTokenAuthUrl()
 
     const { token: refreshToken } = await getTokenAndExpiration()
     if (!refreshToken) {
@@ -13,12 +14,8 @@ export default async function refreshAccessToken(token: JWT) {
     }
 
     const response = await fetch(URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-Refresh-Token": refreshToken,
-        },
-        body: JSON.stringify({}),
+        method: "GET",
+        headers: { "Content-Type": "application/json", "X-Refresh-Token": refreshToken },
     })
 
     const json = await response.json()
@@ -34,12 +31,5 @@ export default async function refreshAccessToken(token: JWT) {
         return { ...token, error: "RefreshAccessTokenError" }
     }
 
-    return {
-        user: payload.data.user,
-        accessToken: payload.data.accessToken,
-        accessTokenExpiresAt: payload.data.accessTokenExpiresAt,
-        refreshToken: token.refreshToken,
-        refreshTokenExpiresAt: token.refreshTokenExpiresAt,
-        error: null,
-    }
+    return { ...payload.data, error: null }
 }
