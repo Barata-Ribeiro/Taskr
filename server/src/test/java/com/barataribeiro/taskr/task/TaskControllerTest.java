@@ -191,6 +191,8 @@ class TaskControllerTest {
     @Order(5)
     @DisplayName("It should fail to delete a task with invalid ID")
     void deleteTaskWithInvalidId() {
+        // TODO: Adjust delete endpoint to handle invalid task IDs because the current implementation uses a
+        //  repository method that returns success even for non-existent IDs.
         mockMvcTester.delete().uri("/api/v1/tasks/{taskId}/project/{projectId}", -1, defaultProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .assertThat()
