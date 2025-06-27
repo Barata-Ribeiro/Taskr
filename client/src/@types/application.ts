@@ -1,6 +1,6 @@
-import { ZodIssue } from "zod"
+import { $ZodIssue } from "zod/v4/core"
 
-type ValidationError = Partial<Pick<ZodIssue, "path" | "message">>
+type ValidationError = Partial<Pick<$ZodIssue, "path" | "message">>
 
 interface RestResponse<T> {
     status: string

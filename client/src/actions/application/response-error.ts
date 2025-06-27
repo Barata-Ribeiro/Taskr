@@ -1,5 +1,5 @@
 import { ProblemDetails, State, ValidationError } from "@/@types/application"
-import { ZodError } from "zod"
+import { ZodError } from "zod/v4"
 
 export default function ResponseError(error: unknown): State<null> {
     const state: State<null> = {
