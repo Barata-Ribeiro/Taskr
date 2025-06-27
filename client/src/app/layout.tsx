@@ -1,3 +1,4 @@
+import ThemeSwitcher from "@/components/ThemeSwitcher"
 import tw from "@/utils/tw"
 import type { Metadata } from "next"
 import { Space_Mono, Work_Sans } from "next/font/google"
@@ -50,7 +51,10 @@ export default function RootLayout({
 
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={bodyClass}>{children}</body>
+            <body className={bodyClass}>
+                <ThemeSwitcher />
+                {children}
+            </body>
         </html>
     )
 }

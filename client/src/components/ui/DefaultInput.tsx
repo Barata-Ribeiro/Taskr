@@ -14,12 +14,14 @@ export default function DefaultInput({ label, description, ...props }: Readonly<
     const defaultId = useId()
 
     const defaultStyles = {
-        label: tw`block text-sm/6 font-medium text-gray-900 data-disabled:opacity-50`,
-        description: tw`text-sm/6 text-gray-500 data-disabled:opacity-50`,
-        input: tw`block w-full rounded-md border-none bg-white px-3 py-1.5 text-base text-gray-900 ring-indigo-200 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:ring-2 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 data-disabled:bg-gray-100 sm:text-sm/6`,
+        label: tw`block text-sm/6 font-medium data-disabled:opacity-50`,
+        description: tw`text-sm/6 text-gray-500 data-disabled:opacity-50 dark:text-gray-400`,
+        input: tw`block w-full rounded-md border-none bg-white px-3 py-1.5 text-base ring-indigo-200 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:ring-2 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 data-disabled:bg-gray-100 sm:text-sm/6`,
     }
 
-    const mergedInputStyles = twMerge(defaultStyles.input, props.className)
+    const darkInputStyles = tw`dark:bg-white/5 dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:ring-indigo-500 dark:focus:outline-indigo-300`
+
+    const mergedInputStyles = twMerge(defaultStyles.input, darkInputStyles, props.className)
 
     return (
         <Field disabled={props.disabled}>
