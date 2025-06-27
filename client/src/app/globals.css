@@ -3,6 +3,8 @@
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 @theme {
     /*FONT*/
     --font-heading: var(--font-space-mono), sans-serif;
@@ -14,6 +16,11 @@
     *::before,
     *::after {
         @apply transition-colors duration-100;
+    }
+
+    body {
+        @apply text-gray-900 bg-white;
+        @apply dark:text-white dark:bg-gray-900;
     }
 
     h1,
