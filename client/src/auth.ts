@@ -15,14 +15,14 @@ export const config = {
     providers: [
         Credentials({
             credentials: {
-                username: { label: "Username", type: "text", placeholder: "johndoe/janedoe" },
+                usernameOrEmail: { label: "Username or Email", type: "text" },
                 password: { label: "Password", type: "password" },
                 rememberMe: { label: "Remember Me", type: "checkbox", defaultValue: "false" },
             },
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             async authorize(credentials, _req) {
                 const payload = {
-                    username: credentials.username,
+                    usernameOrEmail: credentials.usernameOrEmail,
                     password: credentials.password,
                     rememberMe: credentials.rememberMe,
                 }
