@@ -1,6 +1,7 @@
 import ThemeSwitcher from "@/components/ThemeSwitcher"
 import tw from "@/utils/tw"
 import type { Metadata } from "next"
+import { SessionProvider } from "next-auth/react"
 import { Space_Mono, Work_Sans } from "next/font/google"
 import "./globals.css"
 import { type ReactNode } from "react"
@@ -50,11 +51,13 @@ export default function RootLayout({
     const bodyClass = tw`${spaceMono.variable} ${workSans.variable} flex min-h-screen flex-col justify-between antialiased`
 
     return (
-        <html lang="en" suppressHydrationWarning>
-            <body className={bodyClass}>
-                <ThemeSwitcher />
-                {children}
-            </body>
-        </html>
+        <SessionProvider>
+            <html lang="en" suppressHydrationWarning>
+                <body className={bodyClass}>
+                    <ThemeSwitcher />
+                    {children}
+                </body>
+            </html>
+        </SessionProvider>
     )
 }
