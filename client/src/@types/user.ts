@@ -1,10 +1,15 @@
-type ROLES = "NONE" | "USER" | "ADMIN" | "BANNED"
+enum Roles {
+    NONE = "NONE",
+    USER = "USER",
+    ADMIN = "ADMIN",
+    BANNED = "BANNED",
+}
 
 interface User {
     id: string
     username: string
     email: string
-    role: ROLES
+    role: Roles
     avatarUrl: string | null
     isPrivate: boolean
     isVerified: boolean
@@ -24,4 +29,4 @@ interface Account extends User {
     unreadNotificationsCount: number
 }
 
-export type { ROLES, User, Author, Account }
+export type { Roles, User, Author, Account }
