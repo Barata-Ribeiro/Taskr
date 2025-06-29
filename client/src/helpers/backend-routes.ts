@@ -39,3 +39,10 @@ export function refreshTokenAuthUrl(): string {
 export function logoutAuthUrl(): string {
     return `${API_URL}/auth/logout`
 }
+
+// ===============================================================
+// ===================  User Module Functions  ===================
+// ===============================================================
+export function userAccountUrl(): string {
+    return `${API_URL}/users/me`
+}

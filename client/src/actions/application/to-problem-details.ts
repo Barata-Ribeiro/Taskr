@@ -5,7 +5,15 @@ const invalidFormData = problemDetailsFactory({
     title: "Invalid Form Data",
     status: 400,
     detail: "Invalid form data was submitted. Please try again.",
-    instance: "/auth/login",
+    instance: undefined,
 })
 
-export { invalidFormData }
+const unauthenticated = problemDetailsFactory({
+    type: "https://httpstatuses.com/401",
+    title: "Unauthenticated",
+    status: 401,
+    detail: "You must be logged in to access this resource.",
+    instance: undefined,
+})
+
+export { invalidFormData, unauthenticated }
