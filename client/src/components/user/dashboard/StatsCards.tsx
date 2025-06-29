@@ -5,20 +5,20 @@ export default async function StatsCards() {
     const accountResponse = await getUserAccount()
 
     // TODO: Create error component
-    if (!accountResponse.ok || !accountResponse.response) {
+    if (!accountResponse.ok || !accountResponse.response?.data) {
         return <p className="text-red-500">Error loading account data</p>
     }
 
-    const account = accountResponse.response.data?.data
+    const account = accountResponse.response.data
 
     const stats = [
-        { name: "Projects Created", icon: FoldersIcon, value: account?.totalCreatedProjects ?? 0 },
-        { name: "Memberships", icon: UsersIcon, value: account?.memberships?.length ?? 0 },
-        { name: "Comments Made", icon: MessagesSquareIcon, value: account?.totalCommentsMade ?? 0 },
+        { name: "Projects Created", icon: FoldersIcon, value: account?.totalCreatedProjects },
+        { name: "Memberships", icon: UsersIcon, value: account?.memberships?.length },
+        { name: "Comments Made", icon: MessagesSquareIcon, value: account?.totalCommentsMade },
         {
             name: "Notifications",
             icon: BellIcon,
-            value: Math.max(account?.unreadNotificationsCount ?? 0, account?.readNotificationsCount ?? 0),
+            value: Math.max(account?.unreadNotificationsCount, account?.readNotificationsCount),
         },
     ]
 

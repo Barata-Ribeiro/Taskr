@@ -1,13 +1,13 @@
 "use server"
 
-import { ProblemDetails, RestResponse, State } from "@/@types/application"
+import { ProblemDetails, RestResponse } from "@/@types/application"
 import { Account } from "@/@types/user"
 import ResponseError from "@/actions/application/response-error"
 import { unauthenticated } from "@/actions/application/to-problem-details"
 import { userAccountUrl } from "@/helpers/backend-routes"
 import { auth } from "auth"
 
-export default async function getUserAccount(): Promise<State<null | RestResponse<Account>>> {
+export default async function getUserAccount() {
     const session = await auth()
 
     try {
@@ -20,6 +20,7 @@ export default async function getUserAccount(): Promise<State<null | RestRespons
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${session.accessToken}`,
             },
+            next: { revalidate: 86400, tags: [`user-account-${session.user?.username}`] },
         })
 
         const json = await response.json()
@@ -29,7 +30,7 @@ export default async function getUserAccount(): Promise<State<null | RestRespons
             return ResponseError(problemDetails)
         }
 
-        return { ok: true, error: null, response: json satisfies RestResponse<Account> }
+        return { ok: true, error: null, response: json as RestResponse<Account> }
     } catch (e: unknown) {
         return ResponseError(e)
     }
