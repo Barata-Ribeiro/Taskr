@@ -131,7 +131,7 @@ public class TaskService {
             updates.add("has updated the task description.");
         });
         Optional.ofNullable(body.getDueDate()).ifPresent(dueDate -> {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
             LocalDateTime dateTime = LocalDateTime.parse(dueDate, formatter);
 
             if (dateTime.isBefore(LocalDateTime.now())) {

@@ -89,7 +89,7 @@ public class TestSetupUtil {
         projectRequestDTO.setTitle("Test Project");
         projectRequestDTO.setDescription("This is a test project.");
         projectRequestDTO.setDueDate(LocalDateTime.now().plusDays(30)
-                                                  .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+                                                  .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
         ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
 
@@ -133,7 +133,7 @@ public class TestSetupUtil {
         taskRequestDTO.setTitle("Test Task");
         taskRequestDTO.setDescription("This is a test task.");
         taskRequestDTO.setDueDate(LocalDateTime.now().plusDays(30)
-                                               .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+                                               .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         taskRequestDTO.setStatus("TO_DO");
         taskRequestDTO.setPriority("HIGH");
         taskRequestDTO.setProjectId(project.getId());

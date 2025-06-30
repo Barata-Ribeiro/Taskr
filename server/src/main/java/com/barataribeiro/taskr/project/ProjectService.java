@@ -72,7 +72,7 @@ public class ProjectService {
         User user = userRepository.findByUsername(authentication.getName())
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
         LocalDateTime dateTime = LocalDateTime.parse(body.getDueDate(), formatter);
 
         Project project = Project.builder()
@@ -119,7 +119,7 @@ public class ProjectService {
         });
 
         Optional.ofNullable(body.getDueDate()).ifPresent(dueDate -> {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
             LocalDateTime dateTime = LocalDateTime.parse(dueDate, formatter);
 
             if (dateTime.isBefore(LocalDateTime.now())) {

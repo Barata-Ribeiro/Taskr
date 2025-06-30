@@ -76,7 +76,7 @@ class TaskControllerTest {
     void createTaskSuccessfully() throws Exception {
         String description = "This is a test task description. It should be detailed enough to understand the task.";
         final String dueDate = LocalDateTime.now().plusDays(30)
-                                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+                                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         taskRequestDTO.setProjectId(defaultProject.getId());
         taskRequestDTO.setTitle("Test Task");
@@ -137,7 +137,7 @@ class TaskControllerTest {
 
         String updatedDescription = "This is an updated test task description.";
         final String updatedDueDate = LocalDateTime.now().plusDays(15)
-                                                   .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+                                                   .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         TaskUpdateRequestDTO updateRequest = new TaskUpdateRequestDTO();
         updateRequest.setProjectId(defaultProject.getId());
