@@ -1,3 +1,5 @@
+import { MembershipProject } from "@/@types/project"
+
 enum Roles {
     NONE = "NONE",
     USER = "USER",
@@ -24,9 +26,11 @@ interface Account extends User {
     fullName: string
     totalCreatedProjects: number
     totalCommentsMade: number
-    memberships: unknown[] // TODO: Define Membership type later
+    memberships: MembershipProject[]
     readNotificationsCount: number
     unreadNotificationsCount: number
 }
 
-export type { Roles, User, Author, Account }
+export { Roles }
+
+export type { User, Author, Account }
