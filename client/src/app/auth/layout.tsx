@@ -2,7 +2,7 @@ import { auth } from "auth"
 import Image from "next/image"
 import { redirect } from "next/navigation"
 import { ReactNode } from "react"
-import AuthImage from "../../../public/images/auth-image.avif"
+import AuthImage from "../../../public/images/auth-image.jpeg"
 
 interface AuthLayoutProps {
     children: ReactNode
