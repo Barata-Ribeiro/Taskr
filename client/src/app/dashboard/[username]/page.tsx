@@ -1,4 +1,5 @@
 import AccountInformation from "@/components/user/dashboard/AccountInformation"
+import ProjectMemberships from "@/components/user/dashboard/ProjectMemberships"
 import StatsCards from "@/components/user/dashboard/StatsCards"
 import WelcomeBanner from "@/components/user/dashboard/WelcomeBanner"
 import { notFound } from "next/navigation"
@@ -37,7 +38,9 @@ export default async function DashboardPage({ params }: Readonly<DashboardPagePr
 
             {/* TODO: Create loading component */}
             {/* Project Memberships */}
-            <section>{/*//TODO: Create a component for project memberships*/}</section>
+            <Suspense fallback={<div>Loading project memberships...</div>}>
+                <ProjectMemberships />
+            </Suspense>
 
             {/* TODO: Create loading component */}
             {/* Account Info */}
