@@ -1,3 +1,7 @@
+import AccountInformationSkeleton from "@/components/ui/skeletons/AccountInformationSkeleton"
+import ProjectMembershipsSkeleton from "@/components/ui/skeletons/ProjectMembershipsSkeleton"
+import StatsCardsSkeleton from "@/components/ui/skeletons/StatsCardsSkeleton"
+import WelcomeBannerSkeleton from "@/components/ui/skeletons/WelcomeBannerSkeleton"
 import AccountInformation from "@/components/user/dashboard/AccountInformation"
 import ProjectMemberships from "@/components/user/dashboard/ProjectMemberships"
 import StatsCards from "@/components/user/dashboard/StatsCards"
@@ -24,27 +28,23 @@ export default async function DashboardPage({ params }: Readonly<DashboardPagePr
 
     return (
         <>
-            {/* TODO: Create loading component */}
             {/* Welcoming Section */}
-            <Suspense fallback={<div>Loading welcome message...</div>}>
+            <Suspense fallback={<WelcomeBannerSkeleton />}>
                 <WelcomeBanner />
             </Suspense>
 
-            {/* TODO: Create loading component */}
             {/* Stats Cards */}
-            <Suspense fallback={<div>Loading stats...</div>}>
+            <Suspense fallback={<StatsCardsSkeleton />}>
                 <StatsCards />
             </Suspense>
 
-            {/* TODO: Create loading component */}
             {/* Project Memberships */}
-            <Suspense fallback={<div>Loading project memberships...</div>}>
+            <Suspense fallback={<ProjectMembershipsSkeleton />}>
                 <ProjectMemberships />
             </Suspense>
 
-            {/* TODO: Create loading component */}
             {/* Account Info */}
-            <Suspense fallback={<div>Loading account information...</div>}>
+            <Suspense fallback={<AccountInformationSkeleton />}>
                 <AccountInformation />
             </Suspense>
         </>
