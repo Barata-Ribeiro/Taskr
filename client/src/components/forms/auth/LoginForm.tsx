@@ -1,8 +1,8 @@
 "use client"
 
 import authLogin from "@/actions/auth/auth-login"
-import ApplicationRequestFormError from "@/components/shared/ApplicationRequestFormError"
-import InputValidationError from "@/components/shared/InputValidationError"
+import ApplicationRequestFormError from "@/components/shared/feedback/ApplicationRequestFormError"
+import InputValidationError from "@/components/shared/feedback/InputValidationError"
 import DefaultButton from "@/components/ui/DefaultButton"
 import DefaultCheckbox from "@/components/ui/DefaultCheckbox"
 import DefaultInput from "@/components/ui/DefaultInput"

@@ -2,8 +2,8 @@
 
 import { ProblemDetails } from "@/@types/application"
 import { authRegister } from "@/actions/auth/auth-register"
-import ApplicationRequestFormError from "@/components/shared/ApplicationRequestFormError"
-import InputValidationError from "@/components/shared/InputValidationError"
+import ApplicationRequestFormError from "@/components/shared/feedback/ApplicationRequestFormError"
+import InputValidationError from "@/components/shared/feedback/InputValidationError"
 import DefaultButton from "@/components/ui/DefaultButton"
 import DefaultInput from "@/components/ui/DefaultInput"
 import applicationInitialState from "@/helpers/application-initial-state"
