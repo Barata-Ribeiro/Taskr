@@ -1,3 +1,4 @@
+import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import Avatar from "@/components/user/Avatar"
 import Badge from "@/components/user/Badge"
 import { auth } from "auth"
@@ -5,10 +6,7 @@ import { auth } from "auth"
 export default async function WelcomeBanner() {
     const session = await auth()
 
-    // TODO: Create error component
-    if (!session) {
-        return <p className="text-red-500">Failed to load user session. Please try again later.</p>
-    }
+    if (!session) return <DashboardErrorMessage message="Failed to load user session. Please try again later." />
 
     return (
         <header className="grid grid-cols-[auto_1fr] items-center gap-x-4 overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm sm:p-6 dark:bg-gray-800">

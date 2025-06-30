@@ -1,5 +1,6 @@
 import { ProjectRole, ProjectStatus } from "@/@types/project"
 import getUserAccount from "@/actions/user/get-user-account"
+import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import ProjectRoleBadge from "@/components/shared/project/ProjectRoleBadge"
 import ProjectStatusBadge from "@/components/shared/project/ProjectStatusBadge"
 import { FolderPlusIcon, PlusIcon } from "lucide-react"
@@ -8,9 +9,8 @@ import Link from "next/link"
 export default async function ProjectMemberships() {
     const accountResponse = await getUserAccount()
 
-    // TODO: Create error component
     if (!accountResponse.ok || !accountResponse.response?.data) {
-        return <p className="text-red-500">Error loading account data</p>
+        return <DashboardErrorMessage message="Failed to load project memberships. Please try again later." />
     }
 
     const account = accountResponse.response.data

@@ -1,12 +1,12 @@
 import getUserAccount from "@/actions/user/get-user-account"
+import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import { BellIcon, FoldersIcon, MessagesSquareIcon, UsersIcon } from "lucide-react"
 
 export default async function StatsCards() {
     const accountResponse = await getUserAccount()
 
-    // TODO: Create error component
     if (!accountResponse.ok || !accountResponse.response?.data) {
-        return <p className="text-red-500">Error loading account data</p>
+        return <DashboardErrorMessage message="Failed to load account statistics. Please try again later." />
     }
 
     const account = accountResponse.response.data
