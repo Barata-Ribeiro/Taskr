@@ -1,4 +1,5 @@
 // backend-routes.ts
+import { QueryParams } from "@/@types/application"
 import env from "@/helpers/env"
 
 // =================================================================
@@ -45,4 +46,33 @@ export function logoutAuthUrl(): string {
 // ===============================================================
 export function userAccountUrl(): string {
     return `${API_URL}/users/me`
+}
+
+// ===============================================================
+// =================  Project Module Functions  ==================
+// ===============================================================
+export function myProjectsUrl(queryParams: QueryParams): string {
+    const queryString = buildQueryParams({ ...queryParams })
+    return `${API_URL}/projects/my${queryString}`
+}
+
+export function projectByIdUrl(projectId: number | string): string {
+    return `${API_URL}/projects/${projectId}`
+}
+
+export function projectActivitiesUrl(projectId: number | string, queryParams: QueryParams): string {
+    const queryString = buildQueryParams({ ...queryParams })
+    return `${API_URL}/projects/${projectId}/activities${queryString}`
+}
+
+export function createProjectUrl(): string {
+    return `${API_URL}/projects/create`
+}
+
+export function updateProjectUrl(projectId: number | string): string {
+    return `${API_URL}/projects/${projectId}`
+}
+
+export function deleteProjectUrl(projectId: number | string): string {
+    return `${API_URL}/projects/${projectId}`
 }
