@@ -29,6 +29,13 @@ interface State<T> {
     response: RestResponse<T> | null
 }
 
+interface QueryParams {
+    page?: number
+    perPage?: number
+    direction?: "ASC" | "DESC"
+    orderBy?: string
+}
+
 interface Paginated<T> {
     content: T[]
     page: {
@@ -39,4 +46,4 @@ interface Paginated<T> {
     }
 }
 
-export type { ValidationError, RestResponse, InvalidParam, ProblemDetails, State, Paginated }
+export type { ValidationError, RestResponse, InvalidParam, ProblemDetails, State, QueryParams, Paginated }
