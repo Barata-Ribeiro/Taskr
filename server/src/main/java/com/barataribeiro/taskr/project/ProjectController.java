@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.project;
 
+import com.barataribeiro.taskr.activity.dtos.ActivityDTO;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.helpers.RestResponse;
 import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
@@ -43,6 +44,18 @@ public class ProjectController {
         ProjectCompleteDTO project = projectService.getProjectById(projectId, authentication);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Project retrieved successfully", project));
+    }
+
+    @GetMapping("/{projectId}/activities")
+    @Operation(summary = "Get activities for a project",
+               description = "Retrieves all activities associated with a specific project.")
+    public ResponseEntity<RestResponse<Page<ActivityDTO>>> getProjectActivities(
+            @PathVariable Long projectId,
+            @ModelAttribute PageQueryParamsDTO pageQueryParams,
+            Authentication authentication) {
+        Page<ActivityDTO> activities = projectService.getProjectActivities(projectId, pageQueryParams, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Activities retrieved successfully", activities));
     }
 
     @PostMapping("/create")

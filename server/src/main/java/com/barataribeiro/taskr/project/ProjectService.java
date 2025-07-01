@@ -1,5 +1,9 @@
 package com.barataribeiro.taskr.project;
 
+import com.barataribeiro.taskr.activity.Activity;
+import com.barataribeiro.taskr.activity.ActivityBuilder;
+import com.barataribeiro.taskr.activity.ActivityRepository;
+import com.barataribeiro.taskr.activity.dtos.ActivityDTO;
 import com.barataribeiro.taskr.activity.events.project.ProjectCreatedEvent;
 import com.barataribeiro.taskr.activity.events.project.ProjectUpdateEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
@@ -43,6 +47,8 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final MembershipRepository membershipRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ActivityRepository activityRepository;
+    private final ActivityBuilder activityBuilder;
 
     @Transactional(readOnly = true)
     public Page<ProjectDTO> getMyProjects(@NotNull PageQueryParamsDTO pageQueryParams,
@@ -64,6 +70,18 @@ public class ProjectService {
                 .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
 
         return projectBuilder.toProjectCompleteDTO(project);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ActivityDTO> getProjectActivities(Long projectId, PageQueryParamsDTO pageQueryParams,
+                                                  @NotNull Authentication authentication) {
+        if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
+            throw new EntityNotFoundException(Project.class.getSimpleName());
+        }
+        final PageRequest pageable = getPageRequest(pageQueryParams.getPage(), pageQueryParams.getPerPage(),
+                                                    pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
+        Page<Activity> activities = activityRepository.findAllByProject_Id(projectId, pageable);
+        return activities.map(activityBuilder::toActivityDTO);
     }
 
     @Transactional
