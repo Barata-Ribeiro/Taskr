@@ -1,10 +1,10 @@
-import { ProjectRole, ProjectStatus } from "@/@types/project"
+import { ProjectRole } from "@/@types/project"
 import getUserAccount from "@/actions/user/get-user-account"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import ProjectRoleBadge from "@/components/shared/project/ProjectRoleBadge"
 import ProjectStatusBadge from "@/components/shared/project/ProjectStatusBadge"
+import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
 import { FolderPlusIcon, PlusIcon } from "lucide-react"
-import Link from "next/link"
 
 export default async function ProjectMemberships() {
     const accountResponse = await getUserAccount()
@@ -20,19 +20,19 @@ export default async function ProjectMemberships() {
             <section className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-700">
                 <FolderPlusIcon aria-hidden className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
                 <h3 className="mt-2 text-sm font-medium">No projects</h3>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new project.</p>
-                <Link
-                    href={`/dashboard/${account.username}/projects/create`}
-                    className="mt-4 inline-flex cursor-pointer items-center justify-center gap-x-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 active:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:active:bg-indigo-600">
+                <p className="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">
+                    Get started by creating a new project.
+                </p>
+                <DefaultLinkButton href={`/dashboard/${account.username}/projects/create`} width="fit">
                     <PlusIcon aria-hidden size={18} />
                     New Project
-                </Link>
+                </DefaultLinkButton>
             </section>
         )
     }
 
     return (
-        <section className="space-y-4">
+        <section className="space-y-4 overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm sm:px-6 dark:bg-gray-800">
             <header className="grid">
                 <h2 className="text-lg font-semibold">Projects Memberships</h2>
                 <p className="mt-1 max-w-2xl text-sm/6 text-gray-500 dark:text-gray-400">
@@ -43,10 +43,10 @@ export default async function ProjectMemberships() {
             {account.memberships.map(membership => (
                 <div
                     key={membership.id}
-                    className="flex items-center justify-between rounded-lg border p-4 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
+                    className="flex items-center justify-between rounded-lg border border-gray-200 p-4 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900">
                     <div className="flex items-center space-x-4">
                         <div className="flex items-center space-x-2">
-                            <ProjectStatusBadge status={ProjectStatus.IN_PROGRESS} type="icon" />
+                            <ProjectStatusBadge status={membership.project.status} type="icon" />
                             <div>
                                 <h4 className="font-medium">Projeto Incrivel</h4>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -56,7 +56,7 @@ export default async function ProjectMemberships() {
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                        <ProjectStatusBadge status={ProjectStatus.IN_PROGRESS} type="text" />
+                        <ProjectStatusBadge status={membership.project.status} type="text" />
                         <ProjectRoleBadge role={ProjectRole.OWNER} />
                     </div>
                 </div>
