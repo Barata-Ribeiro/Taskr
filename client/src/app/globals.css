@@ -18,9 +18,14 @@
         @apply transition-colors duration-100;
     }
 
+    html {
+        @apply bg-white dark:bg-gray-900;
+        @apply h-full;
+    }
+
     body {
-        @apply text-gray-900 bg-white;
-        @apply dark:text-white dark:bg-gray-900;
+        @apply text-gray-900 dark:text-white;
+        @apply h-full;
     }
 
     h1,

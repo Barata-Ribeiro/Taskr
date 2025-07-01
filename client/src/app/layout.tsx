@@ -48,7 +48,7 @@ export default function RootLayout({
 }: Readonly<{
     children: ReactNode
 }>) {
-    const bodyClass = tw`${spaceMono.variable} ${workSans.variable} flex min-h-screen flex-col justify-between antialiased`
+    const bodyClass = tw`${spaceMono.variable} ${workSans.variable} antialiased`
 
     return (
         <SessionProvider>
