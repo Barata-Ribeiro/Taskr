@@ -63,7 +63,7 @@ export default function Sidebar() {
                                                         href={item.href}
                                                         aria-current={pathname.endsWith(item.href) ? "page" : undefined}
                                                         {...(pathname.endsWith(item.href) && { "data-current": "" })}
-                                                        className="hover:text-indigo-600group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 data-current:bg-gray-50 data-current:text-indigo-600 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-indigo-400">
+                                                        className="hover:text-indigo-600group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 data-current:bg-gray-50 data-current:text-indigo-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-indigo-400">
                                                         <item.icon
                                                             aria-hidden="true"
                                                             {...(pathname.endsWith(item.href) && {
@@ -100,7 +100,7 @@ export default function Sidebar() {
                                                 href={item.href}
                                                 aria-current={pathname.endsWith(item.href) ? "page" : undefined}
                                                 {...(pathname.endsWith(item.href) && { "data-current": "" })}
-                                                className="hover:text-indigo-600group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 data-current:bg-gray-50 data-current:text-indigo-600 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-indigo-400">
+                                                className="hover:text-indigo-600group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 data-current:bg-gray-50 data-current:text-indigo-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-indigo-400">
                                                 <item.icon
                                                     aria-hidden="true"
                                                     {...(pathname.endsWith(item.href) && { "data-current": true })}
@@ -142,7 +142,7 @@ export default function Sidebar() {
                 <Button
                     type="button"
                     onClick={() => setSidebarOpen(true)}
-                    className="-m-2.5 cursor-pointer p-2.5 text-gray-700 lg:hidden dark:text-gray-200">
+                    className="-m-2.5 cursor-pointer p-2.5 text-gray-700 lg:hidden dark:text-gray-400">
                     <span className="sr-only">Open sidebar</span>
                     <MenuIcon aria-hidden="true" className="size-6" />
                 </Button>
