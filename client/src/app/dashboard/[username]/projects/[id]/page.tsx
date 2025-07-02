@@ -1,29 +1,49 @@
 import getProjectById from "@/actions/project/get-project-by-id"
-import ProjectStatusBadge from "@/components/shared/project/ProjectStatusBadge"
+import ProjectInformation from "@/components/project/ProjectInformation"
+import ProjectMemberships from "@/components/project/ProjectMemberships"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
-import dateFormatter from "@/utils/date-formatter"
+import ProjectInformationSkeleton from "@/components/ui/skeletons/ProjectInformationSkeleton"
+import ProjectMembershipsSkeleton from "@/components/ui/skeletons/ProjectMembershipsSkeleton"
 import { auth } from "auth"
-import { CalendarIcon, MessageSquareIcon, MoveLeftIcon, SquarePenIcon, UsersIcon } from "lucide-react"
+import { MoveLeftIcon, SquarePenIcon } from "lucide-react"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
-import { Fragment } from "react"
+import { Fragment, Suspense } from "react"
 
 interface ProjectPageProps {
     params: Promise<{ username: string; id: string }>
 }
 
-export default async function ProjectPage({ params }: Readonly<ProjectPageProps>) {
+export async function generateMetadata({ params }: Readonly<ProjectPageProps>) {
     const { username, id } = await params
     if (!username || !id) return notFound()
 
-    const [session, projectResponse] = await Promise.all([auth(), getProjectById(parseInt(id))])
-    if (!session) return redirect("/auth/login")
-    if (session.user.username !== username) return redirect(`/dashboard/${session.user.username}/projects/${id}`)
-    if (!projectResponse?.response?.data) return notFound()
-
-    const baseUrl = `/dashboard/${username}`
+    const projectResponse = await getProjectById(parseInt(id))
+    if (!projectResponse.ok || !projectResponse.response?.data) return notFound()
 
     const project = projectResponse.response.data
+    const projectOwner = project.memberships.find(m => m.role === "OWNER")?.user.displayName
+
+    return {
+        title: project.title,
+        description: `Details about the project "${project.title}" owned by ${projectOwner}.`,
+        openGraph: {
+            title: project.title,
+            description: `Details about the project "${project.title}" owned by ${projectOwner}.`,
+            url: `/dashboard/${username}/projects/${id}`,
+        },
+    }
+}
+
+export default async function ProjectPage({ params }: Readonly<ProjectPageProps>) {
+    const [{ username, id }, session] = await Promise.all([params, auth()])
+
+    if (!username || !id) return notFound()
+
+    if (!session) return redirect("/auth/login")
+    if (session.user.username !== username) return redirect(`/dashboard/${session.user.username}/projects/${id}`)
+
+    const baseUrl = `/dashboard/${username}`
 
     return (
         <Fragment>
@@ -41,44 +61,13 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
                 </DefaultLinkButton>
             </header>
 
-            <section className="space-y-6 overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm sm:p-6 dark:bg-gray-800">
-                <div className="sm:flex sm:items-baseline sm:justify-between">
-                    <div className="sm:w-0 sm:flex-1">
-                        <h1 id="message-heading" className="text-xl font-semibold">
-                            {project.title}
-                        </h1>
-                        <p className="mt-1 truncate text-gray-500 dark:text-gray-400">{project.description}</p>
-                    </div>
+            <Suspense fallback={<ProjectInformationSkeleton />}>
+                <ProjectInformation id={parseInt(id)} />
+            </Suspense>
 
-                    <div className="mt-4 flex items-center justify-between sm:mt-0 sm:ml-6 sm:shrink-0 sm:justify-start">
-                        <ProjectStatusBadge status={project.status} type="text" />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div className="flex items-center space-x-2">
-                        <CalendarIcon size={16} aria-hidden />
-                        <div>
-                            <p className="text-sm font-medium">Due Date</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{dateFormatter(project.dueDate)}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <MessageSquareIcon size={16} aria-hidden />
-                        <div>
-                            <p className="text-sm font-medium">Total Tasks</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{project.totalTasks}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <UsersIcon size={16} aria-hidden />
-                        <div>
-                            <p className="text-sm font-medium">Team Members</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{project.memberships.length}</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <Suspense fallback={<ProjectMembershipsSkeleton />}>
+                <ProjectMemberships id={parseInt(id)} baseUrl={baseUrl} />
+            </Suspense>
         </Fragment>
     )
 }
