@@ -227,7 +227,13 @@ export default async function MyProjectsPage({ params, searchParams }: Readonly<
                                                     {project.id}
                                                 </td>
                                                 <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-                                                    {project.title}
+                                                    <Link
+                                                        href={`${baseUrl}/${project.id}`}
+                                                        aria-label={`View project ${project.title}`}
+                                                        title={`View project ${project.title}`}
+                                                        className="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500 hover:underline active:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 dark:active:text-indigo-500">
+                                                        {project.title}
+                                                    </Link>
                                                 </td>
                                                 <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                                                     <ProjectStatusBadge status={project.status} type="text" />
