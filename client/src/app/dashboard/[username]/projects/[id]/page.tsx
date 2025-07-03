@@ -1,7 +1,10 @@
+import getProjectActivities from "@/actions/project/get-project-activities"
 import getProjectById from "@/actions/project/get-project-by-id"
+import ProjectFeed from "@/components/project/ProjectFeed"
 import ProjectInformation from "@/components/project/ProjectInformation"
 import ProjectMemberships from "@/components/project/ProjectMemberships"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
+import ProjectFeedSkeleton from "@/components/ui/skeletons/ProjectFeedSkeleton"
 import ProjectInformationSkeleton from "@/components/ui/skeletons/ProjectInformationSkeleton"
 import ProjectMembershipsSkeleton from "@/components/ui/skeletons/ProjectMembershipsSkeleton"
 import { auth } from "auth"
@@ -45,6 +48,16 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
 
     const baseUrl = `/dashboard/${username}`
 
+    const projectActivitiesPromise = getProjectActivities({
+        projectId: parseInt(id),
+        queryParams: {
+            page: 0,
+            perPage: 10,
+            direction: "DESC",
+            orderBy: "createdAt",
+        },
+    })
+
     return (
         <Fragment>
             <header className="flex items-center justify-between gap-4">
@@ -67,6 +80,10 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
 
             <Suspense fallback={<ProjectMembershipsSkeleton />}>
                 <ProjectMemberships id={parseInt(id)} baseUrl={baseUrl} />
+            </Suspense>
+
+            <Suspense fallback={<ProjectFeedSkeleton />}>
+                <ProjectFeed activitiesPromise={projectActivitiesPromise} />
             </Suspense>
         </Fragment>
     )
