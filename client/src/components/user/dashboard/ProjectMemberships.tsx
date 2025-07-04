@@ -1,10 +1,11 @@
-import { ProjectRole } from "@/@types/project"
 import getUserAccount from "@/actions/user/get-user-account"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import ProjectRoleBadge from "@/components/shared/project/ProjectRoleBadge"
 import ProjectStatusBadge from "@/components/shared/project/ProjectStatusBadge"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
+import dateFormatter from "@/utils/date-formatter"
 import { FolderPlusIcon, PlusIcon } from "lucide-react"
+import Link from "next/link"
 
 export default async function ProjectMemberships() {
     const accountResponse = await getUserAccount()
@@ -48,16 +49,22 @@ export default async function ProjectMemberships() {
                         <div className="flex items-center space-x-2">
                             <ProjectStatusBadge status={membership.project.status} type="icon" />
                             <div>
-                                <h4 className="font-medium">Projeto Incrivel</h4>
+                                <Link
+                                    href={`/dashboard/${account.username}/projects/${membership.project.id}`}
+                                    aria-label={`View project ${membership.project.title}`}
+                                    title={`View project ${membership.project.title}`}
+                                    className="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500 hover:underline active:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 dark:active:text-indigo-500">
+                                    <h3 className="font-medium">{membership.project.title}</h3>
+                                </Link>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    Joined {new Date().toLocaleDateString()}
+                                    Joined {dateFormatter(membership.joinedAt)}
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
                         <ProjectStatusBadge status={membership.project.status} type="text" />
-                        <ProjectRoleBadge role={ProjectRole.OWNER} />
+                        <ProjectRoleBadge role={membership.role} />
                     </div>
                 </div>
             ))}
