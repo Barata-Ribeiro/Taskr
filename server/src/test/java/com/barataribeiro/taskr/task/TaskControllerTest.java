@@ -12,6 +12,7 @@ import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -75,8 +77,9 @@ class TaskControllerTest {
     @DisplayName("It should create a task successfully")
     void createTaskSuccessfully() throws Exception {
         String description = "This is a test task description. It should be detailed enough to understand the task.";
-        final String dueDate = LocalDateTime.now().plusDays(30)
-                                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        final String dueDate = LocalDateTime.now().plusDays(15)
+                                            .withNano(0)
+                                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 
         taskRequestDTO.setProjectId(defaultProject.getId());
         taskRequestDTO.setTitle("Test Task");
@@ -136,8 +139,9 @@ class TaskControllerTest {
         assertNotNull(createdTask, "Created task should not be null");
 
         String updatedDescription = "This is an updated test task description.";
-        final String updatedDueDate = LocalDateTime.now().plusDays(15)
-                                                   .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        final String updatedDueDate = LocalDateTime.now().plusDays(30)
+                                                   .withNano(0)
+                                                   .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 
         TaskUpdateRequestDTO updateRequest = new TaskUpdateRequestDTO();
         updateRequest.setProjectId(defaultProject.getId());
@@ -189,6 +193,24 @@ class TaskControllerTest {
 
     @Test
     @Order(5)
+    @DisplayName("It should retrieve all tasks for a project grouped by status successfully")
+    void getTasksByProjectSuccessfully() {
+        mockMvcTester.get().uri("/api/v1/tasks/project/{projectId}", defaultProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .assertThat()
+                     .hasStatus(HttpStatus.OK)
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         
+                         assertNotNull(JsonPath.read(json, "$.data.toDo"));
+                         assertNotNull(JsonPath.read(json, "$.data.inProgress"));
+                         assertNotNull(JsonPath.read(json, "$.data.done"));
+                     });
+    }
+
+    @Test
+    @Order(6)
     @DisplayName("It should fail to delete a task with invalid ID")
     void deleteTaskWithInvalidId() {
         // TODO: Adjust delete endpoint to handle invalid task IDs because the current implementation uses a
@@ -200,7 +222,7 @@ class TaskControllerTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     @DisplayName("It should delete a task successfully")
     void deleteTaskSuccessfully() {
         assertNotNull(createdTask, "Created task should not be null");
