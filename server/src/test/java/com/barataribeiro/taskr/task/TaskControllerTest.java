@@ -27,6 +27,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -202,15 +204,70 @@ class TaskControllerTest {
                      .bodyJson()
                      .satisfies(jsonContent -> {
                          String json = jsonContent.getJson();
-                         
-                         assertNotNull(JsonPath.read(json, "$.data.toDo"));
-                         assertNotNull(JsonPath.read(json, "$.data.inProgress"));
-                         assertNotNull(JsonPath.read(json, "$.data.done"));
+
+                         List<?> toDo = JsonPath.read(json, "$.data.toDo");
+                         List<?> inProgress = JsonPath.read(json, "$.data.inProgress");
+                         List<?> done = JsonPath.read(json, "$.data.done");
+
+                         assertNotNull(toDo);
+                         assertNotNull(inProgress);
+                         assertNotNull(done);
+
+                         // Assert that to_do and done are empty
+                         assertTrue(toDo.isEmpty(), "toDo list should be empty");
+                         assertTrue(done.isEmpty(), "done list should be empty");
+
+                         // Assert inProgress has exactly one task with expected values
+                         assertEquals(1, inProgress.size(), "inProgress list should have one task");
+                         Map<?, ?> task = (Map<?, ?>) inProgress.getFirst();
+                         assertEquals("Updated Test Task", task.get("title"));
+                         assertEquals("This is an updated test task description.", task.get("description"));
+                         assertEquals("IN_PROGRESS", task.get("status"));
+                         assertEquals("MEDIUM", task.get("priority"));
+                         assertNotNull(task.get("assignees"));
+                         List<?> assignees = (List<?>) task.get("assignees");
+                         assertFalse(assignees.isEmpty(), "Assignees list should not be empty");
                      });
     }
 
     @Test
     @Order(6)
+    @DisplayName("It should retrieve the latest tasks for a project successfully")
+    void getLatestTasksByProjectSuccessfully() {
+        mockMvcTester.get().uri("/api/v1/tasks/project/{projectId}/latest", defaultProject.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .assertThat()
+                     .hasStatus(HttpStatus.OK)
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+
+                         List<?> tasks = JsonPath.read(json, "$.data");
+                         assertNotNull(tasks);
+                         assertFalse(tasks.isEmpty(), "Latest tasks list should not be empty");
+
+                         Map<?, ?> task = (Map<?, ?>) tasks.getFirst();
+                         assertEquals("Updated Test Task", task.get("title"));
+                         assertEquals("This is an updated test task description.", task.get("description"));
+                         assertEquals("IN_PROGRESS", task.get("status"));
+                         assertEquals("MEDIUM", task.get("priority"));
+                         assertNotNull(task.get("assignees"));
+                     });
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("It should fail to retrieve latest tasks for a project if user is not a member")
+    void getLatestTasksByProjectUnauthorized() {
+        String invalidToken = "invalid.token.value";
+        mockMvcTester.get().uri("/api/v1/tasks/project/{projectId}/latest", defaultProject.getId())
+                     .header("Authorization", "Bearer " + invalidToken)
+                     .assertThat()
+                     .hasStatus4xxClientError();
+    }
+
+    @Test
+    @Order(8)
     @DisplayName("It should fail to delete a task with invalid ID")
     void deleteTaskWithInvalidId() {
         // TODO: Adjust delete endpoint to handle invalid task IDs because the current implementation uses a
@@ -222,7 +279,7 @@ class TaskControllerTest {
     }
 
     @Test
-    @Order(7)
+    @Order(9)
     @DisplayName("It should delete a task successfully")
     void deleteTaskSuccessfully() {
         assertNotNull(createdTask, "Created task should not be null");
