@@ -4,18 +4,24 @@ import { Activity } from "@/@types/activity"
 import { ProblemDetails } from "@/@types/application"
 import getProjectActivities from "@/actions/project/get-project-activities"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
+import Loading from "@/components/shared/feedback/Loading"
 import ProjectActivityBadge from "@/components/shared/project/ProjectActivityBadge"
 import ProjectActivityIcon from "@/components/shared/project/ProjectActivityIcon"
+import DefaultButton from "@/components/ui/DefaultButton"
 import dateFormatter from "@/utils/date-formatter"
-import { use, useState } from "react"
+import { use, useState, useTransition } from "react"
 
 interface ProjectFeedProps {
     activitiesPromise: ReturnType<typeof getProjectActivities>
+    projectId: number
 }
 
-export default function ProjectFeed({ activitiesPromise }: Readonly<ProjectFeedProps>) {
+export default function ProjectFeed({ activitiesPromise, projectId }: Readonly<ProjectFeedProps>) {
     const firstActivities = use(activitiesPromise)
-    const [activities, setActivities] = useState<Activity[]>([])
+    const [activities, setActivities] = useState<Activity[]>(firstActivities?.response?.data?.content ?? [])
+    const [pagination, setPagination] = useState(firstActivities?.response?.data?.page ?? null)
+    const [error, setError] = useState<string | null>(null)
+    const [isPending, startTransition] = useTransition()
 
     if (!firstActivities?.response?.data) {
         const isProblemDetails = (firstActivities.error as ProblemDetails)?.type !== undefined
@@ -25,10 +31,50 @@ export default function ProjectFeed({ activitiesPromise }: Readonly<ProjectFeedP
         return <DashboardErrorMessage message={errorMessage} />
     }
 
-    const pagination = firstActivities.response.data.page
+    const hasMore = pagination && (pagination.number + 1) * pagination.size < pagination.totalElements
+
     const content = firstActivities.response.data.content
 
-    // TODO: Implement button to load more activities
+    function loadMoreActivities() {
+        if (isPending || !hasMore) return
+
+        startTransition(async () => {
+            setError(null)
+
+            try {
+                const nextPage = pagination.number + 1
+                const nextActivities = await getProjectActivities({
+                    projectId,
+                    queryParams: {
+                        page: nextPage,
+                        perPage: pagination.size,
+                        direction: "DESC",
+                        orderBy: "createdAt",
+                    },
+                })
+
+                if (!nextActivities?.response?.data) {
+                    const isProblemDetails = (nextActivities.error as ProblemDetails)?.type !== undefined
+                    const errorMessage = isProblemDetails
+                        ? (nextActivities.error as ProblemDetails).detail
+                        : "An error occurred while loading more activities."
+                    setError(errorMessage)
+                    return
+                }
+
+                const newActivities = nextActivities.response.data.content
+                setActivities(prevActivities => [...prevActivities, ...newActivities])
+                setPagination(nextActivities.response.data.page)
+            } catch (e: unknown) {
+                const isProblemDetails = (e as ProblemDetails)?.type !== undefined
+                const errorMessage = isProblemDetails
+                    ? (e as ProblemDetails).detail
+                    : "An error occurred while loading more activities."
+                setError(errorMessage)
+                return
+            }
+        })
+    }
 
     return (
         <section
@@ -48,7 +94,7 @@ export default function ProjectFeed({ activitiesPromise }: Readonly<ProjectFeedP
                 className="mt-6 border-t border-gray-100 p-4 sm:p-6 dark:border-gray-700"
                 aria-labelledby="project-activities-heading"
                 aria-describedby="project-activities-desc">
-                {content.map((activity, index) => (
+                {activities.map((activity, index) => (
                     <li key={activity.id} className="relative pb-6 last:pb-0">
                         {index !== content.length - 1 ? (
                             <span
@@ -76,6 +122,20 @@ export default function ProjectFeed({ activitiesPromise }: Readonly<ProjectFeedP
                     </li>
                 ))}
             </ul>
+
+            <div className="flex justify-center p-4">
+                {error && <DashboardErrorMessage message={error} />}
+
+                {hasMore && (
+                    <DefaultButton disabled={isPending} width="fit" onClick={loadMoreActivities}>
+                        {isPending ? <Loading /> : "Load more activities"}
+                    </DefaultButton>
+                )}
+
+                {!hasMore && activities.length > 0 && (
+                    <span className="text-sm text-gray-500 dark:text-gray-400">No more activities to load.</span>
+                )}
+            </div>
         </section>
     )
 }
