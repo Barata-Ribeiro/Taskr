@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.helpers.RestResponse;
 import com.barataribeiro.taskr.task.dtos.TaskDTO;
 import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
 import com.barataribeiro.taskr.task.dtos.TaskUpdateRequestDTO;
+import com.barataribeiro.taskr.task.dtos.TasksByStatusDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,15 +22,14 @@ import org.springframework.web.bind.annotation.*;
 public class TaskController {
     private final TaskService taskService;
 
-    @GetMapping("/{taskId}/project/{projectId}")
-    @Operation(summary = "Get task by ID",
-               description = "Retrieves a task by its unique identifier.")
-    public ResponseEntity<RestResponse<TaskDTO>> getTaskById(@PathVariable Long taskId,
-                                                             @PathVariable Long projectId,
-                                                             Authentication authentication) {
-        TaskDTO task = taskService.getTaskById(taskId, projectId, authentication);
+    @GetMapping("/project/{projectId}")
+    @Operation(summary = "Get all tasks for a project",
+               description = "Retrieves all tasks associated with a specific project, separated by their status.")
+    public ResponseEntity<RestResponse<TasksByStatusDTO>> getTasksByProject(@PathVariable Long projectId,
+                                                                            Authentication authentication) {
+        TasksByStatusDTO tasks = taskService.getTasksByProject(projectId, authentication);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
-                                                    "Task retrieved successfully", task));
+                                                    "Tasks retrieved successfully", tasks));
     }
 
     @PostMapping
@@ -41,6 +41,17 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED)
                              .body(new RestResponse<>(HttpStatus.CREATED, HttpStatus.CREATED.value(),
                                                       "Task created successfully", task));
+    }
+
+    @GetMapping("/{taskId}/project/{projectId}")
+    @Operation(summary = "Get task by ID",
+               description = "Retrieves a task by its unique identifier.")
+    public ResponseEntity<RestResponse<TaskDTO>> getTaskById(@PathVariable Long taskId,
+                                                             @PathVariable Long projectId,
+                                                             Authentication authentication) {
+        TaskDTO task = taskService.getTaskById(taskId, projectId, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Task retrieved successfully", task));
     }
 
     @PatchMapping("/{taskId}")

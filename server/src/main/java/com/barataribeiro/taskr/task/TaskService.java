@@ -15,6 +15,7 @@ import com.barataribeiro.taskr.project.enums.ProjectStatus;
 import com.barataribeiro.taskr.task.dtos.TaskDTO;
 import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
 import com.barataribeiro.taskr.task.dtos.TaskUpdateRequestDTO;
+import com.barataribeiro.taskr.task.dtos.TasksByStatusDTO;
 import com.barataribeiro.taskr.task.enums.TaskPriority;
 import com.barataribeiro.taskr.task.enums.TaskStatus;
 import com.barataribeiro.taskr.user.User;
@@ -31,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -45,6 +43,33 @@ public class TaskService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
+
+    @Transactional(readOnly = true)
+    public TasksByStatusDTO getTasksByProject(Long projectId, @NotNull Authentication authentication) {
+        if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
+            throw new EntityNotFoundException(Project.class.getSimpleName());
+        }
+
+        TasksByStatusDTO tasksByStatus = new TasksByStatusDTO(
+                new TreeSet<>(Comparator.comparing(TaskDTO::getCreatedAt).reversed()),
+                new TreeSet<>(Comparator.comparing(TaskDTO::getCreatedAt).reversed()),
+                new TreeSet<>(Comparator.comparing(TaskDTO::getCreatedAt).reversed())
+        );
+
+        Streamable<Task> tasks = taskRepository.findAllByProject_Id(projectId);
+
+        tasks.stream().parallel().forEach(task -> {
+            TaskDTO taskDTO = taskBuilder.toTaskDTO(task);
+
+            switch (task.getStatus()) {
+                case TO_DO -> tasksByStatus.getToDo().add(taskDTO);
+                case IN_PROGRESS -> tasksByStatus.getInProgress().add(taskDTO);
+                case DONE -> tasksByStatus.getDone().add(taskDTO);
+            }
+        });
+
+        return tasksByStatus;
+    }
 
     @Transactional(readOnly = true)
     public TaskDTO getTaskById(Long taskId, Long projectId, @NotNull Authentication authentication) {
@@ -233,4 +258,6 @@ public class TaskService {
 
         taskRepository.deleteById(taskId);
     }
+
+
 }
