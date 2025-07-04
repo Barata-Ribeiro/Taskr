@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/v1/tasks")
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -30,6 +32,16 @@ public class TaskController {
         TasksByStatusDTO tasks = taskService.getTasksByProject(projectId, authentication);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Tasks retrieved successfully", tasks));
+    }
+
+    @GetMapping("/project/{projectId}/latest")
+    @Operation(summary = "Get latest tasks for a project",
+               description = "Retrieves the latest tasks associated with a specific project.")
+    public ResponseEntity<RestResponse<Set<TaskDTO>>> getLatestTasksByProject(@PathVariable Long projectId,
+                                                                              Authentication authentication) {
+        Set<TaskDTO> tasks = taskService.getLatestTasksByProject(projectId, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Latest tasks retrieved successfully", tasks));
     }
 
     @PostMapping

@@ -72,6 +72,17 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
+    public Set<TaskDTO> getLatestTasksByProject(Long projectId, @NotNull Authentication authentication) {
+        if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
+            throw new EntityNotFoundException(Project.class.getSimpleName());
+        }
+
+        Streamable<Task> tasks = taskRepository.findTop5ByProject_IdOrderByCreatedAtDesc(projectId);
+
+        return new LinkedHashSet<>(tasks.stream().parallel().map(taskBuilder::toTaskDTO).toList());
+    }
+
+    @Transactional(readOnly = true)
     public TaskDTO getTaskById(Long taskId, Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
             throw new EntityNotFoundException(Task.class.getSimpleName());

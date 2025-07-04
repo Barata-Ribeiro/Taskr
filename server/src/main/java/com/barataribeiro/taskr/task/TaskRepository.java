@@ -13,4 +13,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
 
     @EntityGraph(attributePaths = {"assignees"})
     Streamable<Task> findAllByProject_Id(Long id);
+
+    @EntityGraph(attributePaths = {"assignees"})
+    Streamable<Task> findTop5ByProject_IdOrderByCreatedAtDesc(Long projectId);
 }
