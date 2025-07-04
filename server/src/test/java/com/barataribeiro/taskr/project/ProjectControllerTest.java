@@ -67,7 +67,8 @@ class ProjectControllerTest {
         projectRequestDTO.setTitle("Test Project");
         projectRequestDTO.setDescription("This is a test project.");
         projectRequestDTO.setDueDate(LocalDateTime.now().plusDays(30)
-                                                  .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                                                  .withNano(0)
+                                                  .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
 
         mockMvcTester.post().uri("/api/v1/projects/create")
                      .header("Authorization", "Bearer " + accessToken)
@@ -176,7 +177,8 @@ class ProjectControllerTest {
     void updateProjectWithPastDueDateShouldFail() throws Exception {
         ProjectUpdateRequestDTO updateRequest = new ProjectUpdateRequestDTO();
         updateRequest.setDueDate(LocalDateTime.now().minusDays(1)
-                                              .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                                              .withNano(0)
+                                              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
 
         mockMvcTester.patch().uri("/api/v1/projects/{projectId}", createdProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
