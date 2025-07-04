@@ -83,7 +83,7 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
             </Suspense>
 
             <Suspense fallback={<ProjectFeedSkeleton />}>
-                <ProjectFeed activitiesPromise={projectActivitiesPromise} />
+                <ProjectFeed activitiesPromise={projectActivitiesPromise} id={parseInt(id)} />
             </Suspense>
         </Fragment>
     )

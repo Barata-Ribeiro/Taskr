@@ -13,10 +13,10 @@ import { use, useState, useTransition } from "react"
 
 interface ProjectFeedProps {
     activitiesPromise: ReturnType<typeof getProjectActivities>
-    projectId: number
+    id: number
 }
 
-export default function ProjectFeed({ activitiesPromise, projectId }: Readonly<ProjectFeedProps>) {
+export default function ProjectFeed({ activitiesPromise, id }: Readonly<ProjectFeedProps>) {
     const firstActivities = use(activitiesPromise)
     const [activities, setActivities] = useState<Activity[]>(firstActivities?.response?.data?.content ?? [])
     const [pagination, setPagination] = useState(firstActivities?.response?.data?.page ?? null)
@@ -44,7 +44,7 @@ export default function ProjectFeed({ activitiesPromise, projectId }: Readonly<P
             try {
                 const nextPage = pagination.number + 1
                 const nextActivities = await getProjectActivities({
-                    projectId,
+                    projectId: id,
                     queryParams: {
                         page: nextPage,
                         perPage: pagination.size,
