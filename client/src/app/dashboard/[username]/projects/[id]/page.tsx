@@ -2,6 +2,7 @@ import getProjectActivities from "@/actions/project/get-project-activities"
 import getProjectById from "@/actions/project/get-project-by-id"
 import ProjectFeed from "@/components/project/ProjectFeed"
 import ProjectInformation from "@/components/project/ProjectInformation"
+import ProjectLatestTasks from "@/components/project/ProjectLatestTasks"
 import ProjectMemberships from "@/components/project/ProjectMemberships"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
 import ProjectFeedSkeleton from "@/components/ui/skeletons/ProjectFeedSkeleton"
@@ -76,6 +77,10 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
 
             <Suspense fallback={<ProjectInformationSkeleton />}>
                 <ProjectInformation id={parseInt(id)} />
+            </Suspense>
+
+            <Suspense fallback="Loading...">
+                <ProjectLatestTasks id={parseInt(id)} baseUrl={baseUrl} />
             </Suspense>
 
             <Suspense fallback={<ProjectMembershipsSkeleton />}>
