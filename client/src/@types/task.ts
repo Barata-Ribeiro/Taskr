@@ -25,6 +25,12 @@ interface Task {
     assignees: Author[]
 }
 
+interface TasksByStatus {
+    toDo: Task[]
+    inProgress: Task[]
+    done: Task[]
+}
+
 export { TaskStatus, TaskPriority }
 
-export type { Task }
+export type { Task, TasksByStatus }
