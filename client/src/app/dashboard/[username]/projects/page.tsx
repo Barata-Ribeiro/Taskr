@@ -79,6 +79,7 @@ export default async function MyProjectsPage({ params, searchParams }: Readonly<
                             title="Clear url params"
                             width="fit"
                             buttonType="ghost"
+                            isIconOnly
                             href={baseUrl}>
                             <Trash2Icon aria-hidden="true" className="size-4" />
                         </DefaultLinkButton>
@@ -253,6 +254,7 @@ export default async function MyProjectsPage({ params, searchParams }: Readonly<
                                                         title={`View project ${project.title}`}
                                                         width="fit"
                                                         buttonType="ghost"
+                                                        isIconOnly
                                                         href={`${baseUrl}/${project.id}`}>
                                                         <EyeIcon aria-hidden="true" className="size-4" />
                                                     </DefaultLinkButton>
