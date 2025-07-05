@@ -76,3 +76,30 @@ export function updateProjectUrl(projectId: number | string): string {
 export function deleteProjectUrl(projectId: number | string): string {
     return `${API_URL}/projects/${projectId}`
 }
+
+// ===============================================================
+// ==================  Tasks Module Functions  ===================
+// ===============================================================
+export function tasksByProjectUrl(projectId: number | string): string {
+    return `${API_URL}/tasks/project/${projectId}`
+}
+
+export function latestTasksByProjectUrl(projectId: number | string): string {
+    return `${API_URL}/tasks/project/${projectId}/latest`
+}
+
+export function createTaskUrl(): string {
+    return `${API_URL}/tasks`
+}
+
+export function taskByIdUrl(taskId: number | string, projectId: number | string): string {
+    return `${API_URL}/tasks/${taskId}/project/${projectId}`
+}
+
+export function updateTaskUrl(taskId: number | string): string {
+    return `${API_URL}/tasks/${taskId}`
+}
+
+export function deleteTaskUrl(taskId: number | string, projectId: number | string): string {
+    return `${API_URL}/tasks/${taskId}/project/${projectId}`
+}
