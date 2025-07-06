@@ -18,7 +18,7 @@ export default function DefaultLinkButton({
     isIconOnly = false,
     ...props
 }: Readonly<DefaultLinkButtonProps>) {
-    const defaultButtonStyles = tw`inline-flex items-center gap-x-2 rounded-md text-sm/6 font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2`
+    const defaultButtonStyles = tw`inline-flex items-center gap-x-2 rounded-md text-sm/6 font-semibold shadow-xs select-none focus-visible:outline-2 focus-visible:outline-offset-2`
 
     const typeStyles = {
         color: tw`bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600 active:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:active:bg-indigo-600`,
