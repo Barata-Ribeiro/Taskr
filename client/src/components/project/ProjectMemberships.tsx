@@ -88,6 +88,7 @@ export default async function ProjectMemberships({ id, baseUrl }: Readonly<Proje
                             <DefaultLinkButton
                                 href={`${baseUrl}/profile/${membership.user.username}`}
                                 width="fit"
+                                isIconOnly
                                 buttonType="ghost"
                                 aria-label={`Go to ${membership.user.displayName}'s profile`}>
                                 <ChevronRightIcon aria-hidden size={20} />
