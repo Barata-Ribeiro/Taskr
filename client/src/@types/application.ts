@@ -36,14 +36,16 @@ interface QueryParams {
     orderBy?: string
 }
 
-interface Paginated<T> {
-    content: T[]
-    page: {
-        size: number
-        number: number
-        totalElements: number
-        totalPages: number
-    }
+interface Page {
+    size: number
+    number: number
+    totalElements: number
+    totalPages: number
 }
 
-export type { ValidationError, RestResponse, InvalidParam, ProblemDetails, State, QueryParams, Paginated }
+interface Paginated<T> {
+    content: T[]
+    page: Page
+}
+
+export type { ValidationError, RestResponse, InvalidParam, ProblemDetails, State, QueryParams, Paginated, Page }
