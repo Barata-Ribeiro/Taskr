@@ -1,6 +1,7 @@
 import { Paginated, QueryParams } from "@/@types/application"
 import { Project } from "@/@types/project"
 import getAllMyProjectsPaginated from "@/actions/project/get-all-my-projects-paginated"
+import NavigationPagination from "@/components/shared/NavigationPagination"
 import ProjectStatusBadge from "@/components/shared/project/ProjectStatusBadge"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
 import dateFormatter from "@/utils/date-formatter"
@@ -263,6 +264,8 @@ export default async function MyProjectsPage({ params, searchParams }: Readonly<
                                         ))}
                                     </tbody>
                                 </table>
+
+                                <NavigationPagination pageInfo={pagination.page} />
                             </div>
                         </div>
                     </div>
