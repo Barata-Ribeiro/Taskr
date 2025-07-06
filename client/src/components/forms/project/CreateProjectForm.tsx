@@ -4,6 +4,7 @@ import { ProblemDetails } from "@/@types/application"
 import createNewProject from "@/actions/project/create-new-project"
 import ApplicationRequestFormError from "@/components/shared/feedback/ApplicationRequestFormError"
 import InputValidationError from "@/components/shared/feedback/InputValidationError"
+import Loading from "@/components/shared/feedback/Loading"
 import DefaultButton from "@/components/ui/DefaultButton"
 import DefaultInput from "@/components/ui/DefaultInput"
 import DefaultTextarea from "@/components/ui/DefaultTextarea"
@@ -67,7 +68,7 @@ export default function CreateProjectForm({ username }: Readonly<CreateProjectFo
             {formState.error && Array.isArray(formState.error) && <InputValidationError errors={formState.error} />}
 
             <DefaultButton type="submit" disabled={pending} aria-disabled={pending}>
-                Create
+                {pending ? <Loading /> : "Create"}
             </DefaultButton>
         </form>
     )

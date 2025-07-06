@@ -4,6 +4,7 @@ import { ProblemDetails } from "@/@types/application"
 import { authRegister } from "@/actions/auth/auth-register"
 import ApplicationRequestFormError from "@/components/shared/feedback/ApplicationRequestFormError"
 import InputValidationError from "@/components/shared/feedback/InputValidationError"
+import Loading from "@/components/shared/feedback/Loading"
 import DefaultButton from "@/components/ui/DefaultButton"
 import DefaultInput from "@/components/ui/DefaultInput"
 import applicationInitialState from "@/helpers/application-initial-state"
@@ -80,7 +81,7 @@ export default function RegisterForm() {
             {formState.error && Array.isArray(formState.error) && <InputValidationError errors={formState.error} />}
 
             <DefaultButton type="submit" disabled={pending} aria-disabled={pending}>
-                Sign Up
+                {pending ? <Loading /> : "Sign Up"}
             </DefaultButton>
         </form>
     )

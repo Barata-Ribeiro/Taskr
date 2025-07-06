@@ -3,6 +3,7 @@
 import authLogin from "@/actions/auth/auth-login"
 import ApplicationRequestFormError from "@/components/shared/feedback/ApplicationRequestFormError"
 import InputValidationError from "@/components/shared/feedback/InputValidationError"
+import Loading from "@/components/shared/feedback/Loading"
 import DefaultButton from "@/components/ui/DefaultButton"
 import DefaultCheckbox from "@/components/ui/DefaultCheckbox"
 import DefaultInput from "@/components/ui/DefaultInput"
@@ -63,7 +64,7 @@ export default function LoginForm() {
             {formState.error && Array.isArray(formState.error) && <InputValidationError errors={formState.error} />}
 
             <DefaultButton type="submit" disabled={pending} aria-disabled={pending}>
-                Sign in
+                {pending ? <Loading /> : "Sign In"}
             </DefaultButton>
         </form>
     )
