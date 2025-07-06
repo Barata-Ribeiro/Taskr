@@ -52,10 +52,11 @@ export default async function ProjectInformation({ id }: Readonly<ProjectInforma
                             dateTime={project.dueDate}
                             className="text-sm text-gray-500 dark:text-gray-400"
                             aria-labelledby="due-date-label">
-                            {dateFormatter(project.dueDate)}
+                            {dateFormatter(project.dueDate, { dateStyle: "full" })}
                         </time>
                     </div>
                 </div>
+
                 <div className="flex items-center space-x-2" aria-label="Total tasks">
                     <MessageSquareIcon size={16} aria-hidden="true" focusable="false" />
                     <div>
@@ -67,6 +68,7 @@ export default async function ProjectInformation({ id }: Readonly<ProjectInforma
                         </p>
                     </div>
                 </div>
+
                 <div className="flex items-center space-x-2" aria-label="Team members">
                     <UsersIcon size={16} aria-hidden="true" focusable="false" />
                     <div>

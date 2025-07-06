@@ -1,5 +1,6 @@
 import getUserAccount from "@/actions/user/get-user-account"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
+import dateFormatter from "@/utils/date-formatter"
 
 export default async function AccountInformation() {
     const accountResponse = await getUserAccount()
@@ -33,7 +34,7 @@ export default async function AccountInformation() {
                 </div>
                 <div>
                     <dd className="text-sm font-medium text-gray-500">Member Since</dd>
-                    <dt className="text-sm">{new Date(account.createdAt).toLocaleDateString()}</dt>
+                    <dt className="text-sm">{dateFormatter(account.createdAt)}</dt>
                 </div>
             </dl>
         </section>

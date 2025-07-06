@@ -115,7 +115,7 @@ export default function ProjectFeed({ activitiesPromise, id }: Readonly<ProjectF
                                 <time
                                     dateTime={activity.createdAt}
                                     className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                    {dateFormatter(activity.createdAt)}
+                                    {dateFormatter(activity.createdAt, { dateStyle: "full" })}
                                 </time>
                             </div>
                         </div>

@@ -23,7 +23,7 @@ export default function TaskListItem({ projectId, task, baseUrl }: Readonly<Task
                     <h4 className="text-lg font-medium">{task.title}</h4>
                 </Link>
                 <time dateTime={task.dueDate} className="text-sm text-gray-500 dark:text-gray-400">
-                    Due {dateFormatter(task.dueDate, { verbose: true })}
+                    Due {dateFormatter(task.dueDate, { dateStyle: "full" })}
                 </time>
             </div>
 
