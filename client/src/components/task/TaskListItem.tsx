@@ -28,7 +28,12 @@ export default function TaskListItem({ projectId, task, baseUrl }: Readonly<Task
             </div>
 
             <div className="flex items-center justify-between gap-2">
-                <p className="mt-1 text-gray-600 dark:text-gray-300">{task.description}</p>
+                <p
+                    className="mt-1 truncate text-gray-600 dark:text-gray-300"
+                    aria-label={`Task description: "${task.description}"`}
+                    title={`Task description: "${task.description}"`}>
+                    {task.description}
+                </p>
                 <TaskPriorityBadge taskPriority={task.priority} />
             </div>
         </li>

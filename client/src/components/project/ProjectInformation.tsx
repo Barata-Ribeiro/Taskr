@@ -31,7 +31,12 @@ export default async function ProjectInformation({ id }: Readonly<ProjectInforma
                     <h1 id="project-information-heading" className="text-xl font-semibold" tabIndex={-1}>
                         {project.title}
                     </h1>
-                    <p className="mt-1 text-gray-500 dark:text-gray-400">{project.description}</p>
+                    <p
+                        className="mt-1 truncate text-gray-500 dark:text-gray-400"
+                        aria-label={`Project description: "${project.description}"`}
+                        title={`Project description: "${project.description}"`}>
+                        {project.description}
+                    </p>
                 </div>
 
                 <div
