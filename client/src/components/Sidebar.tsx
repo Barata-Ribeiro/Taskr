@@ -63,6 +63,7 @@ export default function Sidebar() {
                                                         href={item.href}
                                                         aria-current={pathname.endsWith(item.href) ? "page" : undefined}
                                                         {...(pathname.endsWith(item.href) && { "data-current": "" })}
+                                                        onClick={() => setSidebarOpen(false)}
                                                         className="hover:text-indigo-600group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 data-current:bg-gray-50 data-current:text-indigo-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-indigo-400">
                                                         <item.icon
                                                             aria-hidden="true"
