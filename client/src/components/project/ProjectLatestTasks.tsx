@@ -1,9 +1,9 @@
 import { ProblemDetails } from "@/@types/application"
 import getLatestTasksByProjectId from "@/actions/task/get-latest-tasks-by-project-id"
+import NewTaskModal from "@/components/modals/NewTaskModal"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import TaskListItem from "@/components/task/TaskListItem"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
-import { PlusIcon } from "lucide-react"
 
 interface ProjectTasksProps {
     id: number
@@ -42,14 +42,7 @@ export default async function ProjectLatestTasks({ id, baseUrl }: Readonly<Proje
                     <DefaultLinkButton href={`${baseUrl}/projects/${id}/tasks`} width="fit">
                         Task Board
                     </DefaultLinkButton>
-                    <DefaultLinkButton
-                        href={`${baseUrl}/projects/${id}/tasks/create`}
-                        width="fit"
-                        buttonType="ghost"
-                        isIconOnly={false}>
-                        <PlusIcon aria-hidden size={18} />
-                        New Task
-                    </DefaultLinkButton>
+                    <NewTaskModal projectId={id} />
                 </div>
             </div>
 
