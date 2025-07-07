@@ -1,10 +1,7 @@
 package com.barataribeiro.taskr.task;
 
 import com.barataribeiro.taskr.helpers.RestResponse;
-import com.barataribeiro.taskr.task.dtos.TaskDTO;
-import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
-import com.barataribeiro.taskr.task.dtos.TaskUpdateRequestDTO;
-import com.barataribeiro.taskr.task.dtos.TasksByStatusDTO;
+import com.barataribeiro.taskr.task.dtos.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -75,6 +72,28 @@ public class TaskController {
         TaskDTO task = taskService.updateTask(taskId, body, authentication);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Task updated successfully", task));
+    }
+
+    @PatchMapping("/project/{projectId}/reorder")
+    @Operation(summary = "Reorder tasks within a column",
+               description = "Reorders tasks within a specific column of a project based on their positions.")
+    public ResponseEntity<RestResponse<TasksByStatusDTO>> reorderTasks(@PathVariable Long projectId,
+                                                                       @RequestBody @Valid ReorderRequestDTO body,
+                                                                       Authentication authentication) {
+        TasksByStatusDTO tasks = taskService.updateTaskOrder(projectId, body, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Tasks reordered successfully", tasks));
+    }
+
+    @PatchMapping("/{taskId}/move")
+    @Operation(summary = "Move a task to new column",
+               description = "Moves a task to a different column within the same project.")
+    public ResponseEntity<RestResponse<TasksByStatusDTO>> moveTask(@PathVariable Long taskId,
+                                                                   @RequestBody @Valid MoveRequestDTO body,
+                                                                   Authentication authentication) {
+        TasksByStatusDTO tasks = taskService.moveTask(taskId, body, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Task moved successfully", tasks));
     }
 
     @DeleteMapping("/{taskId}/project/{projectId}")
