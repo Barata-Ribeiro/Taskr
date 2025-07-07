@@ -3,9 +3,7 @@ package com.barataribeiro.taskr.task;
 import com.barataribeiro.taskr.activity.ActivityRepository;
 import com.barataribeiro.taskr.notification.NotificationRepository;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
-import com.barataribeiro.taskr.task.dtos.TaskDTO;
-import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
-import com.barataribeiro.taskr.task.dtos.TaskUpdateRequestDTO;
+import com.barataribeiro.taskr.task.dtos.*;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
 import com.barataribeiro.taskr.utils.TestSetupUtil;
@@ -21,8 +19,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.test.web.servlet.assertj.MvcTestResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 class TaskControllerTest {
     private static final TaskRequestDTO taskRequestDTO = new TaskRequestDTO();
@@ -292,5 +293,184 @@ class TaskControllerTest {
 
         taskRepository.findByIdAndProject_Id(createdTask.getId(), defaultProject.getId())
                       .ifPresent(task -> fail("Task should have been deleted, but was found: " + task));
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("It should reorder tasks within the same status successfully")
+    void reorderTasksWithinStatusSuccessfully() throws Exception {
+        TaskRequestDTO task1DTO = new TaskRequestDTO();
+        task1DTO.setProjectId(defaultProject.getId());
+        task1DTO.setTitle("Task 1");
+        task1DTO.setDescription("Description 1");
+        task1DTO.setDueDate(LocalDateTime.now().plusDays(1).withNano(0)
+                                         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        task1DTO.setStatus("TO_DO");
+        task1DTO.setPriority("LOW");
+
+        TaskRequestDTO task2DTO = new TaskRequestDTO();
+        task2DTO.setProjectId(defaultProject.getId());
+        task2DTO.setTitle("Task 2");
+        task2DTO.setDescription("Description 2");
+        task2DTO.setDueDate(LocalDateTime.now().plusDays(2).withNano(0)
+                                         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        task2DTO.setStatus("TO_DO");
+        task2DTO.setPriority("LOW");
+
+        MvcTestResult task1Response = mockMvcTester.post().uri("/api/v1/tasks")
+                                                   .header("Authorization", "Bearer " + accessToken)
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .content(Jackson2ObjectMapperBuilder
+                                                                    .json()
+                                                                    .build()
+                                                                    .writeValueAsBytes(task1DTO))
+                                                   .exchange();
+        String task1Json = task1Response.getResponse().getContentAsString();
+
+        Long task1Id = ((Number) JsonPath.read(task1Json, "$.data.id")).longValue();
+
+        MvcTestResult task2Response = mockMvcTester.post().uri("/api/v1/tasks")
+                                                   .header("Authorization", "Bearer " + accessToken)
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .content(Jackson2ObjectMapperBuilder
+                                                                    .json()
+                                                                    .build()
+                                                                    .writeValueAsBytes(task2DTO))
+                                                   .exchange();
+        String task2Json = task2Response.getResponse().getContentAsString();
+
+        Long task2Id = ((Number) JsonPath.read(task2Json, "$.data.id")).longValue();
+
+        MvcTestResult initialResponse = mockMvcTester.get().uri("/api/v1/tasks/project/{projectId}",
+                                                                defaultProject.getId())
+                                                     .header("Authorization", "Bearer " + accessToken)
+                                                     .exchange();
+        String initialResponseJson = initialResponse.getResponse().getContentAsString();
+
+        List<?> toDoTasks = JsonPath.read(initialResponseJson, "$.data.toDo");
+        assertEquals(2, toDoTasks.size(), "Should have two tasks in TO_DO");
+
+        ReorderRequestDTO reorderDTO = new ReorderRequestDTO();
+        reorderDTO.setStatus("TO_DO");
+        reorderDTO.setTaskIds(List.of(task2Id, task1Id));
+
+        MvcTestResult reorderResponse = mockMvcTester.patch().uri("/api/v1/tasks/project/{projectId}/reorder",
+                                                                  defaultProject.getId())
+                                                     .header("Authorization", "Bearer " + accessToken)
+                                                     .contentType(MediaType.APPLICATION_JSON)
+                                                     .content(Jackson2ObjectMapperBuilder
+                                                                      .json()
+                                                                      .build()
+                                                                      .writeValueAsBytes(reorderDTO))
+                                                     .exchange();
+        String reorderResponseJson = reorderResponse.getResponse().getContentAsString();
+
+        List<?> newToDoTasks = JsonPath.read(reorderResponseJson, "$.data.toDo");
+        assertEquals(2, newToDoTasks.size(), "Should still have two tasks in TO_DO");
+        Long newFirstId = ((Number) JsonPath.read(newToDoTasks.get(0), "id")).longValue();
+        Long newSecondId = ((Number) JsonPath.read(newToDoTasks.get(1), "id")).longValue();
+        assertEquals(task2Id, newFirstId, "First should be task2 after reorder");
+        assertEquals(task1Id, newSecondId, "Second should be task1 after reorder");
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("It should move a task to a different status successfully")
+    void moveTaskToDifferentStatusSuccessfully() throws Exception {
+        TaskRequestDTO taskFDTO = new TaskRequestDTO();
+        taskFDTO.setProjectId(defaultProject.getId());
+        taskFDTO.setTitle("Task F");
+        taskFDTO.setDescription("Description F");
+        taskFDTO.setDueDate(LocalDateTime.now().plusDays(1).withNano(0)
+                                         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        taskFDTO.setStatus("TO_DO");
+        taskFDTO.setPriority("LOW");
+
+        MvcTestResult taskFResult = mockMvcTester.post().uri("/api/v1/tasks")
+                                                 .header("Authorization", "Bearer " + accessToken)
+                                                 .contentType(MediaType.APPLICATION_JSON)
+                                                 .content(Jackson2ObjectMapperBuilder
+                                                                  .json()
+                                                                  .build()
+                                                                  .writeValueAsBytes(taskFDTO))
+                                                 .exchange();
+        String taskFJson = taskFResult.getResponse().getContentAsString();
+
+        Long taskFId = ((Number) JsonPath.read(taskFJson, "$.data.id")).longValue();
+
+        TaskRequestDTO taskGDTO = new TaskRequestDTO();
+        taskGDTO.setProjectId(defaultProject.getId());
+        taskGDTO.setTitle("Task G");
+        taskGDTO.setDescription("Description G");
+        taskGDTO.setDueDate(LocalDateTime.now().plusDays(2).withNano(0)
+                                         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        taskGDTO.setStatus("IN_PROGRESS");
+        taskGDTO.setPriority("LOW");
+
+        TaskRequestDTO taskHDTO = new TaskRequestDTO();
+        taskHDTO.setProjectId(defaultProject.getId());
+        taskHDTO.setTitle("Task H");
+        taskHDTO.setDescription("Description H");
+        taskHDTO.setDueDate(LocalDateTime.now().plusDays(3).withNano(0)
+                                         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        taskHDTO.setStatus("IN_PROGRESS");
+        taskHDTO.setPriority("LOW");
+
+        MvcTestResult taskGResponse = mockMvcTester.post().uri("/api/v1/tasks")
+                                                   .header("Authorization", "Bearer " + accessToken)
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .content(Jackson2ObjectMapperBuilder
+                                                                    .json()
+                                                                    .build()
+                                                                    .writeValueAsBytes(taskGDTO))
+                                                   .exchange();
+        String taskGJson = taskGResponse.getResponse().getContentAsString();
+
+        Long taskGId = ((Number) JsonPath.read(taskGJson, "$.data.id")).longValue();
+
+        MvcTestResult taskHResponse = mockMvcTester.post().uri("/api/v1/tasks")
+                                                   .header("Authorization", "Bearer " + accessToken)
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .content(Jackson2ObjectMapperBuilder
+                                                                    .json()
+                                                                    .build()
+                                                                    .writeValueAsBytes(taskHDTO))
+                                                   .exchange();
+        String taskHJson = taskHResponse.getResponse().getContentAsString();
+
+        Long taskHId = ((Number) JsonPath.read(taskHJson, "$.data.id")).longValue();
+
+        MvcTestResult initialResponse = mockMvcTester.get().uri("/api/v1/tasks/project/{projectId}",
+                                                                defaultProject.getId())
+                                                     .header("Authorization", "Bearer " + accessToken)
+                                                     .exchange();
+        String initialResponsejson = initialResponse.getResponse().getContentAsString();
+
+        List<?> inProgressTasks = JsonPath.read(initialResponsejson, "$.data.inProgress");
+        assertEquals(2, inProgressTasks.size(), "Should have two tasks in IN_PROGRESS");
+
+        MoveRequestDTO moveDTO = new MoveRequestDTO();
+        moveDTO.setProjectId(defaultProject.getId());
+        moveDTO.setNewStatus("IN_PROGRESS");
+        moveDTO.setNewPosition(2);
+
+        MvcTestResult moveResponse = mockMvcTester.patch().uri("/api/v1/tasks/{taskId}/move", taskFId)
+                                                  .header("Authorization", "Bearer " + accessToken)
+                                                  .contentType(MediaType.APPLICATION_JSON)
+                                                  .content(Jackson2ObjectMapperBuilder
+                                                                   .json()
+                                                                   .build()
+                                                                   .writeValueAsBytes(moveDTO))
+                                                  .exchange();
+        String moveResponseJson = moveResponse.getResponse().getContentAsString();
+
+        List<?> newInProgressTasks = JsonPath.read(moveResponseJson, "$.data.inProgress");
+        assertEquals(3, newInProgressTasks.size(), "Should have three tasks in IN_PROGRESS after move");
+        Long newFirstId = ((Number) JsonPath.read(newInProgressTasks.get(0), "id")).longValue();
+        Long newSecondId = ((Number) JsonPath.read(newInProgressTasks.get(1), "id")).longValue();
+        Long newThirdId = ((Number) JsonPath.read(newInProgressTasks.get(2), "id")).longValue();
+        assertEquals(taskGId, newFirstId, "First should be G (position 1)");
+        assertEquals(taskFId, newSecondId, "Second should be F (position 2)");
+        assertEquals(taskHId, newThirdId, "Third should be H (position 3)");
     }
 }

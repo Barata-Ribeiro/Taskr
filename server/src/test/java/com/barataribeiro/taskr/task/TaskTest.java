@@ -34,6 +34,7 @@ class TaskTest {
                         .dueDate(localDateTime)
                         .status(TaskStatus.DONE)
                         .priority(TaskPriority.HIGH)
+                        .position(1)
                         .createdAt(now)
                         .updatedAt(now)
                         .project(project)
@@ -46,6 +47,7 @@ class TaskTest {
         assertEquals(localDateTime, task.getDueDate());
         assertEquals(TaskStatus.DONE, task.getStatus());
         assertEquals(TaskPriority.HIGH, task.getPriority());
+        assertEquals(1, task.getPosition());
         assertEquals(now, task.getCreatedAt());
         assertEquals(now, task.getUpdatedAt());
         assertEquals(project, task.getProject());
