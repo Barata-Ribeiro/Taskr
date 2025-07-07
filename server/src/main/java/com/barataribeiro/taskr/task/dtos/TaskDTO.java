@@ -26,6 +26,7 @@ public class TaskDTO implements Serializable {
     private String dueDate;
     private TaskStatus status;
     private TaskPriority priority;
+    private Integer position;
     private Instant createdAt;
     private Instant updatedAt;
     private Set<UserAuthorDTO> assignees;

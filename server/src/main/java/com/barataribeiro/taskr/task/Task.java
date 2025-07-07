@@ -61,6 +61,10 @@ public class Task implements Serializable {
     @Column(name = "priority", nullable = false)
     private TaskPriority priority = TaskPriority.LOW;
 
+    @Builder.Default
+    @Column(name = "position", nullable = false)
+    private Integer position = 1;
+
     // Timestamps
 
     @Column(updatable = false)
