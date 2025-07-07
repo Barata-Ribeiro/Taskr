@@ -15,14 +15,14 @@ import { notFound, redirect } from "next/navigation"
 import { Fragment, Suspense } from "react"
 
 interface ProjectPageProps {
-    params: Promise<{ username: string; id: string }>
+    params: Promise<{ username: string; projectId: string }>
 }
 
 export async function generateMetadata({ params }: Readonly<ProjectPageProps>) {
-    const { username, id } = await params
-    if (!username || !id) return notFound()
+    const { username, projectId } = await params
+    if (!username || !projectId) return notFound()
 
-    const projectResponse = await getProjectById(parseInt(id))
+    const projectResponse = await getProjectById(parseInt(projectId))
     if (!projectResponse.ok || !projectResponse.response?.data) return notFound()
 
     const project = projectResponse.response.data
@@ -34,23 +34,24 @@ export async function generateMetadata({ params }: Readonly<ProjectPageProps>) {
         openGraph: {
             title: project.title,
             description: `Details about the project "${project.title}" owned by ${projectOwner}.`,
-            url: `/dashboard/${username}/projects/${id}`,
+            url: `/dashboard/${username}/projects/${projectId}`,
         },
     }
 }
 
 export default async function ProjectPage({ params }: Readonly<ProjectPageProps>) {
-    const [{ username, id }, session] = await Promise.all([params, auth()])
+    const [{ username, projectId }, session] = await Promise.all([params, auth()])
 
-    if (!username || !id) return notFound()
+    if (!username || !projectId) return notFound()
 
     if (!session) return redirect("/auth/login")
-    if (session.user.username !== username) return redirect(`/dashboard/${session.user.username}/projects/${id}`)
+    if (session.user.username !== username) return redirect(`/dashboard/${session.user.username}/projects/${projectId}`)
 
     const baseUrl = `/dashboard/${username}`
+    const projectsUrl = `${baseUrl}/projects`
 
     const projectActivitiesPromise = getProjectActivities({
-        projectId: parseInt(id),
+        projectId: parseInt(projectId),
         queryParams: {
             page: 0,
             perPage: 10,
@@ -63,32 +64,32 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
         <Fragment>
             <header className="flex items-center justify-between gap-4">
                 <Link
-                    href={`${baseUrl}/projects`}
+                    href={projectsUrl}
                     aria-label="Back to Projects"
                     title="Back to Projects"
                     className="inline-flex items-center gap-x-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
                     <MoveLeftIcon aria-hidden size={16} /> Back to Projects
                 </Link>
 
-                <DefaultLinkButton href={`${baseUrl}/projects/${id}/edit`} width="fit">
+                <DefaultLinkButton href={`${baseUrl}/projects/${projectId}/edit`} width="fit">
                     <SquarePenIcon aria-hidden size={16} /> Edit Project
                 </DefaultLinkButton>
             </header>
 
             <Suspense fallback={<ProjectInformationSkeleton />}>
-                <ProjectInformation id={parseInt(id)} />
+                <ProjectInformation id={parseInt(projectId)} />
             </Suspense>
 
             <Suspense fallback="Loading...">
-                <ProjectLatestTasks id={parseInt(id)} baseUrl={baseUrl} />
+                <ProjectLatestTasks id={parseInt(projectId)} baseUrl={baseUrl} />
             </Suspense>
 
             <Suspense fallback={<ProjectMembershipsSkeleton />}>
-                <ProjectMemberships id={parseInt(id)} baseUrl={baseUrl} />
+                <ProjectMemberships id={parseInt(projectId)} baseUrl={baseUrl} />
             </Suspense>
 
             <Suspense fallback={<ProjectFeedSkeleton />}>
-                <ProjectFeed activitiesPromise={projectActivitiesPromise} id={parseInt(id)} />
+                <ProjectFeed activitiesPromise={projectActivitiesPromise} id={parseInt(projectId)} />
             </Suspense>
         </Fragment>
     )
