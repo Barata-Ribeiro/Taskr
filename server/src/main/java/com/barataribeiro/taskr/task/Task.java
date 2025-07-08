@@ -105,6 +105,7 @@ public class Task implements Serializable {
                 .append(getDueDate())
                 .append(getStatus())
                 .append(getPriority())
+                .append(getPosition())
                 .toHashCode();
     }
 
@@ -120,6 +121,7 @@ public class Task implements Serializable {
                 .append(getDueDate(), task.getDueDate())
                 .append(getStatus(), task.getStatus())
                 .append(getPriority(), task.getPriority())
+                .append(getPosition(), task.getPosition())
                 .isEquals();
     }
 }
