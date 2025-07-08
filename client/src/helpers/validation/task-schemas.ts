@@ -46,4 +46,19 @@ const taskUpdateSchema = z.object({
     membersToUnassign: z.array(z.string()).optional(),
 })
 
-export { taskCreateSchema, taskUpdateSchema }
+const moveTaskSchema = z.object({
+    projectId: z.number().min(1, "Project ID is required"),
+    newStatus: z.enum(["TO_DO", "IN_PROGRESS", "DONE"], {
+        error: "Status must be one of: TO_DO, IN_PROGRESS, DONE",
+    }),
+    newPosition: z.number().min(1, "Position must be at least 1"),
+})
+
+const reorderTasksSchema = z.object({
+    status: z.enum(["TO_DO", "IN_PROGRESS", "DONE"], {
+        error: "Status must be one of: TO_DO, IN_PROGRESS, DONE",
+    }),
+    taskIds: z.array(z.number()).min(1, "At least one task ID is required"),
+})
+
+export { taskCreateSchema, taskUpdateSchema, moveTaskSchema, reorderTasksSchema }

@@ -20,6 +20,7 @@ interface Task {
     dueDate: string
     status: TaskStatus
     priority: TaskPriority
+    position: number
     createdAt: string
     updatedAt: string
     assignees: Author[]
@@ -31,6 +32,17 @@ interface TasksByStatus {
     done: Task[]
 }
 
+interface MoveRequest {
+    projectId: number
+    newStatus: string
+    newPosition: number
+}
+
+interface ReorderRequest {
+    status: string
+    taskIds: number[]
+}
+
 export { TaskStatus, TaskPriority }
 
-export type { Task, TasksByStatus }
+export type { Task, TasksByStatus, MoveRequest, ReorderRequest }
