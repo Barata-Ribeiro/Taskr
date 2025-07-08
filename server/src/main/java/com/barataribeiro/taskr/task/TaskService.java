@@ -22,9 +22,11 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Streamable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -42,6 +44,8 @@ public class TaskService {
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+    private final @Lazy TaskService self = this;
+
 
     @Transactional(readOnly = true)
     public TasksByStatusDTO getTasksByProject(Long projectId, @NotNull Authentication authentication) {
@@ -49,23 +53,21 @@ public class TaskService {
             throw new EntityNotFoundException(Project.class.getSimpleName());
         }
 
-        TasksByStatusDTO tasksByStatus = new TasksByStatusDTO(
-                new TreeSet<>(Comparator.comparing(TaskDTO::getPosition)),
-                new TreeSet<>(Comparator.comparing(TaskDTO::getPosition)),
-                new TreeSet<>(Comparator.comparing(TaskDTO::getPosition))
-        );
+        TasksByStatusDTO tasksByStatus = new TasksByStatusDTO(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         Streamable<Task> tasks = taskRepository.findAllByProject_Id(projectId);
 
-        tasks.stream().parallel().forEach(task -> {
-            TaskDTO taskDTO = taskBuilder.toTaskDTO(task);
+        tasks.stream().parallel()
+             .sorted(Comparator.comparingInt(Task::getPosition))
+             .forEachOrdered(task -> {
+                 TaskDTO taskDTO = taskBuilder.toTaskDTO(task);
 
-            switch (task.getStatus()) {
-                case TO_DO -> tasksByStatus.getToDo().add(taskDTO);
-                case IN_PROGRESS -> tasksByStatus.getInProgress().add(taskDTO);
-                case DONE -> tasksByStatus.getDone().add(taskDTO);
-            }
-        });
+                 switch (task.getStatus()) {
+                     case TO_DO -> tasksByStatus.getToDo().add(taskDTO);
+                     case IN_PROGRESS -> tasksByStatus.getInProgress().add(taskDTO);
+                     case DONE -> tasksByStatus.getDone().add(taskDTO);
+                 }
+             });
 
         return tasksByStatus;
     }
@@ -263,7 +265,7 @@ public class TaskService {
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(task));
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TasksByStatusDTO updateTaskOrder(Long projectId, ReorderRequestDTO body,
                                             @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
@@ -274,32 +276,37 @@ public class TaskService {
         List<Long> taskIdsInOrder = body.getTaskIds();
 
         List<Task> tasks = taskRepository.findAllByProject_IdAndStatusOrderByPositionAsc(projectId, status);
-        if (tasks.size() != taskIdsInOrder.size() || !tasks
-                .stream()
-                .map(Task::getId)
-                .collect(Collectors.toSet())
-                .equals(new HashSet<>(taskIdsInOrder))) {
+
+        Set<Long> tasksSet = tasks.parallelStream().map(Task::getId).collect(Collectors.toSet());
+
+        if (!tasksSet.containsAll(taskIdsInOrder) || taskIdsInOrder.size() != tasksSet.size()) {
             throw new IllegalRequestException("Invalid task IDs for the status.");
         }
 
-        Map<Long, Task> taskMap = tasks.parallelStream().collect(Collectors.toMap(Task::getId, t -> t));
+        if (taskIdsInOrder.size() != tasks.size()) {
+            throw new IllegalRequestException("Task IDs count does not match the number of tasks in the status.");
+        }
+
         for (int i = 0; i < taskIdsInOrder.size(); i++) {
             Long taskId = taskIdsInOrder.get(i);
-            Task task = taskMap.get(taskId);
+            Task task = tasks.parallelStream()
+                             .reduce((t1, t2) -> t1.getId().equals(taskId) ? t1 : t2)
+                             .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
+
             task.setPosition(i + 1);
         }
 
-        taskRepository.saveAll(tasks);
+        taskRepository.saveAllAndFlush(tasks);
 
-        return this.getTasksByProject(projectId, authentication);
+        return self.getTasksByProject(projectId, authentication);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TasksByStatusDTO moveTask(Long taskId, @NotNull MoveRequestDTO body,
                                      @NotNull Authentication authentication) {
         Long projectId = body.getProjectId();
         TaskStatus newStatus = TaskStatus.valueOf(body.getNewStatus());
-        Integer newPosition = body.getNewPosition();
+        int newPosition = body.getNewPosition();
 
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
             throw new EntityNotFoundException(Project.class.getSimpleName());
@@ -318,6 +325,7 @@ public class TaskService {
         if (oldStatus == newStatus) {
             List<Task> tasksInStatus = taskRepository
                     .findAllByProject_IdAndStatusOrderByPositionAsc(projectId, newStatus);
+
             int currentIndex = -1;
             for (int i = 0; i < tasksInStatus.size(); i++) {
                 if (tasksInStatus.get(i).getId().equals(taskId)) {
@@ -325,18 +333,21 @@ public class TaskService {
                     break;
                 }
             }
-            if (currentIndex == -1) {
-                throw new IllegalStateException("Task not found in status.");
-            }
+
+            if (currentIndex == -1) throw new IllegalStateException("Task not found in status.");
+
             Task movedTask = tasksInStatus.remove(currentIndex);
+
             int insertIndex = newPosition - 1;
             if (insertIndex < 0 || insertIndex > tasksInStatus.size()) {
                 throw new IllegalRequestException("Invalid position.");
             }
+
             tasksInStatus.add(insertIndex, movedTask);
             for (int i = 0; i < tasksInStatus.size(); i++) {
-                tasksInStatus.get(i).setPosition(i + 1);
-                tasksToSave.add(tasksInStatus.get(i));
+                Task t = tasksInStatus.get(i);
+                t.setPosition(i + 1);
+                tasksToSave.add(t);
             }
         } else {
             List<Task> tasksInOldStatus = taskRepository
@@ -344,8 +355,9 @@ public class TaskService {
 
             tasksInOldStatus.removeIf(t -> t.getId().equals(taskId));
             for (int i = 0; i < tasksInOldStatus.size(); i++) {
-                tasksInOldStatus.get(i).setPosition(i + 1);
-                tasksToSave.add(tasksInOldStatus.get(i));
+                Task t = tasksInOldStatus.get(i);
+                t.setPosition(i + 1);
+                tasksToSave.add(t);
             }
 
             List<Task> tasksInNewStatus = taskRepository
@@ -355,21 +367,19 @@ public class TaskService {
                 throw new IllegalRequestException("Invalid position.");
             }
 
+            tasksInNewStatus.add(newPosition - 1, task);
             task.setStatus(newStatus);
-            task.setPosition(newPosition);
-            tasksToSave.add(task);
 
-            for (Task t : tasksInNewStatus) {
-                if (t.getPosition() >= newPosition) {
-                    t.setPosition(t.getPosition() + 1);
-                    tasksToSave.add(t);
-                }
+            for (int i = 0; i < tasksInNewStatus.size(); i++) {
+                Task t = tasksInNewStatus.get(i);
+                t.setPosition(i + 1);
+                tasksToSave.add(t);
             }
         }
 
         taskRepository.saveAll(tasksToSave);
 
-        return this.getTasksByProject(projectId, authentication);
+        return self.getTasksByProject(projectId, authentication);
     }
 
     @Transactional

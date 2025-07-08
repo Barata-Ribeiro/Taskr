@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.TreeSet;
+import java.util.List;
 
 /**
  * DTO for {@link com.barataribeiro.taskr.task.Task}
@@ -15,7 +15,7 @@ import java.util.TreeSet;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TasksByStatusDTO {
-    private TreeSet<TaskDTO> toDo;
-    private TreeSet<TaskDTO> inProgress;
-    private TreeSet<TaskDTO> done;
+    private List<TaskDTO> toDo;
+    private List<TaskDTO> inProgress;
+    private List<TaskDTO> done;
 }
