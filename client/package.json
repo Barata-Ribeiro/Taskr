@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
+    "@hello-pangea/dnd": "^18.0.1",
     "@stomp/stompjs": "^7.1.1",
     "babel-plugin-react-compiler": "19.1.0-rc.2",
     "jsdom": "^26.1.0",
@@ -21,7 +22,7 @@
     "sharp": "^0.34.2",
     "sockjs-client": "^1.6.1",
     "tailwind-merge": "^3.3.1",
-    "zod": "^3.25.74"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
