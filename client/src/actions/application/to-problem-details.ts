@@ -16,4 +16,12 @@ const unauthenticated = problemDetailsFactory({
     instance: "",
 })
 
-export { invalidFormData, unauthenticated }
+const invalidData = problemDetailsFactory({
+    type: "https://httpstatuses.com/400",
+    title: "Invalid Data Type",
+    status: 400,
+    detail: "The provided data is not in the expected format.",
+    instance: "",
+})
+
+export { invalidFormData, unauthenticated, invalidData }
