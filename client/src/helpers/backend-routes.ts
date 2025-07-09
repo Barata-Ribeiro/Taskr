@@ -100,6 +100,14 @@ export function updateTaskUrl(taskId: number | string): string {
     return `${API_URL}/tasks/${taskId}`
 }
 
+export function reorderTasksUrl(projectId: number | string): string {
+    return `${API_URL}/tasks/project/${projectId}/reorder`
+}
+
+export function moveTaskUrl(taskId: number | string): string {
+    return `${API_URL}/tasks/${taskId}/move`
+}
+
 export function deleteTaskUrl(taskId: number | string, projectId: number | string): string {
     return `${API_URL}/tasks/${taskId}/project/${projectId}`
 }
