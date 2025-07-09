@@ -11,15 +11,15 @@ interface AvatarProps {
 
 export default function Avatar({ url, name, size = "small" }: Readonly<AvatarProps>) {
     const sizeClasses = {
-        "extra-small": "size-6",
-        small: "size-8",
-        medium: "size-10",
-        large: "size-12",
-        "extra-large": "size-16",
+        "extra-small": "size-6 text-xs",
+        small: "size-8 text-sm",
+        medium: "size-10 text-base",
+        large: "size-12 text-lg",
+        "extra-large": "size-16 text-xl",
     }
 
     if (!url) {
-        const fallbackAvatarClasses = tw`inline-flex items-center justify-center rounded-full bg-gray-500`
+        const fallbackAvatarClasses = tw`relative inline-flex items-center justify-center rounded-full bg-gray-500 ring-2 ring-white select-none dark:bg-gray-700 dark:ring-gray-400`
         return (
             <span className={twMerge(fallbackAvatarClasses, sizeClasses[size])}>
                 <span className="font-medium text-white">{getFallbackInitials(name)}</span>
@@ -27,7 +27,7 @@ export default function Avatar({ url, name, size = "small" }: Readonly<AvatarPro
         )
     }
 
-    const avatarClasses = tw`rounded-full object-cover shadow-sm ring-2 ring-white`
+    const avatarClasses = tw`relative inline-block rounded-full object-cover shadow-sm ring-2 ring-white select-none`
 
     return <Image src={url} alt={`Profile picture of ${name}`} className={twMerge(avatarClasses, sizeClasses[size])} />
 }
