@@ -1,3 +1,4 @@
+import SessionVerifier from "@/components/shared/SessionVerifier"
 import Sidebar from "@/components/Sidebar"
 import WebsocketProvider from "@/components/WebsocketProvider"
 import { auth } from "auth"
@@ -14,6 +15,7 @@ export default async function DashboardLayout({ children }: Readonly<DashboardLa
 
     return (
         <WebsocketProvider>
+            <SessionVerifier />
             <Sidebar />
 
             <main className="py-10 lg:pl-72">
