@@ -26,7 +26,10 @@ export default async function createNewTask(state: State<unknown>, formData: unk
 
         const response = await fetch(URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${session.accessToken}`,
+            },
             body: JSON.stringify(parsedFormData.data),
         })
 
