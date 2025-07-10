@@ -45,7 +45,7 @@ public class AuthenticationService {
         User newUser = User.builder()
                            .username(body.getUsername())
                            .email(body.getEmail())
-                           .displayName(body.getUsername())
+                           .displayName(body.getDisplayName())
                            .password(passwordEncoder.encode(body.getPassword()))
                            .build();
 
