@@ -53,7 +53,7 @@ export default async function ProjectMemberships({ id, baseUrl }: Readonly<Proje
                         <div className="inline-flex min-w-0 items-center gap-x-4">
                             <Avatar
                                 url={membership.user.avatarUrl}
-                                name={membership.user.username}
+                                name={membership.user.displayName}
                                 size="large"
                                 aria-label={`Avatar of ${membership.user.displayName}`}
                             />
