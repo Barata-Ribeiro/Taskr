@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.user;
 import com.barataribeiro.taskr.helpers.RestResponse;
 import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
 import com.barataribeiro.taskr.user.dtos.UserUpdateRequestDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/me")
+    @Operation(summary = "Get account details for the authenticated user",
+               description = "Retrieves the account details of the currently authenticated user.")
     public ResponseEntity<RestResponse<UserAccountDTO>> getAccountDetails(Authentication authentication) {
         UserAccountDTO userAccountDTO = userService.getAccountDetails(authentication);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
@@ -27,6 +30,8 @@ public class UserController {
     }
 
     @PatchMapping("/me")
+    @Operation(summary = "Update account details for the authenticated user",
+               description = "Updates the account details of the currently authenticated user.")
     public ResponseEntity<RestResponse<UserAccountDTO>> updateAccountDetails(Authentication authentication,
                                                                              @RequestBody @Valid
                                                                              UserUpdateRequestDTO body) {
@@ -36,6 +41,8 @@ public class UserController {
     }
 
     @DeleteMapping("/me")
+    @Operation(summary = "Delete account for the authenticated user",
+               description = "Deletes the account of the currently authenticated user.")
     public ResponseEntity<RestResponse<Void>> deleteAccount(Authentication authentication) {
         userService.deleteAccount(authentication);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
