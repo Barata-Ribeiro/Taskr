@@ -48,6 +48,18 @@ export function userAccountUrl(): string {
     return `${API_URL}/users/me`
 }
 
+export function userMembershipsUrl(projectId: number | string): string {
+    return `${API_URL}/users/${projectId}/memberships`
+}
+
+export function updateUserAccountUrl(): string {
+    return `${API_URL}/users/me`
+}
+
+export function deleteUserAccountUrl(): string {
+    return `${API_URL}/users/me`
+}
+
 // ===============================================================
 // =================  Project Module Functions  ==================
 // ===============================================================
