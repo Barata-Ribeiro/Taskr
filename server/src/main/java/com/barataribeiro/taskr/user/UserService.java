@@ -3,17 +3,24 @@ package com.barataribeiro.taskr.user;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.exceptions.throwables.InvalidCredentialsException;
+import com.barataribeiro.taskr.membership.Membership;
+import com.barataribeiro.taskr.membership.MembershipBuilder;
+import com.barataribeiro.taskr.membership.MembershipRepository;
+import com.barataribeiro.taskr.membership.dtos.MembershipUsersDTO;
+import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
 import com.barataribeiro.taskr.user.dtos.UserUpdateRequestDTO;
 import com.barataribeiro.taskr.user.enums.Roles;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Streamable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,6 +29,19 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserBuilder userBuilder;
     private final PasswordEncoder passwordEncoder;
+    private final MembershipRepository membershipRepository;
+    private final MembershipBuilder membershipBuilder;
+
+    @Transactional(readOnly = true)
+    public List<MembershipUsersDTO> getProjectMemberships(Long projectId, @NotNull Authentication authentication) {
+        if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
+            throw new EntityNotFoundException(Project.class.getSimpleName());
+        }
+
+        Streamable<Membership> memberships = membershipRepository.findByProject_Id(projectId);
+
+        return memberships.stream().parallel().map(membershipBuilder::toMembershipUsersDTO).toList();
+    }
 
     @Transactional(readOnly = true)
     public UserAccountDTO getAccountDetails(@NotNull Authentication authentication) {
@@ -89,4 +109,6 @@ public class UserService {
             throw new IllegalRequestException("Account deletion failed; Account not found or not authorized.");
         }
     }
+
+
 }
