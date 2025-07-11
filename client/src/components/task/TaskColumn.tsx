@@ -34,21 +34,22 @@ export default function TaskColumn({ baseUrl, provided, snapshot, statusKey, tas
         return twMerge(baseStyle, isDraggingOver ? "bg-gray-100 dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900")
     }
 
+    const status = statusKey as keyof TasksByStatus
+
+    const titleDefaultStyles = tw`rounded-md border-l-4 px-3 py-1 font-semibold select-none`
+
     return (
         <div ref={provided.innerRef} {...provided.droppableProps} className={getDroppableClasses(snapshot)}>
             <header
-                className="inline-flex items-center gap-x-2 font-medium"
+                className="inline-flex items-center gap-x-2 border-b border-gray-200 pb-2 font-medium dark:border-gray-700"
                 role="region"
-                aria-label={`${statusStringNormalizer(statusKey as keyof TasksByStatus)} column`}>
+                aria-label={`${statusStringNormalizer(status)} column`}>
                 <h2
-                    className={twMerge(
-                        getStatusColor(statusKey as keyof TasksByStatus),
-                        "rounded-full px-3 py-1 text-2xl font-semibold select-none",
-                    )}
+                    className={twMerge(getStatusColor(status), titleDefaultStyles)}
                     id={`taskboard-header-${statusKey}`}
-                    title={statusStringNormalizer(statusKey as keyof TasksByStatus)}
-                    aria-label={statusStringNormalizer(statusKey as keyof TasksByStatus)}>
-                    {statusStringNormalizer(statusKey as keyof TasksByStatus)}
+                    title={statusStringNormalizer(status)}
+                    aria-label={statusStringNormalizer(status)}>
+                    {statusStringNormalizer(status)}
                 </h2>
                 <span className="text-sm" aria-label={`${tasks.length} tasks`}>
                     ( {tasks.length} )

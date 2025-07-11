@@ -1,6 +1,7 @@
 import { Task } from "@/@types/task"
 import DueDateBadge from "@/components/shared/task/DueDateBadge"
 import Tooltip from "@/components/shared/Tooltip"
+import TaskPriorityBadge from "@/components/task/TaskPriorityBadge"
 import DefaultButton from "@/components/ui/DefaultButton"
 import Avatar from "@/components/user/Avatar"
 import tw from "@/utils/tw"
@@ -56,7 +57,7 @@ export default function TaskCard({ baseUrl, provided, snapshot, task }: Readonly
             <p className="prose text-sm text-gray-600 dark:text-gray-300">{task.description}</p>
 
             <div className="flex items-center justify-between gap-4">
-                <div className="flex -space-x-2">
+                <div className="flex -space-x-2 self-end">
                     {task.assignees.map((assignee, i) => {
                         const key = `${assignee.id}-${i}`
                         const href = `${baseUrl}/profile/${assignee.username}`
@@ -73,7 +74,11 @@ export default function TaskCard({ baseUrl, provided, snapshot, task }: Readonly
                         )
                     })}
                 </div>
-                <DueDateBadge date={task.dueDate} />
+
+                <div className="grid justify-items-end gap-2">
+                    <TaskPriorityBadge taskPriority={task.priority} />
+                    <DueDateBadge date={task.dueDate} />
+                </div>
             </div>
         </div>
     )
