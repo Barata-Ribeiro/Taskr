@@ -84,7 +84,7 @@ export default function NewTaskForm({ projectId }: Readonly<NewTaskFormProps>) {
                     aria-disabled={pending}
                     required
                     aria-required>
-                    <DefaultOption value="" disabled selected>
+                    <DefaultOption defaultValue="" disabled>
                         Select Status
                     </DefaultOption>
                     {Object.entries(TaskStatus).map(([key, value]) => (
@@ -102,7 +102,7 @@ export default function NewTaskForm({ projectId }: Readonly<NewTaskFormProps>) {
                     aria-disabled={pending}
                     required
                     aria-required>
-                    <DefaultOption value="" disabled selected>
+                    <DefaultOption defaultValue="" disabled>
                         Select Priority
                     </DefaultOption>
                     {Object.entries(TaskPriority).map(([key, value]) => (
