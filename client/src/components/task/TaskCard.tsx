@@ -1,12 +1,11 @@
 import { Task } from "@/@types/task"
+import EditTaskModal from "@/components/modals/EditTaskModal"
 import DueDateBadge from "@/components/shared/task/DueDateBadge"
 import Tooltip from "@/components/shared/Tooltip"
 import TaskPriorityBadge from "@/components/task/TaskPriorityBadge"
-import DefaultButton from "@/components/ui/DefaultButton"
 import Avatar from "@/components/user/Avatar"
 import tw from "@/utils/tw"
 import { DraggableProvided, DraggableStateSnapshot } from "@hello-pangea/dnd"
-import { SquarePenIcon } from "lucide-react"
 import Link from "next/link"
 import { twMerge } from "tailwind-merge"
 
@@ -48,10 +47,7 @@ export default function TaskCard({ baseUrl, provided, snapshot, task }: Readonly
                     <h3 className="text-lg font-medium">{task.title}</h3>
                 </Link>
 
-                <DefaultButton type="button" buttonType="ghost" width="fit" isIconOnly>
-                    {/*TODO: Add modal for editing task*/}
-                    <SquarePenIcon aria-hidden size={16} />
-                </DefaultButton>
+                <EditTaskModal task={task} />
             </div>
 
             <p className="prose text-sm text-gray-600 dark:text-gray-300">{task.description}</p>
