@@ -2,7 +2,7 @@
 
 import Avatar from "@/components/user/Avatar"
 import { Button, Dialog, DialogBackdrop, DialogPanel, TransitionChild } from "@headlessui/react"
-import { ChartPieIcon, FilesIcon, FolderIcon, HomeIcon, MenuIcon, XIcon } from "lucide-react"
+import { ChartPieIcon, FolderIcon, HomeIcon, MenuIcon, XIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
@@ -21,7 +21,6 @@ export default function Sidebar() {
     const navigation = [
         { name: "Dashboard", href: `${basePath}`, icon: HomeIcon },
         { name: "Projects", href: `${basePath}/projects`, icon: FolderIcon },
-        { name: "Documents", href: `${basePath}/documents`, icon: FilesIcon },
         { name: "Reports", href: `${basePath}/reports`, icon: ChartPieIcon },
     ]
 
@@ -48,7 +47,7 @@ export default function Sidebar() {
                                 </Button>
                             </div>
                         </TransitionChild>
-                        {/* Sidebar component, swap this element with another sidebar if you like */}
+
                         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-2 dark:bg-gray-800">
                             <div className="flex h-16 shrink-0 items-center">
                                 <Image alt="Taskr Logo" src={taskrLogo} className="h-8 w-auto" />
@@ -147,7 +146,9 @@ export default function Sidebar() {
                     <span className="sr-only">Open sidebar</span>
                     <MenuIcon aria-hidden="true" className="size-6" />
                 </Button>
+
                 <div className="flex-1 text-sm/6 font-semibold text-gray-900 dark:text-gray-200">Dashboard</div>
+
                 {session && (
                     <Link href={`/dashboard/${session?.user.username}/profile`}>
                         <span className="sr-only">Your profile</span>
