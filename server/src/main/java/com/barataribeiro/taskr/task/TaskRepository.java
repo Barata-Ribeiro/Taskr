@@ -8,6 +8,7 @@ import org.springframework.data.util.Streamable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificationExecutor<Task> {
     @EntityGraph(attributePaths = {"assignees"})
@@ -23,4 +24,8 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
     List<Task> findAllByProject_IdAndStatusOrderByPositionAsc(Long projectId, TaskStatus status);
 
     long countByProject_IdAndStatus(Long id, TaskStatus status);
+
+    long countByProject_Id(Long projectId);
+
+    long countByAssignees_Id(UUID userId);
 }
