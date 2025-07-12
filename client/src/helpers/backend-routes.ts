@@ -123,3 +123,18 @@ export function moveTaskUrl(taskId: number | string): string {
 export function deleteTaskUrl(taskId: number | string, projectId: number | string): string {
     return `${API_URL}/tasks/${taskId}/project/${projectId}`
 }
+
+// ===============================================================
+// =================  Statistics Module Functions  ===============
+// ===============================================================
+export function globalStatsUrl(): string {
+    return `${API_URL}/stats/global`
+}
+
+export function projectStatsUrl(projectId: number | string): string {
+    return `${API_URL}/stats/project/${projectId}`
+}
+
+export function userStatsUrl(userId: string): string {
+    return `${API_URL}/stats/user/${userId}`
+}
