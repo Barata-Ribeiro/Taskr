@@ -1,6 +1,7 @@
 import { ProblemDetails } from "@/@types/application"
 import getGlobalStats from "@/actions/stats/get-global-stats"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
+import statusStringNormalizer from "@/utils/status-string-normalizer"
 import { auth } from "auth"
 import { ShieldAlert } from "lucide-react"
 import { redirect } from "next/navigation"
@@ -54,40 +55,40 @@ export default async function GlobalStats() {
     const globalStats = globalStatsResponse.response.data
 
     return (
-        <section aria-labelledby="global-stats-heading">
+        <section aria-labelledby="global-stats-heading" aria-describedby="global-stats-description">
             <h2 id="global-stats-heading" className="text-base font-semibold">
                 Global Statistics
             </h2>
-            <p className="mt-2 max-w-4xl text-sm text-gray-500 dark:text-gray-400">
+            <p id="global-stats-description" className="mt-2 max-w-4xl text-sm text-gray-500 dark:text-gray-400">
                 Here you can find the global statistics for all projects, users, and reports in the system.
             </p>
 
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Users</h3>
-                    <p className="text-xl font-semibold">{globalStats.totalUsers}</p>
-                </div>
-                <div className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Projects</h3>
-                    <p className="text-xl font-semibold">{globalStats.totalProjects}</p>
-                </div>
-                <div className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Tasks</h3>
-                    <p className="text-xl font-semibold">{globalStats.totalTasks}</p>
-                </div>
-                <div className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Comments</h3>
-                    <p className="text-xl font-semibold">{globalStats.totalComments}</p>
-                </div>
-                <div className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Memberships</h3>
-                    <p className="text-xl font-semibold">{globalStats.totalMemberships}</p>
-                </div>
-                <div className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Activities</h3>
-                    <p className="text-xl font-semibold">{globalStats.totalActivities}</p>
-                </div>
-            </div>
+            <dl
+                className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                aria-label="Global statistics list">
+                {Object.entries(globalStats).map(([key, value]) => {
+                    const formattedKey = statusStringNormalizer(key)
+
+                    return (
+                        <div
+                            key={`${key}-${value}`}
+                            className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm sm:p-6 dark:bg-gray-800"
+                            role="group"
+                            aria-labelledby={`stat-${key}-title`}>
+                            <dt
+                                className="truncate text-sm font-medium text-gray-500 dark:text-gray-400"
+                                id={`stat-${key}-title`}>
+                                {formattedKey}
+                            </dt>
+                            <dd
+                                className="mt-1 text-3xl font-semibold tracking-tight"
+                                aria-label={`Value for ${formattedKey}`}>
+                                {value}
+                            </dd>
+                        </div>
+                    )
+                })}
+            </dl>
         </section>
     )
 }
