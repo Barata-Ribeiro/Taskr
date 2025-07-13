@@ -1,10 +1,20 @@
 import GlobalStats from "@/components/stats/GlobalStats"
+import DividerIconOnly from "@/components/ui/DividerIconOnly"
+import GlobalStatsSkeleton from "@/components/ui/skeletons/GlobalStatsSkeleton"
 import { auth } from "auth"
+import { ChartPieIcon } from "lucide-react"
+import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { Fragment, Suspense } from "react"
 
 interface StatsPageProps {
     params: Promise<{ username: string }>
+}
+
+export const metadata: Metadata = {
+    title: "Reports",
+    description:
+        "View all reports and statistics for the application, including global, project-specific, and user-specific stats.",
 }
 
 export default async function StatsPage({ params }: Readonly<StatsPageProps>) {
@@ -14,11 +24,15 @@ export default async function StatsPage({ params }: Readonly<StatsPageProps>) {
 
     return (
         <Fragment>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<GlobalStatsSkeleton />}>
                 <GlobalStats />
             </Suspense>
 
+            <DividerIconOnly icon={ChartPieIcon} />
+
             <Suspense fallback={<div>Loading...</div>}>{/*TODO: Add project-specific stats component here*/}</Suspense>
+
+            <DividerIconOnly icon={ChartPieIcon} />
 
             <Suspense fallback={<div>Loading...</div>}>{/*TODO: Add user-specific stats component here*/}</Suspense>
         </Fragment>
