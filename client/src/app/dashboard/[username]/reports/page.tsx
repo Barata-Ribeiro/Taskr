@@ -1,4 +1,7 @@
+import { QueryParams } from "@/@types/application"
+import getAllMyProjectsPaginated from "@/actions/project/get-all-my-projects-paginated"
 import GlobalStats from "@/components/stats/GlobalStats"
+import ProjectStatsList from "@/components/stats/ProjectStatsList"
 import DividerIconOnly from "@/components/ui/DividerIconOnly"
 import GlobalStatsSkeleton from "@/components/ui/skeletons/GlobalStatsSkeleton"
 import { auth } from "auth"
@@ -22,6 +25,11 @@ export default async function StatsPage({ params }: Readonly<StatsPageProps>) {
     if (!session) redirect("/auth/login")
     if (session.user.username !== username) redirect(`/dashboard/${session.user.username}/reports`)
 
+    const queryParams: QueryParams = { page: 0, perPage: 10, direction: "DESC", orderBy: "createdAt" }
+    const myProjectsPromise = getAllMyProjectsPaginated(queryParams)
+
+    const baseUrl = `/dashboard/${username}/projects`
+
     return (
         <Fragment>
             <Suspense fallback={<GlobalStatsSkeleton />}>
@@ -30,7 +38,10 @@ export default async function StatsPage({ params }: Readonly<StatsPageProps>) {
 
             <DividerIconOnly icon={ChartPieIcon} />
 
-            <Suspense fallback={<div>Loading...</div>}>{/*TODO: Add project-specific stats component here*/}</Suspense>
+            {/*// TODO: Add project-specific loading skeleton*/}
+            <Suspense fallback={<div>Loading...</div>}>
+                <ProjectStatsList projectsPromise={myProjectsPromise} baseUrl={baseUrl} />{" "}
+            </Suspense>
 
             <DividerIconOnly icon={ChartPieIcon} />
 
