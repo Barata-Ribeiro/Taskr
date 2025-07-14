@@ -63,14 +63,14 @@ export default async function GlobalStats() {
                 Here you can find the global statistics for all projects, users, and reports in the system.
             </p>
 
-            <dl
+            <div
                 className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
                 aria-label="Global statistics list">
                 {Object.entries(globalStats).map(([key, value]) => {
                     const formattedKey = statusStringNormalizer(key)
 
                     return (
-                        <div
+                        <dl
                             key={`${key}-${value}`}
                             className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm sm:p-6 dark:bg-gray-800"
                             role="group"
@@ -85,10 +85,10 @@ export default async function GlobalStats() {
                                 aria-label={`Value for ${formattedKey}`}>
                                 {value}
                             </dd>
-                        </div>
+                        </dl>
                     )
                 })}
-            </dl>
+            </div>
         </section>
     )
 }

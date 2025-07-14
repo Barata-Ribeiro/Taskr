@@ -7,7 +7,7 @@ interface BadgesProps {
 }
 
 export default function Badge({ userRole }: Readonly<BadgesProps>) {
-    const defaultStyles = tw`inline-flex w-max items-center rounded-full px-2 py-1 text-xs leading-none font-medium capitalize ring-1 ring-inset`
+    const defaultStyles = tw`inline-flex w-max items-center rounded-full px-2 py-1 text-xs leading-none font-medium capitalize ring-1 select-none ring-inset`
 
     const roleStyles: Record<Roles, string> = {
         NONE: tw`bg-gray-50 text-gray-600 ring-gray-500/10 dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-600/20`,
@@ -18,5 +18,13 @@ export default function Badge({ userRole }: Readonly<BadgesProps>) {
 
     const normalizedRoled = userRole.toLowerCase()
 
-    return <span className={twMerge(defaultStyles, roleStyles[userRole])}>{normalizedRoled}</span>
+    return (
+        <span
+            className={twMerge(defaultStyles, roleStyles[userRole])}
+            role="status"
+            aria-label={`User role: ${normalizedRoled}`}
+            title={`User role: ${normalizedRoled}`}>
+            {normalizedRoled}
+        </span>
+    )
 }

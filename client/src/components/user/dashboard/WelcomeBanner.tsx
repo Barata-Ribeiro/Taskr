@@ -15,7 +15,7 @@ export default async function WelcomeBanner() {
                 <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
                     Welcome back, {session.user.username}!
                 </h1>
-                <small className="text-sm text-gray-500 dark:text-gray-400">@{session.user.username}</small>
+                <small className="mb-2 text-sm text-gray-500 dark:text-gray-400">@{session.user.username}</small>
                 <Badge userRole={session.user.role} />
             </div>
         </header>
