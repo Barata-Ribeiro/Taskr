@@ -1,7 +1,7 @@
 import { ProblemDetails } from "@/@types/application"
 import getGlobalStats from "@/actions/stats/get-global-stats"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
-import statusStringNormalizer from "@/utils/status-string-normalizer"
+import UserCountBlock from "@/components/stats/UserCountBlock"
 import { auth } from "auth"
 import { ShieldAlert } from "lucide-react"
 import { redirect } from "next/navigation"
@@ -63,31 +63,8 @@ export default async function GlobalStats() {
                 Here you can find the global statistics for all projects, users, and reports in the system.
             </p>
 
-            <div
-                className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                aria-label="Global statistics list">
-                {Object.entries(globalStats).map(([key, value]) => {
-                    const formattedKey = statusStringNormalizer(key)
-
-                    return (
-                        <dl
-                            key={`${key}-${value}`}
-                            className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm sm:p-6 dark:bg-gray-800"
-                            role="group"
-                            aria-labelledby={`stat-${key}-title`}>
-                            <dt
-                                className="truncate text-sm font-medium text-gray-500 dark:text-gray-400"
-                                id={`stat-${key}-title`}>
-                                {formattedKey}
-                            </dt>
-                            <dd
-                                className="mt-1 text-3xl font-semibold tracking-tight"
-                                aria-label={`Value for ${formattedKey}`}>
-                                {value}
-                            </dd>
-                        </dl>
-                    )
-                })}
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3" aria-label="Global statistics list">
+                <UserCountBlock data={globalStats.userCount} />
             </div>
         </section>
     )
