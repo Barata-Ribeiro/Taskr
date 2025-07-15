@@ -160,6 +160,7 @@ class StatisticsControllerTest {
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.tasksToDo"));
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.tasksInProgress"));
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.tasksDone"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalOverdueTasks"));
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalComments"));
                          assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalMembers"));
                          assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalActivities"));

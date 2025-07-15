@@ -14,6 +14,7 @@ public class ProjectStatsDTO {
     private long tasksToDo;
     private long tasksInProgress;
     private long tasksDone;
+    private long totalOverdueTasks;
     private long totalComments;
     private long totalMembers;
     private long totalActivities;

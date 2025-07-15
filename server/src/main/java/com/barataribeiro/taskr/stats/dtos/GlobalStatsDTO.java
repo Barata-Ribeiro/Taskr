@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GlobalStatsDTO {
     private UserCountDTO userCount;
-    private ProjectsCountDTO projetsCount;
+    private ProjectsCountDTO projectsCount;
     private long totalTasks;
     private long totalComments;
     private long totalMemberships;

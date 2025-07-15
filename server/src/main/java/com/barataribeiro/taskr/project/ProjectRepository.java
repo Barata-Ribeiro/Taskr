@@ -32,6 +32,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
                 sum(case when t.status = 'TO_DO' then 1 else 0 end),
                 sum(case when t.status = 'IN_PROGRESS' then 1 else 0 end),
                 sum(case when t.status = 'DONE' then 1 else 0 end),
+                sum(case when t.dueDate < current_timestamp and t.status != 'DONE' then 1 else 0 end),
                 count(distinct c),
                 count(distinct m),
                 count(distinct a))
