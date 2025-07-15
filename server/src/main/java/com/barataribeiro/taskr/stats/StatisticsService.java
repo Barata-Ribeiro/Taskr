@@ -10,8 +10,9 @@ import com.barataribeiro.taskr.project.ProjectRepository;
 import com.barataribeiro.taskr.stats.dtos.GlobalStatsDTO;
 import com.barataribeiro.taskr.stats.dtos.ProjectStatsDTO;
 import com.barataribeiro.taskr.stats.dtos.UserStatsDTO;
+import com.barataribeiro.taskr.stats.dtos.counts.ProjectsCountDTO;
+import com.barataribeiro.taskr.stats.dtos.counts.UserCountDTO;
 import com.barataribeiro.taskr.task.TaskRepository;
-import com.barataribeiro.taskr.task.enums.TaskStatus;
 import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,14 +41,13 @@ public class StatisticsService {
             throw new ForbiddenRequestException();
         }
 
-        long totalUsers = userRepository.count();
-        long totalProjects = projectRepository.count();
+        UserCountDTO users = userRepository.getUserCount();
+        ProjectsCountDTO projects = projectRepository.getProjectsCount();
         long totalTasks = taskRepository.count();
         long totalComments = commentRepository.count();
         long totalMemberships = membershipRepository.count();
         long totalActivities = activityRepository.count();
-        return new GlobalStatsDTO(totalUsers, totalProjects, totalTasks, totalComments, totalMemberships,
-                                  totalActivities);
+        return new GlobalStatsDTO(users, projects, totalTasks, totalComments, totalMemberships, totalActivities);
     }
 
     @Transactional(readOnly = true)
@@ -56,15 +56,7 @@ public class StatisticsService {
             throw new EntityNotFoundException(Project.class.getSimpleName());
         }
 
-        long totalTasks = taskRepository.countByProject_Id(projectId);
-        long tasksToDo = taskRepository.countByProject_IdAndStatus(projectId, TaskStatus.TO_DO);
-        long tasksInProgress = taskRepository.countByProject_IdAndStatus(projectId, TaskStatus.IN_PROGRESS);
-        long tasksDone = taskRepository.countByProject_IdAndStatus(projectId, TaskStatus.DONE);
-        long totalComments = commentRepository.countDistinctByTask_Id(projectId);
-        long totalMembers = membershipRepository.countByProject_Id(projectId);
-        long totalActivities = activityRepository.countByProject_Id(projectId);
-        return new ProjectStatsDTO(totalTasks, tasksToDo, tasksInProgress, tasksDone, totalComments, totalMembers,
-                                   totalActivities);
+        return projectRepository.getProjectCount(projectId);
     }
 
     @Transactional(readOnly = true)
@@ -74,17 +66,14 @@ public class StatisticsService {
         String username = authentication.getName();
         boolean isAdmin = authentication.getAuthorities().stream()
                                         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
         User currentUser = userRepository.findById(uuid)
                                          .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
         boolean isCurrentUser = currentUser.getUsername().equals(username);
 
         if (!isAdmin && !isCurrentUser) throw new ForbiddenRequestException();
 
-
-        long totalProjectsOwned = projectRepository.countByOwner_Id(uuid);
-        long totalTasksAssigned = taskRepository.countByAssignees_Id(uuid);
-        long totalCommentsMade = commentRepository.countDistinctByAuthor_Username(currentUser.getUsername());
-        long totalMemberships = membershipRepository.countByUser_Id(uuid);
-        return new UserStatsDTO(totalProjectsOwned, totalTasksAssigned, totalCommentsMade, totalMemberships);
+        return userRepository.getUserStats(isCurrentUser ? currentUser.getId() : uuid);
     }
 }
