@@ -5,7 +5,7 @@
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-@theme {
+@theme inline {
     /*FONT*/
     --font-heading: var(--font-space-mono), sans-serif;
     --font-body: var(--font-work-sans), sans-serif;
