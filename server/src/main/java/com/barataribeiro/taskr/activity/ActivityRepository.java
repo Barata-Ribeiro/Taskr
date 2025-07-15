@@ -7,6 +7,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface ActivityRepository extends JpaRepository<Activity, Long>, JpaSpecificationExecutor<Activity> {
     Page<Activity> findAllByProject_Id(Long projectId, Pageable pageable);
-
-    long countByProject_Id(Long projectId);
 }

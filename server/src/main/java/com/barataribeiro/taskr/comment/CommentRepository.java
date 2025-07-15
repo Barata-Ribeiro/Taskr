@@ -7,8 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.util.Streamable;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
-    long countDistinctByTask_Id(Long taskId);
-
     long countDistinctByAuthor_Username(@Param("username") String username);
 
     @EntityGraph(attributePaths = {"author", "parent", "children"})

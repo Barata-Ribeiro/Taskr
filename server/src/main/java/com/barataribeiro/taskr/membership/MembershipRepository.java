@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.util.Streamable;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface MembershipRepository extends JpaRepository<Membership, Long>, JpaSpecificationExecutor<Membership> {
     @EntityGraph(attributePaths = {"project", "user"})
@@ -24,8 +23,4 @@ public interface MembershipRepository extends JpaRepository<Membership, Long>, J
 
     @EntityGraph(attributePaths = {"project", "user"})
     Streamable<Membership> findByProject_Id(Long id);
-
-    long countByProject_Id(Long projectId);
-
-    long countByUser_Id(UUID userId);
 }
