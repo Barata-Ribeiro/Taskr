@@ -12,6 +12,7 @@ import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,10 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -103,12 +106,27 @@ class StatisticsControllerTest {
                      .satisfies(jsonContent -> {
                          String json = jsonContent.getJson();
 
-                         assertNotNull(JsonPath.read(json, "$.data.totalUsers"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalProjects"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalTasks"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalComments"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalMemberships"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalActivities"));
+                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.userCount.totalUsers"));
+                         assertEquals(1, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleUser"));
+                         assertEquals(1, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleAdmin"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleBanned"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleNone"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleVerified"));
+                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleUnverified"));
+
+                         assertEquals(1, (Integer) JsonPath.read(json, "$.data.projectsCount.totalProjects"));
+                         assertEquals(1, (Integer) JsonPath.read(json, "$.data.projectsCount.totalStatusNotStarted"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.projectsCount.totalStatusInProgress"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.projectsCount.totalStatusCompleted"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.projectsCount.totalStatusOnHold"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.projectsCount.totalStatusCancelled"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.projectsCount.totalOverdue"));
+
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalTasks"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalComments"));
+                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalMemberships"));
+                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalActivities"));
+
                      });
     }
 
@@ -138,13 +156,13 @@ class StatisticsControllerTest {
                      .satisfies(jsonContent -> {
                          String json = jsonContent.getJson();
 
-                         assertNotNull(JsonPath.read(json, "$.data.totalTasks"));
-                         assertNotNull(JsonPath.read(json, "$.data.tasksToDo"));
-                         assertNotNull(JsonPath.read(json, "$.data.tasksInProgress"));
-                         assertNotNull(JsonPath.read(json, "$.data.tasksDone"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalComments"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalMembers"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalActivities"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalTasks"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.tasksToDo"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.tasksInProgress"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.tasksDone"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalComments"));
+                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalMembers"));
+                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalActivities"));
                      });
     }
 
@@ -178,10 +196,10 @@ class StatisticsControllerTest {
                      .satisfies(jsonContent -> {
                          String json = jsonContent.getJson();
 
-                         assertNotNull(JsonPath.read(json, "$.data.totalProjectsOwned"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalTasksAssigned"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalCommentsMade"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalMemberships"));
+                         assertEquals(1, (Integer) JsonPath.read(json, "$.data.totalProjectsOwned"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalTasksAssigned"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalCommentsMade"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalMemberships"));
                      });
     }
 
@@ -198,10 +216,10 @@ class StatisticsControllerTest {
                      .satisfies(jsonContent -> {
                          String json = jsonContent.getJson();
 
-                         assertNotNull(JsonPath.read(json, "$.data.totalProjectsOwned"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalTasksAssigned"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalCommentsMade"));
-                         assertNotNull(JsonPath.read(json, "$.data.totalMemberships"));
+                         assertEquals(1, (Integer) JsonPath.read(json, "$.data.totalProjectsOwned"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalTasksAssigned"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalCommentsMade"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalMemberships"));
                      });
     }
 
