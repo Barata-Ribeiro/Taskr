@@ -1,6 +1,26 @@
-interface GlobalStats {
+interface UserCount {
     totalUsers: number
+    totalRoleNone: number
+    totalRoleUser: number
+    totalRoleAdmin: number
+    totalRoleBanned: number
+    totalVerified: number
+    totalUnverified: number
+}
+
+interface ProjectsCount {
     totalProjects: number
+    totalStatusNotStarted: number
+    totalStatusInProgress: number
+    totalStatusCompleted: number
+    totalStatusOnHold: number
+    totalStatusCancelled: number
+    totalOverdue: number
+}
+
+interface GlobalStats {
+    userCount: UserCount
+    projectsCount: ProjectsCount
     totalTasks: number
     totalComments: number
     totalMemberships: number
@@ -12,6 +32,7 @@ interface ProjectStats {
     tasksToDo: number
     tasksInProgress: number
     tasksDone: number
+    totalOverdueTasks: number
     totalComments: number
     totalMembers: number
     totalActivities: number
@@ -24,4 +45,4 @@ interface UserStats {
     totalMemberships: number
 }
 
-export type { GlobalStats, ProjectStats, UserStats }
+export type { UserCount, ProjectsCount, GlobalStats, ProjectStats, UserStats }
