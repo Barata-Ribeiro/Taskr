@@ -111,8 +111,8 @@ class StatisticsControllerTest {
                          assertEquals(1, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleAdmin"));
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleBanned"));
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleNone"));
-                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleVerified"));
-                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleUnverified"));
+                         assertEquals(0, (Integer) JsonPath.read(json, "$.data.userCount.totalVerified"));
+                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.userCount.totalUnverified"));
 
                          assertEquals(1, (Integer) JsonPath.read(json, "$.data.projectsCount.totalProjects"));
                          assertEquals(1, (Integer) JsonPath.read(json, "$.data.projectsCount.totalStatusNotStarted"));

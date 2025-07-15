@@ -15,6 +15,6 @@ public class UserCountDTO {
     private Long totalRoleUser;
     private Long totalRoleAdmin;
     private Long totalRoleBanned;
-    private Long totalRoleVerified;
-    private Long totalRoleUnverified;
+    private Long totalVerified;
+    private Long totalUnverified;
 }
