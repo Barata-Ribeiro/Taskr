@@ -33,14 +33,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
                 sum(case when t.status = 'IN_PROGRESS' then 1 else 0 end),
                 sum(case when t.status = 'DONE' then 1 else 0 end),
                 sum(case when t.dueDate < current_timestamp and t.status != 'DONE' then 1 else 0 end),
-                count(distinct c),
-                count(distinct m),
-                count(distinct a))
+                (select count(distinct c) from Task t2 left join t2.comments c where t2.project.id = :projectId),
+                (select count(distinct m) from Project p2 left join p2.memberships m where p2.id = :projectId),
+                (select count(distinct a) from Project p3 left join p3.feed a where p3.id = :projectId))
            from Project p
            left join p.tasks t
-           left join t.comments c
-           left join p.memberships m
-           left join p.feed a
            where p.id = :projectId
            """)
     ProjectStatsDTO getProjectCount(Long projectId);
