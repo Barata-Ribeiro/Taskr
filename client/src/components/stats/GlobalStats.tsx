@@ -1,7 +1,10 @@
 import { ProblemDetails } from "@/@types/application"
 import getGlobalStats from "@/actions/stats/get-global-stats"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
-import UserCountBlock from "@/components/stats/UserCountBlock"
+import OtherStatistics from "@/components/stats/OtherStatistics"
+import UsersByRoleChart from "@/components/stats/UsersByRoleChart"
+import UsersByVerificationChart from "@/components/stats/UsersByVerificationChart"
+import UsersWrittenCount from "@/components/stats/UsersWrittenCount"
 import { auth } from "auth"
 import { ShieldAlert } from "lucide-react"
 import { redirect } from "next/navigation"
@@ -53,6 +56,8 @@ export default async function GlobalStats() {
     }
 
     const globalStats = globalStatsResponse.response.data
+    const userCount = globalStats.userCount
+    const projectsCount = globalStats.projectsCount
 
     return (
         <section aria-labelledby="global-stats-heading" aria-describedby="global-stats-description">
@@ -63,9 +68,15 @@ export default async function GlobalStats() {
                 Here you can find the global statistics for all projects, users, and reports in the system.
             </p>
 
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3" aria-label="Global statistics list">
-                <UserCountBlock data={globalStats.userCount} />
+            <div
+                className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6"
+                aria-label="User statistics">
+                <UsersByRoleChart data={userCount} />
+                <UsersWrittenCount data={userCount} />
+                <UsersByVerificationChart data={userCount} />
             </div>
+
+            <OtherStatistics data={globalStats} />
         </section>
     )
 }
