@@ -1,5 +1,7 @@
 interface UserCount {
     totalUsers: number
+    totalLast7Days: number
+    totalLast30Days: number
     totalRoleNone: number
     totalRoleUser: number
     totalRoleAdmin: number
@@ -10,6 +12,8 @@ interface UserCount {
 
 interface ProjectsCount {
     totalProjects: number
+    totalProjectsLast7Days: number
+    totalProjectsLast30Days: number
     totalStatusNotStarted: number
     totalStatusInProgress: number
     totalStatusCompleted: number
