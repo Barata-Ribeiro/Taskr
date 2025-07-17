@@ -13,17 +13,19 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
     @EntityGraph(attributePaths = {"owner"})
     Page<Project> findAllByOwner_Username(String ownerUsername, Pageable pageable);
 
-    @Query("""
-           select new com.barataribeiro.taskr.stats.dtos.counts.ProjectsCountDTO(
-                count(distinct p),
-                sum(case when p.status = 'NOT_STARTED' then 1 else 0 end),
-                sum(case when p.status = 'IN_PROGRESS' then 1 else 0 end),
-                sum(case when p.status = 'COMPLETED' then 1 else 0 end),
-                sum(case when p.status = 'ON_HOLD' then 1 else 0 end),
-                sum(case when p.status = 'CANCELLED' then 1 else 0 end),
-                sum(case when p.dueDate < current_timestamp and p.status != 'COMPLETED' then 1 else 0 end))
-           from Project p
-           """)
+    @Query(value = """
+                   select
+                        count(*) as totalProjects,
+                        sum(case when created_at >= current_timestamp - interval '7' day then 1 else 0 end) as totalProjectsLast7Days,
+                        sum(case when created_at >= current_timestamp - interval '30' day then 1 else 0 end) as totalProjectsLast30Days,
+                        sum(case when status = 'NOT_STARTED' then 1 else 0 end) as totalStatusNotStarted,
+                        sum(case when status = 'IN_PROGRESS' then 1 else 0 end) as totalStatusInProgress,
+                        sum(case when status = 'COMPLETED' then 1 else 0 end) as totalStatusCompleted,
+                        sum(case when status = 'ON_HOLD' then 1 else 0 end) as totalStatusOnHold,
+                        sum(case when status = 'CANCELLED' then 1 else 0 end) as totalStatusCancelled,
+                        sum(case when due_date < current_timestamp and status != 'COMPLETED' then 1 else 0 end) as totalOverdue
+                   from "tb_projects"
+                   """, nativeQuery = true)
     ProjectsCountDTO getProjectsCount();
 
     @Query("""

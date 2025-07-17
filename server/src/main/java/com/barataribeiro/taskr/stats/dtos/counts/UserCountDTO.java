@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserCountDTO {
     private Long totalUsers;
+    private Long totalLast7Days;
+    private Long totalLast30Days;
     private Long totalRoleNone;
     private Long totalRoleUser;
     private Long totalRoleAdmin;

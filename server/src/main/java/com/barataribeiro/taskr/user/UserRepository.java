@@ -24,19 +24,6 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
     long countByUsername(String username);
 
     @Query("""
-           select new com.barataribeiro.taskr.stats.dtos.counts.UserCountDTO(
-               count(u),
-               sum(case when u.role = 'NONE' then 1 else 0 end),
-               sum(case when u.role = 'USER' then 1 else 0 end),
-               sum(case when u.role = 'ADMIN' then 1 else 0 end),
-               sum(case when u.role = 'BANNED' then 1 else 0 end),
-               sum(case when u.isVerified then 1 else 0 end),
-               sum(case when not u.isVerified then 1 else 0 end))
-           from User u
-           """)
-    UserCountDTO getUserCount();
-
-    @Query("""
            select new com.barataribeiro.taskr.stats.dtos.UserStatsDTO(
                 count(p),
                 count(t),
@@ -50,6 +37,21 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
            where u.id = :userId
            """)
     UserStatsDTO getUserStats(UUID userId);
+
+    @Query(value = """
+                   select
+                       count(*) as totalUsers,
+                       sum(case when created_at >= current_timestamp - interval '7' day then 1 else 0 end) as totalLast7Days,
+                       sum(case when created_at >= current_timestamp - interval '30' day then 1 else 0 end) as totalLast30Days,
+                       sum(case when role = 'NONE' then 1 else 0 end) as totalRoleNone,
+                       sum(case when role = 'USER' then 1 else 0 end) as totalRoleUser,
+                       sum(case when role = 'ADMIN' then 1 else 0 end) as totalRoleAdmin,
+                       sum(case when role = 'BANNED' then 1 else 0 end) as totalRoleBanned,
+                       sum(case when is_verified then 1 else 0 end) as totalVerified,
+                       sum(case when not is_verified then 1 else 0 end) as totalUnverified
+                   from "tb_users"
+                   """, nativeQuery = true)
+    UserCountDTO getUserCount();
 
     long deleteByUsername(String username);
 }

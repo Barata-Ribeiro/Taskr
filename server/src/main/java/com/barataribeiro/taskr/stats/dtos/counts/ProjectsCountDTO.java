@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectsCountDTO {
     private long totalProjects;
+    private long totalProjectsLast7Days;
+    private long totalProjectsLast30Days;
     private long totalStatusNotStarted;
     private long totalStatusInProgress;
     private long totalStatusCompleted;
