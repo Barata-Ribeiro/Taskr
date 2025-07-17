@@ -12,7 +12,6 @@ import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -107,6 +105,8 @@ class StatisticsControllerTest {
                          String json = jsonContent.getJson();
 
                          assertEquals(2, (Integer) JsonPath.read(json, "$.data.userCount.totalUsers"));
+                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.userCount.totalLast7Days"));
+                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.userCount.totalLast30Days"));
                          assertEquals(1, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleUser"));
                          assertEquals(1, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleAdmin"));
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.userCount.totalRoleBanned"));
@@ -115,6 +115,8 @@ class StatisticsControllerTest {
                          assertEquals(2, (Integer) JsonPath.read(json, "$.data.userCount.totalUnverified"));
 
                          assertEquals(1, (Integer) JsonPath.read(json, "$.data.projectsCount.totalProjects"));
+                         assertEquals(1, (Integer) JsonPath.read(json, "$.data.projectsCount.totalProjectsLast7Days"));
+                         assertEquals(1, (Integer) JsonPath.read(json, "$.data.projectsCount.totalProjectsLast30Days"));
                          assertEquals(1, (Integer) JsonPath.read(json, "$.data.projectsCount.totalStatusNotStarted"));
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.projectsCount.totalStatusInProgress"));
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.projectsCount.totalStatusCompleted"));
@@ -126,7 +128,6 @@ class StatisticsControllerTest {
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalComments"));
                          assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalMemberships"));
                          assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalActivities"));
-
                      });
     }
 
