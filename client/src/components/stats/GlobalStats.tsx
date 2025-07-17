@@ -2,6 +2,7 @@ import { ProblemDetails } from "@/@types/application"
 import getGlobalStats from "@/actions/stats/get-global-stats"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import OtherStatistics from "@/components/stats/OtherStatistics"
+import ProjectsByStatus from "@/components/stats/ProjectsByStatus"
 import UsersByRoleChart from "@/components/stats/UsersByRoleChart"
 import UsersByVerificationChart from "@/components/stats/UsersByVerificationChart"
 import UsersWrittenCount from "@/components/stats/UsersWrittenCount"
@@ -61,7 +62,7 @@ export default async function GlobalStats() {
 
     return (
         <section aria-labelledby="global-stats-heading" aria-describedby="global-stats-description">
-            <h2 id="global-stats-heading" className="text-base font-semibold">
+            <h2 id="global-stats-heading" className="text-2xl/7 font-bold">
                 Global Statistics
             </h2>
             <p id="global-stats-description" className="mt-2 max-w-4xl text-sm text-gray-500 dark:text-gray-400">
@@ -74,6 +75,13 @@ export default async function GlobalStats() {
                 <UsersByRoleChart data={userCount} />
                 <UsersWrittenCount data={userCount} />
                 <UsersByVerificationChart data={userCount} />
+            </div>
+
+            <div
+                className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:mt-6 md:grid-cols-3 md:gap-6"
+                aria-label="Project statistics">
+                <ProjectsByStatus data={projectsCount} />
+                {/*TODO: Add a list of written statistics for projects*/}
             </div>
 
             <OtherStatistics data={globalStats} />
