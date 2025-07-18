@@ -1,14 +1,14 @@
 "use server"
 
 import "server-only"
-import { ProblemDetails, State } from "@/@types/application"
+import { ProblemDetails, RestResponse, State } from "@/@types/application"
+import { User } from "@/@types/user"
 import ResponseError from "@/actions/application/response-error"
 import { invalidFormData } from "@/actions/application/to-problem-details"
 import { registerAuthUrl } from "@/helpers/backend-routes"
 import { registrationSchema } from "@/helpers/validation/auth-schemas"
-import { redirect } from "next/navigation"
 
-export async function authRegister(state: State<null>, formData: unknown) {
+export async function authRegister(state: State<unknown>, formData: unknown) {
     try {
         if (!(formData instanceof FormData)) return ResponseError(invalidFormData)
 
@@ -31,9 +31,9 @@ export async function authRegister(state: State<null>, formData: unknown) {
             const problemDetails = json as ProblemDetails
             return ResponseError(problemDetails)
         }
+
+        return { ok: true, error: null, response: json as RestResponse<User> }
     } catch (e: unknown) {
         return ResponseError(e)
     }
-
-    redirect("/auth/login")
 }
