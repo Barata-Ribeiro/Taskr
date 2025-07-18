@@ -1,7 +1,7 @@
-import { z } from "zod"
+import { z } from "zod/v4"
 
 const envSchema = z.object({
-    BACKEND_ORIGIN: z.string().min(1).url(),
+    BACKEND_ORIGIN: z.url().min(1, "Backend origin is required"),
     AUTH_TOKEN_NAME: z.string().min(1),
 })
 
