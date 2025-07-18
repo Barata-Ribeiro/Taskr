@@ -16,6 +16,7 @@ import normalizeBadgeString from "@/utils/badge-string-normalizer"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useActionState, useEffect } from "react"
+import { toast } from "react-toastify"
 
 interface NewTaskFormProps {
     projectId: number
@@ -29,10 +30,13 @@ export default function NewTaskForm({ projectId }: Readonly<NewTaskFormProps>) {
     useEffect(() => {
         const baseUrl = `/dashboard/${session?.user.username}/projects`
 
-        if (formState.ok && formState?.response?.data?.id) {
-            router.push(`${baseUrl}/${projectId}/tasks/${formState.response.data.id}`)
+        if (formState.ok && formState?.response) {
+            const message = formState.response.message
+            toast.success(message, {
+                onClose: () => router.push(`${baseUrl}/${projectId}/tasks/${formState?.response?.data?.id}`),
+            })
         }
-    }, [formState.ok, formState.response?.data?.id, projectId, router, session?.user.username])
+    }, [formState.ok, formState.response, projectId, router, session?.user.username])
 
     return (
         <form action={formAction} className="space-y-6">

@@ -125,7 +125,7 @@ export default function ProjectStatsList({ projectsPromise, baseUrl }: Readonly<
 
     return (
         <section aria-labelledby="project-stats-heading" aria-describedby="project-stats-description">
-            <h2 id="project-stats-heading" className="text-base font-semibold">
+            <h2 id="project-stats-heading" className="text-2xl/7 font-bold">
                 Projects Statistics
             </h2>
             <p id="project-stats-description" className="mt-2 max-w-4xl text-sm text-gray-500 dark:text-gray-400">
@@ -192,9 +192,42 @@ export default function ProjectStatsList({ projectsPromise, baseUrl }: Readonly<
             </div>
 
             {selectedProjectId && projectStats && (
-                <div className="mt-4">
+                <div className="mt-4 md:mt-6">
                     <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">Project Stats</h2>
                     <pre>{JSON.stringify(projectStats, null, 2)}</pre>
+
+                    <div
+                        aria-labelledby="other-project-statistics-title"
+                        aria-label="Other Project statistics"
+                        className="mt-4 md:mt-6"
+                        role="region">
+                        <h3 id="other-project-statistics-title" className="text-base font-semibold text-gray-900">
+                            Other Statistics
+                        </h3>
+
+                        <div
+                            className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-4"
+                            role="list"
+                            aria-label="List of other project statistics">
+                            {Object.entries(projectStats)
+                                .filter(([key]) => key.startsWith("tasks") && key === "totalTasks")
+                                .map(([key, value]: [string, number]) => (
+                                    <dl
+                                        key={key}
+                                        className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm sm:p-6 dark:bg-gray-800"
+                                        role="listitem"
+                                        aria-labelledby={`stat-title-${key}`}>
+                                        <dt
+                                            className="text-sm font-medium text-gray-500 capitalize dark:text-gray-400"
+                                            id={`stat-title-${key}`}>
+                                            {key.replace(/([A-Z])/g, " $1").toLowerCase()}
+                                        </dt>
+
+                                        <dd className="mt-1 text-3xl font-semibold tracking-tight">{value}</dd>
+                                    </dl>
+                                ))}
+                        </div>
+                    </div>
                 </div>
             )}
         </section>

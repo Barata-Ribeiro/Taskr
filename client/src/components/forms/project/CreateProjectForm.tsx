@@ -11,6 +11,7 @@ import DefaultTextarea from "@/components/ui/DefaultTextarea"
 import applicationInitialState from "@/helpers/application-initial-state"
 import { useRouter } from "next/navigation"
 import { useActionState, useEffect } from "react"
+import { toast } from "react-toastify"
 
 interface CreateProjectFormProps {
     username: string
@@ -22,8 +23,13 @@ export default function CreateProjectForm({ username }: Readonly<CreateProjectFo
 
     useEffect(() => {
         const baseUrl = `/dashboard/${username}/projects`
-        if (formState.ok && formState.response?.data?.id) router.push(`${baseUrl}/${formState.response.data.id}`)
-    }, [formState.ok, formState.response?.data?.id, router, username])
+        if (formState.ok && formState?.response) {
+            const message = formState.response.message
+            toast.success(message, {
+                onClose: () => router.push(`${baseUrl}/${formState.response?.data?.id}`),
+            })
+        }
+    }, [formState.ok, formState.response, router, username])
 
     return (
         <form action={formAction} className="space-y-6 p-4 sm:p-6">

@@ -8,10 +8,22 @@ import Loading from "@/components/shared/feedback/Loading"
 import DefaultButton from "@/components/ui/DefaultButton"
 import DefaultInput from "@/components/ui/DefaultInput"
 import applicationInitialState from "@/helpers/application-initial-state"
-import { useActionState } from "react"
+import { useRouter } from "next/navigation"
+import { useActionState, useEffect } from "react"
+import { toast } from "react-toastify"
 
 export default function RegisterForm() {
     const [formState, formAction, pending] = useActionState(authRegister, applicationInitialState())
+    const router = useRouter()
+
+    useEffect(() => {
+        if (formState.ok && formState?.response) {
+            const message = formState.response.message
+            const username = formState.response.data?.username
+            toast.success(`${message}.\n\n Welcome, ${username}!`)
+            router.push("/auth/login")
+        }
+    }, [formState.ok, formState.response, router])
 
     return (
         <form action={formAction} className="mt-10 space-y-6">
