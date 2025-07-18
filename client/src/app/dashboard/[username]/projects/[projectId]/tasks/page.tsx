@@ -3,6 +3,7 @@ import NewTaskModal from "@/components/modals/NewTaskModal"
 import TaskBoard from "@/components/task/TaskBoard"
 import { auth } from "auth"
 import { MoveLeftIcon } from "lucide-react"
+import { Metadata } from "next"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { Fragment } from "react"
@@ -11,7 +12,7 @@ interface TaskBoardPageProps {
     params: Promise<{ username: string; projectId: string }>
 }
 
-export async function generateMetadata({ params }: Readonly<TaskBoardPageProps>) {
+export async function generateMetadata({ params }: Readonly<TaskBoardPageProps>): Promise<Metadata> {
     const { username, projectId } = await params
     if (!username || !projectId) return notFound()
 

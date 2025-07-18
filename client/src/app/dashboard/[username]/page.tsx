@@ -6,6 +6,7 @@ import AccountInformation from "@/components/user/dashboard/AccountInformation"
 import ProjectMemberships from "@/components/user/dashboard/ProjectMemberships"
 import StatsCards from "@/components/user/dashboard/StatsCards"
 import WelcomeBanner from "@/components/user/dashboard/WelcomeBanner"
+import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
@@ -13,7 +14,7 @@ interface DashboardPageProps {
     params: Promise<{ username: string }>
 }
 
-export async function generateMetadata({ params }: Readonly<DashboardPageProps>) {
+export async function generateMetadata({ params }: Readonly<DashboardPageProps>): Promise<Metadata> {
     const { username } = await params
 
     return {

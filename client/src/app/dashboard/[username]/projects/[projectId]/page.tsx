@@ -10,6 +10,7 @@ import ProjectInformationSkeleton from "@/components/ui/skeletons/ProjectInforma
 import ProjectMembershipsSkeleton from "@/components/ui/skeletons/ProjectMembershipsSkeleton"
 import { auth } from "auth"
 import { MoveLeftIcon, SquarePenIcon } from "lucide-react"
+import { Metadata } from "next"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { Fragment, Suspense } from "react"
@@ -18,7 +19,7 @@ interface ProjectPageProps {
     params: Promise<{ username: string; projectId: string }>
 }
 
-export async function generateMetadata({ params }: Readonly<ProjectPageProps>) {
+export async function generateMetadata({ params }: Readonly<ProjectPageProps>): Promise<Metadata> {
     const { username, projectId } = await params
     if (!username || !projectId) return notFound()
 
