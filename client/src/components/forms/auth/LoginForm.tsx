@@ -12,6 +12,7 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useActionState, useEffect } from "react"
+import { toast } from "react-toastify"
 
 export default function LoginForm() {
     const { update } = useSession()
@@ -19,7 +20,19 @@ export default function LoginForm() {
     const router = useRouter()
 
     useEffect(() => {
-        if (formState.ok) update().then(session => router.replace(`/dashboard/${session?.user.username}`))
+        if (!formState.ok) return
+        toast
+            .promise(update(), {
+                pending: "Updating session...",
+                success: "You are now logged in!",
+                error: {
+                    render() {
+                        return "Session update failed!"
+                    },
+                    onClose: () => router.refresh(),
+                },
+            })
+            .then(session => router.replace(`/dashboard/${session?.user.username}`))
     }, [formState.ok, router]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
