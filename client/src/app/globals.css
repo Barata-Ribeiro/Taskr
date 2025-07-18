@@ -46,6 +46,14 @@
     li {
         @apply font-body;
     }
+
+    .Toastify__toast-theme--dark {
+        @apply bg-gray-800! text-white!;
+    }
+
+    .Toastify__toast-theme--light {
+        @apply bg-white! text-gray-900!;
+    }
 }
 
 

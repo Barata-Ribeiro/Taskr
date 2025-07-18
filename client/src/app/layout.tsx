@@ -1,3 +1,5 @@
+import { ThemeProvider } from "@/components/providers/ThemeProvider"
+import ToastProvider from "@/components/providers/ToastProvider"
 import ThemeSwitcher from "@/components/ThemeSwitcher"
 import tw from "@/utils/tw"
 import type { Metadata } from "next"
@@ -54,8 +56,12 @@ export default function RootLayout({
         <SessionProvider>
             <html lang="en" suppressHydrationWarning>
                 <body className={bodyClass}>
-                    <ThemeSwitcher />
-                    {children}
+                    <ThemeProvider>
+                        <ToastProvider>
+                            <ThemeSwitcher />
+                            {children}
+                        </ToastProvider>
+                    </ThemeProvider>
                 </body>
             </html>
         </SessionProvider>

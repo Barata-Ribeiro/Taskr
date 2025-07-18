@@ -1,32 +1,12 @@
 "use client"
 
+import { useTheme } from "@/components/providers/ThemeProvider"
 import { Moon, SunDim } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
-
-type Themes = "dark" | "light"
 
 export default function ThemeSwitcher() {
-    const [mounted, setMounted] = useState(false)
-    const [theme, setTheme] = useState<Themes>("light")
+    const { theme, setTheme } = useTheme()
 
-    useEffect(() => {
-        setMounted(true)
-        const savedTheme =
-            (localStorage.getItem("theme") as Themes) ??
-            (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-        setTheme(savedTheme)
-    }, [])
-
-    useEffect(() => {
-        if (mounted) {
-            document.documentElement?.setAttribute("data-theme", theme)
-            localStorage.setItem("theme", theme)
-        }
-    }, [mounted, theme])
-
-    const toggleTheme = useCallback(() => {
-        setTheme(prevTheme => (prevTheme === "light" ? "dark" : "light"))
-    }, [])
+    const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light")
 
     return (
         <button

@@ -1,6 +1,6 @@
+import WebsocketProvider from "@/components/providers/WebsocketProvider"
 import SessionVerifier from "@/components/shared/SessionVerifier"
 import Sidebar from "@/components/Sidebar"
-import WebsocketProvider from "@/components/WebsocketProvider"
 import { auth } from "auth"
 import { redirect } from "next/navigation"
 import { ReactNode } from "react"
