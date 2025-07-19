@@ -61,6 +61,18 @@ export function deleteUserAccountUrl(): string {
 }
 
 // ===============================================================
+// ================  Notification Module Functions  ==============
+// ===============================================================
+export function latestNotificationUrl(): string {
+    return `${API_URL}/notifications/latest`
+}
+
+export function allNotificationsUrl(queryParams: QueryParams): string {
+    const queryString = buildQueryParams({ ...queryParams })
+    return `${API_URL}/notifications${queryString}`
+}
+
+// ===============================================================
 // =================  Project Module Functions  ==================
 // ===============================================================
 export function myProjectsUrl(queryParams: QueryParams): string {
