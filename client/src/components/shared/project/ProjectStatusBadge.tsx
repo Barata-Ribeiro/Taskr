@@ -1,6 +1,7 @@
 import { ProjectStatus } from "@/@types/project"
 import tw from "@/utils/tw"
 import { CheckCircleIcon, ClockIcon, PauseIcon, PlayIcon, XIcon } from "lucide-react"
+import { twMerge } from "tailwind-merge"
 
 interface ProjectStatusProps {
     status: ProjectStatus
@@ -31,11 +32,19 @@ export default function ProjectStatusBadge({ status, type }: Readonly<ProjectSta
         CANCELLED: "bg-red-100 text-red-800",
     }
 
+    const defaultStyles = tw`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize select-none`
+    const statusNormalized = status.replace(/_/g, " ").toLowerCase()
+    const statusLabel = `Project status: ${statusNormalized.replace(/\b\w/g, char => char.toUpperCase())}`
+
     return type === "icon" ? (
         statusIcon[status]
     ) : (
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${statusColor[status]}`}>
-            {status.toLowerCase().replace(/_/g, " ")}
+        <span
+            className={twMerge(defaultStyles, statusColor[status])}
+            role="status"
+            aria-label={statusLabel}
+            title={statusLabel}>
+            {statusNormalized}
         </span>
     )
 }

@@ -37,7 +37,7 @@ export default function ProjectActivityBadge({ action }: Readonly<ProjectActivit
 
     const formattedAction = action.replace(/_/g, " ").toLowerCase()
 
-    const defaultStyles = tw`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize`
+    const defaultStyles = tw`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize select-none`
 
     return (
         <span className={twMerge(defaultStyles, actionColor(action))} aria-label={formattedAction}>
