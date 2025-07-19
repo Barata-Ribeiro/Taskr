@@ -70,6 +70,8 @@ export default function UsersByVerificationChart({ data }: Readonly<UsersByVerif
                     padding={padding}
                     innerRadius={sizes.innerRadius}
                     labelRadius={sizes.innerRadius + 18}
+                    labelPosition="centroid"
+                    labelPlacement="perpendicular"
                     labelComponent={
                         <VictoryLabel
                             style={{

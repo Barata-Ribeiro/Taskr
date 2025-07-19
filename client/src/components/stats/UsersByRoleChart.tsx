@@ -71,6 +71,8 @@ export default function UsersByRoleChart({ data }: Readonly<UsersByRoleChartProp
                     padding={padding}
                     innerRadius={sizes.innerRadius}
                     labelRadius={sizes.innerRadius + 18}
+                    labelPosition="centroid"
+                    labelPlacement="perpendicular"
                     labelComponent={
                         <VictoryLabel
                             style={{
