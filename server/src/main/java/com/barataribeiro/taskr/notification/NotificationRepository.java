@@ -11,9 +11,13 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long>,
         JpaSpecificationExecutor<Notification> {
+    @EntityGraph(attributePaths = {"recipient"})
+    long countByRecipient_Id(@Param("recipientId") UUID recipientId);
+
     @EntityGraph(attributePaths = {"recipient"})
     Optional<Notification> findByIdAndRecipient_Username(@Param("id") Long id, @Param("username") String username);
 
