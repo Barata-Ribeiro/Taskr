@@ -14,6 +14,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
@@ -103,6 +104,50 @@ class NotificationControllerTest {
                                        "Notifications content should not be null");
                          assertFalse(((List<?>) JsonPath.read(json, "$.data.content")).isEmpty(),
                                      "Should have at least one notification");
+                     });
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("It should change the notification status successfully")
+    void changeNotificationStatusSuccessfully() {
+        mockMvcTester.patch().uri("/api/v1/notifications/{notifId}/status", notificationId)
+                     .header("Authorization", "Bearer " + accessToken)
+                     .param("isRead", "true")
+                     .accept(MediaType.APPLICATION_JSON)
+                     .assertThat()
+                     .hasStatusOk()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+
+                         assertEquals("Notification status updated successfully", JsonPath.read(json, "$.message"));
+                         assertNotNull(JsonPath.read(json, "$.data"), "Updated notification data should not be null");
+                         assertTrue((Boolean) JsonPath.read(json, "$.data.read"),
+                                    "Notification should be marked as read");
+                     });
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("It should delete the notification successfully")
+    void deleteNotificationSuccessfully() {
+        mockMvcTester.delete().uri("/api/v1/notifications/{notifId}", notificationId)
+                     .header("Authorization", "Bearer " + accessToken)
+                     .accept(MediaType.APPLICATION_JSON)
+                     .assertThat()
+                     .hasStatus2xxSuccessful()
+                     .hasStatus(HttpStatus.NO_CONTENT)
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+
+                         assertNull(JsonPath.read(json, "$.data"),
+                                    "Response data should be null for successful deletion");
+                         assertEquals("Notification deleted successfully", JsonPath.read(json, "$.message"),
+                                      "Response message should indicate successful deletion");
+                         assertFalse(notificationRepository.existsById(notificationId),
+                                     "Notification should be deleted from the repository");
                      });
     }
 }
