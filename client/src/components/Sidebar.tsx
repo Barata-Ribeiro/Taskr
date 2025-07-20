@@ -2,7 +2,7 @@
 
 import Avatar from "@/components/user/Avatar"
 import { Button, Dialog, DialogBackdrop, DialogPanel, TransitionChild } from "@headlessui/react"
-import { ChartPieIcon, FolderIcon, HomeIcon, MailIcon, MenuIcon, XIcon } from "lucide-react"
+import { ChartPieIcon, FolderIcon, HomeIcon, InboxIcon, MenuIcon, XIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
@@ -20,7 +20,7 @@ export default function Sidebar() {
 
     const navigation = [
         { name: "Dashboard", href: `${basePath}`, icon: HomeIcon },
-        { name: "Notifications", href: `${basePath}/notifications`, icon: MailIcon },
+        { name: "Notifications", href: `${basePath}/notifications`, icon: InboxIcon },
         { name: "Projects", href: `${basePath}/projects`, icon: FolderIcon },
         { name: "Reports", href: `${basePath}/reports`, icon: ChartPieIcon },
     ]
