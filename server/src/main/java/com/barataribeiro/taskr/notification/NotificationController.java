@@ -12,10 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -42,5 +39,28 @@ public class NotificationController {
         Page<NotificationDTO> notifications = notificationService.getAllNotifications(pageQueryParams, authentication);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Notifications retrieved successfully", notifications));
+    }
+
+    @Operation(summary = "Change the notification status",
+               description = "Updates the status of a notification for the authenticated user.")
+    @PatchMapping("/{notifId}/status")
+    public ResponseEntity<RestResponse<NotificationDTO>> changeNotificationStatus(@PathVariable Long notifId,
+                                                                                  @RequestParam Boolean isRead,
+                                                                                  Authentication authentication) {
+        NotificationDTO updatedNotification = notificationService
+                .changeNotificationStatus(notifId, isRead, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Notification status updated successfully", updatedNotification));
+    }
+
+    @Operation(summary = "Delete a notification",
+               description = "Deletes a notification for the authenticated user.")
+    @DeleteMapping("/{notifId}")
+    public ResponseEntity<RestResponse<Void>> deleteNotification(@PathVariable Long notifId,
+                                                                 Authentication authentication) {
+        notificationService.deleteNotification(notifId, authentication);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                             .body(new RestResponse<>(HttpStatus.NO_CONTENT, HttpStatus.NO_CONTENT.value(),
+                                                      "Notification deleted successfully", null));
     }
 }

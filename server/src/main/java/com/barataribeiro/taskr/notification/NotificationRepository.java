@@ -10,9 +10,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long>,
         JpaSpecificationExecutor<Notification> {
+    @EntityGraph(attributePaths = {"recipient"})
+    Optional<Notification> findByIdAndRecipient_Username(@Param("id") Long id, @Param("username") String username);
 
     @EntityGraph(attributePaths = {"recipient"})
     List<Notification> findTop5ByRecipient_UsernameOrderByCreatedAtDesc(@Param("username") String username);
@@ -30,4 +33,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
            WHERE n.recipient.username = :username
            """)
     TotalNotifications getNotificationCountsByRecipient_Username(@Param("username") String username);
+
+    @EntityGraph(attributePaths = {"recipient"})
+    long deleteByIdAndRecipient_Username(@Param("id") Long id, @Param("username") String username);
 }

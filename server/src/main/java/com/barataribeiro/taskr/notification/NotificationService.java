@@ -1,5 +1,7 @@
 package com.barataribeiro.taskr.notification;
 
+import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
+import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.notification.dtos.LatestNotificationsDTO;
 import com.barataribeiro.taskr.notification.dtos.NotificationDTO;
@@ -53,6 +55,25 @@ public class NotificationService {
 
         return notificationRepository.findAllByRecipient_Username(authentication.getName(), pageable)
                                      .map(notificationBuilder::toNotificationDTO);
+    }
+
+    @Transactional
+    public NotificationDTO changeNotificationStatus(Long notifId, Boolean isRead,
+                                                    @NotNull Authentication authentication) {
+        Notification notification = notificationRepository
+                .findByIdAndRecipient_Username(notifId, authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException(Notification.class.getSimpleName()));
+
+        notification.setRead(isRead);
+
+        return notificationBuilder.toNotificationDTO(notificationRepository.save(notification));
+    }
+
+    @Transactional
+    public void deleteNotification(Long notifId, @NotNull Authentication authentication) {
+        long wasDeleted = notificationRepository
+                .deleteByIdAndRecipient_Username(notifId, authentication.getName());
+        if (wasDeleted == 0) throw new IllegalRequestException("Notification not found or you are not the recipient");
     }
 
     private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {
