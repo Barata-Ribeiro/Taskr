@@ -70,10 +70,35 @@ public class NotificationService {
     }
 
     @Transactional
+    public List<NotificationDTO> changeNotificationsStatusInBulk(@NotNull List<Long> notifIds, Boolean isRead,
+                                                                 Authentication authentication) {
+        if (notifIds.isEmpty()) throw new IllegalRequestException("No notification IDs were provided");
+        List<Notification> notifications = notificationRepository
+                .findDistinctByIdInAndRecipient_Username(notifIds, authentication.getName());
+
+        if (notifications.isEmpty()) throw new EntityNotFoundException(Notification.class.getSimpleName());
+
+        notifications.parallelStream().forEach(notification -> notification.setRead(isRead));
+
+        return notificationBuilder.toNotificationDTOList(notificationRepository.saveAll(notifications));
+    }
+
+    @Transactional
     public void deleteNotification(Long notifId, @NotNull Authentication authentication) {
         long wasDeleted = notificationRepository
                 .deleteByIdAndRecipient_Username(notifId, authentication.getName());
         if (wasDeleted == 0) throw new IllegalRequestException("Notification not found or you are not the recipient");
+    }
+
+    @Transactional
+    public void deleteNotificationsInBulk(@NotNull List<Long> notifIds, Authentication authentication) {
+        if (notifIds.isEmpty()) throw new IllegalRequestException("No notification IDs were provided");
+
+        long deletedCount = notificationRepository.deleteByIdInAndRecipient_Username(notifIds,
+                                                                                     authentication.getName());
+        if (deletedCount != notifIds.size()) {
+            throw new IllegalRequestException("Some notifications were not found or you are not the recipient");
+        }
     }
 
     private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {

@@ -6,6 +6,8 @@ import com.barataribeiro.taskr.notification.dtos.LatestNotificationsDTO;
 import com.barataribeiro.taskr.notification.dtos.NotificationDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -53,6 +57,18 @@ public class NotificationController {
                                                     "Notification status updated successfully", updatedNotification));
     }
 
+    @Operation(summary = "Change the notification status in bulk",
+               description = "Updates the status of multiple notifications for the authenticated user.")
+    @PatchMapping("/status")
+    public ResponseEntity<RestResponse<List<NotificationDTO>>> changeNotificationsStatusInBulk(
+            @RequestBody @Valid @NotNull List<Long> notifIds,
+            @RequestParam Boolean isRead, Authentication authentication) {
+        List<NotificationDTO> updatedNotifications = notificationService
+                .changeNotificationsStatusInBulk(notifIds, isRead, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Notifications status updated successfully", updatedNotifications));
+    }
+
     @Operation(summary = "Delete a notification",
                description = "Deletes a notification for the authenticated user.")
     @DeleteMapping("/{notifId}")
@@ -62,5 +78,16 @@ public class NotificationController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                              .body(new RestResponse<>(HttpStatus.NO_CONTENT, HttpStatus.NO_CONTENT.value(),
                                                       "Notification deleted successfully", null));
+    }
+
+    @Operation(summary = "Delete a notification in bulk",
+               description = "Deletes multiple notifications for the authenticated user.")
+    @DeleteMapping
+    public ResponseEntity<RestResponse<Void>> deleteNotificationsInBulk(@RequestParam List<Long> notifIds,
+                                                                        Authentication authentication) {
+        notificationService.deleteNotificationsInBulk(notifIds, authentication);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                             .body(new RestResponse<>(HttpStatus.NO_CONTENT, HttpStatus.NO_CONTENT.value(),
+                                                      "Notifications deleted successfully", null));
     }
 }

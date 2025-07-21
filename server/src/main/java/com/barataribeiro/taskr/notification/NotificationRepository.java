@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +24,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @EntityGraph(attributePaths = {"recipient"})
     List<Notification> findTop5ByRecipient_UsernameOrderByCreatedAtDesc(@Param("username") String username);
+
+    @EntityGraph(attributePaths = {"recipient"})
+    List<Notification> findDistinctByIdInAndRecipient_Username(@Param("ids") Collection<Long> ids,
+                                                               @Param("username") String username);
+
 
     @EntityGraph(attributePaths = {"recipient"})
     Page<Notification> findAllByRecipient_Username(@Param("username") String username, Pageable pageable);
@@ -40,4 +46,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @EntityGraph(attributePaths = {"recipient"})
     long deleteByIdAndRecipient_Username(@Param("id") Long id, @Param("username") String username);
+
+    @EntityGraph(attributePaths = {"recipient"})
+    long deleteByIdInAndRecipient_Username(Collection<Long> ids, String username);
 }
