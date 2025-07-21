@@ -3,7 +3,7 @@ import DefaultButton from "@/components/ui/DefaultButton"
 import DefaultCheckbox from "@/components/ui/DefaultCheckbox"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
 import dateFormatter from "@/utils/date-formatter"
-import { EyeIcon, MailIcon, MailOpenIcon } from "lucide-react"
+import { EyeIcon, MailIcon, MailOpenIcon, Trash2Icon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { type ChangeEvent } from "react"
 
@@ -12,6 +12,7 @@ interface NotificationRowProps {
     selectedNotifications: Notification[]
     setSelectedNotifications: (notifications: Notification[]) => void
     toggleRead: (notification: Notification) => void
+    deleteNotif: (notification: Notification) => void
 }
 
 export default function NotificationRow({
@@ -19,14 +20,15 @@ export default function NotificationRow({
     selectedNotifications,
     setSelectedNotifications,
     toggleRead,
+    deleteNotif,
 }: Readonly<NotificationRowProps>) {
     const { data: session } = useSession()
     const isSelected = selectedNotifications.includes(notification)
-    const isRead = notification.isRead
+    const isRead = notification.read
     const formattedDate = dateFormatter(notification.createdAt)
     const notificationUrl = `/dashboard/${session?.user.username}/notifications/${notification.id}`
     const notificationLabel = `View notification '${notification.title}'`
-    const notificationStatusLabel = `Mark notification as ${notification.isRead ? "unread" : "read"}`
+    const notificationStatusLabel = `Mark notification as ${notification.read ? "unread" : "read"}`
 
     function handleCheckboxChange(e: ChangeEvent<HTMLInputElement>) {
         setSelectedNotifications(
@@ -36,13 +38,12 @@ export default function NotificationRow({
         )
     }
 
-    // TODO: Change read and unread styles
-
+    const notificationDeleteLabel = `Delete notification '${notification.title}'`
     return (
         <tr
             {...(isSelected && { "data-selected": "" })}
             {...(isRead && { "data-read": "" })}
-            className="border-b border-gray-200 bg-white hover:bg-gray-50 data-read:bg-indigo-50 data-selected:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600 data-read:dark:bg-indigo-950 dark:data-selected:bg-gray-800">
+            className="border-b border-gray-200 bg-white font-bold hover:bg-gray-50 data-read:bg-indigo-50 data-read:font-normal data-selected:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600 data-read:dark:bg-indigo-950 dark:data-selected:bg-gray-800">
             <td className="relative w-4 p-4">
                 {isSelected && <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-600" />}
                 <DefaultCheckbox
@@ -55,7 +56,7 @@ export default function NotificationRow({
             <td
                 {...(isSelected && { "data-selected": "" })}
                 {...(isRead && { "data-read": "" })}
-                className="inline-flex items-center gap-x-2 px-6 py-4 whitespace-nowrap data-read:font-medium data-selected:text-green-600 dark:data-selected:text-green-500">
+                className="inline-flex items-center gap-x-2 px-6 py-4 whitespace-nowrap data-selected:text-green-600 dark:data-selected:text-green-500">
                 {isRead ? <MailOpenIcon aria-hidden className="size-4" /> : <MailIcon aria-hidden className="size-4" />}
                 {notification.title}
             </td>
@@ -93,10 +94,18 @@ export default function NotificationRow({
                     onClick={() => toggleRead(notification)}
                     aria-label={notificationStatusLabel}
                     title={notificationStatusLabel}>
-                    {notification.isRead ? <MailIcon aria-hidden size={16} /> : <MailOpenIcon aria-hidden size={16} />}
+                    {notification.read ? <MailIcon aria-hidden size={16} /> : <MailOpenIcon aria-hidden size={16} />}
                 </DefaultButton>
 
-                {/*TODO: Add delete button*/}
+                <DefaultButton
+                    buttonType="ghost"
+                    width="fit"
+                    isIconOnly
+                    onClick={() => deleteNotif(notification)}
+                    aria-label={notificationDeleteLabel}
+                    title={notificationDeleteLabel}>
+                    <Trash2Icon aria-hidden size={16} />
+                </DefaultButton>
             </td>
         </tr>
     )
