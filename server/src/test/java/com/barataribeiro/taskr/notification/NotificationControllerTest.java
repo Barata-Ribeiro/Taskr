@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
@@ -130,6 +131,106 @@ class NotificationControllerTest {
 
     @Test
     @Order(4)
+    @DisplayName("It should change notification status in bulk successfully")
+    void changeNotificationsStatusInBulkSuccessfully() throws Exception {
+        User user = userRepository.findByUsername("newuser")
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        Notification n1 = Notification
+                .builder()
+                .title("Bulk1")
+                .message("Bulk1 msg")
+                .type(NotificationType.INFO)
+                .recipient(user)
+                .isRead(false)
+                .createdAt(Instant.now())
+                .build();
+        Notification n2 = Notification
+                .builder()
+                .title("Bulk2")
+                .message("Bulk2 msg")
+                .type(NotificationType.INFO)
+                .recipient(user)
+                .isRead(false)
+                .createdAt(Instant.now())
+                .build();
+        n1 = notificationRepository.save(n1);
+        n2 = notificationRepository.save(n2);
+        List<Long> notifIds = List.of(n1.getId(), n2.getId());
+
+        mockMvcTester.patch().uri("/api/v1/notifications/status")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .param("isRead", "true")
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(notifIds))
+                     .assertThat()
+                     .hasStatusOk()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         List<?> updated = JsonPath.read(json, "$.data");
+
+                         assertEquals("Notifications status updated successfully", JsonPath.read(json, "$.message"));
+                         assertEquals(2, updated.size());
+                         assertTrue((Boolean) JsonPath.read(json, "$.data[0].read"));
+                         assertTrue((Boolean) JsonPath.read(json, "$.data[1].read"));
+                     });
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("It should delete notifications in bulk successfully")
+    void deleteNotificationsInBulkSuccessfully() throws Exception {
+        User user = userRepository.findByUsername("newuser")
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        Notification n1 = Notification
+                .builder()
+                .title("DelBulk1")
+                .message("DelBulk1 msg")
+                .type(NotificationType.INFO)
+                .recipient(user)
+                .isRead(false)
+                .createdAt(Instant.now())
+                .build();
+        Notification n2 = Notification
+                .builder()
+                .title("DelBulk2")
+                .message("DelBulk2 msg")
+                .type(NotificationType.INFO)
+                .recipient(user)
+                .isRead(false)
+                .createdAt(Instant.now())
+                .build();
+        n1 = notificationRepository.save(n1);
+        n2 = notificationRepository.save(n2);
+        List<Long> notifIds = List.of(n1.getId(), n2.getId());
+
+        Notification finalN = n1;
+        Notification finalN1 = n2;
+
+        mockMvcTester.delete().uri("/api/v1/notifications")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .param("notifIds", notifIds.stream().map(String::valueOf).toArray(String[]::new))
+                     .accept(MediaType.APPLICATION_JSON)
+                     .assertThat()
+                     .hasStatus2xxSuccessful()
+                     .hasStatus(HttpStatus.NO_CONTENT)
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+
+                         assertNull(JsonPath.read(json, "$.data"));
+                         assertEquals("Notifications deleted successfully", JsonPath.read(json, "$.message"));
+                         assertFalse(notificationRepository.existsById(finalN.getId()),
+                                     "Notification should be deleted from the repository");
+                         assertFalse(notificationRepository.existsById(finalN1.getId()),
+                                     "Notification should be deleted from the repository");
+                     });
+    }
+
+    @Test
+    @Order(6)
     @DisplayName("It should delete the notification successfully")
     void deleteNotificationSuccessfully() {
         mockMvcTester.delete().uri("/api/v1/notifications/{notifId}", notificationId)
