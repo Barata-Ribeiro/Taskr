@@ -1,7 +1,11 @@
 "use client"
 
-import { Page } from "@/@types/application"
+import { Page, ProblemDetails } from "@/@types/application"
 import { Notification } from "@/@types/notification"
+import changeNotifStatus from "@/actions/notification/change-notif-status"
+import changeNotifStatusBulk from "@/actions/notification/change-notif-status-bulk"
+import deleteNotifBulk from "@/actions/notification/delete-notif-bulk"
+import deleteNotifById from "@/actions/notification/delete-notif-by-id"
 import NotificationRow from "@/components/notification/NotificationRow"
 import NavigationPagination from "@/components/shared/NavigationPagination"
 import DefaultButton from "@/components/ui/DefaultButton"
@@ -39,18 +43,89 @@ export default function NotificationTable({ notifications, pagination }: Readonl
         setIndeterminate(false)
     }
 
+    async function deleteNotification(notification: Notification) {
+        const state = await deleteNotifById(notification.id)
+
+        if (!state.ok) {
+            setError((state.error as ProblemDetails).detail)
+            setShow(true)
+            return
+        }
+
+        setInitialNotifications(initialNotifications.filter(n => n.id !== notification.id))
+        setSelectedNotifications(selectedNotifications.filter(n => n.id !== notification.id))
+        setChecked(false)
+        setIndeterminate(false)
+        if (checkbox.current) checkbox.current.indeterminate = false
+    }
+
     async function deleteSelected() {
         if (selectedNotifications.length <= 0) return
-        // TODO: Implement the delete logic here
+
+        if (selectedNotifications.length === 1) await deleteNotification(selectedNotifications[0])
+
+        const state = await deleteNotifBulk(selectedNotifications.map(n => n.id))
+
+        if (!state.ok) {
+            setError((state.error as ProblemDetails).detail)
+            setShow(true)
+        }
+
+        setInitialNotifications(initialNotifications.filter(n => !selectedNotifications.includes(n)))
+        setSelectedNotifications([])
+        setChecked(false)
+        setIndeterminate(false)
+        if (checkbox.current) checkbox.current.indeterminate = false
+    }
+
+    async function toggleRead(notification: Notification) {
+        const state = await changeNotifStatus(notification.id, !notification.read)
+
+        if (!state.ok) {
+            setError((state.error as ProblemDetails).detail)
+            setShow(true)
+        }
+
+        const updatedNotif = state.response?.data as Notification
+        setInitialNotifications(prev => prev.map(n => (n.id === updatedNotif.id ? updatedNotif : n)))
+
+        if (selectedNotifications.includes(notification)) {
+            setSelectedNotifications(prev => prev.map(n => (n.id === updatedNotif.id ? updatedNotif : n)))
+        }
+
+        if (checkbox.current) {
+            checkbox.current.indeterminate =
+                selectedNotifications.length > 0 && selectedNotifications.length < notifications.length
+        }
+
+        setChecked(selectedNotifications.length === notifications.length)
+        setIndeterminate(selectedNotifications.length > 0 && selectedNotifications.length < notifications.length)
     }
 
     async function toggleBulkRead() {
         if (selectedNotifications.length <= 0) return
-        // TODO: Implement the bulk read toggle logic here
-    }
+        const ids = selectedNotifications.map(n => n.id)
+        const avarageRead = selectedNotifications.every(n => n.read)
 
-    async function toggleRead(notification: Notification) {
-        // TODO: Implement the toggle read logic here
+        if (ids.length === 1) await toggleRead(selectedNotifications[0])
+
+        const state = await changeNotifStatusBulk(ids, !avarageRead)
+
+        if (!state.ok) {
+            setError((state.error as ProblemDetails).detail)
+            setShow(true)
+        }
+
+        const updatedNotifs = state.response?.data as Notification[]
+        setInitialNotifications(prev => {
+            const updatedMap = new Map(updatedNotifs.map(u => [u.id, u]))
+            return prev.map(n => updatedMap.get(n.id) ?? n)
+        })
+
+        setSelectedNotifications([])
+        setChecked(false)
+        setIndeterminate(false)
+        if (checkbox.current) checkbox.current.indeterminate = false
     }
 
     return (
@@ -122,6 +197,7 @@ export default function NotificationTable({ notifications, pagination }: Readonl
                                                 key={notification.id}
                                                 notification={notification}
                                                 toggleRead={toggleRead}
+                                                deleteNotif={deleteNotification}
                                                 selectedNotifications={selectedNotifications}
                                                 setSelectedNotifications={setSelectedNotifications}
                                             />
