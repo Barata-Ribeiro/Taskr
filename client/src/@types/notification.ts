@@ -13,7 +13,7 @@ interface Notification {
     message: string
     type: NotificationType
     recipient: Author
-    isRead: boolean
+    read: boolean
     createdAt: string
     updatedAt: string
 }
