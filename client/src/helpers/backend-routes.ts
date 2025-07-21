@@ -72,6 +72,23 @@ export function allNotificationsUrl(queryParams: QueryParams): string {
     return `${API_URL}/notifications${queryString}`
 }
 
+export function changeNotificationStatusUrl(notifId: number | string, isRead: boolean): string {
+    return `${API_URL}/notifications/${notifId}/status?isRead=${isRead}`
+}
+
+export function changeNotificationsStatusInBulkUrl(isRead: boolean): string {
+    return `${API_URL}/notifications/status?isRead=${isRead}`
+}
+
+export function deleteNotificationUrl(notifId: number | string): string {
+    return `${API_URL}/notifications/${notifId}`
+}
+
+export function deleteNotificationsInBulkUrl(notifIds: (number | string)[]): string {
+    const queryString = notifIds.map(id => `notifIds=${id}`).join("&")
+    return `${API_URL}/notifications?${queryString}`
+}
+
 // ===============================================================
 // =================  Project Module Functions  ==================
 // ===============================================================
