@@ -10,7 +10,6 @@ import com.barataribeiro.taskr.notification.events.NewTaskNotificationEvent;
 import com.barataribeiro.taskr.notification.events.TaskMembershipNotificationEvent;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.project.ProjectRepository;
-import com.barataribeiro.taskr.project.enums.ProjectRole;
 import com.barataribeiro.taskr.project.enums.ProjectStatus;
 import com.barataribeiro.taskr.task.dtos.*;
 import com.barataribeiro.taskr.task.enums.TaskPriority;
@@ -384,11 +383,7 @@ public class TaskService {
 
     @Transactional
     public void deleteTask(Long taskId, Long projectId, @NotNull Authentication authentication) {
-        if (!membershipRepository
-                .existsByUser_UsernameAndProject_IdAndRoleIs(authentication.getName(), projectId, ProjectRole.OWNER)) {
-            throw new EntityNotFoundException(Project.class.getSimpleName());
-        }
-
-        taskRepository.deleteById(taskId);
+        long wasDeleted = taskRepository.deleteByIdAndProject_Owner_Username(taskId, authentication.getName());
+        if (wasDeleted == 0) throw new IllegalRequestException("Task not found or you are not the project owner");
     }
 }
