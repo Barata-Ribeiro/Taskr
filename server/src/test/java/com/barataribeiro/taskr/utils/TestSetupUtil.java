@@ -83,6 +83,38 @@ public class TestSetupUtil {
         return new LoginReturnDTO(accessToken.get(), secondAccessToken.get());
     }
 
+    public static @NotNull AtomicReference<String> registerAndLoginNonAffiliatedUser(
+            @NotNull UserRepository userRepository,
+            @NotNull UserBuilder userBuilder,
+            @NotNull MockMvcTester mockMvcTester) throws Exception {
+        RegistrationRequestDTO user = new RegistrationRequestDTO();
+        user.setUsername("outsider");
+        user.setEmail("outsider@example.com");
+        user.setPassword("SomeStrongPassword123!");
+        user.setDisplayName("Outsider User");
+
+        userRepository.save(userBuilder.toUser(user));
+
+        LoginRequestDTO loginBody = new LoginRequestDTO();
+        loginBody.setUsernameOrEmail(user.getUsername());
+        loginBody.setPassword(user.getPassword());
+
+        AtomicReference<String> accessToken = new AtomicReference<>();
+
+        mockMvcTester.post().uri("/api/v1/auth/login")
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(loginBody))
+                     .assertThat()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         accessToken.set(JsonPath.read(json, "$.data.accessToken"));
+                         assertNotNull(accessToken.get(), "Access token should not be null");
+                     });
+
+        return accessToken;
+    }
+
     public static @NotNull AtomicReference<ProjectDTO> createDefaultProject(@NotNull MockMvcTester mockMvcTester,
                                                                             @NotNull String accessToken) throws Exception {
         ProjectRequestDTO projectRequestDTO = new ProjectRequestDTO();
