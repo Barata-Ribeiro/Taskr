@@ -8,6 +8,7 @@ import com.barataribeiro.taskr.activity.events.project.ProjectCreatedEvent;
 import com.barataribeiro.taskr.activity.events.project.ProjectUpdateEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.ForbiddenRequestException;
+import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.membership.Membership;
 import com.barataribeiro.taskr.membership.MembershipRepository;
@@ -218,12 +219,8 @@ public class ProjectService {
 
     @Transactional
     public void deleteProject(Long projectId, @NotNull Authentication authentication) {
-        if (!membershipRepository
-                .existsByUser_UsernameAndProject_IdAndRoleIs(authentication.getName(), projectId, ProjectRole.OWNER)) {
-            throw new EntityNotFoundException(Project.class.getSimpleName());
-        }
-
-        projectRepository.deleteById(projectId);
+        long wasDeleted = projectRepository.deleteByIdAndOwner_Username(projectId, authentication.getName());
+        if (wasDeleted == 0) throw new IllegalRequestException("Project not found or you are not the owner.");
     }
 
     private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {

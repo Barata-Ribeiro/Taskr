@@ -8,10 +8,11 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
     @EntityGraph(attributePaths = {"owner"})
-    Page<Project> findAllByOwner_Username(String ownerUsername, Pageable pageable);
+    Page<Project> findAllByOwner_Username(@Param("ownerUsername") String ownerUsername, Pageable pageable);
 
     @Query(value = """
                    select
@@ -42,5 +43,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
            left join p.tasks t
            where p.id = :projectId
            """)
-    ProjectStatsDTO getProjectCount(Long projectId);
+    ProjectStatsDTO getProjectCount(@Param("projectId") Long projectId);
+
+    @EntityGraph(attributePaths = {"owner"})
+    long deleteByIdAndOwner_Username(@Param("id") Long id, @Param("username") String username);
 }
