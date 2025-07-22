@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.project;
 
 import com.barataribeiro.taskr.activity.ActivityRepository;
+import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectUpdateRequestDTO;
@@ -265,14 +266,8 @@ class ProjectControllerTest {
         mockMvcTester.delete().uri("/api/v1/projects/{projectId}", 999999L)
                      .header("Authorization", "Bearer " + accessToken)
                      .assertThat()
-                     .hasStatus4xxClientError()
-                     .hasStatus(HttpStatus.NOT_FOUND)
-                     .bodyJson()
-                     .satisfies(jsonContent -> {
-                         String json = jsonContent.getJson();
-                         assertEquals("Project was not found or does not exist", JsonPath.read(json, "$.detail"),
-                                      "Response message should indicate project not found");
-                     });
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
+                     .failure().isInstanceOf(IllegalRequestException.class);
     }
 
     @Test

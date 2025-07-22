@@ -1,6 +1,8 @@
 package com.barataribeiro.taskr.task;
 
 import com.barataribeiro.taskr.activity.ActivityRepository;
+import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
+import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.notification.NotificationRepository;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.task.dtos.*;
@@ -38,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TaskControllerTest {
     private static final TaskRequestDTO taskRequestDTO = new TaskRequestDTO();
     private static String accessToken;
+    private static String secondAccessToken;
     private static ProjectDTO defaultProject;
     private static TaskDTO createdTask;
     private final MockMvcTester mockMvcTester;
@@ -49,10 +52,15 @@ class TaskControllerTest {
                       @Autowired @NotNull MockMvcTester mockMvcTester) throws Exception {
         userRepository.deleteAll();
 
+
         accessToken = TestSetupUtil
                 .registerAndLoginDefaultUser(userRepository, userBuilder, mockMvcTester).getAccessToken();
+        secondAccessToken = String
+                .valueOf(TestSetupUtil.registerAndLoginNonAffiliatedUser(userRepository, userBuilder, mockMvcTester));
         defaultProject = TestSetupUtil.createDefaultProject(mockMvcTester, accessToken).get();
+
         assertNotNull(accessToken, "Access token should not be null");
+        assertNotNull(secondAccessToken, "Second access token should not be null");
         assertNotNull(defaultProject, "Default project should not be null");
     }
 
@@ -256,23 +264,22 @@ class TaskControllerTest {
     @Order(7)
     @DisplayName("It should fail to retrieve latest tasks for a project if user is not a member")
     void getLatestTasksByProjectUnauthorized() {
-        String invalidToken = "invalid.token.value";
         mockMvcTester.get().uri("/api/v1/tasks/project/{projectId}/latest", defaultProject.getId())
-                     .header("Authorization", "Bearer " + invalidToken)
+                     .header("Authorization", "Bearer " + secondAccessToken)
                      .assertThat()
-                     .hasStatus4xxClientError();
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.NOT_FOUND)
+                     .failure().isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
     @Order(8)
     @DisplayName("It should fail to delete a task with invalid ID")
     void deleteTaskWithInvalidId() {
-        // TODO: Adjust delete endpoint to handle invalid task IDs because the current implementation uses a
-        //  repository method that returns success even for non-existent IDs.
         mockMvcTester.delete().uri("/api/v1/tasks/{taskId}/project/{projectId}", -1, defaultProject.getId())
                      .header("Authorization", "Bearer " + accessToken)
                      .assertThat()
-                     .hasStatus4xxClientError().hasStatus(HttpStatus.NOT_FOUND);
+                     .hasStatus4xxClientError().hasStatus(HttpStatus.BAD_REQUEST)
+                     .failure().isInstanceOf(IllegalRequestException.class);
     }
 
     @Test
