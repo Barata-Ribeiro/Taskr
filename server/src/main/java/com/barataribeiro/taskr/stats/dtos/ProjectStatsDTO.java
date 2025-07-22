@@ -5,11 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ProjectStatsDTO {
+public class ProjectStatsDTO implements Serializable {
     private long totalTasks;
     private long tasksToDo;
     private long tasksInProgress;

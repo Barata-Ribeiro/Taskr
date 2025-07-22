@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TasksByStatusDTO {
+public class TasksByStatusDTO implements Serializable {
     private List<TaskDTO> toDo;
     private List<TaskDTO> inProgress;
     private List<TaskDTO> done;

@@ -5,11 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserCountDTO {
+public class UserCountDTO implements Serializable {
     private Long totalUsers;
     private Long totalLast7Days;
     private Long totalLast30Days;

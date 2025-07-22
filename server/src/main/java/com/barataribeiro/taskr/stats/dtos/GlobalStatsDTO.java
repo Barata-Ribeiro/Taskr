@@ -7,11 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GlobalStatsDTO {
+public class GlobalStatsDTO implements Serializable {
     private UserCountDTO userCount;
     private ProjectsCountDTO projectsCount;
     private long totalTasks;
