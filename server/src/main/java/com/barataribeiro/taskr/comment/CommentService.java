@@ -14,6 +14,10 @@ import com.barataribeiro.taskr.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.util.Streamable;
 import org.springframework.security.core.Authentication;
@@ -32,6 +36,7 @@ public class CommentService {
     private final TaskRepository taskRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    @Cacheable(value = "commentsByTask", key = "#taskId + '_' + #authentication.name")
     @Transactional(readOnly = true)
     public List<CommentDTO> getCommentsByTaskId(Long taskId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Tasks_Id(authentication.getName(), taskId)) {
@@ -42,13 +47,13 @@ public class CommentService {
         List<CommentDTO> commentDTOS = commentBuilder.toCommentDTOList(comments.toList());
 
         Map<Long, CommentDTO> dtoById = new LinkedHashMap<>();
-        commentDTOS.parallelStream().forEach(dto -> {
+        commentDTOS.parallelStream().forEachOrdered(dto -> {
             dto.setChildren(new ArrayList<>());
             dtoById.put(dto.getId(), dto);
         });
 
         List<CommentDTO> roots = new ArrayList<>();
-        commentDTOS.parallelStream().forEach(dto -> {
+        commentDTOS.parallelStream().forEachOrdered(dto -> {
             if (dto.getParentId() == null) roots.add(dto);
             else {
                 CommentDTO parentDTO = dtoById.get(dto.getParentId());
@@ -59,6 +64,11 @@ public class CommentService {
         return roots;
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"),
+            @CacheEvict(value = "task", key = "#taskId + '_*'"),
+    },
+             put = @CachePut(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"))
     @Transactional
     public CommentDTO createComment(Long taskId, CommentRequestDTO body, @NotNull Authentication authentication) {
         User author = userRepository.findByUsername(authentication.getName())
@@ -99,10 +109,14 @@ public class CommentService {
         return commentBuilder.toCommentDTO(commentRepository.saveAndFlush(newComment));
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"),
+            @CacheEvict(value = "task", key = "#taskId + '_*'"),
+    })
     @Transactional
-    public void deleteComment(Long articleId, Long commentId, @NotNull Authentication authentication) {
+    public void deleteComment(Long commentId, Long taskId, @NotNull Authentication authentication) {
         long wasDeleted = commentRepository
-                .deleteByIdAndTask_IdAndAuthor_Username(commentId, articleId, authentication.getName());
+                .deleteByIdAndTask_IdAndAuthor_Username(commentId, taskId, authentication.getName());
         if (wasDeleted == 0) throw new IllegalRequestException("Comment not found or you are not the author");
     }
 }

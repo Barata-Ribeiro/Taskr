@@ -14,6 +14,10 @@ import com.barataribeiro.taskr.user.enums.Roles;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.util.Streamable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +36,7 @@ public class UserService {
     private final MembershipRepository membershipRepository;
     private final MembershipBuilder membershipBuilder;
 
+    @Cacheable(value = "userMemberships", key = "#projectId + '_' + #authentication.name")
     @Transactional(readOnly = true)
     public List<MembershipUsersDTO> getProjectMemberships(Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
@@ -43,6 +48,7 @@ public class UserService {
         return memberships.stream().parallel().map(membershipBuilder::toMembershipUsersDTO).toList();
     }
 
+    @Cacheable(value = "userAccount", key = "#authentication.name")
     @Transactional(readOnly = true)
     public UserAccountDTO getAccountDetails(@NotNull Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName())
@@ -50,6 +56,11 @@ public class UserService {
         return userBuilder.toUserAccountDTO(user);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "userAccount", key = "#authentication.name"),
+            @CacheEvict(value = "userMemberships", allEntries = true),
+    },
+             put = @CachePut(value = "userAccount", key = "#authentication.name", condition = "#body != null"))
     @Transactional
     public UserAccountDTO updateAccountDetails(@NotNull Authentication authentication,
                                                @NotNull UserUpdateRequestDTO body) {
@@ -67,6 +78,19 @@ public class UserService {
         verifyIfBodyExistsThenUpdateProperties(body, userToUpdate);
 
         return userBuilder.toUserAccountDTO(userRepository.saveAndFlush(userToUpdate));
+    }
+
+    @Caching(evict = {
+            @CacheEvict(value = "userAccount", key = "#authentication.name"),
+            @CacheEvict(value = "userMemberships", allEntries = true),
+    })
+    @Transactional
+    public void deleteAccount(@NotNull Authentication authentication) {
+        long wasDeleted = userRepository.deleteByUsername(authentication.getName());
+
+        if (wasDeleted == 0) {
+            throw new IllegalRequestException("Account deletion failed; Account not found or not authorized.");
+        }
     }
 
     private void verifyIfBodyExistsThenUpdateProperties(@NotNull UserUpdateRequestDTO body,
@@ -100,15 +124,4 @@ public class UserService {
         Optional.ofNullable(body.getAvatarUrl()).ifPresent(userToUpdate::setAvatarUrl);
         Optional.ofNullable(body.getNewPassword()).ifPresent(s -> userToUpdate.setPassword(passwordEncoder.encode(s)));
     }
-
-    @Transactional
-    public void deleteAccount(@NotNull Authentication authentication) {
-        long wasDeleted = userRepository.deleteByUsername(authentication.getName());
-
-        if (wasDeleted == 0) {
-            throw new IllegalRequestException("Account deletion failed; Account not found or not authorized.");
-        }
-    }
-
-
 }

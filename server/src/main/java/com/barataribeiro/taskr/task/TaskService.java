@@ -20,6 +20,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Streamable;
@@ -46,6 +50,7 @@ public class TaskService {
     private final @Lazy TaskService self = this;
 
 
+    @Cacheable(value = "tasksByProject", key = "#projectId + '_' + #authentication.name")
     @Transactional(readOnly = true)
     public TasksByStatusDTO getTasksByProject(Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
@@ -71,6 +76,7 @@ public class TaskService {
         return tasksByStatus;
     }
 
+    @Cacheable(value = "latestTasksByProject", key = "#projectId + '_' + #authentication.name")
     @Transactional(readOnly = true)
     public Set<TaskDTO> getLatestTasksByProject(Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
@@ -82,6 +88,7 @@ public class TaskService {
         return new LinkedHashSet<>(tasks.stream().parallel().map(taskBuilder::toTaskDTO).toList());
     }
 
+    @Cacheable(value = "task", key = "#taskId + '_' + #projectId + '_' + #authentication.name")
     @Transactional(readOnly = true)
     public TaskDTO getTaskById(Long taskId, Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
@@ -95,6 +102,11 @@ public class TaskService {
         return taskBuilder.toTaskDTO(task);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tasksByProject", key = "#body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "latestTasksByProject", key = "#body.projectId + '_' + #authentication.name")
+    },
+             put = @CachePut(value = "task", key = "#result.id + '_' + #body.projectId + '_' + #authentication.name"))
     @Transactional
     public TaskDTO createTask(@Valid @NotNull TaskRequestDTO body, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), body.getProjectId())) {
@@ -144,6 +156,11 @@ public class TaskService {
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(newTask));
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tasksByProject", key = "#body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "latestTasksByProject", key = "#body.projectId + '_' + #authentication.name")
+    },
+             put = @CachePut(value = "task", key = "#taskId + '_' + #body.projectId + '_' + #authentication.name"))
     @Transactional
     public TaskDTO updateTask(Long taskId, @NotNull TaskUpdateRequestDTO body, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), body.getProjectId())) {
@@ -300,6 +317,7 @@ public class TaskService {
         return self.getTasksByProject(projectId, authentication);
     }
 
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TasksByStatusDTO moveTask(Long taskId, @NotNull MoveRequestDTO body,
                                      @NotNull Authentication authentication) {
@@ -381,6 +399,7 @@ public class TaskService {
         return self.getTasksByProject(projectId, authentication);
     }
 
+    @CacheEvict(value = "task", key = "#taskId + '_' + #projectId + '_' + #authentication.name")
     @Transactional
     public void deleteTask(Long taskId, Long projectId, @NotNull Authentication authentication) {
         long wasDeleted = taskRepository.deleteByIdAndProject_Owner_Username(taskId, authentication.getName());

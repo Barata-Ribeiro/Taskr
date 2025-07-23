@@ -18,6 +18,7 @@ import com.barataribeiro.taskr.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class StatisticsService {
     private final MembershipRepository membershipRepository;
     private final ActivityRepository activityRepository;
 
+    @Cacheable(value = "globalStats", key = "#authentication.name")
     @Transactional(readOnly = true)
     public GlobalStatsDTO getGlobalStats(@NotNull Authentication authentication) {
         if (authentication.getAuthorities().stream()
@@ -50,6 +52,7 @@ public class StatisticsService {
         return new GlobalStatsDTO(users, projects, totalTasks, totalComments, totalMemberships, totalActivities);
     }
 
+    @Cacheable(value = "projectStats", key = "#projectId + '_' + #authentication.name")
     @Transactional(readOnly = true)
     public ProjectStatsDTO getProjectStats(Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
@@ -59,6 +62,7 @@ public class StatisticsService {
         return projectRepository.getProjectCount(projectId);
     }
 
+    @Cacheable(value = "userStats", key = "#userId + '_' + #authentication.name")
     @Transactional(readOnly = true)
     public UserStatsDTO getUserStats(String userId, @NotNull Authentication authentication) {
         UUID uuid = UUID.fromString(userId);

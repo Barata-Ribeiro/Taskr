@@ -26,6 +26,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,6 +55,9 @@ public class ProjectService {
     private final ActivityRepository activityRepository;
     private final ActivityBuilder activityBuilder;
 
+    @Cacheable(value = "projects",
+               key = "#authentication.name + '_' + #pageQueryParams.page + '_' + #pageQueryParams.perPage + '_' + " +
+                       "#pageQueryParams.direction + '_' + #pageQueryParams.orderBy")
     @Transactional(readOnly = true)
     public Page<ProjectDTO> getMyProjects(@NotNull PageQueryParamsDTO pageQueryParams,
                                           @NotNull Authentication authentication) {
@@ -60,6 +67,7 @@ public class ProjectService {
         return projects.map(projectBuilder::toProjectDTO);
     }
 
+    @Cacheable(value = "project", key = "#projectId + '_' + #authentication.name")
     @Transactional(readOnly = true)
     public ProjectCompleteDTO getProjectById(Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
@@ -85,6 +93,11 @@ public class ProjectService {
         return activities.map(activityBuilder::toActivityDTO);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "projects", key = "#authentication.name + '_*'"),
+            @CacheEvict(value = "project", allEntries = true),
+    },
+             put = @CachePut(value = "project", key = "#result.id + '_' + #authentication.name"))
     @Transactional
     public ProjectDTO createProject(@Valid @NotNull ProjectRequestDTO body,
                                     @NotNull Authentication authentication) {
@@ -115,6 +128,11 @@ public class ProjectService {
         return projectBuilder.toProjectDTO(projectRepository.saveAndFlush(project));
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "projects", key = "#authentication.name + '_*'"),
+            @CacheEvict(value = "project", key = "#projectId + '_' + #authentication.name")
+    },
+             put = @CachePut(value = "project", key = "#projectId + '_' + #authentication.name"))
     @Transactional
     public ProjectCompleteDTO updateProject(Long projectId, @Valid ProjectUpdateRequestDTO body,
                                             @NotNull Authentication authentication) {
@@ -217,6 +235,10 @@ public class ProjectService {
         return projectBuilder.toProjectCompleteDTO(projectRepository.saveAndFlush(project));
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "projects", key = "#authentication.name + '_*'"),
+            @CacheEvict(value = "project", key = "#projectId + '_' + #authentication.name")
+    })
     @Transactional
     public void deleteProject(Long projectId, @NotNull Authentication authentication) {
         long wasDeleted = projectRepository.deleteByIdAndOwner_Username(projectId, authentication.getName());
