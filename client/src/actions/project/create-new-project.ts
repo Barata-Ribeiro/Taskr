@@ -38,6 +38,8 @@ export default async function createNewProject(state: State<unknown>, formData: 
         }
 
         revalidateTag(`my-projects-${session.user?.username}`)
+        revalidateTag("global-stats")
+        revalidateTag(`user-stats-${session.user?.id}`)
 
         return { ok: true, error: null, response: json as RestResponse<Project> }
     } catch (e: unknown) {

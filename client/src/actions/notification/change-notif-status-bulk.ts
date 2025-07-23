@@ -32,6 +32,7 @@ export default async function changeNotifStatusBulk(ids: (number | string)[], is
         }
 
         revalidateTag(`notifications-${session.user?.username}`)
+        ids.forEach(id => revalidateTag(`notification-${id}`))
 
         return { ok: true, error: null, response: json as RestResponse<Notification[]> }
     } catch (e: unknown) {

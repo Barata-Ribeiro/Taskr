@@ -30,6 +30,7 @@ export default async function deleteNotifById(id: number | string) {
         }
 
         revalidateTag(`notifications-${session.user?.username}`)
+        revalidateTag(`notification-${id}`)
 
         return { ok: true, error: null, response: json as RestResponse<null> }
     } catch (e: unknown) {

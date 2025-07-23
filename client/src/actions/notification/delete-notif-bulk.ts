@@ -30,6 +30,7 @@ export default async function deleteNotifBulk(ids: (number | string)[]) {
         }
 
         revalidateTag(`notifications-${session.user?.username}`)
+        ids.forEach(id => revalidateTag(`notification-${id}`))
 
         return { ok: true, error: null, response: json as RestResponse<null> }
     } catch (e: unknown) {
