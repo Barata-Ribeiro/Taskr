@@ -20,7 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest
+@SpringBootTest(properties = {"spring.cache.type=none"})
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})

@@ -11,7 +11,6 @@ import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +24,7 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Slf4j
-@SpringBootTest
+@SpringBootTest(properties = {"spring.cache.type=none"})
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

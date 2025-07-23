@@ -12,7 +12,6 @@ import com.barataribeiro.taskr.user.UserRepository;
 import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -25,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Slf4j
 public class TestSetupUtil {
 
     public static @NotNull LoginReturnDTO registerAndLoginDefaultUser(
