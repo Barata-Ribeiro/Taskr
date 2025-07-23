@@ -1,22 +1,27 @@
 import * as z from "zod/v4"
 
 const taskCreateSchema = z.object({
-    projectId: z.number().min(1, "The project ID cannot be blank"),
+    projectId: z
+        .string("Project ID must not be blank")
+        .regex(/^\d+$/, "Project ID must be a valid number")
+        .transform(Number),
     title: z
-        .string()
+        .string("Title must not be blank")
+        .trim()
         .min(3, "Title must be between 3 and 100 characters")
         .max(100, "Title must be between 3 and 100 characters"),
-    description: z.string().min(10, "Description must be at least 10 characters long"),
+    description: z
+        .string("Description must not be blank")
+        .trim()
+        .min(10, "Description must be at least 10 characters" + " long"),
     dueDate: z
-        .string()
+        .string("Due date must not be blank")
         .regex(
             /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/,
             "Due date must be in ISO-8601 format: yyyy-MM-dd'T'HH:mm[:ss]",
         ),
-    status: z.enum(["TO_DO", "IN_PROGRESS", "DONE"], { error: "Status must be one of TO_DO, IN_PROGRESS, or DONE" }),
-    priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"], {
-        error: "Priority must be one of LOW, MEDIUM, HIGH, or URGENT",
-    }),
+    status: z.enum(["TO_DO", "IN_PROGRESS", "DONE"], "Status must be one of TO_DO, IN_PROGRESS, or DONE"),
+    priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"], "Priority must be one of LOW, MEDIUM, HIGH, or URGENT"),
 })
 
 const taskUpdateSchema = z.object({
