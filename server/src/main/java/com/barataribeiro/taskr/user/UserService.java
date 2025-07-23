@@ -59,6 +59,8 @@ public class UserService {
     @Caching(evict = {
             @CacheEvict(value = "userAccount", key = "#authentication.name"),
             @CacheEvict(value = "userMemberships", allEntries = true),
+            @CacheEvict(value = "globalStats", allEntries = true),
+            @CacheEvict(value = "userStats", allEntries = true)
     },
              put = @CachePut(value = "userAccount", key = "#authentication.name", condition = "#body != null"))
     @Transactional
@@ -83,6 +85,8 @@ public class UserService {
     @Caching(evict = {
             @CacheEvict(value = "userAccount", key = "#authentication.name"),
             @CacheEvict(value = "userMemberships", allEntries = true),
+            @CacheEvict(value = "globalStats", allEntries = true),
+            @CacheEvict(value = "userStats", allEntries = true)
     })
     @Transactional
     public void deleteAccount(@NotNull Authentication authentication) {

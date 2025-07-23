@@ -96,6 +96,9 @@ public class ProjectService {
     @Caching(evict = {
             @CacheEvict(value = "projects", key = "#authentication.name + '_*'"),
             @CacheEvict(value = "project", allEntries = true),
+            @CacheEvict(value = "globalStats", allEntries = true),
+            @CacheEvict(value = "projectStats", allEntries = true),
+            @CacheEvict(value = "userStats", allEntries = true)
     },
              put = @CachePut(value = "project", key = "#result.id + '_' + #authentication.name"))
     @Transactional
@@ -130,7 +133,10 @@ public class ProjectService {
 
     @Caching(evict = {
             @CacheEvict(value = "projects", key = "#authentication.name + '_*'"),
-            @CacheEvict(value = "project", key = "#projectId + '_' + #authentication.name")
+            @CacheEvict(value = "project", key = "#projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "globalStats", allEntries = true),
+            @CacheEvict(value = "projectStats", key = "#projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "userStats", allEntries = true)
     },
              put = @CachePut(value = "project", key = "#projectId + '_' + #authentication.name"))
     @Transactional
@@ -237,7 +243,10 @@ public class ProjectService {
 
     @Caching(evict = {
             @CacheEvict(value = "projects", key = "#authentication.name + '_*'"),
-            @CacheEvict(value = "project", key = "#projectId + '_' + #authentication.name")
+            @CacheEvict(value = "project", key = "#projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "globalStats", allEntries = true),
+            @CacheEvict(value = "projectStats", key = "#projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "userStats", allEntries = true)
     })
     @Transactional
     public void deleteProject(Long projectId, @NotNull Authentication authentication) {

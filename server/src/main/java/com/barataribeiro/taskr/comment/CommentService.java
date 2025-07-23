@@ -67,6 +67,9 @@ public class CommentService {
     @Caching(evict = {
             @CacheEvict(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"),
             @CacheEvict(value = "task", key = "#taskId + '_*'"),
+            @CacheEvict(value = "globalStats", allEntries = true),
+            @CacheEvict(value = "projectStats", allEntries = true),
+            @CacheEvict(value = "userStats", allEntries = true)
     },
              put = @CachePut(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"))
     @Transactional
@@ -112,6 +115,9 @@ public class CommentService {
     @Caching(evict = {
             @CacheEvict(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"),
             @CacheEvict(value = "task", key = "#taskId + '_*'"),
+            @CacheEvict(value = "globalStats", allEntries = true),
+            @CacheEvict(value = "projectStats", allEntries = true),
+            @CacheEvict(value = "userStats", allEntries = true)
     })
     @Transactional
     public void deleteComment(Long commentId, Long taskId, @NotNull Authentication authentication) {
