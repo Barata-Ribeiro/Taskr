@@ -45,7 +45,7 @@ export default function NewTaskForm({ projectId }: Readonly<NewTaskFormProps>) {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <DefaultInput
                     type="text"
-                    name="taskTitle"
+                    name="title"
                     label="Task Title"
                     description="Provide a concise title for the task. This will help in identifying the task quickly."
                     placeholder="e.g. Implement User Authentication"
