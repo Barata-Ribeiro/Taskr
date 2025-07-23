@@ -103,10 +103,10 @@ public class TaskService {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "tasksByProject", key = "#body.projectId + '_' + #authentication.name"),
-            @CacheEvict(value = "latestTasksByProject", key = "#body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "tasksByProject", allEntries = true),
+            @CacheEvict(value = "latestTasksByProject", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", key = "#body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "projectStats", allEntries = true),
             @CacheEvict(value = "userStats", allEntries = true)
     },
              put = @CachePut(value = "task", key = "#result.id + '_' + #body.projectId + '_' + #authentication.name"))
@@ -155,15 +155,14 @@ public class TaskService {
                            .publishEvent(new NewTaskNotificationEvent(this, project.getId(), project.getTitle(),
                                                                       membership.getUser().getUsername(),
                                                                       newTask.getTitle())));
-
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(newTask));
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "tasksByProject", key = "#body.projectId + '_' + #authentication.name"),
-            @CacheEvict(value = "latestTasksByProject", key = "#body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "tasksByProject", allEntries = true),
+            @CacheEvict(value = "latestTasksByProject", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", key = "#body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "projectStats", allEntries = true),
             @CacheEvict(value = "userStats", allEntries = true)
     },
              put = @CachePut(value = "task", key = "#taskId + '_' + #body.projectId + '_' + #authentication.name"))
@@ -283,15 +282,14 @@ public class TaskService {
                  .forEach(user -> eventPublisher
                          .publishEvent(new TaskUpdatedEvent(this, task.getTitle(), project, user.getUsername(),
                                                             updates.toString())));
-
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(task));
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "tasksByProject", key = "#projectId + '_' + #authentication.name"),
-            @CacheEvict(value = "latestTasksByProject", key = "#projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "tasksByProject", allEntries = true),
+            @CacheEvict(value = "latestTasksByProject", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", key = "#projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "projectStats", allEntries = true),
             @CacheEvict(value = "userStats", allEntries = true)
     })
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -332,10 +330,10 @@ public class TaskService {
 
 
     @Caching(evict = {
-            @CacheEvict(value = "tasksByProject", key = "#body.projectId + '_' + #authentication.name"),
-            @CacheEvict(value = "latestTasksByProject", key = "#body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "tasksByProject", allEntries = true),
+            @CacheEvict(value = "latestTasksByProject", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", key = "#body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "projectStats", allEntries = true),
             @CacheEvict(value = "userStats", allEntries = true)
     })
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -419,7 +417,11 @@ public class TaskService {
         return self.getTasksByProject(projectId, authentication);
     }
 
-    @CacheEvict(value = "task", key = "#taskId + '_' + #projectId + '_' + #authentication.name")
+    @Caching(evict = {
+            @CacheEvict(value = "task", allEntries = true),
+            @CacheEvict(value = "globalStats", allEntries = true),
+            @CacheEvict(value = "userStats", allEntries = true)
+    })
     @Transactional
     public void deleteTask(Long taskId, Long projectId, @NotNull Authentication authentication) {
         long wasDeleted = taskRepository.deleteByIdAndProject_Owner_Username(taskId, authentication.getName());

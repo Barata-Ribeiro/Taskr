@@ -65,8 +65,8 @@ public class CommentService {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"),
-            @CacheEvict(value = "task", key = "#taskId + '_*'"),
+            @CacheEvict(value = "commentsByTask", allEntries = true),
+            @CacheEvict(value = "task", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
             @CacheEvict(value = "projectStats", allEntries = true),
             @CacheEvict(value = "userStats", allEntries = true)
@@ -113,8 +113,8 @@ public class CommentService {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"),
-            @CacheEvict(value = "task", key = "#taskId + '_*'"),
+            @CacheEvict(value = "commentsByTask", allEntries = true),
+            @CacheEvict(value = "task", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
             @CacheEvict(value = "projectStats", allEntries = true),
             @CacheEvict(value = "userStats", allEntries = true)
