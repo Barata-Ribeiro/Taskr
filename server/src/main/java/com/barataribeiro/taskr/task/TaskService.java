@@ -281,6 +281,10 @@ public class TaskService {
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(task));
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tasksByProject", key = "#projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "latestTasksByProject", key = "#projectId + '_' + #authentication.name")
+    })
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TasksByStatusDTO updateTaskOrder(Long projectId, ReorderRequestDTO body,
                                             @NotNull Authentication authentication) {
@@ -318,6 +322,10 @@ public class TaskService {
     }
 
 
+    @Caching(evict = {
+            @CacheEvict(value = "tasksByProject", key = "#body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "latestTasksByProject", key = "#body.projectId + '_' + #authentication.name")
+    })
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TasksByStatusDTO moveTask(Long taskId, @NotNull MoveRequestDTO body,
                                      @NotNull Authentication authentication) {
