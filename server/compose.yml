@@ -17,6 +17,15 @@ services:
     networks:
       - taskr_network
 
+  redis:
+    image: 'redis:alpine'
+    container_name: 'taskr_redis'
+    restart: 'always'
+    ports:
+      - '6379:6379'
+    networks:
+      - taskr_network
+
 volumes:
   pgdata:
     driver: local
