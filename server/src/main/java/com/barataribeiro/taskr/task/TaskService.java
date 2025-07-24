@@ -103,6 +103,7 @@ public class TaskService {
     }
 
     @Caching(evict = {
+            @CacheEvict(value = "project", key = "#body.projectId + '_' + #authentication.name"),
             @CacheEvict(value = "tasksByProject", allEntries = true),
             @CacheEvict(value = "latestTasksByProject", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
