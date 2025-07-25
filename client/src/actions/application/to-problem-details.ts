@@ -24,4 +24,12 @@ const invalidData = problemDetailsFactory({
     instance: "",
 })
 
-export { invalidFormData, unauthenticated, invalidData }
+const notFoundToken = problemDetailsFactory({
+    type: "https://httpstatuses.com/404",
+    title: "Token Not Found",
+    status: 404,
+    detail: "Authentication token was not found in the cookie store.",
+    instance: "",
+})
+
+export { invalidFormData, unauthenticated, invalidData, notFoundToken }
