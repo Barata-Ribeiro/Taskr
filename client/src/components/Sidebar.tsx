@@ -1,6 +1,7 @@
 "use client"
 
 import NavLogo from "@/components/shared/NavLogo"
+import SignOutButton from "@/components/shared/SignOutButton"
 import DefaultButton from "@/components/ui/DefaultButton"
 import Avatar from "@/components/user/Avatar"
 import {
@@ -178,13 +179,7 @@ export default function Sidebar() {
                                             ))}
                                             <MenuSeparator className="my-1 h-px bg-gray-200 dark:bg-gray-700" />
                                             <MenuItem>
-                                                <Link
-                                                    href="/api/auth/signout"
-                                                    className="flex items-center gap-x-3 rounded-md px-3 py-2 text-red-700 hover:bg-red-50 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900 dark:hover:text-red-400">
-                                                    <span className="sr-only">Sign out</span>
-                                                    <SettingsIcon aria-hidden className="size-5 shrink-0" />
-                                                    Sign out
-                                                </Link>
+                                                <SignOutButton />
                                             </MenuItem>
                                         </MenuItems>
                                     </Menu>
