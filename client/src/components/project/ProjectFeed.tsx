@@ -96,7 +96,7 @@ export default function ProjectFeed({ activitiesPromise, id }: Readonly<ProjectF
                 aria-describedby="project-activities-desc">
                 {activities.map((activity, index) => (
                     <li key={activity.id} className="relative pb-6 last:pb-0">
-                        {index !== content.length - 1 ? (
+                        {index !== activities.length - 1 ? (
                             <span
                                 aria-hidden
                                 className="absolute top-8 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700"
