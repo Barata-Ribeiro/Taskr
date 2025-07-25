@@ -28,7 +28,7 @@ export default function TaskColumn({ baseUrl, provided, snapshot, statusKey, tas
     }
 
     function getDroppableClasses(snapshot: DroppableStateSnapshot): string {
-        const baseStyle = tw`flex flex-col gap-4 rounded-lg border-2 border-dashed border-gray-200 p-4 dark:border-gray-700`
+        const baseStyle = tw`flex max-h-[calc(100dvh-220px)] flex-col gap-4 overflow-y-auto rounded-lg border-2 border-dashed border-gray-200 p-4 dark:border-gray-700`
         const isDraggingOver = snapshot.isDraggingOver
 
         return twMerge(baseStyle, isDraggingOver ? "bg-gray-100 dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900")
