@@ -1,31 +1,10 @@
 "use client"
 
 import NavLogo from "@/components/shared/NavLogo"
-import SignOutButton from "@/components/shared/SignOutButton"
 import DefaultButton from "@/components/ui/DefaultButton"
-import Avatar from "@/components/user/Avatar"
-import {
-    Dialog,
-    DialogBackdrop,
-    DialogPanel,
-    Menu,
-    MenuButton,
-    MenuItem,
-    MenuItems,
-    MenuSeparator,
-    TransitionChild,
-} from "@headlessui/react"
-import {
-    ChartPieIcon,
-    ChevronsUpDownIcon,
-    FolderIcon,
-    HomeIcon,
-    InboxIcon,
-    MenuIcon,
-    SettingsIcon,
-    UserPenIcon,
-    XIcon,
-} from "lucide-react"
+import UserMenu from "@/components/UserMenu"
+import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from "@headlessui/react"
+import { ChartPieIcon, FolderIcon, HomeIcon, InboxIcon, MenuIcon, XIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -38,7 +17,6 @@ export default function Sidebar() {
     const isLoading = status === "loading"
 
     const basePath = `/dashboard/${session?.user.username}`
-    const profilePath = `${basePath}/profile/${session?.user.username}`
 
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -47,11 +25,6 @@ export default function Sidebar() {
         { name: "Notifications", href: `${basePath}/notifications`, icon: InboxIcon },
         { name: "Projects", href: `${basePath}/projects`, icon: FolderIcon },
         { name: "Reports", href: `${basePath}/reports`, icon: ChartPieIcon },
-    ]
-
-    const userNavigation = [
-        { name: "Profile", href: profilePath, icon: UserPenIcon },
-        { name: "Settings", href: `${basePath}/settings`, icon: SettingsIcon },
     ]
 
     return (
@@ -150,40 +123,7 @@ export default function Sidebar() {
                             </li>
 
                             <li className="mt-auto dark:border-gray-700">
-                                {session && (
-                                    <Menu>
-                                        <MenuButton
-                                            aria-label={`Open user menu for ${session?.user.username}`}
-                                            className="inline-flex w-full cursor-pointer items-center justify-between gap-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-indigo-400">
-                                            <div className="inline-flex items-center gap-x-3">
-                                                <Avatar url="" name={session?.user.username} size="small" />
-                                                <span className="flex-1">{session?.user.username}</span>
-                                            </div>
-
-                                            <ChevronsUpDownIcon aria-hidden size={16} />
-                                        </MenuButton>
-
-                                        <MenuItems
-                                            transition
-                                            anchor="bottom end"
-                                            className="w-52 origin-top-right rounded-xl border border-white/5 bg-white/5 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0">
-                                            {userNavigation.map(item => (
-                                                <MenuItem key={item.name}>
-                                                    <Link
-                                                        href={item.href}
-                                                        className="flex items-center gap-x-3 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-indigo-400">
-                                                        <item.icon aria-hidden size={16} />
-                                                        {item.name}
-                                                    </Link>
-                                                </MenuItem>
-                                            ))}
-                                            <MenuSeparator className="my-1 h-px bg-gray-200 dark:bg-gray-700" />
-                                            <MenuItem>
-                                                <SignOutButton />
-                                            </MenuItem>
-                                        </MenuItems>
-                                    </Menu>
-                                )}
+                                <UserMenu anchor="bottom end" />
                             </li>
                         </ul>
                     </nav>
@@ -203,11 +143,7 @@ export default function Sidebar() {
 
                 <div className="flex-1 text-sm/6 font-semibold text-gray-900 dark:text-gray-200">Dashboard</div>
 
-                {session && (
-                    <Link href={profilePath}>
-                        <Avatar name={session?.user.username} url={session?.user.avatarUrl} size="small" />
-                    </Link>
-                )}
+                <UserMenu anchor="bottom end" isAvatarOnly />
             </div>
         </Fragment>
     )
