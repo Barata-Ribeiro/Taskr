@@ -419,7 +419,10 @@ public class TaskService {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "task", allEntries = true),
+            @CacheEvict(value = "task", key = "#taskId + '_' + #projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "project", key = "#projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "tasksByProject", allEntries = true),
+            @CacheEvict(value = "latestTasksByProject", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
             @CacheEvict(value = "userStats", allEntries = true)
     })
