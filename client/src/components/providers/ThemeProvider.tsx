@@ -19,6 +19,7 @@ export function ThemeProvider({ children }: Readonly<{ children: ReactNode }>) {
 
     useEffect(() => {
         document.documentElement?.setAttribute("data-theme", theme)
+        document.documentElement?.setAttribute("data-color-mode", theme)
         localStorage.setItem("theme", theme)
     }, [theme])
 
