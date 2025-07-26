@@ -58,7 +58,7 @@ export default function TaskCard({ baseUrl, provided, snapshot, projectId, task 
                     <EditTaskModal task={task} />
                 </div>
 
-                <p className="prose text-sm text-gray-600 dark:text-gray-300">{task.description}</p>
+                <p className="text-sm/6 text-gray-600 dark:text-gray-300">{task.summary}</p>
 
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex -space-x-2 self-end">

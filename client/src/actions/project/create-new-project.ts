@@ -40,6 +40,7 @@ export default async function createNewProject(state: State<unknown>, formData: 
             return ResponseError(problemDetails)
         }
 
+        revalidateTag(`user-account-${session.user?.username}`)
         revalidateTag(`my-projects-${session.user?.username}`)
         revalidateTag("global-stats")
         revalidateTag(`user-stats-${session.user?.id}`)
