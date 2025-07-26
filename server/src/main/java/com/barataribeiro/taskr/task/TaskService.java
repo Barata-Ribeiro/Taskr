@@ -138,6 +138,7 @@ public class TaskService {
 
         Task newTask = Task.builder()
                            .title(body.getTitle())
+                           .summary(body.getSummary())
                            .description(body.getDescription())
                            .dueDate(LocalDateTime.parse(body.getDueDate()))
                            .status(status)
@@ -190,6 +191,10 @@ public class TaskService {
             task.setTitle(title);
             updates.add(String.format("has updated the task title to '%s'.", title));
         });
+        Optional.ofNullable(body.getSummary()).ifPresent(summ -> {
+            task.setSummary(summ);
+            updates.add("has updated the task summary.");
+        });
         Optional.ofNullable(body.getDescription()).ifPresent(desc -> {
             task.setDescription(desc);
             updates.add("has updated the task description.");
@@ -221,8 +226,7 @@ public class TaskService {
         Optional.ofNullable(body.getPriority()).ifPresent(priority -> {
             TaskPriority newPriority = TaskPriority.valueOf(priority);
             task.setPriority(newPriority);
-            updates.add(
-                    String.format("has updated the task priority to '%s'.", priority));
+            updates.add(String.format("has updated the task priority to '%s'.", priority));
         });
         Optional.ofNullable(body.getMembersToAssign()).ifPresent(members -> members.parallelStream().forEach(member -> {
             if (!membershipRepository.existsByUser_UsernameAndProject_Tasks_Id(member, task.getId())) {

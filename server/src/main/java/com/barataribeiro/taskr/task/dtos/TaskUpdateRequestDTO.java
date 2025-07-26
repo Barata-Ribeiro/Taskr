@@ -18,6 +18,9 @@ public class TaskUpdateRequestDTO implements Serializable {
     @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters.")
     private String title;
 
+    @Size(min = 10, max = 255, message = "Summary must be between 10 and 255 characters.")
+    private String summary;
+
     @Size(min = 10, message = "Description must be at least 10 characters long.")
     private String description;
 

@@ -20,6 +20,10 @@ public class TaskRequestDTO implements Serializable {
     private String title;
 
     @NotBlank
+    @Size(min = 10, max = 255, message = "Summary must be between 10 and 255 characters.")
+    private String summary;
+
+    @NotBlank
     @Size(min = 10, message = "Description must be at least 10 characters long.")
     private String description;
 

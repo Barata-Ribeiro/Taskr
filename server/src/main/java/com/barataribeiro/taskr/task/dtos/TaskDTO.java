@@ -22,6 +22,7 @@ import java.util.Set;
 public class TaskDTO implements Serializable {
     private Long id;
     private String title;
+    private String summary;
     private String description;
     private String dueDate;
     private TaskStatus status;

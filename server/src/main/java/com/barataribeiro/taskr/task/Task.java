@@ -41,8 +41,11 @@ public class Task implements Serializable {
     @Column(updatable = false, nullable = false, unique = true)
     private Long id;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, unique = true)
     private String title;
+
+    @Column(name = "summary", nullable = false)
+    private String summary;
 
     @Lob
     @Column(name = "description", nullable = false)
