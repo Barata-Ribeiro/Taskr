@@ -65,6 +65,7 @@ public class CommentService {
     }
 
     @Caching(evict = {
+            @CacheEvict(value = "userAccount", key = "#authentication.name"),
             @CacheEvict(value = "commentsByTask", allEntries = true),
             @CacheEvict(value = "task", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
@@ -113,6 +114,7 @@ public class CommentService {
     }
 
     @Caching(evict = {
+            @CacheEvict(value = "userAccount", key = "#authentication.name"),
             @CacheEvict(value = "commentsByTask", allEntries = true),
             @CacheEvict(value = "task", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),

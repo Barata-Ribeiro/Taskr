@@ -94,6 +94,7 @@ public class ProjectService {
     }
 
     @Caching(evict = {
+            @CacheEvict(value = "userAccount", key = "#authentication.name"),
             @CacheEvict(value = "projects", allEntries = true),
             @CacheEvict(value = "project", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
@@ -132,6 +133,7 @@ public class ProjectService {
     }
 
     @Caching(evict = {
+            @CacheEvict(value = "userAccount", key = "#authentication.name"),
             @CacheEvict(value = "projects", allEntries = true),
             @CacheEvict(value = "project", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
@@ -242,6 +244,7 @@ public class ProjectService {
     }
 
     @Caching(evict = {
+            @CacheEvict(value = "userAccount", key = "#authentication.name"),
             @CacheEvict(value = "projects", allEntries = true),
             @CacheEvict(value = "project", allEntries = true),
             @CacheEvict(value = "globalStats", allEntries = true),
