@@ -11,6 +11,7 @@ import DefaultInput from "@/components/ui/DefaultInput"
 import DefaultMarkdownEditor from "@/components/ui/DefaultMarkdownEditor"
 import DefaultOption from "@/components/ui/DefaultOption"
 import DefaultSelect from "@/components/ui/DefaultSelect"
+import DefaultTextarea from "@/components/ui/DefaultTextarea"
 import applicationInitialState from "@/helpers/application-initial-state"
 import normalizeBadgeString from "@/utils/badge-string-normalizer"
 import { useSession } from "next-auth/react"
@@ -67,6 +68,18 @@ export default function NewTaskForm({ projectId }: Readonly<NewTaskFormProps>) {
                     aria-required
                 />
             </div>
+
+            <DefaultTextarea
+                label="Summary"
+                name="summary"
+                placeholder="Briefly summarize the task..."
+                rows={4}
+                maxLength={255}
+                disabled={pending}
+                aria-disabled={pending}
+                required
+                aria-required
+            />
 
             <DefaultMarkdownEditor
                 label="Description"
