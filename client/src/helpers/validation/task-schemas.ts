@@ -1,3 +1,4 @@
+import sanitizeHtml from "sanitize-html"
 import * as z from "zod/v4"
 
 const taskCreateSchema = z.object({
@@ -10,10 +11,16 @@ const taskCreateSchema = z.object({
         .trim()
         .min(3, "Title must be between 3 and 100 characters")
         .max(100, "Title must be between 3 and 100 characters"),
+    summary: z
+        .string("Summary must not be blank")
+        .trim()
+        .min(10, "Summary must be at least 10 characters long")
+        .max(255, "Summary must not exceed 255 characters"),
     description: z
         .string("Description must not be blank")
         .trim()
-        .min(10, "Description must be at least 10 characters" + " long"),
+        .min(10, "Description must be at least 10 characters" + " long")
+        .transform(val => sanitizeHtml(val)),
     dueDate: z
         .string("Due date must not be blank")
         .regex(
@@ -31,7 +38,16 @@ const taskUpdateSchema = z.object({
         .min(3, "Title must be between 3 and 100 characters")
         .max(100, "Title must be between 3 and 100 characters")
         .optional(),
-    description: z.string().min(10, "Description must be at least 10 characters long").optional(),
+    summary: z
+        .string()
+        .min(10, "Summary must be at least 10 characters long")
+        .max(255, "Summary must not exceed 255 characters")
+        .optional(),
+    description: z
+        .string()
+        .min(10, "Description must be at least 10 characters" + " long")
+        .transform(val => sanitizeHtml(val))
+        .optional(),
     dueDate: z
         .string()
         .regex(

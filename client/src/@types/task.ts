@@ -16,6 +16,7 @@ enum TaskPriority {
 interface Task {
     id: number
     title: string
+    summary: string
     description: string
     dueDate: string
     status: TaskStatus
