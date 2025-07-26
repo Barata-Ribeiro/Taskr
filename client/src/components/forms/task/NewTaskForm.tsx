@@ -8,14 +8,14 @@ import InputValidationError from "@/components/shared/feedback/InputValidationEr
 import Loading from "@/components/shared/feedback/Loading"
 import DefaultButton from "@/components/ui/DefaultButton"
 import DefaultInput from "@/components/ui/DefaultInput"
+import DefaultMarkdownEditor from "@/components/ui/DefaultMarkdownEditor"
 import DefaultOption from "@/components/ui/DefaultOption"
 import DefaultSelect from "@/components/ui/DefaultSelect"
-import DefaultTextarea from "@/components/ui/DefaultTextarea"
 import applicationInitialState from "@/helpers/application-initial-state"
 import normalizeBadgeString from "@/utils/badge-string-normalizer"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useActionState, useEffect } from "react"
+import { useActionState, useEffect, useState } from "react"
 import { toast } from "react-toastify"
 
 interface NewTaskFormProps {
@@ -24,6 +24,7 @@ interface NewTaskFormProps {
 
 export default function NewTaskForm({ projectId }: Readonly<NewTaskFormProps>) {
     const [formState, formAction, pending] = useActionState(createNewTask, applicationInitialState())
+    const [bodyContent, setBodyContent] = useState<string>("")
     const { data: session } = useSession()
     const router = useRouter()
 
@@ -67,12 +68,12 @@ export default function NewTaskForm({ projectId }: Readonly<NewTaskFormProps>) {
                 />
             </div>
 
-            <DefaultTextarea
+            <DefaultMarkdownEditor
                 label="Description"
                 name="description"
-                placeholder="Describe the task in detail..."
                 description="Provide a detailed description of the task. Include any specific requirements or steps needed to complete it."
-                rows={4}
+                value={bodyContent}
+                setValue={setBodyContent}
                 disabled={pending}
                 aria-disabled={pending}
                 required
