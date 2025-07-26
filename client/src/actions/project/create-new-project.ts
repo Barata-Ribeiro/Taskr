@@ -26,7 +26,10 @@ export default async function createNewProject(state: State<unknown>, formData: 
 
         const response = await fetch(URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${session.accessToken}`,
+            },
             body: JSON.stringify(parsedFormData.data),
         })
 
