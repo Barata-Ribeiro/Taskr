@@ -14,10 +14,11 @@ interface TaskCardProps {
     baseUrl: string
     provided: DraggableProvided
     snapshot: DraggableStateSnapshot
+    projectId: number
     task: Task
 }
 
-export default function TaskCard({ baseUrl, provided, snapshot, task }: Readonly<TaskCardProps>) {
+export default function TaskCard({ baseUrl, provided, snapshot, projectId, task }: Readonly<TaskCardProps>) {
     function getDraggableClasses(snapshot: DraggableStateSnapshot): string {
         const baseStyle = tw`grid !cursor-move gap-4 rounded-lg bg-white p-4 shadow-sm transition-transform hover:shadow-md dark:bg-gray-800 dark:hover:shadow-lg`
         const isDragging = snapshot.isDragging
@@ -33,7 +34,7 @@ export default function TaskCard({ baseUrl, provided, snapshot, task }: Readonly
         return twMerge(baseStyle, animationStyle, draggingStyle)
     }
 
-    const taskUrl = `${baseUrl}/tasks/${task.id}`
+    const taskUrl = `${baseUrl}/projects/${projectId}/tasks/${task.id}`
     const dragDescId = `drag-desc-${task.id}`
 
     return (

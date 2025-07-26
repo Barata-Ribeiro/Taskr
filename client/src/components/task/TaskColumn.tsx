@@ -10,10 +10,18 @@ interface TaskColumnProps {
     provided: DroppableProvided
     snapshot: DroppableStateSnapshot
     statusKey: string
+    projectId: number
     tasks: Task[]
 }
 
-export default function TaskColumn({ baseUrl, provided, snapshot, statusKey, tasks }: Readonly<TaskColumnProps>) {
+export default function TaskColumn({
+    baseUrl,
+    provided,
+    snapshot,
+    statusKey,
+    projectId,
+    tasks,
+}: Readonly<TaskColumnProps>) {
     function getStatusColor(status: keyof TasksByStatus): string {
         switch (status) {
             case "toDo":
@@ -58,7 +66,13 @@ export default function TaskColumn({ baseUrl, provided, snapshot, statusKey, tas
             {tasks.map((task: Task, index: number) => (
                 <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
                     {(provided, snapshot) => (
-                        <TaskCard baseUrl={baseUrl} provided={provided} snapshot={snapshot} task={task} />
+                        <TaskCard
+                            baseUrl={baseUrl}
+                            provided={provided}
+                            snapshot={snapshot}
+                            projectId={projectId}
+                            task={task}
+                        />
                     )}
                 </Draggable>
             ))}

@@ -168,6 +168,7 @@ export default function TaskBoard({ baseUrl, projectId, initialTasks }: Readonly
                                 provided={provided}
                                 snapshot={snapshot}
                                 statusKey={statusKey as keyof TasksByStatus}
+                                projectId={projectId}
                                 tasks={tasks}
                             />
                         )}
