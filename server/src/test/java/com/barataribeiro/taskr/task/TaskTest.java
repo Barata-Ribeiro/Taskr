@@ -30,6 +30,7 @@ class TaskTest {
         Task task = Task.builder()
                         .id(1L)
                         .title("Task 1")
+                        .summary("Task summary")
                         .description("Task description")
                         .dueDate(localDateTime)
                         .status(TaskStatus.DONE)
@@ -43,6 +44,7 @@ class TaskTest {
 
         assertEquals(1L, task.getId());
         assertEquals("Task 1", task.getTitle());
+        assertEquals("Task summary", task.getSummary());
         assertEquals("Task description", task.getDescription());
         assertEquals(localDateTime, task.getDueDate());
         assertEquals(TaskStatus.DONE, task.getStatus());

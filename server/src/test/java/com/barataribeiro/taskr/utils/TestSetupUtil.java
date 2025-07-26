@@ -162,6 +162,7 @@ public class TestSetupUtil {
                                                                       @NotNull ProjectDTO project) throws Exception {
         TaskRequestDTO taskRequestDTO = new TaskRequestDTO();
         taskRequestDTO.setTitle("Test Task");
+        taskRequestDTO.setSummary("This is a test task summary.");
         taskRequestDTO.setDescription("This is a test task.");
         taskRequestDTO.setDueDate(LocalDateTime.now().plusDays(30)
                                                .withNano(0)

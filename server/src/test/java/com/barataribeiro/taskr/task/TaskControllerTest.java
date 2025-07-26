@@ -83,6 +83,7 @@ class TaskControllerTest {
     @Order(1)
     @DisplayName("It should create a task successfully")
     void createTaskSuccessfully() throws Exception {
+        String summary = "This is a test task summary.";
         String description = "This is a test task description. It should be detailed enough to understand the task.";
         final String dueDate = LocalDateTime.now().plusDays(15)
                                             .withNano(0)
@@ -90,6 +91,7 @@ class TaskControllerTest {
 
         taskRequestDTO.setProjectId(defaultProject.getId());
         taskRequestDTO.setTitle("Test Task");
+        taskRequestDTO.setSummary(summary);
         taskRequestDTO.setDescription(description);
         taskRequestDTO.setDueDate(dueDate);
         taskRequestDTO.setStatus("TO_DO");
@@ -108,6 +110,7 @@ class TaskControllerTest {
                          String json = jsonContent.getJson();
 
                          assertEquals(taskRequestDTO.getTitle(), JsonPath.read(json, "$.data.title"));
+                         assertEquals(taskRequestDTO.getSummary(), JsonPath.read(json, "$.data.summary"));
                          assertEquals(taskRequestDTO.getDescription(), JsonPath.read(json, "$.data.description"));
                          assertEquals(taskRequestDTO.getDueDate(), JsonPath.read(json, "$.data.dueDate"));
                          assertEquals(taskRequestDTO.getStatus(), JsonPath.read(json, "$.data.status"));
@@ -132,6 +135,7 @@ class TaskControllerTest {
                      .satisfies(jsonContent -> {
                          String json = jsonContent.getJson();
                          assertEquals(createdTask.getTitle(), JsonPath.read(json, "$.data.title"));
+                         assertEquals(createdTask.getSummary(), JsonPath.read(json, "$.data.summary"));
                          assertEquals(createdTask.getDescription(), JsonPath.read(json, "$.data.description"));
                          assertEquals(createdTask.getDueDate(), JsonPath.read(json, "$.data.dueDate"));
                          assertEquals(createdTask.getStatus().name(), JsonPath.read(json, "$.data.status"));
@@ -145,6 +149,7 @@ class TaskControllerTest {
     void updateTaskSuccessfully() throws Exception {
         assertNotNull(createdTask, "Created task should not be null");
 
+        String updatedSummary = "This is an updated test task summary.";
         String updatedDescription = "This is an updated test task description.";
         final String updatedDueDate = LocalDateTime.now().plusDays(30)
                                                    .withNano(0)
@@ -153,6 +158,7 @@ class TaskControllerTest {
         TaskUpdateRequestDTO updateRequest = new TaskUpdateRequestDTO();
         updateRequest.setProjectId(defaultProject.getId());
         updateRequest.setTitle("Updated Test Task");
+        updateRequest.setSummary(updatedSummary);
         updateRequest.setDescription(updatedDescription);
         updateRequest.setDueDate(updatedDueDate);
         updateRequest.setStatus("IN_PROGRESS");
@@ -168,6 +174,7 @@ class TaskControllerTest {
                      .satisfies(jsonContent -> {
                          String json = jsonContent.getJson();
                          assertEquals(updateRequest.getTitle(), JsonPath.read(json, "$.data.title"));
+                         assertEquals(updatedSummary, JsonPath.read(json, "$.data.summary"));
                          assertEquals(updatedDescription, JsonPath.read(json, "$.data.description"));
                          assertEquals(updatedDueDate, JsonPath.read(json, "$.data.dueDate"));
                          assertEquals(updateRequest.getStatus(), JsonPath.read(json, "$.data.status"));
@@ -184,6 +191,7 @@ class TaskControllerTest {
         TaskUpdateRequestDTO invalidUpdateRequest = new TaskUpdateRequestDTO();
         invalidUpdateRequest.setProjectId(defaultProject.getId());
         invalidUpdateRequest.setTitle("abc");
+        invalidUpdateRequest.setSummary("Too short");
         invalidUpdateRequest.setDescription("Too short");
         invalidUpdateRequest.setDueDate("invalid-date-format");
         invalidUpdateRequest.setStatus("INVALID_STATUS");
@@ -226,6 +234,7 @@ class TaskControllerTest {
                          assertEquals(1, inProgress.size(), "inProgress list should have one task");
                          Map<?, ?> task = (Map<?, ?>) inProgress.getFirst();
                          assertEquals("Updated Test Task", task.get("title"));
+                         assertEquals("This is an updated test task summary.", task.get("summary"));
                          assertEquals("This is an updated test task description.", task.get("description"));
                          assertEquals("IN_PROGRESS", task.get("status"));
                          assertEquals("MEDIUM", task.get("priority"));
@@ -253,6 +262,7 @@ class TaskControllerTest {
 
                          Map<?, ?> task = (Map<?, ?>) tasks.getFirst();
                          assertEquals("Updated Test Task", task.get("title"));
+                         assertEquals("This is an updated test task summary.", task.get("summary"));
                          assertEquals("This is an updated test task description.", task.get("description"));
                          assertEquals("IN_PROGRESS", task.get("status"));
                          assertEquals("MEDIUM", task.get("priority"));
@@ -305,6 +315,7 @@ class TaskControllerTest {
         TaskRequestDTO task1DTO = new TaskRequestDTO();
         task1DTO.setProjectId(defaultProject.getId());
         task1DTO.setTitle("Incredible Task 1");
+        task1DTO.setSummary("Incredible Summary 1");
         task1DTO.setDescription("Incredible Description 1");
         task1DTO.setDueDate(LocalDateTime.now().plusDays(1).withNano(0)
                                          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
@@ -314,6 +325,7 @@ class TaskControllerTest {
         TaskRequestDTO task2DTO = new TaskRequestDTO();
         task2DTO.setProjectId(defaultProject.getId());
         task2DTO.setTitle("Incredible Task  2");
+        task2DTO.setSummary("Incredible Summary 2");
         task2DTO.setDescription("Incredible Description 2");
         task2DTO.setDueDate(LocalDateTime.now().plusDays(2).withNano(0)
                                          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
@@ -364,6 +376,7 @@ class TaskControllerTest {
         TaskRequestDTO taskFDTO = new TaskRequestDTO();
         taskFDTO.setProjectId(defaultProject.getId());
         taskFDTO.setTitle("Task F");
+        taskFDTO.setSummary("The Summary F");
         taskFDTO.setDescription("Description F");
         taskFDTO.setDueDate(LocalDateTime.now().plusDays(1).withNano(0)
                                          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
@@ -379,6 +392,7 @@ class TaskControllerTest {
         TaskRequestDTO taskGDTO = new TaskRequestDTO();
         taskGDTO.setProjectId(defaultProject.getId());
         taskGDTO.setTitle("Task G");
+        taskGDTO.setSummary("The Summary G");
         taskGDTO.setDescription("Description G");
         taskGDTO.setDueDate(LocalDateTime.now().plusDays(2).withNano(0)
                                          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
@@ -395,6 +409,7 @@ class TaskControllerTest {
         TaskRequestDTO taskHDTO = new TaskRequestDTO();
         taskHDTO.setProjectId(defaultProject.getId());
         taskHDTO.setTitle("Task H");
+        taskHDTO.setSummary("The Summary H");
         taskHDTO.setDescription("Description H");
         taskHDTO.setDueDate(LocalDateTime.now().plusDays(3).withNano(0)
                                          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
