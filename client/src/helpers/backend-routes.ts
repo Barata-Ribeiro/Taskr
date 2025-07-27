@@ -154,6 +154,21 @@ export function deleteTaskUrl(taskId: number | string, projectId: number | strin
 }
 
 // ===============================================================
+// =================  Comments Module Functions  =================
+// ===============================================================
+export function commentsByTaskUrl(taskId: number | string): string {
+    return `${API_URL}/comments/task/${taskId}`
+}
+
+export function createCommentUrl(taskId: number | string): string {
+    return `${API_URL}/comments/task/${taskId}`
+}
+
+export function deleteCommentUrl(commentId: number | string, taskId: number | string): string {
+    return `${API_URL}/comments/${commentId}/task/${taskId}`
+}
+
+// ===============================================================
 // =================  Statistics Module Functions  ===============
 // ===============================================================
 export function globalStatsUrl(): string {
