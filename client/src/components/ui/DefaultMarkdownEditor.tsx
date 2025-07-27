@@ -1,5 +1,6 @@
 "use client"
 
+import MarkdownEditorSkeleton from "@/components/ui/skeletons/MarkdownEditorSkeleton"
 import tw from "@/utils/tw"
 import { Description, Field, Label } from "@headlessui/react"
 import dynamic from "next/dist/shared/lib/app-dynamic"
@@ -12,11 +13,12 @@ interface DefaultMarkdownEditorProps extends Omit<TextareaHTMLAttributes<HTMLTex
     description?: string
     value: string
     setValue: Dispatch<SetStateAction<string>>
+    height?: number
 }
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
     ssr: false,
-    loading: () => <p>Loading...</p>,
+    loading: () => <MarkdownEditorSkeleton />,
 })
 
 export default function DefaultMarkdownEditor({
@@ -24,6 +26,7 @@ export default function DefaultMarkdownEditor({
     description,
     value,
     setValue,
+    height = 300,
     ...props
 }: Readonly<DefaultMarkdownEditorProps>) {
     const defaultId = useId()
@@ -32,7 +35,7 @@ export default function DefaultMarkdownEditor({
     const { onScroll, ...restProps } = props
 
     const defaultStyles = {
-        label: tw`block text-sm/6 font-medium data-disabled:opacity-50`,
+        label: tw`block text-sm/6 font-semibold data-disabled:opacity-50`,
         description: tw`text-sm/6 text-gray-500 data-disabled:opacity-50 dark:text-gray-400`,
     }
 
@@ -47,13 +50,13 @@ export default function DefaultMarkdownEditor({
             {description && <Description className={defaultStyles.description}>{description}</Description>}
 
             <MDEditor
-                className="mt-2 resize-none rounded-md whitespace-pre-wrap"
+                className="mt-2 w-full resize-none rounded-md whitespace-pre-wrap"
                 value={value}
                 onChange={value => {
                     if (value === undefined) return
                     setValue?.(value)
                 }}
-                height={300}
+                height={height}
                 preview="edit"
                 hideToolbar={restProps.disabled}
                 textareaProps={{ id: defaultId, ...restProps }}
