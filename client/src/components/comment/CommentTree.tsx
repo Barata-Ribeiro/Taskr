@@ -1,14 +1,14 @@
 import { ProblemDetails } from "@/@types/application"
 import getCommentsByTaskId from "@/actions/comment/get-comments-by-task-id"
 import Comment from "@/components/comment/Comment"
+import NewCommentForm from "@/components/forms/comment/NewCommentForm"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 
 interface CommentTreeProps {
     taskId: string
-    projectId: string
 }
 
-export default async function CommentTree({ taskId, projectId }: Readonly<CommentTreeProps>) {
+export default async function CommentTree({ taskId }: Readonly<CommentTreeProps>) {
     const commentsResponse = await getCommentsByTaskId(parseInt(taskId))
 
     if (!commentsResponse.ok || !commentsResponse.response?.data) {
@@ -23,14 +23,16 @@ export default async function CommentTree({ taskId, projectId }: Readonly<Commen
 
     return (
         <div className="block space-y-4">
-            <header className="border-b border-gray-200 pb-5">
+            <header className="border-b border-gray-200 pb-5 dark:border-gray-700">
                 <div className="-mt-2 -ml-2 flex flex-wrap items-baseline">
-                    <h3 className="mt-2 ml-2 text-base font-semibold">Comments</h3>
+                    <h2 className="mt-2 ml-2 text-base font-semibold">Comments</h2>
                     <p className="mt-1 ml-2 truncate text-sm text-gray-500 dark:text-gray-400">
                         {comments.length} comment{comments.length !== 1 ? "s" : ""}
                     </p>
                 </div>
             </header>
+
+            <NewCommentForm />
 
             {comments.map(comment => (
                 <Comment comment={comment} key={comment.id} />

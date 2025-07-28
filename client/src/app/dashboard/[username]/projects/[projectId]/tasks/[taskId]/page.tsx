@@ -1,6 +1,8 @@
 import getTaskById from "@/actions/task/get-task-by-id"
 import CommentTree from "@/components/comment/CommentTree"
 import TaskDetails from "@/components/task/TaskDetails"
+import CommentTreeSkeleton from "@/components/ui/skeletons/CommentTreeSkeleton"
+import TaskDetailsSkeleton from "@/components/ui/skeletons/TaskDetailsSkeleton"
 import { auth } from "auth"
 import { MoveLeftIcon } from "lucide-react"
 import { Metadata } from "next"
@@ -68,15 +70,13 @@ export default async function TaskPage({ params }: Readonly<TaskPageProps>) {
             </header>
 
             <div className="mt-4 grid h-full grid-cols-1 gap-6 md:grid-cols-2">
-                <Suspense fallback="Loading Task...">
-                    {/*TODO: Add loading skeleton or spinner*/}
+                <Suspense fallback={<TaskDetailsSkeleton />}>
                     <TaskDetails baseUrl={baseUrl} projectId={parseInt(projectId)} taskId={parseInt(taskId)} />
                 </Suspense>
 
                 <div className="block rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
-                    <Suspense fallback="Loading comments...">
-                        {/*TODO: Add loading skeleton or spinner*/}
-                        <CommentTree projectId={projectId} taskId={taskId} />
+                    <Suspense fallback={<CommentTreeSkeleton />}>
+                        <CommentTree taskId={taskId} />
                     </Suspense>
                 </div>
             </div>
