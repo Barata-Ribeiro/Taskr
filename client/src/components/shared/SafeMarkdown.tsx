@@ -7,6 +7,7 @@ import { twMerge } from "tailwind-merge"
 
 interface SafeMarkdownProps {
     markdown: string
+    container?: boolean
 }
 
 type TableProps = ClassAttributes<HTMLTableElement> & TableHTMLAttributes<HTMLTableElement> & ExtraProps
@@ -24,14 +25,16 @@ function getMarkdownTable() {
     }
 }
 
-export default function SafeMarkdown({ markdown }: Readonly<SafeMarkdownProps>) {
+export default function SafeMarkdown({ markdown, container = true }: Readonly<SafeMarkdownProps>) {
     const styles = {
         prose: tw`prose dark:prose-invert prose-gray prose-img:mx-auto prose-img:rounded-xl`,
-        contaienr: tw`my-6 w-full overflow-hidden border-y border-gray-200 py-6 dark:border-gray-700`,
+        container: tw`my-6 w-full overflow-hidden border-y border-gray-200 py-6 dark:border-gray-700`,
     }
 
+    const mergedStyles = container ? twMerge(styles.container, styles.prose) : styles.prose
+
     return (
-        <div aria-label="markdown-content" className={twMerge(styles.contaienr, styles.prose)}>
+        <div aria-label="markdown-content" className={mergedStyles}>
             <ReactMarkdown rehypePlugins={[rehypeSanitize]} remarkPlugins={[remarkGfm]} components={getMarkdownTable()}>
                 {markdown}
             </ReactMarkdown>
