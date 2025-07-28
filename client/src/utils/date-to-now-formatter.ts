@@ -11,9 +11,9 @@ export default function dateToNowFormatter(date: string): DateToNowResult {
     const diffMs = target.getTime() - now.getTime()
     const absMs = Math.abs(diffMs)
 
-    const diffMinutes = Math.ceil(absMs / (1000 * 60))
-    const diffHours = Math.ceil(absMs / (1000 * 60 * 60))
-    const diffDays = Math.ceil(absMs / (1000 * 60 * 60 * 24))
+    const diffMinutes = Math.floor(absMs / (1000 * 60))
+    const diffHours = Math.floor(absMs / (1000 * 60 * 60))
+    const diffDays = Math.floor(absMs / (1000 * 60 * 60 * 24))
 
     let status: DateToNowStatus
     if (diffMs > 0) status = "future"
