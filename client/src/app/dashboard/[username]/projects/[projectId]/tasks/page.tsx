@@ -1,12 +1,13 @@
 import getTasksByProjectId from "@/actions/task/get-tasks-by-project-id"
 import NewTaskModal from "@/components/modals/NewTaskModal"
 import TaskBoard from "@/components/task/TaskBoard"
+import TaskBoardSkeleton from "@/components/ui/skeletons/TaskBoardSkeleton"
 import { auth } from "auth"
 import { MoveLeftIcon } from "lucide-react"
 import { Metadata } from "next"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
-import { Fragment } from "react"
+import { Suspense } from "react"
 
 interface TaskBoardPageProps {
     params: Promise<{ username: string; projectId: string }>
@@ -41,7 +42,7 @@ export default async function TaskBoardPage({ params }: Readonly<TaskBoardPagePr
     const tasksByStatus = tasksResponse.response.data
 
     return (
-        <Fragment>
+        <Suspense fallback={<TaskBoardSkeleton />}>
             <header className="grid gap-4 border-b border-gray-200 pb-4 dark:border-gray-700">
                 <Link
                     href={baseUrl}
@@ -62,7 +63,8 @@ export default async function TaskBoardPage({ params }: Readonly<TaskBoardPagePr
                     </p>
                 </div>
             </header>
+
             <TaskBoard baseUrl={dashboardUrl} initialTasks={tasksByStatus} projectId={parseInt(projectId)} />
-        </Fragment>
+        </Suspense>
     )
 }
