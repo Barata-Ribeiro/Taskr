@@ -33,6 +33,7 @@ public class CommentBuilder {
 
                 map(source.getTask().getId(), destination.getTaskId());
                 map(source.getParent().getId(), destination.getParentId());
+                map(source.getAuthor(), destination.getUser());
             }
         });
     }
