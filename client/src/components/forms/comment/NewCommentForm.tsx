@@ -12,13 +12,16 @@ import Avatar from "@/components/user/Avatar"
 import applicationInitialState from "@/helpers/application-initial-state"
 import dateFormatter from "@/utils/date-formatter"
 import dateToNowFormatter from "@/utils/date-to-now-formatter"
+import tw from "@/utils/tw"
 import { LockIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useParams } from "next/navigation"
-import { useActionState, useEffect, useState } from "react"
+import { type Dispatch, type SetStateAction, useActionState, useEffect, useState } from "react"
 
 interface NewCommentFormProps {
     parentId?: number
+    displayAvatar?: boolean
+    setOpened?: Dispatch<SetStateAction<boolean>>
 }
 
 function UnauthenticatedState() {
@@ -52,24 +55,37 @@ function OptimisticNewComment({ comment }: Readonly<{ comment: string }>) {
     )
 }
 
-export default function NewCommentForm({ parentId }: Readonly<NewCommentFormProps>) {
+export default function NewCommentForm({ parentId, displayAvatar = true, setOpened }: Readonly<NewCommentFormProps>) {
     const [formState, formAction, pending] = useActionState(createNewComment, applicationInitialState())
     const [bodyContent, setBodyContent] = useState<string>("")
     const params = useParams<{ username: string; projectId: string; taskId: string }>()
     const { data: session } = useSession()
 
     useEffect(() => {
-        if (formState.ok) setBodyContent("")
-    }, [formState.ok])
+        if (formState.ok) {
+            setOpened?.(false)
+            setBodyContent("")
+        }
+    }, [formState.ok, setOpened])
 
     if (!session) return <UnauthenticatedState />
 
+    const containerClasses = {
+        default: tw`mb-4 grid w-full grid-cols-1 items-start gap-x-4 border-b border-gray-200 pb-4 md:grid-cols-[auto_1fr] dark:border-gray-700`,
+        reply: tw`grid w-full items-start gap-x-4`,
+    }
+
+    const isReply = Boolean(parentId)
+    const label = isReply ? "Reply" : "Post"
+
     return (
-        <div className="mb-4 grid w-full grid-cols-1 items-start gap-x-4 border-b border-gray-200 pb-4 md:grid-cols-[auto_1fr] dark:border-gray-700">
-            <div className="mb-2 inline-flex items-center gap-x-2 md:mb-0">
-                <Avatar url={session.user.avatarUrl} name={session.user.username} size="small" />
-                <small className="block text-sm md:hidden">{session.user.username}</small>
-            </div>
+        <div className={!isReply ? containerClasses.default : containerClasses.reply}>
+            {displayAvatar && !isReply && (
+                <div className="mb-2 inline-flex items-center gap-x-2 md:mb-0">
+                    <Avatar url={session.user.avatarUrl} name={session.user.username} size="small" />
+                    <small className="block text-sm md:hidden">{session.user.username}</small>
+                </div>
+            )}
 
             {pending && bodyContent ? (
                 <OptimisticNewComment comment={bodyContent} />
@@ -100,7 +116,7 @@ export default function NewCommentForm({ parentId }: Readonly<NewCommentFormProp
                     )}
 
                     <DefaultButton type="submit" disabled={pending} aria-disabled={pending}>
-                        {pending ? <Loading /> : "Post"}
+                        {pending ? <Loading /> : label}
                     </DefaultButton>
                 </form>
             )}
