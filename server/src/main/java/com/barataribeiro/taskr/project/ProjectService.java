@@ -55,9 +55,7 @@ public class ProjectService {
     private final ActivityRepository activityRepository;
     private final ActivityBuilder activityBuilder;
 
-    @Cacheable(value = "projects",
-               key = "#authentication.name + '_' + #pageQueryParams.page + '_' + #pageQueryParams.perPage + '_' + " +
-                       "#pageQueryParams.direction + '_' + #pageQueryParams.orderBy")
+    @Cacheable(value = "projects")
     @Transactional(readOnly = true)
     public Page<ProjectDTO> getMyProjects(@NotNull PageQueryParamsDTO pageQueryParams,
                                           @NotNull Authentication authentication) {
@@ -82,6 +80,7 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "projectActivities", key = "#projectId + '_' + #authentication.name")
     public Page<ActivityDTO> getProjectActivities(Long projectId, PageQueryParamsDTO pageQueryParams,
                                                   @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
@@ -95,12 +94,8 @@ public class ProjectService {
 
     @Caching(evict = {
             @CacheEvict(value = "userAccount", key = "#authentication.name"),
-            @CacheEvict(value = "projects", allEntries = true),
-            @CacheEvict(value = "project", allEntries = true),
-            @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", allEntries = true),
-            @CacheEvict(value = "userStats", allEntries = true)
-    },
+            @CacheEvict(value = {"projects", "project", "projectActivities", "globalStats", "projectStats",
+                                 "userStats"}, allEntries = true),},
              put = @CachePut(value = "project", key = "#result.id + '_' + #authentication.name"))
     @Transactional
     public ProjectDTO createProject(@Valid @NotNull ProjectRequestDTO body,
@@ -134,12 +129,8 @@ public class ProjectService {
 
     @Caching(evict = {
             @CacheEvict(value = "userAccount", key = "#authentication.name"),
-            @CacheEvict(value = "projects", allEntries = true),
-            @CacheEvict(value = "project", allEntries = true),
-            @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", allEntries = true),
-            @CacheEvict(value = "userStats", allEntries = true)
-    },
+            @CacheEvict(value = {"projects", "project", "projectActivities", "globalStats", "projectStats",
+                                 "userStats"}, allEntries = true),},
              put = @CachePut(value = "project", key = "#projectId + '_' + #authentication.name"))
     @Transactional
     public ProjectCompleteDTO updateProject(Long projectId, @Valid ProjectUpdateRequestDTO body,
@@ -245,12 +236,8 @@ public class ProjectService {
 
     @Caching(evict = {
             @CacheEvict(value = "userAccount", key = "#authentication.name"),
-            @CacheEvict(value = "projects", allEntries = true),
-            @CacheEvict(value = "project", allEntries = true),
-            @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", allEntries = true),
-            @CacheEvict(value = "userStats", allEntries = true)
-    })
+            @CacheEvict(value = {"projects", "project", "projectActivities", "globalStats", "projectStats",
+                                 "userStats"}, allEntries = true),})
     @Transactional
     public void deleteProject(Long projectId, @NotNull Authentication authentication) {
         long wasDeleted = projectRepository.deleteByIdAndOwner_Username(projectId, authentication.getName());

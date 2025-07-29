@@ -64,14 +64,9 @@ public class CommentService {
         return roots;
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "userAccount", key = "#authentication.name"),
-            @CacheEvict(value = "commentsByTask", allEntries = true),
-            @CacheEvict(value = "task", allEntries = true),
-            @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", allEntries = true),
-            @CacheEvict(value = "userStats", allEntries = true)
-    },
+    @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
+                      @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectStats", "userStats"},
+                                  allEntries = true),},
              put = @CachePut(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"))
     @Transactional
     public CommentDTO createComment(Long taskId, CommentRequestDTO body, @NotNull Authentication authentication) {
@@ -113,14 +108,9 @@ public class CommentService {
         return commentBuilder.toCommentDTO(commentRepository.saveAndFlush(newComment));
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "userAccount", key = "#authentication.name"),
-            @CacheEvict(value = "commentsByTask", allEntries = true),
-            @CacheEvict(value = "task", allEntries = true),
-            @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", allEntries = true),
-            @CacheEvict(value = "userStats", allEntries = true)
-    })
+    @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
+                      @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectStats", "userStats"},
+                                  allEntries = true),})
     @Transactional
     public void deleteComment(Long commentId, Long taskId, @NotNull Authentication authentication) {
         long wasDeleted = commentRepository

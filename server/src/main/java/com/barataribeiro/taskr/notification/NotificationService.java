@@ -34,7 +34,6 @@ public class NotificationService {
         messagingTemplate.convertAndSendToUser(username, "/notifications", notification);
     }
 
-    @Cacheable(value = "latestNotifications", key = "#authentication.name")
     @Transactional(readOnly = true)
     public LatestNotificationsDTO getLatestNotification(@NotNull Authentication authentication) {
         TotalNotifications totalNotifications = notificationRepository.
@@ -52,9 +51,7 @@ public class NotificationService {
         return latestNotificationsDTO;
     }
 
-    @Cacheable(value = "notifications",
-               key = "#authentication.name + '_' + #pageQueryParams.page + '_' + #pageQueryParams.perPage + '_' + " +
-                       "#pageQueryParams.direction + '_' + #pageQueryParams.orderBy")
+    @Cacheable(value = "notifications", key = "#authentication.name")
     @Transactional(readOnly = true)
     public Page<NotificationDTO> getAllNotifications(@NotNull PageQueryParamsDTO pageQueryParams,
                                                      @NotNull Authentication authentication) {
@@ -65,10 +62,7 @@ public class NotificationService {
                                      .map(notificationBuilder::toNotificationDTO);
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "latestNotifications", key = "#authentication.name"),
-            @CacheEvict(value = "notifications", key = "#authentication.name + '_*'"),
-    },
+    @Caching(evict = {@CacheEvict(value = "notifications", key = "#authentication.name"),},
              put = @CachePut(value = "notification", key = "#notifId + '_' + #authentication.name"))
     @Transactional
     public NotificationDTO changeNotificationStatus(Long notifId, Boolean isRead,
@@ -83,11 +77,10 @@ public class NotificationService {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "latestNotifications", key = "#authentication.name"),
             @CacheEvict(value = "notification", allEntries = true),
-            @CacheEvict(value = "notifications", key = "#authentication.name + '_*'"),
+            @CacheEvict(value = "notifications", key = "#authentication.name", allEntries = true),
     },
-             put = @CachePut(value = "notifications", key = "#authentication.name + '_*'"))
+             put = @CachePut(value = "notifications", key = "#authentication.name"))
     @Transactional
     public List<NotificationDTO> changeNotificationsStatusInBulk(@NotNull List<Long> notifIds, Boolean isRead,
                                                                  Authentication authentication) {
@@ -102,11 +95,8 @@ public class NotificationService {
         return notificationBuilder.toNotificationDTOList(notificationRepository.saveAll(notifications));
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "latestNotifications", key = "#authentication.name"),
-            @CacheEvict(value = "notification", key = "#notifId + '_' + #authentication.name"),
-            @CacheEvict(value = "notifications", key = "#authentication.name + '_*'"),
-    })
+    @Caching(evict = {@CacheEvict(value = "notification", key = "#notifId + '_' + #authentication.name"),
+                      @CacheEvict(value = "notifications", key = "#authentication.name"),})
     @Transactional
     public void deleteNotification(Long notifId, @NotNull Authentication authentication) {
         long wasDeleted = notificationRepository
@@ -114,11 +104,8 @@ public class NotificationService {
         if (wasDeleted == 0) throw new IllegalRequestException("Notification not found or you are not the recipient");
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "latestNotifications", key = "#authentication.name"),
-            @CacheEvict(value = "notifications", key = "#authentication.name + '_*'"),
-            @CacheEvict(value = "notification", allEntries = true),
-    })
+    @Caching(evict = {@CacheEvict(value = "notifications", key = "#authentication.name"),
+                      @CacheEvict(value = "notification", allEntries = true),})
     @Transactional
     public void deleteNotificationsInBulk(@NotNull List<Long> notifIds, Authentication authentication) {
         if (notifIds.isEmpty()) throw new IllegalRequestException("No notification IDs were provided");

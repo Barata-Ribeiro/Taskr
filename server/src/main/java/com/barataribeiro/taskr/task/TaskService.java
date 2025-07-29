@@ -50,7 +50,7 @@ public class TaskService {
     private final @Lazy TaskService self = this;
 
 
-    @Cacheable(value = "tasksByProject", key = "#projectId + '_' + #authentication.name")
+    @Cacheable(value = "tasksByProject")
     @Transactional(readOnly = true)
     public TasksByStatusDTO getTasksByProject(Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
@@ -76,7 +76,6 @@ public class TaskService {
         return tasksByStatus;
     }
 
-    @Cacheable(value = "latestTasksByProject", key = "#projectId + '_' + #authentication.name")
     @Transactional(readOnly = true)
     public Set<TaskDTO> getLatestTasksByProject(Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
@@ -104,12 +103,8 @@ public class TaskService {
 
     @Caching(evict = {
             @CacheEvict(value = "project", key = "#body.projectId + '_' + #authentication.name"),
-            @CacheEvict(value = "tasksByProject", allEntries = true),
-            @CacheEvict(value = "latestTasksByProject", allEntries = true),
-            @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", allEntries = true),
-            @CacheEvict(value = "userStats", allEntries = true)
-    },
+            @CacheEvict(value = {"tasksByProject", "globalStats", "projectStats",
+                                 "projectActivities", "userStats"}, allEntries = true)},
              put = @CachePut(value = "task", key = "#result.id + '_' + #body.projectId + '_' + #authentication.name"))
     @Transactional
     public TaskDTO createTask(@Valid @NotNull TaskRequestDTO body, @NotNull Authentication authentication) {
@@ -160,13 +155,8 @@ public class TaskService {
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(newTask));
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "tasksByProject", allEntries = true),
-            @CacheEvict(value = "latestTasksByProject", allEntries = true),
-            @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", allEntries = true),
-            @CacheEvict(value = "userStats", allEntries = true)
-    },
+    @Caching(evict = @CacheEvict(value = {"tasksByProject", "globalStats", "projectStats",
+                                          "projectActivities", "userStats"}, allEntries = true),
              put = @CachePut(value = "task", key = "#taskId + '_' + #body.projectId + '_' + #authentication.name"))
     @Transactional
     public TaskDTO updateTask(Long taskId, @NotNull TaskUpdateRequestDTO body, @NotNull Authentication authentication) {
@@ -291,12 +281,9 @@ public class TaskService {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "tasksByProject", allEntries = true),
-            @CacheEvict(value = "latestTasksByProject", allEntries = true),
-            @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", allEntries = true),
-            @CacheEvict(value = "userStats", allEntries = true)
-    })
+            @CacheEvict(value = "task", key = "#projectId + '_' + #body.status + '_' + #authentication.name"),
+            @CacheEvict(value = {"tasksByProject", "globalStats", "projectStats",
+                                 "projectActivities", "userStats"}, allEntries = true)})
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TasksByStatusDTO updateTaskOrder(Long projectId, ReorderRequestDTO body,
                                             @NotNull Authentication authentication) {
@@ -335,12 +322,10 @@ public class TaskService {
 
 
     @Caching(evict = {
-            @CacheEvict(value = "tasksByProject", allEntries = true),
-            @CacheEvict(value = "latestTasksByProject", allEntries = true),
-            @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "projectStats", allEntries = true),
-            @CacheEvict(value = "userStats", allEntries = true)
-    })
+            @CacheEvict(value = "task", key = "#taskId + '_' + #body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = {"tasksByProject", "globalStats", "projectStats",
+                                 "projectActivities", "userStats"}, allEntries = true)},
+             put = @CachePut(value = "task", key = "#taskId + '_' + #body.projectId + '_' + #authentication.name"))
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TasksByStatusDTO moveTask(Long taskId, @NotNull MoveRequestDTO body,
                                      @NotNull Authentication authentication) {
@@ -425,11 +410,8 @@ public class TaskService {
     @Caching(evict = {
             @CacheEvict(value = "task", key = "#taskId + '_' + #projectId + '_' + #authentication.name"),
             @CacheEvict(value = "project", key = "#projectId + '_' + #authentication.name"),
-            @CacheEvict(value = "tasksByProject", allEntries = true),
-            @CacheEvict(value = "latestTasksByProject", allEntries = true),
-            @CacheEvict(value = "globalStats", allEntries = true),
-            @CacheEvict(value = "userStats", allEntries = true)
-    })
+            @CacheEvict(value = {"tasksByProject", "projectActivities", "globalStats",
+                                 "userStats"}, allEntries = true)})
     @Transactional
     public void deleteTask(Long taskId, Long projectId, @NotNull Authentication authentication) {
         long wasDeleted = taskRepository.deleteByIdAndProject_Owner_Username(taskId, authentication.getName());
