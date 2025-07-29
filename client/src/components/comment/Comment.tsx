@@ -1,12 +1,16 @@
 "use client"
 
 import type { Comment } from "@/@types/comment"
+import ReplyCommentButton from "@/components/comment/buttons/ReplyCommentButton"
+import ViewContentButton from "@/components/comment/buttons/ViewContentButton"
 import SafeMarkdown from "@/components/shared/SafeMarkdown"
+import Tooltip from "@/components/shared/Tooltip"
+import DefaultButton from "@/components/ui/DefaultButton"
 import Avatar from "@/components/user/Avatar"
 import dateFormatter from "@/utils/date-formatter"
 import dateToNowFormatter from "@/utils/date-to-now-formatter"
 import { Button, Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react"
-import { ChevronDownIcon } from "lucide-react"
+import { ChevronDownIcon, SquarePenIcon, Trash2Icon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -33,8 +37,8 @@ export default function Comment({ comment, depth = 0 }: Readonly<CommentProps>) 
         <div
             {...(depth > 0 && { "data-hasDepth": "" })}
             className="group data-hasDepth:ml-6 data-hasDepth:border-l-2 data-hasDepth:border-gray-200 data-hasDepth:pl-4 data-hasDepth:dark:border-gray-700">
-            {/*Comments*/}
-            <div className="rounded-md border border-gray-200 bg-white p-4 hover:shadow-md dark:border-gray-700 dark:bg-gray-900">
+            {/*Comment*/}
+            <div className="flex flex-col gap-2 rounded-md border border-gray-200 bg-white p-4 hover:shadow-md dark:border-gray-700 dark:bg-gray-900">
                 <Disclosure as="details" className="flex-1" open defaultOpen>
                     <DisclosureButton
                         as="summary"
@@ -47,15 +51,18 @@ export default function Comment({ comment, depth = 0 }: Readonly<CommentProps>) 
                         <div className="mb-2 flex w-full items-center justify-between gap-3 border-l border-gray-200 pl-2 dark:border-gray-700">
                             <Link
                                 href={profileUrl}
-                                className="inline-flex items-center gap-x-2 rounded-full py-1 pr-2 pl-1 select-none hover:bg-gray-100 dark:hover:bg-gray-800"
+                                className="relative inline-flex items-center gap-x-2 rounded-full py-1 pr-2 pl-1 select-none hover:bg-gray-100 dark:hover:bg-gray-800"
                                 aria-label={linkLabel}
                                 title={linkLabel}
                                 target="_blank"
                                 rel="noopener noreferrer">
-                                <Avatar url={comment.user.avatarUrl} name={comment.user.username} size="small" />
+                                <Avatar url={comment.user.avatarUrl} name={comment.user.displayName} size="small" />
+
                                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                    {comment.user.username}
+                                    {comment.user.displayName}
                                 </span>
+
+                                <Tooltip content={`@${comment.user.username}`} />
                             </Link>
 
                             <div className="inline-flex gap-x-2 divide-x divide-gray-200 dark:divide-gray-700">
@@ -80,6 +87,22 @@ export default function Comment({ comment, depth = 0 }: Readonly<CommentProps>) 
                         </div>
                     </DisclosurePanel>
                 </Disclosure>
+
+                <div className="inline-flex items-center gap-x-2 border-t border-gray-200 pt-2 dark:border-gray-700">
+                    <ViewContentButton content={comment.content} />
+
+                    <ReplyCommentButton session={session} comment={comment} />
+
+                    {/*TODO: Add edit button*/}
+                    <DefaultButton buttonType="ghost" width="fit" isIconOnly>
+                        <SquarePenIcon aria-hidden size={16} />
+                    </DefaultButton>
+
+                    {/*TODO: Add delete button*/}
+                    <DefaultButton buttonType="ghost" width="fit" isIconOnly>
+                        <Trash2Icon aria-hidden size={16} />
+                    </DefaultButton>
+                </div>
 
                 {hasChildren && depth > 0 && (
                     <Button
