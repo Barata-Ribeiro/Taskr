@@ -31,7 +31,10 @@ import java.util.*;
 @Entity
 @Table(name = "tb_users", indexes = {
         @Index(name = "idx_user_id_username_email", columnList = "id, username, email"),
-        @Index(name = "idx_user_username_email_unq", columnList = "username, email", unique = true)
+        @Index(name = "idx_user_username_email_unq", columnList = "username, email", unique = true),
+        @Index(name = "idx_user_createdat", columnList = "createdAt"),
+        @Index(name = "idx_user_username_unq", columnList = "username", unique = true),
+        @Index(name = "idx_user_email_unq", columnList = "email", unique = true),
 }, uniqueConstraints = {
         @UniqueConstraint(name = "uc_user_username_email", columnNames = {"username", "email"})
 })

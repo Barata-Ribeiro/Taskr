@@ -28,7 +28,12 @@ import java.util.Set;
 @ToString
 @Entity
 @Table(name = "tb_tasks", indexes = {
-        @Index(name = "idx_task_id", columnList = "id")
+        @Index(name = "idx_task_title", columnList = "title"),
+        @Index(name = "idx_task_due_date", columnList = "due_date"),
+        @Index(name = "idx_task_position", columnList = "position"),
+        @Index(name = "idx_task_createdat", columnList = "createdAt"),
+        @Index(name = "idx_task_project_id", columnList = "project_id"),
+        @Index(name = "idx_task_project_id_status", columnList = "project_id, status")
 }, uniqueConstraints = {
         @UniqueConstraint(name = "uc_task_title", columnNames = {"title"})
 })

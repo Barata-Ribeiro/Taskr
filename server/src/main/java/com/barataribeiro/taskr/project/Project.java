@@ -30,7 +30,9 @@ import java.util.Set;
 @Entity
 @Table(name = "tb_projects", indexes = {
         @Index(name = "idx_project_id_title", columnList = "id, title"),
-        @Index(name = "idx_project_owner", columnList = "owner_id")
+        @Index(name = "idx_project_owner", columnList = "owner_id"),
+        @Index(name = "idx_project_due_date", columnList = "due_date"),
+        @Index(name = "idx_project_createdat", columnList = "createdAt")
 }, uniqueConstraints = {
         @UniqueConstraint(name = "uc_project_title_owner", columnNames = {"title", "owner_id"})
 })

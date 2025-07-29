@@ -24,7 +24,8 @@ import java.time.Instant;
 @Table(name = "tb_activities", indexes = {
         @Index(name = "idx_activity_id_username", columnList = "id, username"),
         @Index(name = "idx_activity_project", columnList = "project_id"),
-        @Index(name = "idx_activity_username", columnList = "username, project_id")
+        @Index(name = "idx_activity_username", columnList = "username, project_id"),
+        @Index(name = "idx_activity_createdat", columnList = "createdAt")
 })
 public class Activity implements Serializable {
     @Serial

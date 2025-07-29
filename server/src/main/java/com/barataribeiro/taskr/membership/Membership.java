@@ -22,7 +22,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tb_memberships", indexes = {
         @Index(name = "idx_membership_id_project_user", columnList = "id, project_id, user_id"),
-        @Index(name = "idx_membership_project_user_unq", columnList = "project_id, user_id", unique = true)
+        @Index(name = "idx_membership_project_user_unq", columnList = "project_id, user_id", unique = true),
+        @Index(name = "idx_membership_joinedat", columnList = "joinedAt")
 }, uniqueConstraints = {
         @UniqueConstraint(name = "uc_membership_project_user", columnNames = {"project_id", "user_id"})
 })
