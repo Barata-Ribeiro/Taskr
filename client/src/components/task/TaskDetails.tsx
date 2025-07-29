@@ -4,6 +4,7 @@ import getTaskById from "@/actions/task/get-task-by-id"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import SafeMarkdown from "@/components/shared/SafeMarkdown"
 import DueDateBadge from "@/components/shared/task/DueDateBadge"
+import Tooltip from "@/components/shared/Tooltip"
 import TaskPriorityBadge from "@/components/task/TaskPriorityBadge"
 import TaskStatusBadge from "@/components/task/TaskStatusBadge"
 import Avatar from "@/components/user/Avatar"
@@ -57,12 +58,14 @@ export default async function TaskDetails({ projectId, taskId, baseUrl }: Readon
                                     key={assignee.id}
                                     aria-label={label}
                                     title={label}
-                                    className="group flex items-center gap-2 rounded-full bg-gray-100 py-1 pr-3 pl-1 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700">
+                                    className="group relative flex items-center gap-2 rounded-full bg-gray-100 py-1 pr-3 pl-1 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700">
                                     <Avatar url={assignee.avatarUrl} name={assignee.displayName} size="extra-small" />
 
                                     <span className="text-xs text-gray-800 group-hover:text-indigo-600 dark:text-gray-200 dark:group-hover:text-indigo-400">
                                         {assignee.displayName}
                                     </span>
+
+                                    <Tooltip content={`@${assignee.username}`} />
                                 </Link>
                             )
                         })
