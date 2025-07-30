@@ -11,6 +11,8 @@ interface TaskListItemProps {
 
 export default function TaskListItem({ projectId, task, baseUrl }: Readonly<TaskListItemProps>) {
     const taskUrl = `${baseUrl}/projects/${projectId}/tasks/${task.id}`
+    const linkLabel = `View task "${task.title}" details`
+    const descLabel = "Task Description"
 
     return (
         <li className="mb-4">
@@ -18,8 +20,8 @@ export default function TaskListItem({ projectId, task, baseUrl }: Readonly<Task
                 <Link
                     href={taskUrl}
                     className="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500 hover:underline active:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 dark:active:text-indigo-500"
-                    aria-label={`View task "${task.title}" details`}
-                    title={`View task "${task.title}" details`}>
+                    aria-label={linkLabel}
+                    title={linkLabel}>
                     <h4 className="text-lg font-medium">{task.title}</h4>
                 </Link>
                 <time dateTime={task.dueDate} className="text-sm text-gray-500 dark:text-gray-400">
@@ -28,12 +30,10 @@ export default function TaskListItem({ projectId, task, baseUrl }: Readonly<Task
             </div>
 
             <div className="flex items-center justify-between gap-2">
-                <p
-                    className="mt-1 truncate text-gray-600 dark:text-gray-300"
-                    aria-label={`Task description: "${task.description}"`}
-                    title={`Task description: "${task.description}"`}>
-                    {task.description}
+                <p className="mt-1 truncate text-gray-600 dark:text-gray-300" aria-label={descLabel} title={descLabel}>
+                    {task.summary}
                 </p>
+
                 <TaskPriorityBadge taskPriority={task.priority} />
             </div>
         </li>
