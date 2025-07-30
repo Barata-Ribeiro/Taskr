@@ -33,7 +33,8 @@ import java.util.Set;
         @Index(name = "idx_task_position", columnList = "position"),
         @Index(name = "idx_task_createdat", columnList = "createdAt"),
         @Index(name = "idx_task_project_id", columnList = "project_id"),
-        @Index(name = "idx_task_project_id_status", columnList = "project_id, status")
+        @Index(name = "idx_task_id_project_id", columnList = "id, project_id"),
+        @Index(name = "idx_task_project_id_status", columnList = "project_id, status"),
 }, uniqueConstraints = {
         @UniqueConstraint(name = "uc_task_title", columnNames = {"title"})
 })

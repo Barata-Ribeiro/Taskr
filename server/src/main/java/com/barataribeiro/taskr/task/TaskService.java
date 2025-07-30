@@ -432,7 +432,8 @@ public class TaskService {
                                  "userStats"}, allEntries = true)})
     @Transactional
     public void deleteTask(Long taskId, Long projectId, @NotNull Authentication authentication) {
-        long wasDeleted = taskRepository.deleteByIdAndProject_Owner_Username(taskId, authentication.getName());
+        long wasDeleted = taskRepository
+                .deleteByIdAndProject_IdAndProject_Owner_Username(taskId, projectId, authentication.getName());
         if (wasDeleted == 0) throw new IllegalRequestException("Task not found or you are not the project owner");
     }
 }

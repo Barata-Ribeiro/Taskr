@@ -27,5 +27,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
     long countByProject_IdAndStatus(@Param("id") Long id, @Param("status") TaskStatus status);
 
     @EntityGraph(attributePaths = {"project.owner"})
-    long deleteByIdAndProject_Owner_Username(@Param("id") Long id, @Param("username") String username);
+    long deleteByIdAndProject_IdAndProject_Owner_Username(@Param("taskId") Long taskId,
+                                                          @Param("projectId") Long projectId,
+                                                          @Param("username") String username);
 }
