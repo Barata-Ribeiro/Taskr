@@ -178,20 +178,28 @@ public class TaskService {
         List<String> updates = new ArrayList<>();
 
         Optional.ofNullable(body.getTitle()).ifPresent(title -> {
-            task.setTitle(title);
-            updates.add(String.format("has updated the task title to '%s'.", title));
+            if (!title.equals(task.getTitle())) {
+                task.setTitle(title);
+                updates.add(String.format("has updated the task title to '%s'.", title));
+            }
         });
         Optional.ofNullable(body.getSummary()).ifPresent(summ -> {
+            if (summ.equals(task.getSummary())) return;
+
             task.setSummary(summ);
             updates.add("has updated the task summary.");
         });
         Optional.ofNullable(body.getDescription()).ifPresent(desc -> {
+            if (desc.equals(task.getDescription())) return;
+
             task.setDescription(desc);
             updates.add("has updated the task description.");
         });
         Optional.ofNullable(body.getDueDate()).ifPresent(dueDate -> {
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
             LocalDateTime dateTime = LocalDateTime.parse(dueDate, formatter);
+
+            if (dateTime.equals(task.getDueDate())) return;
 
             if (dateTime.isBefore(LocalDateTime.now())) {
                 throw new IllegalRequestException("Due date cannot be in the past.");
@@ -206,8 +214,15 @@ public class TaskService {
         });
         Optional.ofNullable(body.getStatus()).ifPresent(status -> {
             TaskStatus newStatus = TaskStatus.valueOf(status);
+
+            if (newStatus.equals(task.getStatus())) return;
+
             if (newStatus == TaskStatus.DONE && task.getStatus() != TaskStatus.IN_PROGRESS) {
                 throw new IllegalRequestException("Task can only be marked as DONE if it is in progress.");
+            }
+
+            if (newStatus == TaskStatus.IN_PROGRESS && task.getStatus() != TaskStatus.TO_DO) {
+                throw new IllegalRequestException("Task can only be marked as IN_PROGRESS if it is TO_DO.");
             }
 
             task.setStatus(newStatus);
@@ -215,6 +230,9 @@ public class TaskService {
         });
         Optional.ofNullable(body.getPriority()).ifPresent(priority -> {
             TaskPriority newPriority = TaskPriority.valueOf(priority);
+
+            if (newPriority.equals(task.getPriority())) return;
+
             task.setPriority(newPriority);
             updates.add(String.format("has updated the task priority to '%s'.", priority));
         });

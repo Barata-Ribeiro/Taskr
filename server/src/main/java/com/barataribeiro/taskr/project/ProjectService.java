@@ -145,11 +145,15 @@ public class ProjectService {
         List<String> updates = new ArrayList<>();
 
         Optional.ofNullable(body.getTitle()).ifPresent(title -> {
+            if (title.equals(project.getTitle())) return;
+
             project.setTitle(title);
             updates.add(String.format("changed the project title to '%s'.", title));
         });
 
         Optional.ofNullable(body.getDescription()).ifPresent(desc -> {
+            if (desc.equals(project.getDescription())) return;
+
             project.setDescription(desc);
             updates.add("changed the project description.");
         });
@@ -157,6 +161,8 @@ public class ProjectService {
         Optional.ofNullable(body.getDueDate()).ifPresent(dueDate -> {
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
             LocalDateTime dateTime = LocalDateTime.parse(dueDate, formatter);
+
+            if (dateTime.equals(project.getDueDate())) return;
 
             if (dateTime.isBefore(LocalDateTime.now())) {
                 throw new IllegalArgumentException("Due date cannot be in the past.");
@@ -172,7 +178,11 @@ public class ProjectService {
         });
 
         Optional.ofNullable(body.getStatus()).ifPresent(status -> {
-            project.setStatus(ProjectStatus.valueOf(status));
+            ProjectStatus newStatus = ProjectStatus.valueOf(status);
+
+            if (newStatus == project.getStatus()) return;
+
+            project.setStatus(newStatus);
             updates.add(String.format("changed the project status to '%s'.",
                                       StringNormalizer.formatStatus(status)));
         });
