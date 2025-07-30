@@ -2,10 +2,7 @@ import sanitizeHtml from "sanitize-html"
 import * as z from "zod/v4"
 
 const taskCreateSchema = z.object({
-    projectId: z
-        .string("Project ID must not be blank")
-        .regex(/^\d+$/, "Project ID must be a valid number")
-        .transform(Number),
+    projectId: z.coerce.number().int(),
     title: z
         .string("Title must not be blank")
         .trim()
@@ -32,7 +29,8 @@ const taskCreateSchema = z.object({
 })
 
 const taskUpdateSchema = z.object({
-    projectId: z.number().min(1, "The project ID cannot be blank"),
+    projectId: z.coerce.number().int(),
+    taskId: z.coerce.number().int(),
     title: z
         .string()
         .min(3, "Title must be between 3 and 100 characters")
