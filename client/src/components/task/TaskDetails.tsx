@@ -1,6 +1,7 @@
 import { ProblemDetails } from "@/@types/application"
 import { Author } from "@/@types/user"
 import getTaskById from "@/actions/task/get-task-by-id"
+import EditTaskModal from "@/components/modals/EditTaskModal"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import SafeMarkdown from "@/components/shared/SafeMarkdown"
 import DueDateBadge from "@/components/shared/task/DueDateBadge"
@@ -33,7 +34,10 @@ export default async function TaskDetails({ projectId, taskId, baseUrl }: Readon
         <article className="block rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
             <div className="mb-4 flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{task.title}</h1>
-                <TaskPriorityBadge taskPriority={task.priority} />
+                <div className="inline-flex items-center gap-x-2">
+                    <TaskPriorityBadge taskPriority={task.priority} />
+                    <EditTaskModal task={task} />
+                </div>
             </div>
 
             <div className="inline-flex items-center gap-x-4">
