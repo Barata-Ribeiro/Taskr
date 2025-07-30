@@ -1,3 +1,5 @@
+"use client"
+
 import { Task } from "@/@types/task"
 import EditTaskForm from "@/components/forms/task/EditTaskForm"
 import DefaultButton from "@/components/ui/DefaultButton"
@@ -41,7 +43,7 @@ export default function EditTaskModal({ task }: Readonly<EditTaskModalProps>) {
                                 </DialogTitle>
                             </header>
 
-                            <EditTaskForm task={task} />
+                            <EditTaskForm task={task} setOpen={setOpen} />
                         </DialogPanel>
                     </div>
                 </div>
