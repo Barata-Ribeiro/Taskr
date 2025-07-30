@@ -1,7 +1,6 @@
 import { Task } from "@/@types/task"
 import EditTaskModal from "@/components/modals/EditTaskModal"
 import DueDateBadge from "@/components/shared/task/DueDateBadge"
-import Tooltip from "@/components/shared/Tooltip"
 import TaskPriorityBadge from "@/components/task/TaskPriorityBadge"
 import Avatar from "@/components/user/Avatar"
 import tw from "@/utils/tw"
@@ -65,15 +64,11 @@ export default function TaskCard({ baseUrl, provided, snapshot, projectId, task 
                         {task.assignees.map((assignee, i) => {
                             const key = `${assignee.id}-${i}`
                             const href = `${baseUrl}/profile/${assignee.username}`
+                            const label = `View profile of ${assignee.displayName}`
 
                             return (
-                                <Link
-                                    key={key}
-                                    href={href}
-                                    aria-label={`View profile of ${assignee.displayName}`}
-                                    className="group relative">
+                                <Link key={key} href={href} aria-label={label} title={label} className="group relative">
                                     <Avatar url={assignee.avatarUrl} name={assignee.displayName} size="extra-small" />
-                                    <Tooltip content={assignee.displayName} />
                                 </Link>
                             )
                         })}
