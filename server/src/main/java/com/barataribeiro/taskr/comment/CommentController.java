@@ -43,6 +43,18 @@ public class CommentController {
                                                       "Comment created successfully", createdComment));
     }
 
+    @PatchMapping("/{commentId}/task/{taskId}")
+    @Operation(summary = "Update a comment",
+               description = "Updates an existing comment for a specific task.")
+    public ResponseEntity<RestResponse<CommentDTO>> updateComment(@PathVariable Long commentId,
+                                                                  @PathVariable Long taskId,
+                                                                  @RequestBody CommentRequestDTO body,
+                                                                  Authentication authentication) {
+        CommentDTO updatedComment = commentService.updateComment(commentId, taskId, body, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Comment updated successfully", updatedComment));
+    }
+
     @DeleteMapping("/{commentId}/task/{taskId}")
     @Operation(summary = "Delete a comment",
                description = "Removes a comment from a specific task.")

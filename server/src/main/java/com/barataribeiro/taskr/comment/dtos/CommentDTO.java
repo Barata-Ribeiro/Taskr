@@ -21,7 +21,8 @@ import java.util.List;
 public class CommentDTO implements Serializable {
     private Long id;
     private String content;
-    private UserAuthorDTO user;
+    private UserAuthorDTO author;
+    private boolean wasEdited;
     private Long taskId;
     private Long parentId;
     private Long childrenCount;

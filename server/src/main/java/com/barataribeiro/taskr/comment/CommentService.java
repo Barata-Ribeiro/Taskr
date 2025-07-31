@@ -110,6 +110,23 @@ public class CommentService {
 
     @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
                       @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectStats", "userStats"},
+                                  allEntries = true),},
+             put = @CachePut(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"))
+    @Transactional
+    public CommentDTO updateComment(Long commentId, Long taskId, @NotNull CommentRequestDTO body,
+                                    @NotNull Authentication authentication) {
+        Comment comment = commentRepository
+                .findByIdAndAuthor_UsernameAndTask_Id(commentId, authentication.getName(), taskId)
+                .orElseThrow(() -> new EntityNotFoundException(Comment.class.getSimpleName()));
+
+        comment.setContent(body.getBody());
+        comment.setWasEdited(true);
+
+        return commentBuilder.toCommentDTO(commentRepository.saveAndFlush(comment));
+    }
+
+    @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
+                      @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectStats", "userStats"},
                                   allEntries = true),})
     @Transactional
     public void deleteComment(Long commentId, Long taskId, @NotNull Authentication authentication) {

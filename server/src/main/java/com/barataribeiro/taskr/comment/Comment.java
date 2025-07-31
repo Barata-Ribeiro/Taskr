@@ -46,6 +46,10 @@ public class Comment implements Serializable {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
+    @Builder.Default
+    @Column(name = "was_edited", nullable = false, columnDefinition = "boolean default false")
+    private boolean wasEdited = false;
+
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id", nullable = false)

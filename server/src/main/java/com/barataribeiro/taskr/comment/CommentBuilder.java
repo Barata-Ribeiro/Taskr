@@ -33,12 +33,12 @@ public class CommentBuilder {
 
                 map(source.getTask().getId(), destination.getTaskId());
                 map(source.getParent().getId(), destination.getParentId());
-                map(source.getAuthor(), destination.getUser());
+                map(source.getAuthor(), destination.getAuthor());
             }
         });
     }
 
-    public CommentDTO toCommentDTO(Comment comment) {
+    public CommentDTO toCommentDTO(@NotNull Comment comment) {
         return modelMapper.map(comment, CommentDTO.class);
     }
 
