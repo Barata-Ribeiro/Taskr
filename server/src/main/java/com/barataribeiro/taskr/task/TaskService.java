@@ -1,10 +1,7 @@
 package com.barataribeiro.taskr.task;
 
 import com.barataribeiro.taskr.activity.ActivityEventListener;
-import com.barataribeiro.taskr.activity.events.task.TaskAssignEvent;
-import com.barataribeiro.taskr.activity.events.task.TaskCreatedEvent;
-import com.barataribeiro.taskr.activity.events.task.TaskDeleteEvent;
-import com.barataribeiro.taskr.activity.events.task.TaskUpdatedEvent;
+import com.barataribeiro.taskr.activity.events.task.*;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.membership.Membership;
@@ -284,8 +281,10 @@ public class TaskService {
                     }
 
                     assignees.removeIf(u -> u.getUsername().equals(user.getUsername()));
-                    // Todo: Change event publishing to use UNASSIGN_TASK instead
-                    updates.add(String.format("has unassigned '%s' from the task.", member));
+
+                    eventPublisher.publishEvent(new TaskUnassignEvent(this, project, task.getTitle(),
+                                                                      user.getDisplayName(), user.getUsername()));
+
                     String message = String.format("'%s' has unassigned you from the task '%s'.",
                                                    authentication.getName(), task.getTitle());
                     eventPublisher.publishEvent(new TaskMembershipNotificationEvent(this, user, task.getTitle(),
