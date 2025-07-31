@@ -37,6 +37,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.barataribeiro.taskr.utils.StringNormalizer.formatStatus;
+
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class TaskService {
@@ -211,7 +213,8 @@ public class TaskService {
             }
 
             task.setDueDate(dateTime);
-            updates.add(String.format("has updated the task due date to '%s'.", dateTime.format(formatter)));
+            updates.add(String.format("has updated the task due date to '%s'.", dateTime
+                    .format(DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' hh:mma"))));
         });
         Optional.ofNullable(body.getStatus()).ifPresent(status -> {
             TaskStatus newStatus = TaskStatus.valueOf(status);
@@ -227,7 +230,7 @@ public class TaskService {
             }
 
             task.setStatus(newStatus);
-            updates.add(String.format("has updated the task status to '%s'.", status));
+            updates.add(String.format("has updated the task status to '%s'.", formatStatus(status)));
         });
         Optional.ofNullable(body.getPriority()).ifPresent(priority -> {
             TaskPriority newPriority = TaskPriority.valueOf(priority);
@@ -235,7 +238,7 @@ public class TaskService {
             if (newPriority.equals(task.getPriority())) return;
 
             task.setPriority(newPriority);
-            updates.add(String.format("has updated the task priority to '%s'.", priority));
+            updates.add(String.format("has updated the task priority to '%s'.", formatStatus(priority)));
         });
         Optional.ofNullable(body.getMembersToAssign()).ifPresent(members -> members.parallelStream().forEach(member -> {
             if (!membershipRepository.existsByUser_UsernameAndProject_Tasks_Id(member, task.getId())) {
