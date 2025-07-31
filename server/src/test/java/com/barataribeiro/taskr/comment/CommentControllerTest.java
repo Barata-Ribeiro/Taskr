@@ -11,6 +11,7 @@ import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @SpringBootTest(properties = {"spring.cache.type=none"})
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -59,7 +61,6 @@ class CommentControllerTest {
     @DisplayName("It should create a comment successfully")
     void createComment() throws Exception {
         commentRequestDTO.setBody("This is a test comment");
-        commentRequestDTO.setParentId(null);
 
         ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
 
@@ -137,6 +138,37 @@ class CommentControllerTest {
 
     @Test
     @Order(4)
+    @DisplayName("It should update a comment successfully")
+    void updateComment() throws Exception {
+        CommentRequestDTO updateRequest = new CommentRequestDTO();
+        updateRequest.setBody("This is an updated comment");
+        updateRequest.setParentId(null);
+
+        ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
+
+        mockMvcTester.patch()
+                     .uri("/api/v1/comments/{commentId}/task/{taskId}", createdComment.getId(), defaultTask.getId())
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(objectMapper.writeValueAsBytes(updateRequest))
+                     .assertThat()
+                     .hasStatus(HttpStatus.OK)
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         String body = JsonPath.read(json, "$.data.content");
+
+                         assertEquals(updateRequest.getBody(), body, "Updated comment body should match");
+
+                         Boolean wasEdited = JsonPath.read(json, "$.data.wasEdited");
+                         assertTrue(wasEdited, "Comment should be marked as edited");
+                         assertEquals("Comment updated successfully", JsonPath.read(json, "$.message"),
+                                      "Response message should indicate successful update");
+                     });
+    }
+
+    @Test
+    @Order(5)
     @DisplayName("It should delete a comment successfully and the children should be deleted as well")
     void deleteComment() {
         mockMvcTester.delete()
