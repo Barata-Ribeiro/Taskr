@@ -4,6 +4,7 @@ import com.barataribeiro.taskr.activity.enums.ActivityType;
 import com.barataribeiro.taskr.activity.events.project.ProjectCreatedEvent;
 import com.barataribeiro.taskr.activity.events.project.ProjectUpdateEvent;
 import com.barataribeiro.taskr.activity.events.task.TaskCreatedEvent;
+import com.barataribeiro.taskr.activity.events.task.TaskDeleteEvent;
 import com.barataribeiro.taskr.activity.events.task.TaskUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class ActivityEventListener {
     private final ActivityRepository activityRepository;
+
+    // Project
 
     @EventListener
     public void onProjectCreated(@NotNull ProjectCreatedEvent event) {
@@ -46,6 +49,8 @@ public class ActivityEventListener {
         activityRepository.save(activity);
     }
 
+    // Task
+
     @EventListener
     public void onTaskCreated(@NotNull TaskCreatedEvent event) {
         final String description = String.format("User '%s' created the task '%s' in project '%s'.",
@@ -70,6 +75,21 @@ public class ActivityEventListener {
         Activity activity = Activity.builder()
                                     .username(event.getUsername())
                                     .action(ActivityType.UPDATE_TASK)
+                                    .description(description)
+                                    .project(event.getProject())
+                                    .build();
+
+        activityRepository.save(activity);
+    }
+
+    @EventListener
+    public void onTaskDeleted(@NotNull TaskDeleteEvent event) {
+        final String description = String.format("'%s' deleted the task of identifier '%s'.",
+                                                 event.getUsername(), event.getTaskId());
+
+        Activity activity = Activity.builder()
+                                    .username(event.getUsername())
+                                    .action(ActivityType.DELETE_TASK)
                                     .description(description)
                                     .project(event.getProject())
                                     .build();

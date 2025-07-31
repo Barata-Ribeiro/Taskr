@@ -1,6 +1,8 @@
 package com.barataribeiro.taskr.task;
 
+import com.barataribeiro.taskr.activity.ActivityEventListener;
 import com.barataribeiro.taskr.activity.events.task.TaskCreatedEvent;
+import com.barataribeiro.taskr.activity.events.task.TaskDeleteEvent;
 import com.barataribeiro.taskr.activity.events.task.TaskUpdatedEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
@@ -48,6 +50,7 @@ public class TaskService {
     private final ApplicationEventPublisher eventPublisher;
 
     private final @Lazy TaskService self = this;
+    private final ActivityEventListener activityEventListener;
 
 
     @Cacheable(value = "tasksByProject")
@@ -250,6 +253,7 @@ public class TaskService {
                                       .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
             assignees.add(user);
+            // Todo: Change event publishing to use ASSIGN_TASK instead
             updates.add(String.format("has assigned '%s' to the task.", member));
             String message = String.format("'%s' has assigned you to the task '%s'.",
                                            authentication.getName(), task.getTitle());
@@ -277,6 +281,7 @@ public class TaskService {
                     }
 
                     assignees.removeIf(u -> u.getUsername().equals(user.getUsername()));
+                    // Todo: Change event publishing to use UNASSIGN_TASK instead
                     updates.add(String.format("has unassigned '%s' from the task.", member));
                     String message = String.format("'%s' has unassigned you from the task '%s'.",
                                                    authentication.getName(), task.getTitle());
@@ -292,7 +297,7 @@ public class TaskService {
                                                           update)));
         assignees.parallelStream()
                  .filter(user -> !user.getUsername().equals(authentication.getName()))
-                 .forEach(user -> eventPublisher
+                 .forEachOrdered(user -> eventPublisher
                          .publishEvent(new TaskUpdatedEvent(this, task.getTitle(), project, user.getUsername(),
                                                             updates.toString())));
         return taskBuilder.toTaskDTO(taskRepository.saveAndFlush(task));
@@ -413,6 +418,9 @@ public class TaskService {
             tasksInNewStatus.add(newPosition - 1, task);
             task.setStatus(newStatus);
 
+            // Todo: Add event publishing for task completion
+            // Todo: Add event publishing for task reopening
+
             for (int i = 0; i < tasksInNewStatus.size(); i++) {
                 Task t = tasksInNewStatus.get(i);
                 t.setPosition(i + 1);
@@ -435,5 +443,11 @@ public class TaskService {
         long wasDeleted = taskRepository
                 .deleteByIdAndProject_IdAndProject_Owner_Username(taskId, projectId, authentication.getName());
         if (wasDeleted == 0) throw new IllegalRequestException("Task not found or you are not the project owner");
+
+        Project project = projectRepository
+                .findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
+
+        eventPublisher.publishEvent(new TaskDeleteEvent(this, project, taskId, authentication.getName()));
     }
 }
