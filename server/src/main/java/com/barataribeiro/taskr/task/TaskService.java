@@ -420,7 +420,11 @@ public class TaskService {
             tasksInNewStatus.add(newPosition - 1, task);
             task.setStatus(newStatus);
 
-            // Todo: Add event publishing for task completion
+            if (newStatus == TaskStatus.DONE) {
+                eventPublisher.publishEvent(new TaskCompleteEvent(this, task.getProject(), task.getTitle(),
+                                                                  authentication.getName()));
+            }
+
             // Todo: Add event publishing for task reopening
 
             for (int i = 0; i < tasksInNewStatus.size(); i++) {

@@ -113,6 +113,21 @@ public class ActivityEventListener {
     }
 
     @EventListener
+    public void onTaskCompleted(@NotNull TaskCompleteEvent event) {
+        final String description = String.format("'%s' completed the task '%s'.",
+                                                 event.getUsername(), event.getTaskTitle());
+
+        Activity activity = Activity.builder()
+                                    .username(event.getUsername())
+                                    .action(ActivityType.COMPLETE_TASK)
+                                    .description(description)
+                                    .project(event.getProject())
+                                    .build();
+
+        activityRepository.save(activity);
+    }
+
+    @EventListener
     public void onTaskDeleted(@NotNull TaskDeleteEvent event) {
         final String description = String.format("'%s' deleted the task of identifier '%s'.",
                                                  event.getUsername(), event.getTaskId());
