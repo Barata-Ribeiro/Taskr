@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.activity;
 import com.barataribeiro.taskr.activity.enums.ActivityType;
 import com.barataribeiro.taskr.activity.events.project.ProjectCreatedEvent;
 import com.barataribeiro.taskr.activity.events.project.ProjectUpdateEvent;
+import com.barataribeiro.taskr.activity.events.task.TaskAssignEvent;
 import com.barataribeiro.taskr.activity.events.task.TaskCreatedEvent;
 import com.barataribeiro.taskr.activity.events.task.TaskDeleteEvent;
 import com.barataribeiro.taskr.activity.events.task.TaskUpdatedEvent;
@@ -75,6 +76,22 @@ public class ActivityEventListener {
         Activity activity = Activity.builder()
                                     .username(event.getUsername())
                                     .action(ActivityType.UPDATE_TASK)
+                                    .description(description)
+                                    .project(event.getProject())
+                                    .build();
+
+        activityRepository.save(activity);
+    }
+
+    @EventListener
+    public void onTaskAssigned(@NotNull TaskAssignEvent event) {
+        final String description = String.format("'%s' assigned the task '%s' to '%s'.",
+                                                 event.getUsername(), event.getTaskTitle(),
+                                                 event.getUserDisplayName());
+
+        Activity activity = Activity.builder()
+                                    .username(event.getUsername())
+                                    .action(ActivityType.ASSIGN_TASK)
                                     .description(description)
                                     .project(event.getProject())
                                     .build();

@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.task;
 
 import com.barataribeiro.taskr.activity.ActivityEventListener;
+import com.barataribeiro.taskr.activity.events.task.TaskAssignEvent;
 import com.barataribeiro.taskr.activity.events.task.TaskCreatedEvent;
 import com.barataribeiro.taskr.activity.events.task.TaskDeleteEvent;
 import com.barataribeiro.taskr.activity.events.task.TaskUpdatedEvent;
@@ -253,8 +254,10 @@ public class TaskService {
                                       .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
             assignees.add(user);
-            // Todo: Change event publishing to use ASSIGN_TASK instead
-            updates.add(String.format("has assigned '%s' to the task.", member));
+
+            eventPublisher.publishEvent(new TaskAssignEvent(this, project, task.getTitle(),
+                                                            user.getDisplayName(), authentication.getName()));
+
             String message = String.format("'%s' has assigned you to the task '%s'.",
                                            authentication.getName(), task.getTitle());
             eventPublisher.publishEvent(new TaskMembershipNotificationEvent(this, user, task.getTitle(),
