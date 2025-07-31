@@ -128,6 +128,21 @@ public class ActivityEventListener {
     }
 
     @EventListener
+    public void onTaskReopened(@NotNull TaskReopenEvent event) {
+        final String description = String.format("'%s' reopened the task '%s'.",
+                                                 event.getUsername(), event.getTaskTitle());
+
+        Activity activity = Activity.builder()
+                                    .username(event.getUsername())
+                                    .action(ActivityType.REOPEN_TASK)
+                                    .description(description)
+                                    .project(event.getProject())
+                                    .build();
+
+        activityRepository.save(activity);
+    }
+
+    @EventListener
     public void onTaskDeleted(@NotNull TaskDeleteEvent event) {
         final String description = String.format("'%s' deleted the task of identifier '%s'.",
                                                  event.getUsername(), event.getTaskId());

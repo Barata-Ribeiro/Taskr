@@ -6,10 +6,10 @@ public enum ActivityType {
     ADD_TASK, // Done
     UPDATE_TASK, // Done
     DELETE_TASK, // Done
-    ASSIGN_TASK, // Todo: add assign event
-    UNASSIGN_TASK, // Todo: add unassign event
-    COMPLETE_TASK, // Todo: add complete event
-    REOPEN_TASK, // Todo: add reopen event
+    ASSIGN_TASK, // Done
+    UNASSIGN_TASK, // Done
+    COMPLETE_TASK, // Done
+    REOPEN_TASK, // Done
     ADD_COMMENT, // Todo: add comment event
     UPDATE_COMMENT, // Todo: add update comment event
     DELETE_COMMENT, // Todo: add delete comment event

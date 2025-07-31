@@ -425,7 +425,10 @@ public class TaskService {
                                                                   authentication.getName()));
             }
 
-            // Todo: Add event publishing for task reopening
+            if (newStatus == TaskStatus.IN_PROGRESS && oldStatus == TaskStatus.DONE) {
+                eventPublisher.publishEvent(new TaskReopenEvent(this, task.getProject(), task.getTitle(),
+                                                                authentication.getName()));
+            }
 
             for (int i = 0; i < tasksInNewStatus.size(); i++) {
                 Task t = tasksInNewStatus.get(i);
