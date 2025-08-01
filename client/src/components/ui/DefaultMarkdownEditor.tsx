@@ -3,6 +3,7 @@
 import MarkdownEditorSkeleton from "@/components/ui/skeletons/MarkdownEditorSkeleton"
 import tw from "@/utils/tw"
 import { Description, Field, Label } from "@headlessui/react"
+import { commands } from "@uiw/react-md-editor"
 import dynamic from "next/dist/shared/lib/app-dynamic"
 import { type Dispatch, type SetStateAction, type TextareaHTMLAttributes, useId } from "react"
 import rehypeSanitize from "rehype-sanitize"
@@ -51,12 +52,12 @@ export default function DefaultMarkdownEditor({
 
             <MDEditor
                 className="mt-2 w-full resize-none rounded-md whitespace-pre-wrap"
+                autoFocus={true}
+                autoFocusEnd={true}
                 value={value}
-                onChange={value => {
-                    if (value === undefined) return
-                    setValue?.(value)
-                }}
+                onChange={value => value !== undefined && setValue?.(value)}
                 height={height}
+                extraCommands={[commands.codeEdit, commands.codePreview, commands.fullscreen]}
                 preview="edit"
                 hideToolbar={restProps.disabled}
                 textareaProps={{ id: defaultId, ...restProps }}
