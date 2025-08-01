@@ -75,12 +75,12 @@ public class UserService {
         User userToUpdate = userRepository.findByUsername(authentication.getName())
                                           .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
-        boolean passwordMatches = passwordEncoder.matches(body.getCurrentPassword(), userToUpdate.getPassword());
-        boolean userBannedOrNone =
-                userToUpdate.getRole().equals(Roles.BANNED) || userToUpdate.getRole().equals(Roles.NONE);
+        Roles userRole = userToUpdate.getRole();
 
-        if (!passwordMatches || userBannedOrNone) {
-            throw new InvalidCredentialsException("Authorization failed; Wrong credentials or account has a problem.");
+        boolean userBannedOrNone = Roles.BANNED.equals(userRole) || Roles.NONE.equals(userRole);
+
+        if (userBannedOrNone) {
+            throw new IllegalRequestException("Account update failed; Account is either banned or not authorized.");
         }
 
         verifyIfBodyExistsThenUpdateProperties(body, userToUpdate);
@@ -125,9 +125,34 @@ public class UserService {
             userToUpdate.setEmail(s);
         });
 
+        Optional.ofNullable(body.getBio()).ifPresent(userToUpdate::setBio);
         Optional.ofNullable(body.getDisplayName()).ifPresent(userToUpdate::setDisplayName);
         Optional.ofNullable(body.getFullName()).ifPresent(userToUpdate::setFullName);
         Optional.ofNullable(body.getAvatarUrl()).ifPresent(userToUpdate::setAvatarUrl);
-        Optional.ofNullable(body.getNewPassword()).ifPresent(s -> userToUpdate.setPassword(passwordEncoder.encode(s)));
+        Optional.ofNullable(body.getCoverUrl()).ifPresent(userToUpdate::setCoverUrl);
+        Optional.ofNullable(body.getPronouns()).ifPresent(userToUpdate::setPronouns);
+        Optional.ofNullable(body.getLocation()).ifPresent(userToUpdate::setLocation);
+        Optional.ofNullable(body.getWebsite()).ifPresent(userToUpdate::setWebsite);
+        Optional.ofNullable(body.getCompany()).ifPresent(userToUpdate::setCompany);
+        Optional.ofNullable(body.getJobTitle()).ifPresent(userToUpdate::setJobTitle);
+        Optional.ofNullable(body.getNewPassword()).ifPresent(s -> {
+            if (body.getCurrentPassword().isBlank()) {
+                throw new IllegalRequestException("Current password must be provided to change the password.");
+            }
+
+            boolean passwordMatches = passwordEncoder.matches(body.getCurrentPassword(), userToUpdate.getPassword());
+
+            if (!passwordMatches) {
+                throw new InvalidCredentialsException("Authorization failed; Current password does not match.");
+            }
+
+            if (s.isBlank()) throw new IllegalRequestException("New password cannot be blank.");
+
+            if (s.equals(body.getCurrentPassword())) {
+                throw new IllegalRequestException("New password cannot be the same as the current password.");
+            }
+
+            userToUpdate.setPassword(passwordEncoder.encode(s));
+        });
     }
 }

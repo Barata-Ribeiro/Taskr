@@ -13,9 +13,6 @@ import java.io.Serializable;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserUpdateRequestDTO implements Serializable {
-    @NotBlank(message = "Your current password is required to update your account.")
-    private String currentPassword;
-
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters.")
     @Pattern(regexp = "^[a-z]*$", message = "Username must contain only lowercase letters.")
     private String username;
@@ -23,6 +20,9 @@ public class UserUpdateRequestDTO implements Serializable {
     @Email(regexp = "[A-Za-z0-9._%-+]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}",
            message = "You must provide a valid email address.")
     private String email;
+
+    @Size(min = 0, max = 200, message = "Biography must be between 0 and 200 characters.")
+    private String bio;
 
     @Size(min = 3, max = 50, message = "Display name must be between 3 and 50 characters.")
     @Pattern(regexp = "^[a-zA-Z ]*$", message = "Display name must contain only letters, and spaces.")
@@ -34,6 +34,29 @@ public class UserUpdateRequestDTO implements Serializable {
     @URL(message = "Invalid URL format.", protocol = "https",
          regexp = "((((https?|ftps?|gopher|telnet|nntp)://)|(mailto:|news:))([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)")
     private String avatarUrl;
+
+    @URL(message = "Invalid URL format.", protocol = "https",
+         regexp = "((((https?|ftps?|gopher|telnet|nntp)://)|(mailto:|news:))([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)")
+    private String coverUrl;
+
+    @Pattern(regexp = "^[a-zA-Z/ ]*$", message = "Pronouns may only contain letters, spaces, and slashes.")
+    private String pronouns;
+
+    @Size(min = 0, max = 100, message = "Location must be between 0 and 100 characters.")
+    private String location;
+
+    @Size(min = 0, max = 100, message = "Website must be between 0 and 100 characters.")
+    @URL(message = "Invalid URL format.", protocol = "https", regexp = "^https://[A-Za-z0-9.-]+\\.[A-Za-z]{2,}.*$")
+    private String website;
+
+    @Size(min = 0, max = 100, message = "Company must be between 0 and 100 characters.")
+    private String company;
+
+    @Size(min = 0, max = 100, message = "Job title must be between 0 and 100 characters.")
+    private String jobTitle;
+
+    @NotBlank(message = "Your current password is required to update your account.")
+    private String currentPassword;
 
     @Size(min = 8, max = 100, message = "New password must be between 8 and 100 characters.")
     @Pattern(

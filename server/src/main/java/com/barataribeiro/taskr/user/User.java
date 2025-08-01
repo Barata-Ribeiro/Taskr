@@ -77,6 +77,24 @@ public class User implements UserDetails, Serializable {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    @Column(name = "cover_url")
+    private String coverUrl;
+
+    @Column(name = "pronouns")
+    private String pronouns;
+
+    @Column(name = "location")
+    private String location;
+
+    @Column(name = "website")
+    private String website;
+
+    @Column(name = "company")
+    private String company;
+
+    @Column(name = "job_title")
+    private String jobTitle;
+
     // Settings
 
     @Builder.Default

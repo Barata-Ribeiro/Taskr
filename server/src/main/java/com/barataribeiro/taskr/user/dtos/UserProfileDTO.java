@@ -26,6 +26,12 @@ public class UserProfileDTO implements Serializable {
     private String displayName;
     private String fullName;
     private String avatarUrl;
+    private String coverUrl;
+    private String pronouns;
+    private String location;
+    private String website;
+    private String company;
+    private String jobTitle;
     private Boolean isPrivate;
     private Boolean isVerified;
     private Instant createdAt;
