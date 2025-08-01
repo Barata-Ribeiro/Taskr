@@ -44,11 +44,12 @@ export default async function createNewComment(state: State<unknown>, formData: 
         }
 
         revalidateTag("global-stats")
-        revalidateTag(`user-account-${session.user?.username}`)
         revalidateTag(`task-${taskId}`)
         revalidateTag(`task-${taskId}-comments`)
         revalidateTag(`tasks-project-${projectId}`)
         revalidateTag(`project-stats-${projectId}`)
+        revalidateTag(`user-account-${session.user?.username}`)
+        revalidateTag(`profile-${session.user?.username}`)
 
         return { ok: true, error: null, response: json as RestResponse<Comment> }
     } catch (e: unknown) {

@@ -47,6 +47,7 @@ export default async function createNewTask(state: State<unknown>, formData: unk
         revalidateTag(`project-activities-${projectId}`)
         revalidateTag(`my-projects-${session.user?.username}`)
         revalidateTag(`project-stats-${projectId}`)
+        revalidateTag(`profile-${session.user?.username}`)
         revalidateTag(`user-stats-${session.user?.id}`)
 
         return { ok: true, error: null, response: json as RestResponse<Task> }

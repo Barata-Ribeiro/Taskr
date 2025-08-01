@@ -44,6 +44,10 @@ export function logoutAuthUrl(): string {
 // ===============================================================
 // ===================  User Module Functions  ===================
 // ===============================================================
+export function publicUserProfileUrl(username: string): string {
+    return `${API_URL}/users/${username}/public`
+}
+
 export function userAccountUrl(): string {
     return `${API_URL}/users/me`
 }

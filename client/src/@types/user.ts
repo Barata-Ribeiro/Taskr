@@ -21,6 +21,16 @@ interface User {
 
 type Author = Omit<User, "email" | "createdAt" | "updatedAt"> & { displayName: string }
 
+interface UserProfile extends User {
+    bio: string
+    displayName: string
+    fullName: string
+    totalProjectsParticipated: number
+    totalCreatedProjects: number
+    totalAssignedTasks: number
+    totalCommentsMade: number
+}
+
 interface Account extends User {
     displayName: string
     fullName: string
@@ -33,4 +43,4 @@ interface Account extends User {
 
 export { Roles }
 
-export type { User, Author, Account }
+export type { User, Author, UserProfile, Account }
