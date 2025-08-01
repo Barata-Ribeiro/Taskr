@@ -2,6 +2,8 @@ package com.barataribeiro.taskr.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.boot.jackson.JsonMixinModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -19,6 +21,8 @@ public class CacheConfig {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new JsonMixinModule());
         objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator(),
                                            ObjectMapper.DefaultTyping.NON_FINAL,
                                            JsonTypeInfo.As.PROPERTY);
