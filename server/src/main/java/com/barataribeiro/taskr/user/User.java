@@ -65,6 +65,9 @@ public class User implements UserDetails, Serializable {
 
     // Profile Fields
 
+    @Column(name = "bio", length = 200, columnDefinition = "TEXT")
+    private String bio;
+
     @Column(name = "display_name", nullable = false)
     private String displayName;
 

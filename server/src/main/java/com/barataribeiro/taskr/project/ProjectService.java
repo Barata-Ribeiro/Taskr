@@ -94,6 +94,7 @@ public class ProjectService {
 
     @Caching(evict = {
             @CacheEvict(value = "userAccount", key = "#authentication.name"),
+            @CacheEvict(value = "publicUserProfile", key = "#authentication.name"),
             @CacheEvict(value = {"projects", "project", "projectActivities", "globalStats", "projectStats",
                                  "userStats"}, allEntries = true),},
              put = @CachePut(value = "project", key = "#result.id + '_' + #authentication.name"))
@@ -246,6 +247,7 @@ public class ProjectService {
 
     @Caching(evict = {
             @CacheEvict(value = "userAccount", key = "#authentication.name"),
+            @CacheEvict(value = "publicUserProfile", key = "#authentication.name"),
             @CacheEvict(value = {"projects", "project", "projectActivities", "globalStats", "projectStats",
                                  "userStats"}, allEntries = true),})
     @Transactional

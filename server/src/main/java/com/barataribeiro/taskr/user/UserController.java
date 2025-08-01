@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.user;
 import com.barataribeiro.taskr.helpers.RestResponse;
 import com.barataribeiro.taskr.membership.dtos.MembershipUsersDTO;
 import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
+import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
 import com.barataribeiro.taskr.user.dtos.UserUpdateRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,15 @@ import java.util.List;
 @Tag(name = "Users", description = "Endpoints for managing users")
 public class UserController {
     private final UserService userService;
+
+    @GetMapping("/{username}/public")
+    @Operation(summary = "Get public user profile",
+               description = "Retrieves the public profile of a user by their username.")
+    public ResponseEntity<RestResponse<UserProfileDTO>> getPublicUserProfile(@PathVariable String username) {
+        UserProfileDTO userProfileDTO = userService.getPublicUserProfile(username);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Public user profile retrieved successfully", userProfileDTO));
+    }
 
     @GetMapping("/{projectId}/memberships")
     @Operation(summary = "Get project memberships for a user",

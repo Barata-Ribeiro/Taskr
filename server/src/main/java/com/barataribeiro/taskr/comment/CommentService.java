@@ -65,6 +65,7 @@ public class CommentService {
     }
 
     @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
+                      @CacheEvict(value = "publicUserProfile", key = "#authentication.name"),
                       @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectStats", "userStats"},
                                   allEntries = true),},
              put = @CachePut(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"))
@@ -126,6 +127,7 @@ public class CommentService {
     }
 
     @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
+                      @CacheEvict(value = "publicUserProfile", key = "#authentication.name"),
                       @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectStats", "userStats"},
                                   allEntries = true),})
     @Transactional

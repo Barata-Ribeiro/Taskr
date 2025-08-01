@@ -9,6 +9,7 @@ import com.barataribeiro.taskr.membership.MembershipRepository;
 import com.barataribeiro.taskr.membership.dtos.MembershipUsersDTO;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
+import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
 import com.barataribeiro.taskr.user.dtos.UserUpdateRequestDTO;
 import com.barataribeiro.taskr.user.enums.Roles;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,15 @@ public class UserService {
     private final MembershipRepository membershipRepository;
     private final MembershipBuilder membershipBuilder;
 
+    @Cacheable(value = "publicUserProfile", key = "#username")
+    @Transactional(readOnly = true)
+    public UserProfileDTO getPublicUserProfile(String username) {
+        User user = userRepository.findByUsername(username)
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        return userBuilder.toUserProfileDTO(user);
+    }
+
     @Cacheable(value = "userMemberships", key = "#projectId + '_' + #authentication.name")
     @Transactional(readOnly = true)
     public List<MembershipUsersDTO> getProjectMemberships(Long projectId, @NotNull Authentication authentication) {
@@ -56,7 +66,7 @@ public class UserService {
         return userBuilder.toUserAccountDTO(user);
     }
 
-    @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
+    @Caching(evict = {@CacheEvict(value = {"userAccount", "publicUserProfile"}, key = "#authentication.name"),
                       @CacheEvict(value = {"userMemberships", "globalStats", "userStats"}, allEntries = true),},
              put = @CachePut(value = "userAccount", key = "#authentication.name", condition = "#body != null"))
     @Transactional
@@ -78,7 +88,7 @@ public class UserService {
         return userBuilder.toUserAccountDTO(userRepository.saveAndFlush(userToUpdate));
     }
 
-    @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
+    @Caching(evict = {@CacheEvict(value = {"userAccount", "publicUserProfile"}, key = "#authentication.name"),
                       @CacheEvict(value = {"userMemberships", "globalStats", "userStats"}, allEntries = true),})
     @Transactional
     public void deleteAccount(@NotNull Authentication authentication) {

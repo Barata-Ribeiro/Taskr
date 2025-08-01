@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.user;
 import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
 import com.barataribeiro.taskr.notification.Notification;
 import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
+import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,31 @@ public class UserBuilder {
                 }).map(source.getNotifications(), destination.getUnreadNotificationsCount());
             }
         });
+
+        modelMapper.addMappings(new PropertyMap<User, UserProfileDTO>() {
+            @Override
+            protected void configure() {
+                using(ctx -> {
+                    Set<?> participatedProjects = (Set<?>) ctx.getSource();
+                    return participatedProjects == null ? 0L : participatedProjects.size();
+                }).map(source.getMemberships(), destination.getTotalProjectsParticipated());
+
+                using(ctx -> {
+                    Set<?> createdProjects = (Set<?>) ctx.getSource();
+                    return createdProjects == null ? 0L : createdProjects.size();
+                }).map(source.getProjects(), destination.getTotalCreatedProjects());
+
+                using(ctx -> {
+                    Set<?> assignedTasks = (Set<?>) ctx.getSource();
+                    return assignedTasks == null ? 0L : assignedTasks.size();
+                }).map(source.getAssignedTasks(), destination.getTotalAssignedTasks());
+
+                using(ctx -> {
+                    Set<?> comments = (Set<?>) ctx.getSource();
+                    return comments == null ? 0L : comments.size();
+                }).map(source.getComments(), destination.getTotalCommentsMade());
+            }
+        });
     }
 
     public UserSecurityDTO toUserSecurityDTO(User user) {
@@ -58,6 +84,10 @@ public class UserBuilder {
 
     public UserAccountDTO toUserAccountDTO(User user) {
         return modelMapper.map(user, UserAccountDTO.class);
+    }
+
+    public UserProfileDTO toUserProfileDTO(User user) {
+        return modelMapper.map(user, UserProfileDTO.class);
     }
 
     public User toUser(RegistrationRequestDTO body) {

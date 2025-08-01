@@ -106,6 +106,7 @@ public class TaskService {
 
     @Caching(evict = {
             @CacheEvict(value = "project", key = "#body.projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "publicUserProfile", key = "#authentication.name"),
             @CacheEvict(value = {"tasksByProject", "globalStats", "projectStats",
                                  "projectActivities", "userStats"}, allEntries = true)},
              put = @CachePut(value = "task", key = "#result.id + '_' + #body.projectId + '_' + #authentication.name"))
@@ -447,6 +448,7 @@ public class TaskService {
 
     @Caching(evict = {
             @CacheEvict(value = "task", key = "#taskId + '_' + #projectId + '_' + #authentication.name"),
+            @CacheEvict(value = "publicUserProfile", key = "#authentication.name"),
             @CacheEvict(value = "project", key = "#projectId + '_' + #authentication.name"),
             @CacheEvict(value = {"tasksByProject", "projectActivities", "globalStats",
                                  "userStats"}, allEntries = true)})
