@@ -5,12 +5,33 @@ import Avatar from "@/components/user/Avatar"
 import Badge from "@/components/user/Badge"
 import { auth } from "auth"
 import { BriefcaseIcon, Building2Icon, LinkIcon, MapPinIcon } from "lucide-react"
+import { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 
 interface ProfilePageProps {
     params: Promise<{ username: string; name: string }>
+}
+
+export async function generateMetadata({ params }: Readonly<ProfilePageProps>): Promise<Metadata> {
+    const { username, name } = await params
+    if (!username || !name) return {}
+
+    const profile = await getPublicProfile(name)
+    const userProfile = profile.response?.data as UserProfile | undefined
+
+    if (!userProfile) return {}
+
+    return {
+        title: `${userProfile.displayName} (@${userProfile.username}) - Profile`,
+        description: userProfile.bio || "No bio provided.",
+        openGraph: {
+            title: `${userProfile.displayName} (@${userProfile.username}) - Profile`,
+            description: userProfile.bio || "No bio provided.",
+            images: userProfile.avatarUrl ? [userProfile.avatarUrl] : [],
+        },
+    }
 }
 
 export default async function ProfilePage({ params }: Readonly<ProfilePageProps>) {
