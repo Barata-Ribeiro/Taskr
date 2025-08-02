@@ -24,7 +24,7 @@ export default function DefaultInput({ label, description, ...props }: Readonly<
     const mergedInputStyles = twMerge(defaultStyles.input, darkInputStyles, props.className)
 
     return (
-        <Field disabled={props.disabled}>
+        <Field disabled={props.disabled} className="col-span-full">
             {label && (
                 <Label htmlFor={defaultId} className={defaultStyles.label}>
                     {label}
