@@ -7,6 +7,7 @@ import ResponseError from "@/actions/application/response-error"
 import { invalidFormData } from "@/actions/application/to-problem-details"
 import { registerAuthUrl } from "@/helpers/backend-routes"
 import { registrationSchema } from "@/helpers/validation/auth-schemas"
+import { revalidateTag } from "next/cache"
 
 export async function authRegister(state: State<unknown>, formData: unknown) {
     try {
@@ -31,6 +32,10 @@ export async function authRegister(state: State<unknown>, formData: unknown) {
             const problemDetails = json as ProblemDetails
             return ResponseError(problemDetails)
         }
+
+        revalidateTag("global-stats")
+        revalidateTag("user-stats-global")
+        revalidateTag("project-stats-global")
 
         return { ok: true, error: null, response: json as RestResponse<User> }
     } catch (e: unknown) {

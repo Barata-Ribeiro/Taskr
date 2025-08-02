@@ -1,6 +1,6 @@
 "use server"
 
-import { ProblemDetails, RestResponse } from "@/@types/application"
+import { ProblemDetails } from "@/@types/application"
 import ResponseError from "@/actions/application/response-error"
 import { unauthenticated } from "@/actions/application/to-problem-details"
 import { deleteUserAccountUrl } from "@/helpers/backend-routes"
@@ -22,10 +22,8 @@ export default async function deleteAccount() {
             },
         })
 
-        const json = await response.json()
-
         if (!response.ok) {
-            const problemDetails = json as ProblemDetails
+            const problemDetails = (await response.json()) as ProblemDetails
             return ResponseError(problemDetails)
         }
 
@@ -33,7 +31,7 @@ export default async function deleteAccount() {
         revalidateTag("user-stats-global")
         revalidateTag("project-stats-global")
 
-        return { ok: true, error: null, response: json as RestResponse<null> }
+        return { ok: true, error: null, response: null }
     } catch (e: unknown) {
         return ResponseError(e)
     }
