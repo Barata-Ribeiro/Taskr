@@ -20,7 +20,7 @@ export default async function getProjectStats(projectId: number) {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${session.accessToken}`,
             },
-            next: { revalidate: 86400, tags: [`project-stats-${projectId}`] },
+            next: { revalidate: 86400, tags: [`project-stats-${projectId}`, "project-stats-global"] },
         })
 
         const json = await response.json()
