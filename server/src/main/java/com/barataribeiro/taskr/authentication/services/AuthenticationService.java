@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,7 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
 
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = {"globalStats", "projectStats", "userStats"}, allEntries = true)
     public UserSecurityDTO createAccount(@Valid @NotNull RegistrationRequestDTO body) {
         if (userRepository.existsByUsernameOrEmailAllIgnoreCase(body.getUsername(), body.getEmail())) {
             throw new EntityAlreadyExistsException(User.class.getSimpleName());
