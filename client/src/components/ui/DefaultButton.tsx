@@ -8,7 +8,7 @@ import { twMerge } from "tailwind-merge"
 interface DefaultButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
     children?: ReactNode
     width?: "full" | "fit" | "auto"
-    buttonType?: "color" | "ghost"
+    buttonType?: "color" | "danger" | "ghost"
     isIconOnly?: boolean
 }
 
@@ -23,6 +23,7 @@ export default function DefaultButton({
 
     const typeStyles = {
         color: tw`bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600 active:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:active:bg-indigo-600`,
+        danger: tw`bg-red-600 text-white hover:bg-red-500 focus-visible:outline-red-600 active:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400 dark:focus-visible:outline-red-500 dark:active:bg-red-600`,
         ghost: tw`border border-transparent bg-transparent shadow-none hover:border-gray-200 hover:bg-gray-100 hover:shadow-none focus-visible:outline-gray-200 active:bg-gray-200 dark:hover:border-gray-700 dark:hover:bg-gray-800 dark:active:bg-gray-700`,
     }
 

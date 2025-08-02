@@ -1,4 +1,5 @@
 import UserUpdatePassForm from "@/components/forms/user/UserUpdatePassForm"
+import DeleteAccountModal from "@/components/modals/DeleteAccountModal"
 import { auth } from "auth"
 import { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
@@ -56,7 +57,7 @@ export default async function SettingsPage({ params }: Readonly<SettingsPageProp
                         </p>
                     </div>
 
-                    {/*TODO: Add delete account functionality*/}
+                    <DeleteAccountModal />
                 </div>
             </div>
         </section>
