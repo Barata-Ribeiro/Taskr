@@ -58,10 +58,9 @@ public class UserUpdateRequestDTO implements Serializable {
     @NotBlank(message = "Your current password is required to update your account.")
     private String currentPassword;
 
-    @Size(min = 8, max = 100, message = "New password must be between 8 and 100 characters.")
-    @Pattern(
-            message = "New password must contain at least one digit, one lowercase letter, one uppercase letter, one " +
-                    "special character and no whitespace.",
-            regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")
+    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters.")
+    @Pattern(message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, one " +
+            "special character and no whitespace.",
+             regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%¨^&*()\\-_=+])(?=\\S+$).{8,}$")
     private String newPassword;
 }
