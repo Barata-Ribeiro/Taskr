@@ -2,7 +2,7 @@
 
 import { ProblemDetails } from "@/@types/application"
 import authLogout from "@/actions/auth/auth-logout"
-import pathChangePassword from "@/actions/user/path-change-password"
+import patchChangePassword from "@/actions/user/patch-change-password"
 import ApplicationRequestFormError from "@/components/shared/feedback/ApplicationRequestFormError"
 import InputValidationError from "@/components/shared/feedback/InputValidationError"
 import Loading from "@/components/shared/feedback/Loading"
@@ -14,7 +14,7 @@ import { useActionState, useEffect } from "react"
 import { toast } from "react-toastify"
 
 export default function UserUpdatePassForm() {
-    const [formState, formAction, pending] = useActionState(pathChangePassword, applicationInitialState())
+    const [formState, formAction, pending] = useActionState(patchChangePassword, applicationInitialState())
     const router = useRouter()
 
     useEffect(() => {

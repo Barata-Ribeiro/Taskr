@@ -8,7 +8,7 @@ import { updateUserAccountUrl } from "@/helpers/backend-routes"
 import { passwordUpdateSchema } from "@/helpers/validation/user-schemas"
 import { auth } from "auth"
 
-export default async function pathChangePassword(state: State<unknown>, formData: unknown) {
+export default async function patchChangePassword(state: State<unknown>, formData: unknown) {
     const session = await auth()
 
     try {
