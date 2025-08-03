@@ -3,6 +3,7 @@
 import { ProblemDetails } from "@/@types/application"
 import authLogout from "@/actions/auth/auth-logout"
 import deleteAccount from "@/actions/user/delete-account"
+import Loading from "@/components/shared/feedback/Loading"
 import DefaultButton from "@/components/ui/DefaultButton"
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react"
 import { Trash2Icon, TriangleAlertIcon } from "lucide-react"
@@ -77,7 +78,7 @@ export default function DeleteAccountModal() {
                                     onClick={handleDelete}
                                     disabled={isPending}
                                     aria-disabled={isPending}>
-                                    Deactivate
+                                    {isPending ? <Loading /> : "Deactivate"}
                                 </DefaultButton>
 
                                 <DefaultButton
