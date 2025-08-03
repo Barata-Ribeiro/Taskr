@@ -1,8 +1,11 @@
+import getPublicProfile from "@/actions/user/get-public-profile"
 import UserUpdatePassForm from "@/components/forms/user/UserUpdatePassForm"
+import UserUpdateProfileForm from "@/components/forms/user/UserUpdateProfileForm"
 import DeleteAccountModal from "@/components/modals/DeleteAccountModal"
 import { auth } from "auth"
 import { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
+import { Suspense } from "react"
 
 interface SettingsPageProps {
     params: Promise<{ username: string }>
@@ -20,6 +23,8 @@ export default async function SettingsPage({ params }: Readonly<SettingsPageProp
     if (!session) redirect("/auth/login")
     if (session.user.username !== username) redirect(`/dashboard/${session.user.username}/settings`)
 
+    const profilePromise = getPublicProfile(session.user.username)
+
     return (
         <section aria-labelledby="settings-title">
             <h1 id="settings-title" className="sr-only">
@@ -35,7 +40,9 @@ export default async function SettingsPage({ params }: Readonly<SettingsPageProp
                         </p>
                     </div>
 
-                    {/*TODO: Add user information form here*/}
+                    <Suspense fallback="Loading your profile information...">
+                        <UserUpdateProfileForm profilePromise={profilePromise} />
+                    </Suspense>
                 </div>
 
                 <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-4 py-16 sm:px-6 md:grid-cols-3 lg:px-8">
