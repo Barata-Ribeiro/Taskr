@@ -18,6 +18,14 @@ export default function Avatar({ url, name, size = "small" }: Readonly<AvatarPro
         "extra-large": "size-16 text-xl",
     }
 
+    const sizeNumber = {
+        "extra-small": 24,
+        small: 32,
+        medium: 40,
+        large: 48,
+        "extra-large": 64,
+    }
+
     if (!url) {
         const fallbackAvatarClasses = tw`relative inline-flex items-center justify-center rounded-full bg-gray-500 ring-2 ring-white select-none dark:bg-gray-700 dark:ring-gray-400`
         return (
@@ -29,5 +37,14 @@ export default function Avatar({ url, name, size = "small" }: Readonly<AvatarPro
 
     const avatarClasses = tw`relative inline-block rounded-full object-cover shadow-sm ring-2 ring-white select-none`
 
-    return <Image src={url} alt={`Profile picture of ${name}`} className={twMerge(avatarClasses, sizeClasses[size])} />
+    return (
+        <Image
+            src={url}
+            alt={`Profile picture of ${name}`}
+            className={twMerge(avatarClasses, sizeClasses[size])}
+            width={sizeNumber[size]}
+            height={sizeNumber[size]}
+            priority
+        />
+    )
 }
