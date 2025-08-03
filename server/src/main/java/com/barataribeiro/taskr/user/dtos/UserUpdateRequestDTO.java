@@ -2,7 +2,6 @@ package com.barataribeiro.taskr.user.dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -55,7 +54,6 @@ public class UserUpdateRequestDTO implements Serializable {
     @Size(min = 0, max = 100, message = "Job title must be between 0 and 100 characters.")
     private String jobTitle;
 
-    @NotBlank(message = "Your current password is required to update your account.")
     private String currentPassword;
 
     @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters.")
