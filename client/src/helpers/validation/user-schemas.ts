@@ -27,4 +27,17 @@ const passwordUpdateSchema = z
         }
     })
 
-export { passwordUpdateSchema }
+const avatarUpdateSchema = z.object({
+    avatarUrl: z
+        .url({
+            protocol: /^https$/,
+            hostname: z.regexes.domain,
+        })
+        .trim()
+        .regex(
+            /^(https?:\/\/.*\.(jpg|jpeg|png|gif)(\?.*)?(#.*)?$)/i,
+            "Url must be a valid image URL ending with jpg, jpeg, png, or gif.",
+        ),
+})
+
+export { passwordUpdateSchema, avatarUpdateSchema }
