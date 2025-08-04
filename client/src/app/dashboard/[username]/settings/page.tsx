@@ -2,6 +2,7 @@ import getPublicProfile from "@/actions/user/get-public-profile"
 import UserUpdatePassForm from "@/components/forms/user/UserUpdatePassForm"
 import UserUpdateProfileForm from "@/components/forms/user/UserUpdateProfileForm"
 import DeleteAccountModal from "@/components/modals/DeleteAccountModal"
+import UserUpdateProfileFormSkeleton from "@/components/ui/skeletons/UserUpdateProfileFormSkeleton"
 import { auth } from "auth"
 import { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
@@ -40,7 +41,7 @@ export default async function SettingsPage({ params }: Readonly<SettingsPageProp
                         </p>
                     </div>
 
-                    <Suspense fallback="Loading your profile information...">
+                    <Suspense fallback={<UserUpdateProfileFormSkeleton />}>
                         <UserUpdateProfileForm profilePromise={profilePromise} />
                     </Suspense>
                 </div>
