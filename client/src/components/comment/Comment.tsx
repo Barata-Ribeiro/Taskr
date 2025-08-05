@@ -1,6 +1,7 @@
 "use client"
 
 import type { Comment } from "@/@types/comment"
+import DeleteCommentButton from "@/components/comment/buttons/DeleteCommentButton"
 import ReplyCommentButton from "@/components/comment/buttons/ReplyCommentButton"
 import ViewContentButton from "@/components/comment/buttons/ViewContentButton"
 import SafeMarkdown from "@/components/shared/SafeMarkdown"
@@ -10,9 +11,10 @@ import Avatar from "@/components/user/Avatar"
 import dateFormatter from "@/utils/date-formatter"
 import dateToNowFormatter from "@/utils/date-to-now-formatter"
 import { Button, Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react"
-import { ChevronDownIcon, SquarePenIcon, Trash2Icon } from "lucide-react"
+import { ChevronDownIcon, SquarePenIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
 interface CommentProps {
@@ -25,6 +27,7 @@ const MAX_VISIBLE_DEPTH = 2
 export default function Comment({ comment, depth = 0 }: Readonly<CommentProps>) {
     const [isExpanded, setIsExpanded] = useState(true)
     const hasChildren = comment.children?.length > 0
+    const params = useParams<{ username: string; projectId: string; taskId: string }>()
     const { data: session } = useSession()
 
     useEffect(() => setIsExpanded(depth < MAX_VISIBLE_DEPTH), [depth])
@@ -98,10 +101,13 @@ export default function Comment({ comment, depth = 0 }: Readonly<CommentProps>) 
                         <SquarePenIcon aria-hidden size={16} />
                     </DefaultButton>
 
-                    {/*TODO: Add delete button*/}
-                    <DefaultButton buttonType="ghost" width="fit" isIconOnly>
-                        <Trash2Icon aria-hidden size={16} />
-                    </DefaultButton>
+                    <DeleteCommentButton
+                        projectId={parseInt(params.projectId, 10)}
+                        taskId={comment.taskId}
+                        commentId={comment.id}
+                        session={session}
+                        author={comment.author}
+                    />
                 </div>
 
                 {hasChildren && depth > 0 && (
