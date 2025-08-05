@@ -19,12 +19,12 @@ interface ReplyCommentButtonProps {
 export default function ReplyCommentButton({ session, comment }: Readonly<ReplyCommentButtonProps>) {
     const [open, setOpen] = useState(false)
 
-    const buttonLabel = `Reply to ${comment.user.displayName}`
+    const buttonLabel = `Reply to ${comment.author.displayName}`
     const date = dateFormatter(comment.createdAt)
     const dateToNow = dateToNowFormatter(comment.createdAt).text
     const dateLabel = `Commented on ${date}`
 
-    const isDisabled = session?.user.id === comment.user.id && session?.user.username === comment.user.username
+    const isDisabled = session?.user.id === comment.author.id && session?.user.username === comment.author.username
 
     return (
         <Fragment>
@@ -51,14 +51,14 @@ export default function ReplyCommentButton({ session, comment }: Readonly<ReplyC
                             className="relative max-h-[90dvh] transform overflow-auto rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-2xl sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 dark:bg-gray-800">
                             <header className="relative mb-4 flex h-24 items-center justify-center rounded-md bg-gray-800 text-white dark:bg-gray-700">
                                 <DialogTitle as="h3" className="text-2xl text-balance max-sm:px-1">
-                                    Reply to {comment.user.username}
+                                    Reply to {comment.author.username}
                                 </DialogTitle>
                             </header>
 
                             <div className="my-4 border-b border-gray-200 pb-2 dark:border-gray-700">
                                 <div className="flex flex-col justify-between sm:flex-row sm:items-center">
                                     <p className="order-2 sm:order-1">
-                                        <span className="font-semibold">{comment.user.username}</span> wrote
+                                        <span className="font-semibold">{comment.author.username}</span> wrote
                                     </p>
 
                                     <div className="order-1 flex flex-col gap-2 divide-gray-200 max-sm:divide-y sm:order-2 sm:flex-row sm:divide-x dark:divide-gray-700">

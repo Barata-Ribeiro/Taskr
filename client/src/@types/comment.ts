@@ -3,7 +3,7 @@ import { Author } from "@/@types/user"
 interface Comment {
     id: number
     content: string
-    user: Author
+    author: Author
     taskId: number
     parentId?: number
     childrenCount: number

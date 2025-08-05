@@ -30,8 +30,8 @@ export default function Comment({ comment, depth = 0 }: Readonly<CommentProps>) 
     useEffect(() => setIsExpanded(depth < MAX_VISIBLE_DEPTH), [depth])
 
     const baseUrl = `/dashboard/${session?.user?.username}`
-    const profileUrl = `${baseUrl}/profile/${comment.user.username}`
-    const linkLabel = `View ${comment.user.username}'s profile`
+    const profileUrl = `${baseUrl}/profile/${comment.author.username}`
+    const linkLabel = `View ${comment.author.username}'s profile`
 
     return (
         <div
@@ -56,13 +56,13 @@ export default function Comment({ comment, depth = 0 }: Readonly<CommentProps>) 
                                 title={linkLabel}
                                 target="_blank"
                                 rel="noopener noreferrer">
-                                <Avatar url={comment.user.avatarUrl} name={comment.user.displayName} size="small" />
+                                <Avatar url={comment.author.avatarUrl} name={comment.author.displayName} size="small" />
 
                                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                    {comment.user.displayName}
+                                    {comment.author.displayName}
                                 </span>
 
-                                <Tooltip content={`@${comment.user.username}`} />
+                                <Tooltip content={`@${comment.author.username}`} />
                             </Link>
 
                             <div className="inline-flex gap-x-2 divide-x divide-gray-200 dark:divide-gray-700">
