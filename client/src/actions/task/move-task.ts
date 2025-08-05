@@ -38,9 +38,16 @@ export default async function moveTask(taskId: number, data: MoveRequest) {
             return ResponseError(problemDetails)
         }
 
-        revalidateTag(`tasks-project-${parsedData.data.projectId}`)
-        revalidateTag(`project-${parsedData.data.projectId}`)
-        revalidateTag(`my-projects-${session.user?.username}`)
+        const projectId = parsedData.data.projectId
+
+        const tags = [
+            `tasks-project-${projectId}`,
+            `project-${projectId}`,
+            `project-activities-${projectId}`,
+            `my-projects-${session.user?.username}`,
+        ]
+
+        tags.forEach(revalidateTag)
 
         return { ok: true, error: null, response: json as RestResponse<TasksByStatus> }
     } catch (e: unknown) {
