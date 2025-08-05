@@ -26,6 +26,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Streamable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -80,14 +82,19 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public Set<TaskDTO> getLatestTasksByProject(Long projectId, @NotNull Authentication authentication) {
+    public List<TaskDTO> getLatestTasksByProject(Long projectId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {
             throw new EntityNotFoundException(Project.class.getSimpleName());
         }
 
-        Streamable<Task> tasks = taskRepository.findTop5ByProject_IdOrderByCreatedAtDesc(projectId);
+        Pageable pageable = PageRequest.of(0, 5);
+        List<Long> taskIds = taskRepository.findTop5TaskIdsByProjectIdOrderByCreatedAtDesc(projectId, pageable);
 
-        return new LinkedHashSet<>(tasks.stream().parallel().map(taskBuilder::toTaskDTO).toList());
+        List<Task> tasks = taskRepository.findTasksWithAssigneesByIdIn(taskIds).parallelStream()
+                                         .sorted(Comparator.comparing(Task::getCreatedAt).reversed())
+                                         .toList();
+
+        return taskBuilder.toTaskDTOList(tasks);
     }
 
     @Cacheable(value = "task", key = "#taskId + '_' + #projectId + '_' + #authentication.name")
