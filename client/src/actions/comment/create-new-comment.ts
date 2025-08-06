@@ -47,6 +47,7 @@ export default async function createNewComment(state: State<unknown>, formData: 
         revalidateTag(`task-${taskId}`)
         revalidateTag(`task-${taskId}-comments`)
         revalidateTag(`tasks-project-${projectId}`)
+        revalidateTag(`project-activities-${projectId}`)
         revalidateTag(`project-stats-${projectId}`)
         revalidateTag(`user-account-${session.user?.username}`)
         revalidateTag(`profile-${session.user?.username}`)
