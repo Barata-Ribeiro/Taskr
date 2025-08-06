@@ -41,6 +41,7 @@ export default async function moveTask(taskId: number, data: MoveRequest) {
         const projectId = parsedData.data.projectId
 
         const tags = [
+            `task-${taskId}`,
             `tasks-project-${projectId}`,
             `project-${projectId}`,
             `project-activities-${projectId}`,

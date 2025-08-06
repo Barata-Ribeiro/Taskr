@@ -43,6 +43,7 @@ export default async function updateTaskById(state: State<unknown>, formData: un
             return ResponseError(problemDetails)
         }
 
+        revalidateTag(`tasks-project-${projectId}`)
         revalidateTag(`project-activities-${projectId}`)
         revalidateTag(`tasks-project-${projectId}`)
         revalidateTag(`task-${taskId}`)
