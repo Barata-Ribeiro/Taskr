@@ -2,16 +2,16 @@
 
 import type { Comment } from "@/@types/comment"
 import DeleteCommentButton from "@/components/comment/buttons/DeleteCommentButton"
+import EditCommentButton from "@/components/comment/buttons/EditCommentButton"
 import ReplyCommentButton from "@/components/comment/buttons/ReplyCommentButton"
 import ViewContentButton from "@/components/comment/buttons/ViewContentButton"
 import SafeMarkdown from "@/components/shared/SafeMarkdown"
 import Tooltip from "@/components/shared/Tooltip"
-import DefaultButton from "@/components/ui/DefaultButton"
 import Avatar from "@/components/user/Avatar"
 import dateFormatter from "@/utils/date-formatter"
 import dateToNowFormatter from "@/utils/date-to-now-formatter"
 import { Button, Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react"
-import { ChevronDownIcon, SquarePenIcon } from "lucide-react"
+import { ChevronDownIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -76,7 +76,9 @@ export default function Comment({ comment, depth = 0 }: Readonly<CommentProps>) 
                                 </time>
 
                                 <p className="block text-xs text-gray-300 dark:text-gray-500">
-                                    {dateToNowFormatter(comment.createdAt).text}
+                                    {comment.wasEdited
+                                        ? `Modified ${dateToNowFormatter(comment.updatedAt).text}`
+                                        : dateToNowFormatter(comment.createdAt).text}
                                 </p>
                             </div>
                         </div>
@@ -96,10 +98,7 @@ export default function Comment({ comment, depth = 0 }: Readonly<CommentProps>) 
 
                     <ReplyCommentButton session={session} comment={comment} />
 
-                    {/*TODO: Add edit button*/}
-                    <DefaultButton buttonType="ghost" width="fit" isIconOnly>
-                        <SquarePenIcon aria-hidden size={16} />
-                    </DefaultButton>
+                    <EditCommentButton session={session} comment={comment} />
 
                     <DeleteCommentButton
                         projectId={parseInt(params.projectId, 10)}

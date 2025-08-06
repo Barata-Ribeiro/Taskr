@@ -4,6 +4,7 @@ interface Comment {
     id: number
     content: string
     author: Author
+    wasEdited: boolean
     taskId: number
     parentId?: number
     childrenCount: number
