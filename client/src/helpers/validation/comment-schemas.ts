@@ -16,4 +16,14 @@ const createCommentSchema = z
         return data
     })
 
-export { createCommentSchema }
+const updateCommentSchema = z.object({
+    projectId: z.coerce.number().int(),
+    taskId: z.coerce.number().int(),
+    commentId: z.coerce.number().int(),
+    body: z
+        .string("Comment must not be empty.")
+        .min(5, "Comment must be at least 5 characters.")
+        .transform(val => sanitizeHtml(val)),
+})
+
+export { createCommentSchema, updateCommentSchema }

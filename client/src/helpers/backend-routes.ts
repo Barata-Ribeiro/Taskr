@@ -168,6 +168,10 @@ export function createCommentUrl(taskId: number | string): string {
     return `${API_URL}/comments/task/${taskId}`
 }
 
+export function updateCommentUrl(commentId: number | string, taskId: number | string): string {
+    return `${API_URL}/comments/${commentId}/task/${taskId}`
+}
+
 export function deleteCommentUrl(commentId: number | string, taskId: number | string): string {
     return `${API_URL}/comments/${commentId}/task/${taskId}`
 }
