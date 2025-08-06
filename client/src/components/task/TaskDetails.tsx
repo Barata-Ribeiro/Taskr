@@ -6,8 +6,8 @@ import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMe
 import SafeMarkdown from "@/components/shared/SafeMarkdown"
 import DueDateBadge from "@/components/shared/task/DueDateBadge"
 import Tooltip from "@/components/shared/Tooltip"
+import TaskCompleteStatusBadge from "@/components/task/TaskCompleteStatusBadge"
 import TaskPriorityBadge from "@/components/task/TaskPriorityBadge"
-import TaskStatusBadge from "@/components/task/TaskStatusBadge"
 import Avatar from "@/components/user/Avatar"
 import Link from "next/link"
 
@@ -42,7 +42,7 @@ export default async function TaskDetails({ projectId, taskId, baseUrl }: Readon
 
             <div className="inline-flex items-center gap-x-4">
                 <DueDateBadge date={task.dueDate} />
-                <TaskStatusBadge status={task.status} />
+                {task.status === "DONE" ? <TaskCompleteStatusBadge /> : <DueDateBadge date={task.dueDate} />}
             </div>
 
             <SafeMarkdown markdown={task.description} />

@@ -1,6 +1,7 @@
 import { Task } from "@/@types/task"
 import EditTaskModal from "@/components/modals/EditTaskModal"
 import DueDateBadge from "@/components/shared/task/DueDateBadge"
+import TaskCompleteStatusBadge from "@/components/task/TaskCompleteStatusBadge"
 import TaskPriorityBadge from "@/components/task/TaskPriorityBadge"
 import Avatar from "@/components/user/Avatar"
 import tw from "@/utils/tw"
@@ -76,7 +77,7 @@ export default function TaskCard({ baseUrl, provided, snapshot, projectId, task 
 
                     <div className="grid justify-items-end gap-2">
                         <TaskPriorityBadge taskPriority={task.priority} />
-                        <DueDateBadge date={task.dueDate} />
+                        {task.status === "DONE" ? <TaskCompleteStatusBadge /> : <DueDateBadge date={task.dueDate} />}
                     </div>
                 </div>
             </div>
