@@ -1,18 +1,18 @@
 package com.barataribeiro.taskr.activity.enums;
 
 public enum ActivityType {
-    CREATE_PROJECT, // Done
-    UPDATE_PROJECT, // Done
-    ADD_TASK, // Done
-    UPDATE_TASK, // Done
-    DELETE_TASK, // Done
-    ASSIGN_TASK, // Done
-    UNASSIGN_TASK, // Done
-    COMPLETE_TASK, // Done
-    REOPEN_TASK, // Done
-    ADD_COMMENT, // Todo: add comment event
-    UPDATE_COMMENT, // Todo: add update comment event
-    DELETE_COMMENT, // Todo: add delete comment event
-    ADD_MEMBER, // Todo: add member event
-    REMOVE_MEMBER // Todo: add remove member event
+    CREATE_PROJECT,
+    UPDATE_PROJECT,
+    ADD_TASK,
+    UPDATE_TASK,
+    DELETE_TASK,
+    ASSIGN_TASK,
+    UNASSIGN_TASK,
+    COMPLETE_TASK,
+    REOPEN_TASK,
+    ADD_COMMENT,
+    UPDATE_COMMENT,
+    DELETE_COMMENT,
+    ADD_MEMBER,
+    REMOVE_MEMBER
 }

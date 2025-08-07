@@ -1,12 +1,14 @@
 package com.barataribeiro.taskr.activity;
 
 import com.barataribeiro.taskr.activity.enums.ActivityType;
+import com.barataribeiro.taskr.activity.events.comment.CommentCreatedEvent;
+import com.barataribeiro.taskr.activity.events.comment.CommentDeletedEvent;
+import com.barataribeiro.taskr.activity.events.comment.CommentUpdatedEvent;
+import com.barataribeiro.taskr.activity.events.project.ProjectAddMemberEvent;
 import com.barataribeiro.taskr.activity.events.project.ProjectCreatedEvent;
+import com.barataribeiro.taskr.activity.events.project.ProjectRemoveMemberEvent;
 import com.barataribeiro.taskr.activity.events.project.ProjectUpdateEvent;
 import com.barataribeiro.taskr.activity.events.task.*;
-import com.barataribeiro.taskr.activity.events.comment.CommentCreatedEvent;
-import com.barataribeiro.taskr.activity.events.comment.CommentUpdatedEvent;
-import com.barataribeiro.taskr.activity.events.comment.CommentDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,30 @@ public class ActivityEventListener {
                                     .project(event.getProject())
                                     .build();
 
+        activityRepository.save(activity);
+    }
+
+    @EventListener
+    public void onProjectAddMember(@NotNull ProjectAddMemberEvent event) {
+        final String description = String.format("Added '%s' to the project.", event.getMemberAdded());
+        Activity activity = Activity.builder()
+                                    .username(event.getUsername())
+                                    .action(ActivityType.ADD_MEMBER)
+                                    .description(description)
+                                    .project(event.getProject())
+                                    .build();
+        activityRepository.save(activity);
+    }
+
+    @EventListener
+    public void onProjectRemoveMember(@NotNull ProjectRemoveMemberEvent event) {
+        final String description = String.format("Removed '%s' from the project.", event.getMemberRemoved());
+        Activity activity = Activity.builder()
+                                    .username(event.getUsername())
+                                    .action(ActivityType.REMOVE_MEMBER)
+                                    .description(description)
+                                    .project(event.getProject())
+                                    .build();
         activityRepository.save(activity);
     }
 

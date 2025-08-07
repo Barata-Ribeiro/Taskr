@@ -4,7 +4,9 @@ import com.barataribeiro.taskr.activity.Activity;
 import com.barataribeiro.taskr.activity.ActivityBuilder;
 import com.barataribeiro.taskr.activity.ActivityRepository;
 import com.barataribeiro.taskr.activity.dtos.ActivityDTO;
+import com.barataribeiro.taskr.activity.events.project.ProjectAddMemberEvent;
 import com.barataribeiro.taskr.activity.events.project.ProjectCreatedEvent;
+import com.barataribeiro.taskr.activity.events.project.ProjectRemoveMemberEvent;
 import com.barataribeiro.taskr.activity.events.project.ProjectUpdateEvent;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.ForbiddenRequestException;
@@ -211,6 +213,10 @@ public class ProjectService {
                     eventPublisher
                             .publishEvent(new ProjectMembershipNotificationEvent(this, user, project.getTitle(),
                                                                                  message, authentication.getName()));
+
+                    eventPublisher.publishEvent(new ProjectAddMemberEvent(this, project, authentication.getName(),
+                                                                          user.getUsername()));
+
                     membershipRepository.save(membership);
                 }));
         Optional.ofNullable(body.getMembersToRemove())
@@ -233,6 +239,9 @@ public class ProjectService {
                             .publishEvent(new ProjectMembershipNotificationEvent(this, membership.getUser(),
                                                                                  project.getTitle(), message,
                                                                                  authentication.getName()));
+
+                    eventPublisher.publishEvent(new ProjectRemoveMemberEvent(this, project, authentication.getName(),
+                                                                             membership.getUser().getUsername()));
 
                     membershipRepository.delete(membership);
                 }));

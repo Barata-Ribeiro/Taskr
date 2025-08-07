@@ -127,7 +127,7 @@ class StatisticsControllerTest {
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalTasks"));
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalComments"));
                          assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalMemberships"));
-                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalActivities"));
+                         assertEquals(3, (Integer) JsonPath.read(json, "$.data.totalActivities"));
                      });
     }
 
@@ -164,7 +164,7 @@ class StatisticsControllerTest {
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalOverdueTasks"));
                          assertEquals(0, (Integer) JsonPath.read(json, "$.data.totalComments"));
                          assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalMembers"));
-                         assertEquals(2, (Integer) JsonPath.read(json, "$.data.totalActivities"));
+                         assertEquals(3, (Integer) JsonPath.read(json, "$.data.totalActivities"));
                      });
     }
 
