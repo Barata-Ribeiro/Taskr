@@ -29,10 +29,9 @@ export default function DeleteCommentButton({
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
 
-    const isAuthor = session && session.user.username === author.username
-    const isAdmin = session && session.user.role === "ADMIN"
+    const isAuthor = session?.user.id === author.id && session?.user.username === author.username
 
-    const isButtonDisabled = !isAuthor || !isAdmin
+    // TODO: Add delete route for admins
 
     function handleDelete() {
         startTransition(async () => {
@@ -52,12 +51,7 @@ export default function DeleteCommentButton({
 
     return (
         <Fragment>
-            <DefaultButton
-                buttonType="ghost"
-                width="fit"
-                onClick={() => setOpen(true)}
-                disabled={isButtonDisabled}
-                isIconOnly>
+            <DefaultButton buttonType="ghost" width="fit" onClick={() => setOpen(true)} disabled={!isAuthor} isIconOnly>
                 <Trash2Icon aria-hidden size={16} />
             </DefaultButton>
 
