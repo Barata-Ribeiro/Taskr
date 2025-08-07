@@ -1,5 +1,7 @@
 package com.barataribeiro.taskr.comment;
 
+import com.barataribeiro.taskr.activity.events.comment.CommentDeletedEvent;
+import com.barataribeiro.taskr.activity.events.comment.CommentUpdatedEvent;
 import com.barataribeiro.taskr.comment.dtos.CommentDTO;
 import com.barataribeiro.taskr.comment.dtos.CommentRequestDTO;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
@@ -15,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,7 +37,7 @@ public class CommentService {
     private final TaskRepository taskRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    @Cacheable(value = "commentsByTask", key = "#taskId + '_' + #authentication.name")
+    @Cacheable(value = "commentsByTask")
     @Transactional(readOnly = true)
     public List<CommentDTO> getCommentsByTaskId(Long taskId, @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Tasks_Id(authentication.getName(), taskId)) {
@@ -66,9 +67,8 @@ public class CommentService {
 
     @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
                       @CacheEvict(value = "publicUserProfile", key = "#authentication.name"),
-                      @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectStats", "userStats"},
-                                  allEntries = true),},
-             put = @CachePut(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"))
+                      @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectActivities", "projectStats",
+                                           "userStats"}, allEntries = true),})
     @Transactional
     public CommentDTO createComment(Long taskId, CommentRequestDTO body, @NotNull Authentication authentication) {
         User author = userRepository.findByUsername(authentication.getName())
@@ -106,13 +106,16 @@ public class CommentService {
                              .publishEvent(new NewCommentNotificationEvent(this, assignee, task.getTitle(),
                                                                            author.getUsername())));
 
+        applicationEventPublisher.publishEvent(new NewCommentNotificationEvent(this, author, task.getTitle(),
+                                                                               author.getUsername()));
+
         return commentBuilder.toCommentDTO(commentRepository.saveAndFlush(newComment));
     }
 
     @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
-                      @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectStats", "userStats"},
-                                  allEntries = true),},
-             put = @CachePut(value = "commentsByTask", key = "#taskId + '_' + #authentication.name"))
+                      @CacheEvict(value = "publicUserProfile", key = "#authentication.name"),
+                      @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectActivities", "projectStats",
+                                           "userStats"}, allEntries = true),})
     @Transactional
     public CommentDTO updateComment(Long commentId, Long taskId, @NotNull CommentRequestDTO body,
                                     @NotNull Authentication authentication) {
@@ -123,17 +126,29 @@ public class CommentService {
         comment.setContent(body.getBody());
         comment.setWasEdited(true);
 
+        applicationEventPublisher.publishEvent(new CommentUpdatedEvent(this, comment.getTask().getProject(), comment,
+                                                                       authentication.getName()));
+
         return commentBuilder.toCommentDTO(commentRepository.saveAndFlush(comment));
     }
 
     @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
                       @CacheEvict(value = "publicUserProfile", key = "#authentication.name"),
-                      @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectStats", "userStats"},
-                                  allEntries = true),})
+                      @CacheEvict(value = {"commentsByTask", "task", "globalStats", "projectActivities", "projectStats",
+                                           "userStats"}, allEntries = true),})
     @Transactional
     public void deleteComment(Long commentId, Long taskId, @NotNull Authentication authentication) {
         long wasDeleted = commentRepository
                 .deleteByIdAndTask_IdAndAuthor_Username(commentId, taskId, authentication.getName());
         if (wasDeleted == 0) throw new IllegalRequestException("Comment not found or you are not the author");
+
+        Task task = taskRepository.findById(taskId)
+                                  .orElseThrow(() -> new EntityNotFoundException(Task.class.getSimpleName()));
+
+        String taskTitle = task.getTitle();
+        Project project = task.getProject();
+
+        applicationEventPublisher.publishEvent(new CommentDeletedEvent(this, project, commentId, taskTitle,
+                                                                       authentication.getName()));
     }
 }
