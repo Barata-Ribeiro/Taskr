@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.user;
 
+import com.barataribeiro.taskr.activity.ActivityRepository;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.exceptions.throwables.InvalidCredentialsException;
@@ -36,6 +37,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final MembershipRepository membershipRepository;
     private final MembershipBuilder membershipBuilder;
+    private final ActivityRepository activityRepository;
 
     @Cacheable(value = "publicUserProfile", key = "#username")
     @Transactional(readOnly = true)
@@ -109,6 +111,8 @@ public class UserService {
             if (userRepository.existsByUsernameOrEmailAllIgnoreCase(s, null)) {
                 throw new IllegalRequestException("Username already in use.");
             }
+
+            activityRepository.updateUsernameForAllActivities(userToUpdate.getUsername(), s);
 
             userToUpdate.setUsername(s);
         });
