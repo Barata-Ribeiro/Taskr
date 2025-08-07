@@ -19,8 +19,7 @@ public class ActivityEventListener {
 
     @EventListener
     public void onProjectCreated(@NotNull ProjectCreatedEvent event) {
-        final String description = String.format("User '%s' founded project '%s'.", event.getUsername(),
-                                                 event.getProject().getTitle());
+        final String description = String.format("Founded project '%s'.", event.getProject().getTitle());
 
         Activity activity = Activity.builder()
                                     .username(event.getUsername())
@@ -34,8 +33,7 @@ public class ActivityEventListener {
 
     @EventListener
     public void onProjectUpdated(@NotNull ProjectUpdateEvent event) {
-        final String description = String.format("'%s' updated the project and %s",
-                                                 event.getUsername(), event.getReason());
+        final String description = String.format("Updated the project and %s", event.getReason());
 
         Activity activity = Activity.builder()
                                     .username(event.getUsername())
@@ -51,8 +49,8 @@ public class ActivityEventListener {
 
     @EventListener
     public void onTaskCreated(@NotNull TaskCreatedEvent event) {
-        final String description = String.format("User '%s' created the task '%s' in project '%s'.",
-                                                 event.getUsername(), event.getTask().getTitle(),
+        final String description = String.format("Created the task '%s' in project '%s'.",
+                                                 event.getTask().getTitle(),
                                                  event.getProject().getTitle());
 
         Activity activity = Activity.builder()
@@ -67,8 +65,8 @@ public class ActivityEventListener {
 
     @EventListener
     public void onTaskUpdated(@NotNull TaskUpdatedEvent event) {
-        final String description = String.format("'%s' updated the task '%s' and %s",
-                                                 event.getUsername(), event.getTaskTitle(), event.getReason());
+        final String description = String.format("Updated the task '%s' and %s",
+                                                 event.getTaskTitle(), event.getReason());
 
         Activity activity = Activity.builder()
                                     .username(event.getUsername())
@@ -82,8 +80,8 @@ public class ActivityEventListener {
 
     @EventListener
     public void onTaskAssigned(@NotNull TaskAssignEvent event) {
-        final String description = String.format("'%s' assigned the task '%s' to '%s'.",
-                                                 event.getUsername(), event.getTaskTitle(),
+        final String description = String.format("Assigned the task '%s' to '%s'.",
+                                                 event.getTaskTitle(),
                                                  event.getUserDisplayName());
 
         Activity activity = Activity.builder()
@@ -98,8 +96,8 @@ public class ActivityEventListener {
 
     @EventListener
     public void onTaskUnassigned(@NotNull TaskUnassignEvent event) {
-        final String description = String.format("'%s' unassigned the task '%s' from '%s'.",
-                                                 event.getUsername(), event.getTaskTitle(),
+        final String description = String.format("Unassigned the task '%s' from '%s'.",
+                                                 event.getTaskTitle(),
                                                  event.getUserDisplayName());
 
         Activity activity = Activity.builder()
@@ -114,8 +112,8 @@ public class ActivityEventListener {
 
     @EventListener
     public void onTaskCompleted(@NotNull TaskCompleteEvent event) {
-        final String description = String.format("'%s' completed the task '%s'.",
-                                                 event.getUsername(), event.getTaskTitle());
+        final String description = String.format("Completed the task '%s'.",
+                                                 event.getTaskTitle());
 
         Activity activity = Activity.builder()
                                     .username(event.getUsername())
@@ -129,8 +127,8 @@ public class ActivityEventListener {
 
     @EventListener
     public void onTaskReopened(@NotNull TaskReopenEvent event) {
-        final String description = String.format("'%s' reopened the task '%s'.",
-                                                 event.getUsername(), event.getTaskTitle());
+        final String description = String.format("Reopened the task '%s'.",
+                                                 event.getTaskTitle());
 
         Activity activity = Activity.builder()
                                     .username(event.getUsername())
@@ -144,8 +142,8 @@ public class ActivityEventListener {
 
     @EventListener
     public void onTaskDeleted(@NotNull TaskDeleteEvent event) {
-        final String description = String.format("'%s' deleted the task of identifier '%s'.",
-                                                 event.getUsername(), event.getTaskId());
+        final String description = String.format("Deleted the task of identifier '%s'.",
+                                                 event.getTaskId());
 
         Activity activity = Activity.builder()
                                     .username(event.getUsername())
