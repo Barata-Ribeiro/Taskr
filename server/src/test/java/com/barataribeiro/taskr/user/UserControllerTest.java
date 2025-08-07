@@ -87,7 +87,6 @@ class UserControllerTest {
     @DisplayName("It should update account details successfully")
     void updateAccountDetails() throws Exception {
         UserUpdateRequestDTO body = new UserUpdateRequestDTO();
-        body.setCurrentPassword(DEFAULT_PASSWORD);
         body.setDisplayName("Updated User");
         body.setFullName("Updated Full Name");
         body.setAvatarUrl("https://example.com/avatar.jpg");
@@ -114,11 +113,32 @@ class UserControllerTest {
 
     @Test
     @Order(3)
-    @DisplayName("It should fail to update account details with invalid password")
-    void updateAccountDetailsWithInvalidPassword() throws Exception {
+    @DisplayName("It should update password successfully")
+    void updatePasswordSuccessfully() throws Exception {
+        UserUpdateRequestDTO body = new UserUpdateRequestDTO();
+        body.setCurrentPassword(DEFAULT_PASSWORD);
+        body.setNewPassword("NewStrongPassword!123");
+
+        mockMvcTester.patch().uri("/api/v1/users/me")
+                     .header("Authorization", "Bearer " + accessToken)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(Jackson2ObjectMapperBuilder.json().build().writeValueAsBytes(body))
+                     .assertThat()
+                     .hasStatusOk()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+                         assertNotNull(JsonPath.read(json, "$.data"), "Data should not be null");
+                     });
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("It should fail to update password with wrong current password")
+    void updatePasswordWithWrongCurrentPassword() throws Exception {
         UserUpdateRequestDTO body = new UserUpdateRequestDTO();
         body.setCurrentPassword("WrongPassword123!");
-        body.setDisplayName("Invalid Update");
+        body.setNewPassword("AnotherStrongPassword!456");
 
         mockMvcTester.patch().uri("/api/v1/users/me")
                      .header("Authorization", "Bearer " + accessToken)
@@ -130,11 +150,10 @@ class UserControllerTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("It should fail to update account details with existing username")
     void updateAccountDetailsWithExistingUsername() throws Exception {
         UserUpdateRequestDTO body = new UserUpdateRequestDTO();
-        body.setCurrentPassword(DEFAULT_PASSWORD);
         body.setUsername("awesomenewuser");
 
         mockMvcTester.patch().uri("/api/v1/users/me")
@@ -147,11 +166,10 @@ class UserControllerTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     @DisplayName("It should fail to update account details with existing email")
     void updateAccountDetailsWithExistingEmail() throws Exception {
         UserUpdateRequestDTO body = new UserUpdateRequestDTO();
-        body.setCurrentPassword(DEFAULT_PASSWORD);
         body.setEmail("awesomenewuser@example.com");
 
         mockMvcTester.patch().uri("/api/v1/users/me")
@@ -164,15 +182,15 @@ class UserControllerTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     @DisplayName("It should fail to update account details with invalid properties")
     void updateAccountDetailsWithInvalidProperties() throws Exception {
         UserUpdateRequestDTO body = new UserUpdateRequestDTO();
-        body.setCurrentPassword(DEFAULT_PASSWORD);
         body.setDisplayName("A");
         body.setFullName("12345");
         body.setAvatarUrl("invalid-url");
         body.setNewPassword("short");
+        body.setCurrentPassword(DEFAULT_PASSWORD);
 
         mockMvcTester.patch().uri("/api/v1/users/me")
                      .header("Authorization", "Bearer " + accessToken)
@@ -184,7 +202,7 @@ class UserControllerTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     @DisplayName("It should delete account successfully")
     void deleteAccount() {
         mockMvcTester.delete().uri("/api/v1/users/me")
