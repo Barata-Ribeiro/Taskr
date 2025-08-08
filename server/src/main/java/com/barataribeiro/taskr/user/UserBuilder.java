@@ -3,6 +3,7 @@ package com.barataribeiro.taskr.user;
 import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
 import com.barataribeiro.taskr.notification.Notification;
 import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
+import com.barataribeiro.taskr.user.dtos.UserAuthorDTO;
 import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
 import jakarta.annotation.PostConstruct;
@@ -88,6 +89,10 @@ public class UserBuilder {
 
     public UserProfileDTO toUserProfileDTO(User user) {
         return modelMapper.map(user, UserProfileDTO.class);
+    }
+
+    public UserAuthorDTO toAuthorDTO(User user) {
+        return modelMapper.map(user, UserAuthorDTO.class);
     }
 
     public User toUser(RegistrationRequestDTO body) {
