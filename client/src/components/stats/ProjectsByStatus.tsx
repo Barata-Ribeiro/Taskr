@@ -32,11 +32,16 @@ export default function ProjectsByStatus({ data }: Readonly<ProjectsByStatusProp
                 Distribution of projects by status
             </small>
 
-            <div className="rounded-lg bg-transparent dark:bg-gray-200">
-                <VictoryChart width={350} theme={VictoryTheme.clean}>
-                    <VictoryBar data={projectsByStatus} />
-                </VictoryChart>
-            </div>
+            {data.totalProjects > 0 && (
+                <div className="rounded-lg bg-transparent dark:bg-gray-200">
+                    <VictoryChart width={350} theme={VictoryTheme.clean}>
+                        <VictoryBar data={projectsByStatus} />
+                    </VictoryChart>
+                </div>
+            )}
+            {data.totalProjects === 0 && (
+                <p className="rounded-lg bg-transparent py-8 text-center dark:bg-gray-900">No projects found.</p>
+            )}
         </div>
     )
 }
