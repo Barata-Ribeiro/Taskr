@@ -16,7 +16,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
 
     @Query(value = """
                    select
-                        count(*) as totalProjects,
+                        COALESCE(count(*), 0) as totalProjects,
                         sum(case when created_at >= current_timestamp - interval '7' day then 1 else 0 end) as totalProjectsLast7Days,
                         sum(case when created_at >= current_timestamp - interval '30' day then 1 else 0 end) as totalProjectsLast30Days,
                         sum(case when status = 'NOT_STARTED' then 1 else 0 end) as totalStatusNotStarted,

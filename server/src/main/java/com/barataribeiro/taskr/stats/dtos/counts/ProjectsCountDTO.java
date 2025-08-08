@@ -12,13 +12,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectsCountDTO implements Serializable {
-    private long totalProjects;
-    private long totalProjectsLast7Days;
-    private long totalProjectsLast30Days;
-    private long totalStatusNotStarted;
-    private long totalStatusInProgress;
-    private long totalStatusCompleted;
-    private long totalStatusOnHold;
-    private long totalStatusCancelled;
-    private long totalOverdue;
+    private Long totalProjects;
+    private Long totalProjectsLast7Days;
+    private Long totalProjectsLast30Days;
+    private Long totalStatusNotStarted;
+    private Long totalStatusInProgress;
+    private Long totalStatusCompleted;
+    private Long totalStatusOnHold;
+    private Long totalStatusCancelled;
+    private Long totalOverdue;
 }
