@@ -266,6 +266,16 @@ export default async function MyProjectsPage({ params, searchParams }: Readonly<
                                             </tr>
                                         )
                                     })}
+
+                                    {content.length === 0 && (
+                                        <tr>
+                                            <td
+                                                colSpan={7}
+                                                className="px-3 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                                You have not created any projects yet.
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
 

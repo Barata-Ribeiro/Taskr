@@ -207,8 +207,10 @@ export default function NotificationTable({ notifications, pagination }: Readonl
 
                                 {pagination.totalElements <= 0 && (
                                     <tbody>
-                                        <tr className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                            <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                                        <tr>
+                                            <td
+                                                colSpan={6}
+                                                className="px-3 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                                                 No notifications found.
                                             </td>
                                         </tr>
