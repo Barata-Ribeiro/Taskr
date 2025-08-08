@@ -4,6 +4,7 @@ import GlobalStats from "@/components/stats/GlobalStats"
 import ProjectStatsList from "@/components/stats/ProjectStatsList"
 import DividerIconOnly from "@/components/ui/DividerIconOnly"
 import GlobalStatsSkeleton from "@/components/ui/skeletons/GlobalStatsSkeleton"
+import ProjectStatsListSkeleton from "@/components/ui/skeletons/ProjectStatsListSkeleton"
 import { auth } from "auth"
 import { ChartPieIcon } from "lucide-react"
 import { Metadata } from "next"
@@ -38,9 +39,8 @@ export default async function StatsPage({ params }: Readonly<StatsPageProps>) {
 
             <DividerIconOnly icon={ChartPieIcon} />
 
-            {/*// TODO: Add project-specific loading skeleton*/}
-            <Suspense fallback={<div>Loading...</div>}>
-                <ProjectStatsList projectsPromise={myProjectsPromise} baseUrl={baseUrl} />{" "}
+            <Suspense fallback={<ProjectStatsListSkeleton />}>
+                <ProjectStatsList projectsPromise={myProjectsPromise} baseUrl={baseUrl} />
             </Suspense>
 
             <DividerIconOnly icon={ChartPieIcon} />

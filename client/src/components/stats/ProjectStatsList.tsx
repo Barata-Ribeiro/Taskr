@@ -7,11 +7,21 @@ import getProjectStats from "@/actions/stats/get-project-stats"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import Loading from "@/components/shared/feedback/Loading"
 import DefaultButton from "@/components/ui/DefaultButton"
-import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
+import ProjectStatsSkeleton from "@/components/ui/skeletons/ProjectStatsSkeleton"
 import getFallbackInitials from "@/utils/get-fallback-initials"
 import tw from "@/utils/tw"
-import { Button } from "@headlessui/react"
-import { ChevronsRightIcon } from "lucide-react"
+import {
+    ChevronsRightIcon,
+    UsersIcon,
+    MessageSquareIcon,
+    ActivityIcon,
+    ListChecksIcon,
+    ClipboardListIcon,
+    ClockIcon,
+    CheckCircle2Icon,
+    AlertTriangleIcon,
+} from "lucide-react"
+import Link from "next/link"
 import { use, useState, useTransition } from "react"
 import { twMerge } from "tailwind-merge"
 
@@ -26,7 +36,8 @@ export default function ProjectStatsList({ projectsPromise, baseUrl }: Readonly<
     const [pagination, setPagination] = useState(initialProjects?.response?.data?.page ?? null)
     const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
     const [projectStats, setProjectStats] = useState<ProjectStats | null>(null)
-    const [isPending, startTransition] = useTransition()
+    const [isProjectsPending, startProjectTransition] = useTransition()
+    const [isStatsPending, startStatsTransition] = useTransition()
     const [error, setError] = useState<string | null>(null)
 
     if (!initialProjects?.response?.data) {
@@ -40,9 +51,9 @@ export default function ProjectStatsList({ projectsPromise, baseUrl }: Readonly<
     const hasMore = pagination && (pagination.number + 1) * pagination.size < pagination.totalElements
 
     function loadMoreProjects() {
-        if (isPending || !hasMore) return
+        if (isProjectsPending || !hasMore) return
 
-        startTransition(async () => {
+        startProjectTransition(async () => {
             setError(null)
 
             try {
@@ -81,9 +92,9 @@ export default function ProjectStatsList({ projectsPromise, baseUrl }: Readonly<
     }
 
     function loadProjectStats(projectId: number) {
-        if (isPending) return
+        if (isStatsPending) return
 
-        startTransition(async () => {
+        startStatsTransition(async () => {
             setSelectedProjectId(projectId)
             setProjectStats(null)
 
@@ -120,8 +131,59 @@ export default function ProjectStatsList({ projectsPromise, baseUrl }: Readonly<
         CANCELLED: "bg-red-500 text-red-800 dark:bg-red-600 dark:text-red-200",
     }
 
-    // TODO: Add loading state for stats fetch with a skeleton
-    // TODO: Create a component for displaying project stats
+    const properStatsConfig = [
+        {
+            key: "totalComments",
+            label: "Comments",
+            icon: <MessageSquareIcon aria-hidden size={24} className="text-blue-500" />,
+            bg: "bg-blue-50 dark:bg-blue-900",
+        },
+        {
+            key: "totalMembers",
+            label: "Members",
+            icon: <UsersIcon aria-hidden size={24} className="text-green-500" />,
+            bg: "bg-green-50 dark:bg-green-900",
+        },
+        {
+            key: "totalActivities",
+            label: "Activities",
+            icon: <ActivityIcon aria-hidden size={24} className="text-purple-500" />,
+            bg: "bg-purple-50 dark:bg-purple-900",
+        },
+    ]
+
+    const otherStatsConfig = [
+        {
+            key: "totalTasks",
+            label: "Total Tasks",
+            icon: <ClipboardListIcon aria-hidden size={24} className="text-indigo-500" />,
+            bg: "bg-indigo-50 dark:bg-indigo-900",
+        },
+        {
+            key: "tasksToDo",
+            label: "Tasks To Do",
+            icon: <ListChecksIcon aria-hidden size={24} className="text-gray-500" />,
+            bg: "bg-gray-50 dark:bg-gray-800",
+        },
+        {
+            key: "tasksInProgress",
+            label: "In Progress",
+            icon: <ClockIcon aria-hidden size={24} className="text-yellow-500" />,
+            bg: "bg-yellow-50 dark:bg-yellow-900",
+        },
+        {
+            key: "tasksDone",
+            label: "Done",
+            icon: <CheckCircle2Icon aria-hidden size={24} className="text-green-500" />,
+            bg: "bg-green-50 dark:bg-green-900",
+        },
+        {
+            key: "totalOverdueTasks",
+            label: "Overdue",
+            icon: <AlertTriangleIcon aria-hidden size={24} className="text-red-500" />,
+            bg: "bg-red-50 dark:bg-red-900",
+        },
+    ]
 
     return (
         <section aria-labelledby="project-stats-heading" aria-describedby="project-stats-description">
@@ -148,27 +210,26 @@ export default function ProjectStatsList({ projectsPromise, baseUrl }: Readonly<
                                 <div className={mergedClasses}>{projectInitials}</div>
                                 <div className="flex flex-1 items-center justify-between truncate rounded-r-md border-t border-r border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                                     <div className="flex-1 truncate px-4 py-2 text-sm">
-                                        <Button
-                                            type="button"
-                                            onClick={() => loadProjectStats(project.id)}
-                                            aria-label={loadStatsLabel}
-                                            title={loadStatsLabel}
+                                        <Link
+                                            href={projectUrl}
+                                            aria-label={projectLabel}
+                                            title={projectLabel}
                                             className="cursor-pointer text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500 hover:underline active:text-indigo-700 disabled:pointer-events-none disabled:grayscale-100 dark:text-indigo-400 dark:hover:text-indigo-300 dark:active:text-indigo-500">
                                             {project.title}
-                                        </Button>
+                                        </Link>
 
                                         <p className="text-gray-500 dark:text-gray-400">By @{project.owner.username}</p>
                                     </div>
                                     <div className="shrink-0 pr-2">
-                                        <DefaultLinkButton
-                                            href={projectUrl}
+                                        <DefaultButton
+                                            onClick={() => loadProjectStats(project.id)}
                                             buttonType="ghost"
                                             width="fit"
                                             isIconOnly
-                                            aria-label={projectLabel}
-                                            title={projectLabel}>
+                                            aria-label={loadStatsLabel}
+                                            title={loadStatsLabel}>
                                             <ChevronsRightIcon aria-hidden className="size-5 text-inherit" />
-                                        </DefaultLinkButton>
+                                        </DefaultButton>
                                     </div>
                                 </div>
                             </li>
@@ -181,8 +242,8 @@ export default function ProjectStatsList({ projectsPromise, baseUrl }: Readonly<
                 {error && <DashboardErrorMessage message={error} />}
 
                 {hasMore && (
-                    <DefaultButton disabled={isPending} width="fit" onClick={loadMoreProjects}>
-                        {isPending ? <Loading /> : "Load more projects"}
+                    <DefaultButton disabled={isProjectsPending} width="fit" onClick={loadMoreProjects}>
+                        {isProjectsPending ? <Loading /> : "Load more projects"}
                     </DefaultButton>
                 )}
 
@@ -191,41 +252,63 @@ export default function ProjectStatsList({ projectsPromise, baseUrl }: Readonly<
                 )}
             </div>
 
+            {isStatsPending && <ProjectStatsSkeleton />}
             {selectedProjectId && projectStats && (
                 <div className="mt-4 md:mt-6">
                     <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">Project Stats</h2>
-                    <pre>{JSON.stringify(projectStats, null, 2)}</pre>
 
+                    {/* Proper Project Stats display */}
+                    <div className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
+                        {properStatsConfig.map(stat => (
+                            <div
+                                key={stat.key}
+                                className={`flex items-center rounded-lg p-4 shadow-sm ${stat.bg} transition hover:scale-[1.03]`}
+                                title={stat.label}>
+                                <div className="mr-4">{stat.icon}</div>
+                                <div>
+                                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                        {stat.label}
+                                    </div>
+                                    <div className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                        {projectStats[stat.key as keyof typeof projectStats]}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Other Project Stats display */}
                     <div
                         aria-labelledby="other-project-statistics-title"
                         aria-label="Other Project statistics"
-                        className="mt-4 md:mt-6"
+                        className="mt-8"
                         role="region">
-                        <h3 id="other-project-statistics-title" className="text-base font-semibold text-gray-900">
+                        <h3
+                            id="other-project-statistics-title"
+                            className="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100">
                             Other Statistics
                         </h3>
 
                         <div
-                            className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-4"
+                            className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
                             role="list"
                             aria-label="List of other project statistics">
-                            {Object.entries(projectStats)
-                                .filter(([key]) => key.startsWith("tasks") && key === "totalTasks")
-                                .map(([key, value]: [string, number]) => (
-                                    <dl
-                                        key={key}
-                                        className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm sm:p-6 dark:bg-gray-800"
-                                        role="listitem"
-                                        aria-labelledby={`stat-title-${key}`}>
-                                        <dt
-                                            className="text-sm font-medium text-gray-500 capitalize dark:text-gray-400"
-                                            id={`stat-title-${key}`}>
-                                            {key.replace(/([A-Z])/g, " $1").toLowerCase()}
-                                        </dt>
-
-                                        <dd className="mt-1 text-3xl font-semibold tracking-tight">{value}</dd>
-                                    </dl>
-                                ))}
+                            {otherStatsConfig.map(stat => (
+                                <div
+                                    key={stat.key}
+                                    className={`flex items-center rounded-lg p-4 shadow-sm ${stat.bg} transition hover:scale-[1.03]`}
+                                    title={stat.label}>
+                                    <div className="mr-4">{stat.icon}</div>
+                                    <div>
+                                        <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                            {stat.label}
+                                        </div>
+                                        <div className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                            {projectStats[stat.key as keyof typeof projectStats]}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
