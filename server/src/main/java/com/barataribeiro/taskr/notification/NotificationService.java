@@ -62,6 +62,15 @@ public class NotificationService {
                                      .map(notificationBuilder::toNotificationDTO);
     }
 
+    @Cacheable(value = "notification", key = "#notifId + '_' + #authentication.name")
+    @Transactional(readOnly = true)
+    public NotificationDTO getNotificationById(Long notifId, @NotNull Authentication authentication) {
+        Notification notification = notificationRepository
+                .findByIdAndRecipient_Username(notifId, authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException(Notification.class.getSimpleName()));
+        return notificationBuilder.toNotificationDTO(notification);
+    }
+
     @Caching(evict = {@CacheEvict(value = "notifications", key = "#authentication.name"),},
              put = @CachePut(value = "notification", key = "#notifId + '_' + #authentication.name"))
     @Transactional

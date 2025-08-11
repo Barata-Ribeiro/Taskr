@@ -45,6 +45,16 @@ public class NotificationController {
                                                     "Notifications retrieved successfully", notifications));
     }
 
+    @Operation(summary = "Get a notification by ID",
+               description = "Retrieves a specific notification for the authenticated user by its ID.")
+    @GetMapping("/{notifId}")
+    public ResponseEntity<RestResponse<NotificationDTO>> getNotificationById(@PathVariable Long notifId,
+                                                                             Authentication authentication) {
+        NotificationDTO notification = notificationService.getNotificationById(notifId, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Notification retrieved successfully", notification));
+    }
+
     @Operation(summary = "Change the notification status",
                description = "Updates the status of a notification for the authenticated user.")
     @PatchMapping("/{notifId}/status")
