@@ -1,4 +1,5 @@
 import { Notification } from "@/@types/notification"
+import NotificationTypeBadge from "@/components/notification/NotificationTypeBadge"
 import DefaultButton from "@/components/ui/DefaultButton"
 import DefaultCheckbox from "@/components/ui/DefaultCheckbox"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
@@ -65,7 +66,9 @@ export default function NotificationRow({
                 {notification.message}
             </td>
 
-            <td className="px-6 py-4 whitespace-nowrap capitalize">{notification.type.toLowerCase()}</td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <NotificationTypeBadge type={notification.type} />
+            </td>
 
             <td className="px-6 py-4 whitespace-nowrap">
                 <time
