@@ -36,7 +36,6 @@ class NotificationControllerTest {
     private final MockMvcTester mockMvcTester;
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
-    private final UserBuilder userBuilder;
 
     @BeforeAll
     static void setUp(@Autowired @NotNull UserRepository userRepository,
@@ -110,6 +109,26 @@ class NotificationControllerTest {
 
     @Test
     @Order(3)
+    @DisplayName("It should retrieve a notification by ID successfully")
+    void getNotificationByIdSuccessfully() {
+        mockMvcTester.get().uri("/api/v1/notifications/{notifId}", notificationId)
+                     .header("Authorization", "Bearer " + accessToken)
+                     .accept(MediaType.APPLICATION_JSON)
+                     .assertThat()
+                     .hasStatusOk()
+                     .bodyJson()
+                     .satisfies(jsonContent -> {
+                         String json = jsonContent.getJson();
+
+                         assertEquals("Notification retrieved successfully", JsonPath.read(json, "$.message"));
+                         assertNotNull(JsonPath.read(json, "$.data"), "Notification data should not be null");
+                         assertEquals("Welcome", JsonPath.read(json, "$.data.title"));
+                         assertEquals("Welcome to Taskr!", JsonPath.read(json, "$.data.message"));
+                     });
+    }
+
+    @Test
+    @Order(4)
     @DisplayName("It should change the notification status successfully")
     void changeNotificationStatusSuccessfully() {
         mockMvcTester.patch().uri("/api/v1/notifications/{notifId}/status", notificationId)
@@ -130,7 +149,7 @@ class NotificationControllerTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("It should change notification status in bulk successfully")
     void changeNotificationsStatusInBulkSuccessfully() throws Exception {
         User user = userRepository.findByUsername("newuser")
@@ -178,9 +197,9 @@ class NotificationControllerTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     @DisplayName("It should delete notifications in bulk successfully")
-    void deleteNotificationsInBulkSuccessfully() throws Exception {
+    void deleteNotificationsInBulkSuccessfully() {
         User user = userRepository.findByUsername("newuser")
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
@@ -230,7 +249,7 @@ class NotificationControllerTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     @DisplayName("It should delete the notification successfully")
     void deleteNotificationSuccessfully() {
         mockMvcTester.delete().uri("/api/v1/notifications/{notifId}", notificationId)
