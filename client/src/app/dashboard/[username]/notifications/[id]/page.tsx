@@ -1,16 +1,15 @@
-import { Notification } from "@/@types/notification"
 import changeNotifStatus from "@/actions/notification/change-notif-status"
 import deleteNotifById from "@/actions/notification/delete-notif-by-id"
+import getNotifById from "@/actions/notification/get-notif-by-id"
 import NotificationTypeBadge from "@/components/notification/NotificationTypeBadge"
 import DefaultButton from "@/components/ui/DefaultButton"
 import dateFormatter from "@/utils/date-formatter"
 import dateToNowFormatter from "@/utils/date-to-now-formatter"
+import { auth } from "auth"
+import { MailIcon, MailOpenIcon, MoveLeftIcon, Trash2Icon } from "lucide-react"
+import { Metadata } from "next"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
-import { auth } from "auth"
-import { Metadata } from "next"
-import getAllNotificationsPaginated from "@/actions/notification/get-all-notifications-paginated"
-import { MailIcon, MailOpenIcon, MoveLeftIcon, Trash2Icon } from "lucide-react"
 import React from "react"
 
 export const metadata: Metadata = {
@@ -19,19 +18,17 @@ export const metadata: Metadata = {
 }
 
 interface NotificationPageProps {
-    params: { id: string; username: string }
+    params: Promise<{ username: string; id: string }>
 }
 
 export default async function NotificationPage({ params }: Readonly<NotificationPageProps>) {
-    const { id, username } = params
-    const session = await auth()
+    const [{ id, username }, session] = await Promise.all([params, auth()])
+
     if (!session) redirect("/auth/login")
     if (session.user?.username !== username) redirect(`/dashboard/${session.user?.username}/notifications`)
 
-    // TODO: Change this to a getNotificationById function once implemented in the backend
-    const state = await getAllNotificationsPaginated({ page: 0, perPage: 50 })
-    const notifications = state.response?.data?.content as Notification[]
-    const notification = notifications?.find(n => n.id === Number(id))
+    const state = await getNotifById(id)
+    const notification = state.response?.data
     if (!notification) return notFound()
 
     async function handleReadToggle() {
