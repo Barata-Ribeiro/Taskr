@@ -76,6 +76,10 @@ export function allNotificationsUrl(queryParams: QueryParams): string {
     return `${API_URL}/notifications${queryString}`
 }
 
+export function notificationByIdUrl(notifId: number | string): string {
+    return `${API_URL}/notifications/${notifId}`
+}
+
 export function changeNotificationStatusUrl(notifId: number | string, isRead: boolean): string {
     return `${API_URL}/notifications/${notifId}/status?isRead=${isRead}`
 }
