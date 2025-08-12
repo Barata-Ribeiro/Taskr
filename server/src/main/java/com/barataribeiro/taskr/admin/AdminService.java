@@ -1,6 +1,10 @@
 package com.barataribeiro.taskr.admin;
 
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
+import com.barataribeiro.taskr.project.Project;
+import com.barataribeiro.taskr.project.ProjectBuilder;
+import com.barataribeiro.taskr.project.ProjectRepository;
+import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
@@ -20,6 +24,8 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final UserBuilder userBuilder;
+    private final ProjectRepository projectRepository;
+    private final ProjectBuilder projectBuilder;
 
     @Transactional(readOnly = true)
     public Page<UserSecurityDTO> getAllUsers(@NotNull PageQueryParamsDTO pageQueryParams) {
@@ -27,6 +33,14 @@ public class AdminService {
                                                     pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
         Page<User> users = userRepository.findAll(pageable);
         return users.map(userBuilder::toUserSecurityDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProjectDTO> getAllProjects(@NotNull PageQueryParamsDTO pageQueryParams) {
+        final PageRequest pageable = getPageRequest(pageQueryParams.getPage(), pageQueryParams.getPerPage(),
+                                                    pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
+        Page<Project> projects = projectRepository.findAll(pageable);
+        return projects.map(projectBuilder::toProjectDTO);
     }
 
     private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {

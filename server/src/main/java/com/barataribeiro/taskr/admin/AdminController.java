@@ -2,6 +2,7 @@ package com.barataribeiro.taskr.admin;
 
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.helpers.RestResponse;
+import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,5 +33,16 @@ public class AdminController {
         Page<UserSecurityDTO> users = adminService.getAllUsers(pageQueryParams);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Users retrieved successfully", users));
+    }
+
+    @RequestMapping("/projects")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get all projects",
+               description = "Retrieves a paginated list of all projects in the system.")
+    public ResponseEntity<RestResponse<Page<ProjectDTO>>> getAllProjects(
+            @ModelAttribute PageQueryParamsDTO pageQueryParams) {
+        Page<ProjectDTO> projects = adminService.getAllProjects(pageQueryParams);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Projects retrieved successfully", projects));
     }
 }
