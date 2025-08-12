@@ -11,12 +11,14 @@ import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
 import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
+import com.barataribeiro.taskr.user.enums.Roles;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +45,19 @@ public class AdminService {
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 
         user.setIsVerified(!user.getIsVerified());
+
+        return userBuilder.toUserProfileDTO(userRepository.saveAndFlush(user));
+    }
+
+    @Transactional
+    public UserProfileDTO toggleUserBanStatus(String username, @NotNull Authentication authentication) {
+        if (authentication.getName().equals(username)) {
+            throw new IllegalArgumentException("You cannot ban yourself");
+        }
+        User user = userRepository.findByUsername(username)
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        user.setRole(user.getRole() == Roles.BANNED ? Roles.USER : Roles.BANNED);
 
         return userBuilder.toUserProfileDTO(userRepository.saveAndFlush(user));
     }
