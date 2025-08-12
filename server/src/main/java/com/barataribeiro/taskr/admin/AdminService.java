@@ -1,0 +1,37 @@
+package com.barataribeiro.taskr.admin;
+
+import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
+import com.barataribeiro.taskr.user.User;
+import com.barataribeiro.taskr.user.UserBuilder;
+import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
+public class AdminService {
+
+    private final UserRepository userRepository;
+    private final UserBuilder userBuilder;
+
+    @Transactional(readOnly = true)
+    public Page<UserSecurityDTO> getAllUsers(@NotNull PageQueryParamsDTO pageQueryParams) {
+        final PageRequest pageable = getPageRequest(pageQueryParams.getPage(), pageQueryParams.getPerPage(),
+                                                    pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
+        Page<User> users = userRepository.findAll(pageable);
+        return users.map(userBuilder::toUserSecurityDTO);
+    }
+
+    private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        orderBy = orderBy.equalsIgnoreCase("createdAt") ? "createdAt" : orderBy;
+        return PageRequest.of(page, perPage, Sort.by(sortDirection, orderBy));
+    }
+}
