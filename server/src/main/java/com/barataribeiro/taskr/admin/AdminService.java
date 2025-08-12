@@ -9,6 +9,7 @@ import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
 import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
 import com.barataribeiro.taskr.user.enums.Roles;
@@ -37,6 +38,13 @@ public class AdminService {
                                                     pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
         Page<User> users = userRepository.findAll(pageable);
         return users.map(userBuilder::toUserSecurityDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public UserAccountDTO getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+        return userBuilder.toUserAccountDTO(user);
     }
 
     @Transactional
