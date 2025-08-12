@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.admin;
 
+import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.project.ProjectBuilder;
@@ -8,6 +9,7 @@ import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +35,16 @@ public class AdminService {
                                                     pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
         Page<User> users = userRepository.findAll(pageable);
         return users.map(userBuilder::toUserSecurityDTO);
+    }
+
+    @Transactional
+    public UserProfileDTO toggleUserVerification(String username) {
+        User user = userRepository.findByUsername(username)
+                                  .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
+
+        user.setIsVerified(!user.getIsVerified());
+
+        return userBuilder.toUserProfileDTO(userRepository.saveAndFlush(user));
     }
 
     @Transactional(readOnly = true)
