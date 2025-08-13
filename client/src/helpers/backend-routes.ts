@@ -42,6 +42,44 @@ export function logoutAuthUrl(): string {
 }
 
 // ===============================================================
+// ===================  Admin Module Functions  ==================
+// ===============================================================
+
+export function adminAllUsersUrl(queryParams: QueryParams): string {
+    const queryString = buildQueryParams({ ...queryParams })
+    return `${API_URL}/admin/users${queryString}`
+}
+
+export function adminUserByUsernameUrl(username: string): string {
+    return `${API_URL}/admin/users/${username}`
+}
+
+export function adminToggleUserVerificationUrl(username: string): string {
+    return `${API_URL}/admin/users/${username}/toggle-verification`
+}
+
+export function adminToggleUserBanUrl(username: string): string {
+    return `${API_URL}/admin/users/${username}/toggle-ban`
+}
+
+export function adminDeleteUserByUsernameUrl(username: string): string {
+    return `${API_URL}/admin/users/${username}`
+}
+
+export function adminAllProjectsUrl(queryParams: QueryParams): string {
+    const queryString = buildQueryParams({ ...queryParams })
+    return `${API_URL}/admin/projects${queryString}`
+}
+
+export function adminProjectByIdUrl(projectId: number | string): string {
+    return `${API_URL}/admin/projects/${projectId}`
+}
+
+export function adminDeleteProjectByIdUrl(projectId: number | string): string {
+    return `${API_URL}/admin/projects/${projectId}`
+}
+
+// ===============================================================
 // ===================  User Module Functions  ===================
 // ===============================================================
 export function publicUserProfileUrl(username: string): string {
