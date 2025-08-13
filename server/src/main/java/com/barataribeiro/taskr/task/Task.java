@@ -85,14 +85,14 @@ public class Task implements Serializable {
 
     // Relationships
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "project_id", nullable = false)
     @ToString.Exclude
     @JsonIgnore
     private Project project;
 
     @Builder.Default
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "task_assignee", joinColumns = @JoinColumn(name = "task_id"),
                inverseJoinColumns = @JoinColumn(name = "user_id"))
     @ToString.Exclude
@@ -100,7 +100,7 @@ public class Task implements Serializable {
     private Set<User> assignees = new LinkedHashSet<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @JsonIgnore
     private Set<Comment> comments = new LinkedHashSet<>();

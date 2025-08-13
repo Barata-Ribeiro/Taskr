@@ -56,7 +56,7 @@ public class Activity implements Serializable {
     @UpdateTimestamp
     private Instant updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "project_id", nullable = false)
     @ToString.Exclude
     @JsonIgnore

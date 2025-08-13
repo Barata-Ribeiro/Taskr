@@ -42,7 +42,7 @@ public class Comment implements Serializable {
     private String content;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
@@ -51,12 +51,12 @@ public class Comment implements Serializable {
     private boolean wasEdited = false;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "task_id", nullable = false)
     private Task task;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "parent_id")
     private Comment parent;
 

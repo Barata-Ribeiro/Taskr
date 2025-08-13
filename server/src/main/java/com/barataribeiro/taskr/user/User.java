@@ -117,13 +117,13 @@ public class User implements UserDetails, Serializable {
     // Relations
 
     @Builder.Default
-    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @JsonIgnore
     private Set<Project> projects = new HashSet<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @JsonIgnore
     private Set<Membership> memberships = new HashSet<>();
@@ -135,7 +135,7 @@ public class User implements UserDetails, Serializable {
     private Set<Task> assignedTasks = new HashSet<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @JsonIgnore
     private Set<Comment> comments = new HashSet<>();
@@ -143,7 +143,7 @@ public class User implements UserDetails, Serializable {
     @Builder.Default
     @JsonIgnore
     @ToString.Exclude
-    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Notification> notifications = new LinkedHashSet<>();
 
 

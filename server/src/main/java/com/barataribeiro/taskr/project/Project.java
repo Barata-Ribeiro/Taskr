@@ -60,7 +60,7 @@ public class Project implements Serializable {
     @Column(name = "status", nullable = false)
     private ProjectStatus status = ProjectStatus.NOT_STARTED;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
     @ToString.Exclude
     @JsonIgnore
