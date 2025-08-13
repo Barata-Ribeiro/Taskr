@@ -2,6 +2,7 @@ package com.barataribeiro.taskr.admin;
 
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.helpers.RestResponse;
+import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
 import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
@@ -94,5 +95,15 @@ public class AdminController {
         Page<ProjectDTO> projects = adminService.getAllProjects(pageQueryParams);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Projects retrieved successfully", projects));
+    }
+
+    @GetMapping("/projects/{projectId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get project by ID",
+               description = "Retrieves detailed information about a project by its ID.")
+    public ResponseEntity<RestResponse<ProjectCompleteDTO>> getProjectById(@PathVariable Long projectId) {
+        ProjectCompleteDTO project = adminService.getProjectById(projectId);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Project retrieved successfully", project));
     }
 }

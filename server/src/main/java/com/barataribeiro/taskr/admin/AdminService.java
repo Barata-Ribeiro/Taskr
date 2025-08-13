@@ -6,6 +6,7 @@ import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.project.ProjectBuilder;
 import com.barataribeiro.taskr.project.ProjectRepository;
+import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserBuilder;
@@ -32,6 +33,8 @@ public class AdminService {
     private final UserBuilder userBuilder;
     private final ProjectRepository projectRepository;
     private final ProjectBuilder projectBuilder;
+
+    // Users
 
     @Transactional(readOnly = true)
     public Page<UserSecurityDTO> getAllUsers(@NotNull PageQueryParamsDTO pageQueryParams) {
@@ -71,20 +74,6 @@ public class AdminService {
         return userBuilder.toUserProfileDTO(userRepository.saveAndFlush(user));
     }
 
-    @Transactional(readOnly = true)
-    public Page<ProjectDTO> getAllProjects(@NotNull PageQueryParamsDTO pageQueryParams) {
-        final PageRequest pageable = getPageRequest(pageQueryParams.getPage(), pageQueryParams.getPerPage(),
-                                                    pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
-        Page<Project> projects = projectRepository.findAll(pageable);
-        return projects.map(projectBuilder::toProjectDTO);
-    }
-
-    private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {
-        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
-        orderBy = orderBy.equalsIgnoreCase("createdAt") ? "createdAt" : orderBy;
-        return PageRequest.of(page, perPage, Sort.by(sortDirection, orderBy));
-    }
-
     @Transactional
     public void deleteUserByUsername(String username, @NotNull Authentication authentication) {
         if (authentication.getName().equals(username)) {
@@ -98,4 +87,30 @@ public class AdminService {
             throw new IllegalRequestException("Account deletion failed; Account not found or not authorized.");
         }
     }
+
+    // Projects
+
+    @Transactional(readOnly = true)
+    public Page<ProjectDTO> getAllProjects(@NotNull PageQueryParamsDTO pageQueryParams) {
+        final PageRequest pageable = getPageRequest(pageQueryParams.getPage(), pageQueryParams.getPerPage(),
+                                                    pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
+        Page<Project> projects = projectRepository.findAll(pageable);
+        return projects.map(projectBuilder::toProjectDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public ProjectCompleteDTO getProjectById(Long projectId) {
+        Project project = projectRepository
+                .findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException(Project.class.getSimpleName()));
+        return projectBuilder.toProjectCompleteDTO(project);
+    }
+
+    private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        orderBy = orderBy.equalsIgnoreCase("createdAt") ? "createdAt" : orderBy;
+        return PageRequest.of(page, perPage, Sort.by(sortDirection, orderBy));
+    }
+
+
 }
