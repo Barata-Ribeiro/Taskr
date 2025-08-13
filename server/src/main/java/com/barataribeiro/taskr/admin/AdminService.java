@@ -113,4 +113,13 @@ public class AdminService {
     }
 
 
+    @Transactional
+    public void deleteProjectById(Long projectId) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new EntityNotFoundException(Project.class.getSimpleName());
+        }
+
+        projectRepository.deleteById(projectId);
+        projectRepository.flush();
+    }
 }

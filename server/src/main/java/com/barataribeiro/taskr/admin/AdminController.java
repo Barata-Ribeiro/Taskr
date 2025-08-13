@@ -82,8 +82,9 @@ public class AdminController {
     public ResponseEntity<RestResponse<Void>> deleteUserByUsername(@PathVariable String username,
                                                                    Authentication authentication) {
         adminService.deleteUserByUsername(username, authentication);
-        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
-                                                    "User deleted successfully", null));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                             .body(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                      "User deleted successfully", null));
     }
 
     @GetMapping("/projects")
@@ -105,5 +106,16 @@ public class AdminController {
         ProjectCompleteDTO project = adminService.getProjectById(projectId);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Project retrieved successfully", project));
+    }
+
+    @DeleteMapping("/projects/{projectId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete project by ID",
+               description = "Deletes a project by its ID. Admins can delete any project.")
+    public ResponseEntity<RestResponse<Void>> deleteProjectById(@PathVariable Long projectId) {
+        adminService.deleteProjectById(projectId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                             .body(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                      "Project deleted successfully", null));
     }
 }
