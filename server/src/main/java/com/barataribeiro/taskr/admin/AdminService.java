@@ -1,6 +1,7 @@
 package com.barataribeiro.taskr.admin;
 
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
+import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.project.Project;
 import com.barataribeiro.taskr.project.ProjectBuilder;
@@ -82,5 +83,19 @@ public class AdminService {
         Sort.Direction sortDirection = Sort.Direction.fromString(direction);
         orderBy = orderBy.equalsIgnoreCase("createdAt") ? "createdAt" : orderBy;
         return PageRequest.of(page, perPage, Sort.by(sortDirection, orderBy));
+    }
+
+    @Transactional
+    public void deleteUserByUsername(String username, @NotNull Authentication authentication) {
+        if (authentication.getName().equals(username)) {
+            final String msg = "Account deletion failed; Use regular user endpoint to delete your account.";
+            throw new IllegalArgumentException(msg);
+        }
+
+        long wasDeleted = userRepository.deleteByUsername(authentication.getName());
+
+        if (wasDeleted == 0) {
+            throw new IllegalRequestException("Account deletion failed; Account not found or not authorized.");
+        }
     }
 }

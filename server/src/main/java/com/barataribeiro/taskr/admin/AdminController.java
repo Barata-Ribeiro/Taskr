@@ -74,6 +74,17 @@ public class AdminController {
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(), message, user));
     }
 
+    @DeleteMapping("/users/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete user by username",
+               description = "Deletes a user account by their username. Admins cannot delete themselves.")
+    public ResponseEntity<RestResponse<Void>> deleteUserByUsername(@PathVariable String username,
+                                                                   Authentication authentication) {
+        adminService.deleteUserByUsername(username, authentication);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "User deleted successfully", null));
+    }
+
     @GetMapping("/projects")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all projects",
