@@ -2,6 +2,7 @@
 
 import NavLogo from "@/components/shared/NavLogo"
 import DefaultButton from "@/components/ui/DefaultButton"
+import SidebarSkeleton from "@/components/ui/skeletons/SidebarSkeleton"
 import UserMenu from "@/components/UserMenu"
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from "@headlessui/react"
 import { ChartPieIcon, FolderIcon, HomeIcon, InboxIcon, MenuIcon, XIcon } from "lucide-react"
@@ -11,14 +12,13 @@ import { usePathname } from "next/navigation"
 import { Fragment, useState } from "react"
 
 export default function Sidebar() {
+    const [sidebarOpen, setSidebarOpen] = useState(false)
     const { data: session, status } = useSession()
     const pathname = usePathname()
 
-    const isLoading = status === "loading"
+    if (status === "loading") return <SidebarSkeleton />
 
     const basePath = `/dashboard/${session?.user.username}`
-
-    const [sidebarOpen, setSidebarOpen] = useState(false)
 
     const navigation = [
         { name: "Dashboard", href: `${basePath}`, icon: HomeIcon },
