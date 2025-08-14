@@ -50,6 +50,10 @@ public class Comment implements Serializable {
     @Column(name = "was_edited", nullable = false, columnDefinition = "boolean default false")
     private boolean wasEdited = false;
 
+    @Builder.Default
+    @Column(name = "is_soft_deleted", nullable = false, columnDefinition = "boolean default false")
+    private boolean isSoftDeleted = false;
+
     @ToString.Exclude
     @ManyToOne(optional = false)
     @JoinColumn(name = "task_id", nullable = false)

@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CommentTest {
 
@@ -38,6 +37,8 @@ class CommentTest {
         assertEquals(2L, comment.getId());
         assertEquals("child", comment.getContent());
         assertEquals(author, comment.getAuthor());
+        assertFalse(comment.isWasEdited());
+        assertFalse(comment.isSoftDeleted());
         assertEquals(task, comment.getTask());
         assertEquals(parent, comment.getParent());
         assertEquals(now, comment.getCreatedAt());
