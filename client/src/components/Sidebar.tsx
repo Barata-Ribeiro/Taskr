@@ -5,7 +5,16 @@ import DefaultButton from "@/components/ui/DefaultButton"
 import SidebarSkeleton from "@/components/ui/skeletons/SidebarSkeleton"
 import UserMenu from "@/components/UserMenu"
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from "@headlessui/react"
-import { ChartPieIcon, FolderIcon, HomeIcon, InboxIcon, MenuIcon, XIcon } from "lucide-react"
+import {
+    ChartPieIcon,
+    FolderIcon,
+    HomeIcon,
+    InboxIcon,
+    MenuIcon,
+    SettingsIcon,
+    UserStarIcon,
+    XIcon,
+} from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -25,6 +34,11 @@ export default function Sidebar() {
         { name: "Notifications", href: `${basePath}/notifications`, icon: InboxIcon },
         { name: "Projects", href: `${basePath}/projects`, icon: FolderIcon },
         { name: "Reports", href: `${basePath}/reports`, icon: ChartPieIcon },
+    ]
+
+    const linksNavigation = [
+        { name: "Settings", href: `${basePath}/settings`, icon: SettingsIcon },
+        { name: "Admin Panel", href: `${basePath}/admin`, icon: UserStarIcon },
     ]
 
     return (
@@ -80,6 +94,42 @@ export default function Sidebar() {
                                             ))}
                                         </ul>
                                     </li>
+
+                                    <li>
+                                        <div className="text-xs/6 font-semibold text-gray-500 dark:text-gray-400">
+                                            Links
+                                        </div>
+                                        <ul className="-mx-2 mt-2 space-y-1">
+                                            {linksNavigation
+                                                .filter(
+                                                    item =>
+                                                        item.name !== "Admin Panel" || session?.user.role === "ADMIN",
+                                                )
+                                                .map(item => (
+                                                    <li key={item.name}>
+                                                        <Link
+                                                            href={item.href}
+                                                            aria-current={
+                                                                pathname.endsWith(item.href) ? "page" : undefined
+                                                            }
+                                                            {...(pathname.endsWith(item.href) && {
+                                                                "data-current": "",
+                                                            })}
+                                                            onClick={() => setSidebarOpen(false)}
+                                                            className="hover:text-indigo-600group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 data-current:bg-gray-50 data-current:text-indigo-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-indigo-400">
+                                                            <item.icon
+                                                                aria-hidden
+                                                                {...(pathname.endsWith(item.href) && {
+                                                                    "data-current": true,
+                                                                })}
+                                                                className="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600 data-current:text-indigo-600"
+                                                            />
+                                                            {item.name}
+                                                        </Link>
+                                                    </li>
+                                                ))}
+                                        </ul>
+                                    </li>
                                 </ul>
                             </nav>
                         </div>
@@ -116,10 +166,27 @@ export default function Sidebar() {
                             </li>
 
                             <li>
-                                <div className="text-xs/6 font-semibold text-gray-400">
-                                    {/*// TODO: Add section title here*/}
-                                </div>
-                                <ul className="-mx-2 mt-2 space-y-1">{/*// TODO: Add more links here*/}</ul>
+                                <div className="text-xs/6 font-semibold text-gray-500 dark:text-gray-400">Links</div>
+                                <ul className="-mx-2 mt-2 space-y-1">
+                                    {linksNavigation
+                                        .filter(item => item.name !== "Admin Panel" || session?.user.role === "ADMIN")
+                                        .map(item => (
+                                            <li key={item.name}>
+                                                <Link
+                                                    href={item.href}
+                                                    aria-current={pathname.endsWith(item.href) ? "page" : undefined}
+                                                    {...(pathname.endsWith(item.href) && { "data-current": "" })}
+                                                    className="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 data-current:bg-gray-50 data-current:text-indigo-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-indigo-400">
+                                                    <item.icon
+                                                        aria-hidden
+                                                        {...(pathname.endsWith(item.href) && { "data-current": "" })}
+                                                        className="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600 data-current:text-indigo-600"
+                                                    />
+                                                    {item.name}
+                                                </Link>
+                                            </li>
+                                        ))}
+                                </ul>
                             </li>
 
                             <li className="mt-auto dark:border-gray-700">
