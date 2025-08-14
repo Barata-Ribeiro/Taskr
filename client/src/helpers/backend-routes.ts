@@ -79,6 +79,10 @@ export function adminDeleteProjectByIdUrl(projectId: number | string): string {
     return `${API_URL}/admin/projects/${projectId}`
 }
 
+export function adminToggleDeleteCommentUrl(commentId: number | string): string {
+    return `${API_URL}/admin/comments/${commentId}/toggle-delete`
+}
+
 // ===============================================================
 // ===================  User Module Functions  ===================
 // ===============================================================
