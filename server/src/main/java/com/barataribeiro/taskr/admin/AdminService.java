@@ -22,6 +22,8 @@ import com.barataribeiro.taskr.user.enums.Roles;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -57,6 +59,9 @@ public class AdminService {
         return userBuilder.toUserAccountDTO(user);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = {"userAccount", "publicUserProfile"}, key = "#username"),
+            @CacheEvict(value = {"userMemberships", "globalStats", "userStats"}, allEntries = true)})
     @Transactional
     public UserProfileDTO toggleUserVerification(String username) {
         User user = userRepository.findByUsername(username)
@@ -67,6 +72,9 @@ public class AdminService {
         return userBuilder.toUserProfileDTO(userRepository.saveAndFlush(user));
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = {"userAccount", "publicUserProfile"}, key = "#username"),
+            @CacheEvict(value = {"userMemberships", "globalStats", "userStats"}, allEntries = true)})
     @Transactional
     public UserProfileDTO toggleUserBanStatus(String username, @NotNull Authentication authentication) {
         if (authentication.getName().equals(username)) {
@@ -80,6 +88,9 @@ public class AdminService {
         return userBuilder.toUserProfileDTO(userRepository.saveAndFlush(user));
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = {"userAccount", "publicUserProfile"}, key = "#username"),
+            @CacheEvict(value = {"userMemberships", "globalStats", "userStats"}, allEntries = true)})
     @Transactional
     public void deleteUserByUsername(String username, @NotNull Authentication authentication) {
         if (authentication.getName().equals(username)) {
@@ -112,13 +123,9 @@ public class AdminService {
         return projectBuilder.toProjectCompleteDTO(project);
     }
 
-    private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {
-        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
-        orderBy = orderBy.equalsIgnoreCase("createdAt") ? "createdAt" : orderBy;
-        return PageRequest.of(page, perPage, Sort.by(sortDirection, orderBy));
-    }
-
-
+    @CacheEvict(
+            value = {"userAccount", "publicUserProfile", "projects", "project", "projectActivities", "globalStats",
+                     "projectStats", "userStats"}, allEntries = true)
     @Transactional
     public void deleteProjectById(Long projectId) {
         if (!projectRepository.existsById(projectId)) {
@@ -129,6 +136,7 @@ public class AdminService {
         projectRepository.flush();
     }
 
+    @CacheEvict(value = "commentsByTask", allEntries = true)
     @Transactional
     public CommentDTO softDeleteCommentById(Long commentId) {
         Comment comment = commentRepository
@@ -139,5 +147,11 @@ public class AdminService {
         comment.setSoftDeleted(!comment.isSoftDeleted());
 
         return commentBuilder.toCommentDTO(commentRepository.saveAndFlush(comment));
+    }
+
+    private @NotNull PageRequest getPageRequest(int page, int perPage, String direction, String orderBy) {
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        orderBy = orderBy.equalsIgnoreCase("createdAt") ? "createdAt" : orderBy;
+        return PageRequest.of(page, perPage, Sort.by(sortDirection, orderBy));
     }
 }
