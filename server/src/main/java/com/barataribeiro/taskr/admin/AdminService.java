@@ -1,5 +1,9 @@
 package com.barataribeiro.taskr.admin;
 
+import com.barataribeiro.taskr.comment.Comment;
+import com.barataribeiro.taskr.comment.CommentBuilder;
+import com.barataribeiro.taskr.comment.CommentRepository;
+import com.barataribeiro.taskr.comment.dtos.CommentDTO;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
@@ -33,6 +37,8 @@ public class AdminService {
     private final UserBuilder userBuilder;
     private final ProjectRepository projectRepository;
     private final ProjectBuilder projectBuilder;
+    private final CommentRepository commentRepository;
+    private final CommentBuilder commentBuilder;
 
     // Users
 
@@ -121,5 +127,17 @@ public class AdminService {
 
         projectRepository.deleteById(projectId);
         projectRepository.flush();
+    }
+
+    @Transactional
+    public CommentDTO softDeleteCommentById(Long commentId) {
+        Comment comment = commentRepository
+                .findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException(Comment.class.getSimpleName()));
+
+        comment.setWasEdited(true);
+        comment.setSoftDeleted(!comment.isSoftDeleted());
+
+        return commentBuilder.toCommentDTO(commentRepository.saveAndFlush(comment));
     }
 }

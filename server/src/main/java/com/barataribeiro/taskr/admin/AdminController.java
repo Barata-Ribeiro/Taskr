@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.admin;
 
+import com.barataribeiro.taskr.comment.dtos.CommentDTO;
 import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.helpers.RestResponse;
 import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
     private final AdminService adminService;
 
+    // Users
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all users",
@@ -87,6 +89,8 @@ public class AdminController {
                                                       "User deleted successfully", null));
     }
 
+    // Projects
+
     @GetMapping("/projects")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all projects",
@@ -117,5 +121,18 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                              .body(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                       "Project deleted successfully", null));
+    }
+
+    // Comments
+
+    @DeleteMapping("/comments/{commentId}/toggle-delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Soft delete comment by ID",
+               description = "Soft deletes a comment by its ID. Admins can delete any comment.")
+    public ResponseEntity<RestResponse<CommentDTO>> softDeleteCommentById(@PathVariable Long commentId) {
+        CommentDTO comment = adminService.softDeleteCommentById(commentId);
+        String isSoftDeleted = Boolean.TRUE.equals(comment.getIsSoftDeleted()) ? "soft deleted" : "restored";
+        String message = String.format("You have successfully %s the comment", isSoftDeleted);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(), message, comment));
     }
 }
