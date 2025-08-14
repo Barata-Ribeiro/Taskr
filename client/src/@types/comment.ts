@@ -5,6 +5,7 @@ interface Comment {
     content: string
     author: Author
     wasEdited: boolean
+    isSoftDeleted: boolean
     taskId: number
     parentId?: number
     childrenCount: number
