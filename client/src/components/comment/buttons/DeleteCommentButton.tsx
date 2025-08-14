@@ -2,6 +2,7 @@
 
 import { ProblemDetails } from "@/@types/application"
 import { Author } from "@/@types/user"
+import adminToggleCommentDelete from "@/actions/admin/admin-toggle-comment-delete"
 import deleteOwnComment from "@/actions/comment/delete-own-comment"
 import Loading from "@/components/shared/feedback/Loading"
 import DefaultButton from "@/components/ui/DefaultButton"
@@ -17,6 +18,7 @@ interface DeleteCommentButtonProps {
     commentId: number
     session: Session | null
     author: Author
+    disabled?: boolean
 }
 
 export default function DeleteCommentButton({
@@ -25,13 +27,34 @@ export default function DeleteCommentButton({
     commentId,
     session,
     author,
+    disabled,
 }: Readonly<DeleteCommentButtonProps>) {
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
 
     const isAuthor = session?.user.id === author.id && session?.user.username === author.username
+    const isAdmin = session?.user.role === "ADMIN"
+    const isDisabled = disabled ?? !isAuthor
 
-    // TODO: Add delete route for admins
+    function toggleAdminDelete() {
+        if (!isAdmin) return
+
+        startTransition(async () => {
+            const deleteState = await adminToggleCommentDelete(taskId, commentId)
+
+            if (!deleteState.ok) {
+                const error = deleteState.error as ProblemDetails
+                setOpen(false)
+                toast.error(error.detail ?? "An error occurred while deleting the comment.")
+                return
+            }
+
+            const response = deleteState.response
+
+            setOpen(false)
+            toast.success(response?.message)
+        })
+    }
 
     function handleDelete() {
         startTransition(async () => {
@@ -49,9 +72,25 @@ export default function DeleteCommentButton({
         })
     }
 
+    const messages = {
+        user: {
+            title: "Are you sure you want to delete this comment?",
+            body: `This action cannot be undone. Deleting a comment will remove it from the task permanently as well as its replies and any associated data.,`,
+        },
+        admin: {
+            title: "Are you sure you want to toggle the delete state of this comment?",
+            body: `This action will toggle the visibility of the comment. If the comment is currently visible, it will be hidden, and vice versa. Only administrators can perform this action, and its visibility will not affect the comment's replies or associated data.`,
+        },
+    }
+
     return (
         <Fragment>
-            <DefaultButton buttonType="ghost" width="fit" onClick={() => setOpen(true)} disabled={!isAuthor} isIconOnly>
+            <DefaultButton
+                buttonType="ghost"
+                width="fit"
+                onClick={() => setOpen(true)}
+                disabled={isDisabled}
+                isIconOnly>
                 <Trash2Icon aria-hidden size={16} />
             </DefaultButton>
 
@@ -77,11 +116,10 @@ export default function DeleteCommentButton({
                                     </div>
                                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                         <DialogTitle as="h3" className="text-base font-semibold">
-                                            Are you sure you want to delete this comment?
+                                            {isAdmin ? messages.admin.title : messages.user.title}
                                         </DialogTitle>
                                         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                            This action cannot be undone. Deleting a comment will remove it from the
-                                            task permanently as well as its replies and any associated data.
+                                            {isAdmin ? messages.admin.body : messages.user.body}
                                         </p>
                                     </div>
                                 </div>
@@ -91,10 +129,10 @@ export default function DeleteCommentButton({
                                 <DefaultButton
                                     buttonType="danger"
                                     width="fit"
-                                    onClick={handleDelete}
+                                    onClick={isAdmin ? toggleAdminDelete : handleDelete}
                                     disabled={isPending}
                                     aria-disabled={isPending}>
-                                    {isPending ? <Loading /> : "Delete"}
+                                    {isPending ? <Loading /> : isAdmin ? "Toggle" : "Delete"}
                                 </DefaultButton>
 
                                 <DefaultButton

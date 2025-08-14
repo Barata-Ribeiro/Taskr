@@ -11,14 +11,16 @@ import { Fragment, useState } from "react"
 interface EditCommentButtonProps {
     session: Session | null
     comment: Comment
+    disabled?: boolean
 }
 
-export default function EditCommentButton({ session, comment }: Readonly<EditCommentButtonProps>) {
+export default function EditCommentButton({ session, comment, disabled }: Readonly<EditCommentButtonProps>) {
     const [open, setOpen] = useState(false)
 
     const buttonLabel = `Edit comment by ${comment.author.displayName}`
 
-    const isDisabled = session?.user.id !== comment.author.id && session?.user.username !== comment.author.username
+    const isDisabled =
+        disabled ?? (session?.user.id !== comment.author.id && session?.user.username !== comment.author.username)
 
     return (
         <Fragment>

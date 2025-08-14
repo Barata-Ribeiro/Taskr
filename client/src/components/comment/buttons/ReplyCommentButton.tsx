@@ -14,17 +14,19 @@ import { Fragment, useState } from "react"
 interface ReplyCommentButtonProps {
     session: Session | null
     comment: Comment
+    disabled?: boolean
 }
 
-export default function ReplyCommentButton({ session, comment }: Readonly<ReplyCommentButtonProps>) {
+export default function ReplyCommentButton({ session, comment, disabled }: Readonly<ReplyCommentButtonProps>) {
     const [open, setOpen] = useState(false)
-
+    console.log(comment)
     const buttonLabel = `Reply to ${comment.author.displayName}`
     const date = dateFormatter(comment.createdAt)
     const dateToNow = dateToNowFormatter(comment.createdAt).text
     const dateLabel = `Commented on ${date}`
 
-    const isDisabled = session?.user.id === comment.author.id && session?.user.username === comment.author.username
+    const isDisabled =
+        disabled ?? (session?.user.id === comment.author.id && session?.user.username === comment.author.username)
 
     return (
         <Fragment>

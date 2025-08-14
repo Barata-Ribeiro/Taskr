@@ -6,9 +6,11 @@ import { Fragment, useState } from "react"
 
 interface ViewContentButtonProps {
     content: string
+    isAdmin?: boolean
+    isSoftDeleted?: boolean
 }
 
-export default function ViewContentButton({ content }: Readonly<ViewContentButtonProps>) {
+export default function ViewContentButton({ content, isAdmin, isSoftDeleted }: Readonly<ViewContentButtonProps>) {
     const [open, setOpen] = useState(false)
 
     return (
@@ -18,7 +20,9 @@ export default function ViewContentButton({ content }: Readonly<ViewContentButto
                 aria-label="View content"
                 buttonType="ghost"
                 width="fit"
-                isIconOnly>
+                isIconOnly
+                disabled={!isAdmin && isSoftDeleted}
+                aria-disabled={!isAdmin && isSoftDeleted}>
                 <ViewIcon aria-hidden size={16} />
             </DefaultButton>
 
