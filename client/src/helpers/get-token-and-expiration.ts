@@ -1,5 +1,5 @@
-import { cookies } from "next/headers"
 import env from "@/helpers/env"
+import { cookies } from "next/headers"
 
 export default async function getTokenAndExpiration() {
     const cookieStore = await cookies()

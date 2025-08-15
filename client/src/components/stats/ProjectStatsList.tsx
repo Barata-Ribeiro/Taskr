@@ -11,15 +11,15 @@ import ProjectStatsSkeleton from "@/components/ui/skeletons/ProjectStatsSkeleton
 import getFallbackInitials from "@/utils/get-fallback-initials"
 import tw from "@/utils/tw"
 import {
-    ChevronsRightIcon,
-    UsersIcon,
-    MessageSquareIcon,
     ActivityIcon,
-    ListChecksIcon,
+    AlertTriangleIcon,
+    CheckCircle2Icon,
+    ChevronsRightIcon,
     ClipboardListIcon,
     ClockIcon,
-    CheckCircle2Icon,
-    AlertTriangleIcon,
+    ListChecksIcon,
+    MessageSquareIcon,
+    UsersIcon,
 } from "lucide-react"
 import Link from "next/link"
 import { use, useState, useTransition } from "react"

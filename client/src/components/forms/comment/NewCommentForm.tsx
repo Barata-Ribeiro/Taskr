@@ -1,27 +1,19 @@
 "use client"
 
-import { ProblemDetails }                                                          from "@/@types/application"
-import createNewComment
-                                                                                   from "@/actions/comment/create-new-comment"
-import UnauthenticatedState
-                                                                                   from "@/components/comment/UnauthenticatedState"
-import OptimisticNewComment
-                                                                                   from "@/components/forms/comment/OptimisticComment"
-import ApplicationRequestFormError
-                                                                                   from "@/components/shared/feedback/ApplicationRequestFormError"
-import InputValidationError
-                                                                                   from "@/components/shared/feedback/InputValidationError"
-import Loading
-                                                                                   from "@/components/shared/feedback/Loading"
-import DefaultButton                                                               from "@/components/ui/DefaultButton"
-import DefaultMarkdownEditor
-                                                                                   from "@/components/ui/DefaultMarkdownEditor"
-import Avatar                                                                      from "@/components/user/Avatar"
-import applicationInitialState
-                                                                                   from "@/helpers/application-initial-state"
-import tw                                                                          from "@/utils/tw"
-import { useSession }                                                              from "next-auth/react"
-import { useParams }                                                               from "next/navigation"
+import { ProblemDetails } from "@/@types/application"
+import createNewComment from "@/actions/comment/create-new-comment"
+import UnauthenticatedState from "@/components/comment/UnauthenticatedState"
+import OptimisticNewComment from "@/components/forms/comment/OptimisticComment"
+import ApplicationRequestFormError from "@/components/shared/feedback/ApplicationRequestFormError"
+import InputValidationError from "@/components/shared/feedback/InputValidationError"
+import Loading from "@/components/shared/feedback/Loading"
+import DefaultButton from "@/components/ui/DefaultButton"
+import DefaultMarkdownEditor from "@/components/ui/DefaultMarkdownEditor"
+import Avatar from "@/components/user/Avatar"
+import applicationInitialState from "@/helpers/application-initial-state"
+import tw from "@/utils/tw"
+import { useSession } from "next-auth/react"
+import { useParams } from "next/navigation"
 import { type Dispatch, type SetStateAction, useActionState, useEffect, useState } from "react"
 
 interface NewCommentFormProps {

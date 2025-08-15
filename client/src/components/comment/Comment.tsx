@@ -5,6 +5,7 @@ import DeleteCommentButton from "@/components/comment/buttons/DeleteCommentButto
 import EditCommentButton from "@/components/comment/buttons/EditCommentButton"
 import ReplyCommentButton from "@/components/comment/buttons/ReplyCommentButton"
 import ViewContentButton from "@/components/comment/buttons/ViewContentButton"
+import SoftDeletedComment from "@/components/comment/SoftDeletedComment"
 import SafeMarkdown from "@/components/shared/SafeMarkdown"
 import Tooltip from "@/components/shared/Tooltip"
 import Avatar from "@/components/user/Avatar"
@@ -16,7 +17,6 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import SoftDeletedComment from "@/components/comment/SoftDeletedComment"
 
 interface CommentProps {
     comment: Comment
