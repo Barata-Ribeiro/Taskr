@@ -1,6 +1,7 @@
+import LatestUsers from "@/components/admin/LatestUsers"
 import { auth } from "auth"
 import { notFound, redirect } from "next/navigation"
-import { Fragment } from "react"
+import { Fragment, Suspense } from "react"
 
 interface AdminPageProps {
     params: Promise<{ username: string }>
@@ -14,5 +15,14 @@ export default async function AdminPage({ params }: Readonly<AdminPageProps>) {
     if (session.user.username !== username) redirect(`/dashboard/${session.user.username}/settings`)
     if (session.user.role !== "ADMIN") redirect(`/dashboard/${session.user.username}`)
 
-    return <Fragment>ADMIN!</Fragment>
+    return (
+        <Fragment>
+            {/*TODO: Add admin user loading state*/}
+            <Suspense fallback={<div>Loading...</div>}>
+                <LatestUsers />
+            </Suspense>
+
+            {/*TODO: Add latest projects*/}
+        </Fragment>
+    )
 }
