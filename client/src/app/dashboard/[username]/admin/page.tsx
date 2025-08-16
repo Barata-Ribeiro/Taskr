@@ -1,4 +1,5 @@
 import LatestUsers from "@/components/admin/LatestUsers"
+import LatestUsersSkeleton from "@/components/ui/skeletons/LatestUsersSkeleton"
 import { auth } from "auth"
 import { notFound, redirect } from "next/navigation"
 import { Fragment, Suspense } from "react"
@@ -17,9 +18,8 @@ export default async function AdminPage({ params }: Readonly<AdminPageProps>) {
 
     return (
         <Fragment>
-            {/*TODO: Add admin user loading state*/}
-            <Suspense fallback={<div>Loading...</div>}>
-                <LatestUsers />
+            <Suspense fallback={<LatestUsersSkeleton />}>
+                <LatestUsers session={session} />
             </Suspense>
 
             {/*TODO: Add latest projects*/}
