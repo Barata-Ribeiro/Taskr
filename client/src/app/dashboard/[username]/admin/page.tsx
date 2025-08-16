@@ -1,11 +1,19 @@
+import LatestProjects from "@/components/admin/LatestProjects"
 import LatestUsers from "@/components/admin/LatestUsers"
 import LatestUsersSkeleton from "@/components/ui/skeletons/LatestUsersSkeleton"
+import LatestProjectsSkeleton from "@/components/ui/skeletons/LatestProjectsSkeleton"
 import { auth } from "auth"
+import { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 import { Fragment, Suspense } from "react"
 
 interface AdminPageProps {
     params: Promise<{ username: string }>
+}
+
+export const metadata: Metadata = {
+    title: "Admin Panel",
+    description: "Admin panel for managing users, projects and more.",
 }
 
 export default async function AdminPage({ params }: Readonly<AdminPageProps>) {
@@ -22,7 +30,9 @@ export default async function AdminPage({ params }: Readonly<AdminPageProps>) {
                 <LatestUsers session={session} />
             </Suspense>
 
-            {/*TODO: Add latest projects*/}
+            <Suspense fallback={<LatestProjectsSkeleton />}>
+                <LatestProjects session={session} />
+            </Suspense>
         </Fragment>
     )
 }
