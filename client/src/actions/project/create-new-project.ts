@@ -40,11 +40,15 @@ export default async function createNewProject(state: State<unknown>, formData: 
             return ResponseError(problemDetails)
         }
 
-        revalidateTag(`user-account-${session.user?.username}`)
-        revalidateTag(`my-projects-${session.user?.username}`)
-        revalidateTag("global-stats")
-        revalidateTag(`profile-${session.user?.username}`)
-        revalidateTag(`user-stats-${session.user?.id}`)
+        const tags = [
+            `user-account-${session.user?.username}`,
+            `my-projects-${session.user?.username}`,
+            "global-stats",
+            "admin-projects",
+            `profile-${session.user?.username}`,
+            `user-stats-${session.user?.id}`,
+        ]
+        tags.forEach(tag => revalidateTag(tag))
 
         return { ok: true, error: null, response: json as RestResponse<Project> }
     } catch (e: unknown) {
