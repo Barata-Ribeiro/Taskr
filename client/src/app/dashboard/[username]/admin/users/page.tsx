@@ -1,8 +1,8 @@
 import { Paginated, QueryParams } from "@/@types/application"
 import { User } from "@/@types/user"
 import adminGetAllUsersPaginated from "@/actions/admin/admin-get-all-users-paginated"
+import AdminToggleVerification from "@/components/admin/buttons/AdminToggleVerification"
 import NavigationPagination from "@/components/shared/NavigationPagination"
-import ProjectStatusBadge from "@/components/shared/project/ProjectStatusBadge"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
 import Badge from "@/components/user/Badge"
 import dateFormatter from "@/utils/date-formatter"
@@ -253,7 +253,14 @@ export default async function UsersPage({ params, searchParams }: Readonly<Users
                                                         <EyeIcon aria-hidden className="size-4" />
                                                     </DefaultLinkButton>
 
-                                                    {/*TODO: Add verification, ban, edit, and delete actions*/}
+                                                    <AdminToggleVerification
+                                                        username={user.username}
+                                                        session={session}
+                                                    />
+
+                                                    {/*TODO: Add edit button action*/}
+
+                                                    {/*TODO: Add delete button action*/}
                                                 </td>
                                             </tr>
                                         )
