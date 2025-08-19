@@ -3,6 +3,7 @@ import getPublicProfile from "@/actions/user/get-public-profile"
 import SafeMarkdown from "@/components/shared/SafeMarkdown"
 import Avatar from "@/components/user/Avatar"
 import Badge from "@/components/user/Badge"
+import VerifiedBadge from "@/components/user/VerifiedBadge"
 import { auth } from "auth"
 import { BriefcaseIcon, Building2Icon, LinkIcon, MapPinIcon } from "lucide-react"
 import { Metadata } from "next"
@@ -86,7 +87,9 @@ export default async function ProfilePage({ params }: Readonly<ProfilePageProps>
                         <h1 className="text-2xl font-bold">{profile.displayName}</h1>
                         <Badge userRole={profile.role} />
                     </div>
-                    <span className="text-gray-500 dark:text-gray-300">@{profile.username}</span>
+                    <span className="inline-flex items-center gap-x-2 text-gray-500 dark:text-gray-300">
+                        @{profile.username} {profile.isVerified && <VerifiedBadge />}
+                    </span>
                     {profile.fullName && (
                         <span className="text-sm text-gray-400 dark:text-gray-400">{profile.fullName}</span>
                     )}

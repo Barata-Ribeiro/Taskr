@@ -5,6 +5,7 @@ import AdminToggleVerification from "@/components/admin/buttons/AdminToggleVerif
 import NavigationPagination from "@/components/shared/NavigationPagination"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
 import Badge from "@/components/user/Badge"
+import VerifiedBadge from "@/components/user/VerifiedBadge"
 import dateFormatter from "@/utils/date-formatter"
 import { auth } from "auth"
 import { ChevronDownIcon, ChevronUpIcon, EyeIcon } from "lucide-react"
@@ -215,8 +216,9 @@ export default async function UsersPage({ params, searchParams }: Readonly<Users
                                                         href={profileUrl}
                                                         aria-label={profileLabel}
                                                         title={profileLabel}
-                                                        className="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500 hover:underline active:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 dark:active:text-indigo-500">
-                                                        @{user.username}
+                                                        className="inline-flex items-center gap-x-2 text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500 hover:underline active:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 dark:active:text-indigo-500">
+                                                        <p>@{user.username}</p>
+                                                        {user.isVerified && <VerifiedBadge />}
                                                     </Link>
                                                 </td>
 

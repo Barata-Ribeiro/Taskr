@@ -6,6 +6,7 @@ import ProjectRoleBadge from "@/components/shared/project/ProjectRoleBadge"
 import ProjectStatusBadge from "@/components/shared/project/ProjectStatusBadge"
 import DueDateBadge from "@/components/shared/task/DueDateBadge"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
+import VerifiedBadge from "@/components/user/VerifiedBadge"
 import dateFormatter from "@/utils/date-formatter"
 import { EyeIcon } from "lucide-react"
 import { Session } from "next-auth"
@@ -70,10 +71,15 @@ export default async function LatestProjects({ session }: Readonly<LatestProject
                                     <div className="mt-1 flex flex-col items-start gap-x-2 divide-gray-200 sm:flex-row sm:items-center sm:divide-x dark:divide-gray-700">
                                         <Link
                                             href={profileUrl}
-                                            className="pr-2 text-xs/5 text-gray-500 select-none dark:text-gray-400"
+                                            className="inline-flex items-center gap-x-2 pr-2 text-xs/5 text-gray-500 select-none dark:text-gray-400"
                                             aria-label={profileLabel}>
-                                            {project.owner.displayName}{" "}
-                                            {isCurrentUser && <span className="text-xs text-indigo-500">(You)</span>}
+                                            <p>
+                                                {project.owner.displayName}{" "}
+                                                {isCurrentUser && (
+                                                    <span className="text-xs text-indigo-500">(You)</span>
+                                                )}
+                                            </p>
+                                            {project.owner.isVerified && <VerifiedBadge />}
                                         </Link>
 
                                         <ProjectRoleBadge role={ProjectRole.OWNER} />

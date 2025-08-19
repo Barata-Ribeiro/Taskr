@@ -4,6 +4,7 @@ import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMe
 import ProjectRoleBadge from "@/components/shared/project/ProjectRoleBadge"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
 import Avatar from "@/components/user/Avatar"
+import VerifiedBadge from "@/components/user/VerifiedBadge"
 import dateFormatter from "@/utils/date-formatter"
 import { ChevronRightIcon } from "lucide-react"
 import Link from "next/link"
@@ -61,9 +62,9 @@ export default async function ProjectMemberships({ id, baseUrl }: Readonly<Proje
                                 <p className="text-sm/6 font-semibold">
                                     <Link
                                         href={`${baseUrl}/profile/${membership.user.username}`}
-                                        className="hover:underline"
+                                        className="inline-flex items-center gap-x-2 hover:underline"
                                         aria-label={`View profile of ${membership.user.displayName}`}>
-                                        {membership.user.displayName}
+                                        {membership.user.displayName} {membership.user.isVerified && <VerifiedBadge />}
                                     </Link>
                                 </p>
                                 <p

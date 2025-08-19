@@ -10,6 +10,7 @@ import TaskCompleteStatusBadge from "@/components/task/TaskCompleteStatusBadge"
 import TaskPriorityBadge from "@/components/task/TaskPriorityBadge"
 import TaskStatusBadge from "@/components/task/TaskStatusBadge"
 import Avatar from "@/components/user/Avatar"
+import VerifiedBadge from "@/components/user/VerifiedBadge"
 import Link from "next/link"
 
 interface TaskDetailsProps {
@@ -63,11 +64,11 @@ export default async function TaskDetails({ projectId, taskId, baseUrl }: Readon
                                     key={assignee.id}
                                     aria-label={label}
                                     title={label}
-                                    className="group relative flex items-center gap-2 rounded-full bg-gray-100 py-1 pr-3 pl-1 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700">
+                                    className="group relative flex items-center gap-2 rounded-full bg-gray-100 py-1 pl-1 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700">
                                     <Avatar url={assignee.avatarUrl} name={assignee.displayName} size="extra-small" />
 
-                                    <span className="text-xs text-gray-800 group-hover:text-indigo-600 dark:text-gray-200 dark:group-hover:text-indigo-400">
-                                        {assignee.displayName}
+                                    <span className="inline-flex items-center gap-x-2 pr-2 text-xs text-gray-800 group-hover:text-indigo-600 dark:text-gray-200 dark:group-hover:text-indigo-400">
+                                        {assignee.displayName} {assignee.isVerified && <VerifiedBadge />}
                                     </span>
 
                                     <Tooltip content={`@${assignee.username}`} />

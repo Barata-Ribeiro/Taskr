@@ -4,6 +4,7 @@ import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMe
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
 import Avatar from "@/components/user/Avatar"
 import Badge from "@/components/user/Badge"
+import VerifiedBadge from "@/components/user/VerifiedBadge"
 import dateFormatter from "@/utils/date-formatter"
 import { ChevronRightCircle } from "lucide-react"
 import { Session } from "next-auth"
@@ -57,10 +58,13 @@ export default async function LatestUsers({ session }: Readonly<{ session: Sessi
                                 <div className="min-w-0 flex-auto">
                                     <Link
                                         href={profileUrl}
-                                        className="text-sm/6 font-semibold select-none"
+                                        className="inline-flex items-center gap-x-2 text-sm/6 font-semibold select-none"
                                         aria-label={profileLabel}>
-                                        {user.username}{" "}
-                                        {isCurrentUser && <span className="text-xs text-indigo-500">(You)</span>}
+                                        <p>
+                                            {user.username}{" "}
+                                            {isCurrentUser && <span className="text-xs text-indigo-500">(You)</span>}
+                                        </p>
+                                        {user.isVerified && <VerifiedBadge />}
                                     </Link>
 
                                     <Link

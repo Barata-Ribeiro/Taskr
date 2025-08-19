@@ -9,6 +9,7 @@ import SoftDeletedComment from "@/components/comment/SoftDeletedComment"
 import SafeMarkdown from "@/components/shared/SafeMarkdown"
 import Tooltip from "@/components/shared/Tooltip"
 import Avatar from "@/components/user/Avatar"
+import VerifiedBadge from "@/components/user/VerifiedBadge"
 import dateFormatter from "@/utils/date-formatter"
 import dateToNowFormatter from "@/utils/date-to-now-formatter"
 import { Button, Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react"
@@ -67,8 +68,9 @@ export default function Comment({ comment, depth = 0 }: Readonly<CommentProps>) 
                                         size="small"
                                     />
 
-                                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                        {comment.author.displayName}
+                                    <span className="inline-flex items-center gap-x-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                        {comment.author.displayName}{" "}
+                                        {comment.author.isVerified && <VerifiedBadge size={16} />}
                                     </span>
 
                                     <Tooltip content={`@${comment.author.username}`} />

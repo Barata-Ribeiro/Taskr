@@ -4,6 +4,7 @@ import getAllMyProjectsPaginated from "@/actions/project/get-all-my-projects-pag
 import NavigationPagination from "@/components/shared/NavigationPagination"
 import ProjectStatusBadge from "@/components/shared/project/ProjectStatusBadge"
 import DefaultLinkButton from "@/components/ui/DefaultLinkButton"
+import VerifiedBadge from "@/components/user/VerifiedBadge"
 import dateFormatter from "@/utils/date-formatter"
 import { auth } from "auth"
 import { ChevronDownIcon, ChevronUpIcon, EyeIcon, PlusIcon, Trash2Icon } from "lucide-react"
@@ -244,7 +245,10 @@ export default async function MyProjectsPage({ params, searchParams }: Readonly<
                                                     <ProjectStatusBadge status={project.status} type="text" />
                                                 </td>
                                                 <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-                                                    {project.owner.displayName}
+                                                    <p className="inline-flex items-center gap-x-2">
+                                                        {project.owner.displayName}{" "}
+                                                        {project.owner.isVerified && <VerifiedBadge />}
+                                                    </p>
                                                 </td>
                                                 <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                                                     {dateFormatter(project.dueDate)}
