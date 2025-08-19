@@ -3,7 +3,7 @@ export default function Spinner() {
         <svg
             aria-hidden
             role="status"
-            className="me-3 inline size-4 animate-spin text-gray-200"
+            className="inline size-4 animate-spin text-gray-200"
             viewBox="0 0 100 101"
             fill="none"
             xmlns="http://www.w3.org/2000/svg">
