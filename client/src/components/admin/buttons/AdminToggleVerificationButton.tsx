@@ -9,12 +9,15 @@ import { Session } from "next-auth"
 import { type MouseEvent, useTransition } from "react"
 import { toast } from "react-toastify"
 
-interface AdminToggleVerificationProps {
+interface AdminToggleVerificationButtonProps {
     username: string
     session: Session | null
 }
 
-export default function AdminToggleVerification({ username, session }: Readonly<AdminToggleVerificationProps>) {
+export default function AdminToggleVerificationButton({
+    username,
+    session,
+}: Readonly<AdminToggleVerificationButtonProps>) {
     const [isPending, startTransition] = useTransition()
 
     const isAdmin = session?.user.role === "ADMIN"
@@ -44,6 +47,7 @@ export default function AdminToggleVerification({ username, session }: Readonly<
             width="fit"
             onClick={toggleVerification}
             aria-label="Toggle Verification"
+            title="Toggle Verification"
             disabled={!isAdmin || isPending}
             isIconOnly>
             {isPending ? <Spinner /> : <BadgeCheckIcon aria-hidden size={16} />}
