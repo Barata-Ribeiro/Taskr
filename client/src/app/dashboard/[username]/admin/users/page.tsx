@@ -9,7 +9,7 @@ import Badge from "@/components/user/Badge"
 import VerifiedBadge from "@/components/user/VerifiedBadge"
 import dateFormatter from "@/utils/date-formatter"
 import { auth } from "auth"
-import { ChevronDownIcon, ChevronUpIcon, EyeIcon } from "lucide-react"
+import { ChevronDownIcon, ChevronUpIcon, EyeIcon, MoveLeftIcon, UserPenIcon } from "lucide-react"
 import { Metadata } from "next"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
@@ -45,10 +45,11 @@ export default async function UsersPage({ params, searchParams }: Readonly<Users
     const content = pagination.content ?? []
 
     const baseUrl = `/dashboard/${session.user.username}`
-    const baseAdminUrl = `${baseUrl}/admin/users`
+    const baseAdminUrl = `${baseUrl}/admin`
+    const baseAdminUsersUrl = `${baseAdminUrl}/users`
 
     function buildUrl(item: keyof UserPageParams, direction: QueryParams["direction"]): string {
-        let orderUrl = `${baseAdminUrl}?orderBy=${item}`
+        let orderUrl = `${baseAdminUsersUrl}?orderBy=${item}`
 
         function getNextDirection(currentOrderBy: string) {
             const isAscDirection = direction === "ASC" ? "DESC" : "ASC"
@@ -62,8 +63,15 @@ export default async function UsersPage({ params, searchParams }: Readonly<Users
 
     return (
         <section className="px-4 sm:px-6 lg:px-8">
-            {/*TODO: Add return to admin panel button*/}
             <header>
+                <Link
+                    href={baseAdminUrl}
+                    aria-label="Back to admin panel"
+                    title="Back to admin panel"
+                    className="mb-4 inline-flex items-center gap-x-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                    <MoveLeftIcon aria-hidden size={16} /> Back to Admin Panel
+                </Link>
+
                 <div className="sm:flex-auto">
                     <h1 className="text-xl font-semibold">Users</h1>
                     <p className="mt-2 text-base text-gray-700 dark:text-gray-400">
@@ -203,6 +211,9 @@ export default async function UsersPage({ params, searchParams }: Readonly<Users
                                         const profileLabel = `View ${user.username} profile`
                                         const mailtoLabel = `Send email to ${user.email}`
 
+                                        const adminProfileUrl = `${baseAdminUsersUrl}/${user.username}`
+                                        const adminProfileLabel = `Manage ${user.username} profile`
+
                                         return (
                                             <tr key={user.id}>
                                                 <td
@@ -263,7 +274,15 @@ export default async function UsersPage({ params, searchParams }: Readonly<Users
 
                                                     <AdminToggleBanButton username={user.username} session={session} />
 
-                                                    {/*TODO: Add edit/delete button action*/}
+                                                    <DefaultLinkButton
+                                                        aria-label={adminProfileLabel}
+                                                        title={adminProfileLabel}
+                                                        width="fit"
+                                                        buttonType="ghost"
+                                                        isIconOnly
+                                                        href={adminProfileUrl}>
+                                                        <UserPenIcon aria-hidden className="size-4" />
+                                                    </DefaultLinkButton>
                                                 </td>
                                             </tr>
                                         )
