@@ -33,9 +33,8 @@ export async function authRegister(state: State<unknown>, formData: unknown) {
             return ResponseError(problemDetails)
         }
 
-        revalidateTag("global-stats")
-        revalidateTag("user-stats-global")
-        revalidateTag("project-stats-global")
+        const tags = ["global-stats", "user-stats-global", "project-stats-global", "admin-users"]
+        tags.forEach(tag => revalidateTag(tag))
 
         return { ok: true, error: null, response: json as RestResponse<User> }
     } catch (e: unknown) {
