@@ -1,12 +1,23 @@
 import adminGetUserByUsername from "@/actions/admin/admin-get-user-by-username"
+import UserUpdateProfileFormSkeleton from "@/components/ui/skeletons/UserUpdateProfileFormSkeleton"
 import { auth } from "auth"
 import { MoveLeftIcon } from "lucide-react"
+import { Metadata } from "next"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
-import { Fragment } from "react"
+import { Fragment, Suspense } from "react"
 
 interface UserPageProps {
     params: Promise<{ username: string; user: string }>
+}
+
+export async function generateMetadata({ params }: Readonly<UserPageProps>): Promise<Metadata> {
+    const { user } = await params
+
+    return {
+        title: `Managing User '${user}'`,
+        description: `Admin settings for user '${user}' in your dashboard.`,
+    }
 }
 
 export default async function UserPage({ params }: Readonly<UserPageProps>) {
@@ -19,10 +30,8 @@ export default async function UserPage({ params }: Readonly<UserPageProps>) {
     }
     if (session.user.role !== "ADMIN") return redirect(`/dashboard/${session.user.username}`)
 
-    const userResponse = await adminGetUserByUsername(user)
-    if (!userResponse.ok || !userResponse.response?.data) return notFound()
-
-    const account = userResponse.response.data
+    // TODO: Pass promise to a suspense boundary in the form
+    const userPromise = adminGetUserByUsername(user)
 
     const baseUrl = `/dashboard/${session.user.username}`
     const baseAdminUrl = `${baseUrl}/admin/users`
@@ -41,15 +50,57 @@ export default async function UserPage({ params }: Readonly<UserPageProps>) {
 
                 <h1 className="mb-4 text-2xl font-bold">User Management</h1>
                 <p className="mb-6">
-                    Manage user details for <strong>{account.username}</strong>.
+                    Manage user details for <strong>{user}</strong>.
                 </p>
             </header>
-            <p className="text-gray-500">
-                This section is under development. Please check back later for user management features.
-            </p>
 
-            {/*TODO: Implement user management features*/}
-            {JSON.stringify(account, null, 2)}
+            <section aria-labelledby="user-management-title">
+                <h2 id="user-management-title" className="sr-only">
+                    User Management
+                </h2>
+
+                <div className="space-y-16 divide-y divide-gray-200 dark:divide-gray-700">
+                    <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-4 pb-16 sm:px-6 md:grid-cols-3 lg:px-8">
+                        <div>
+                            <h2 className="text-base/7 font-semibold">Personal Information</h2>
+                            <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">
+                                Use a permanent address where you can receive mail.
+                            </p>
+                        </div>
+
+                        <Suspense fallback={<UserUpdateProfileFormSkeleton />}>
+                            {/*TODO: Add AdminUpdateProfileForm with account data*/}
+                        </Suspense>
+                    </div>
+
+                    <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-4 pb-16 sm:px-6 md:grid-cols-3 lg:px-8">
+                        <div>
+                            <h2 className="text-base/7 font-semibold">Actions</h2>
+                            <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">
+                                Toggle user-specific actions such as verification status, account ban, etc.
+                            </p>
+                        </div>
+
+                        {/*TODO: Add admin related action components (e.g., AdminToggleUserVerification, AdminBanUser etc.)*/}
+                    </div>
+
+                    <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-4 sm:px-6 md:grid-cols-3 lg:px-8">
+                        <div>
+                            <h2 className="text-base/7 font-semibold">
+                                Delete account{" "}
+                                <span className="font-medium text-red-600 dark:text-red-400">(Danger Zone)</span>
+                            </h2>
+                            <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">
+                                Permanently delete this user and all associated data. This action cannot be undone as it
+                                isn&#39;t a soft delete.{" "}
+                                <strong>It requires you to type in the user&#39;s username to confirm.</strong>
+                            </p>
+                        </div>
+
+                        {/*TODO: Add AdminDeleteAccountModal with account data*/}
+                    </div>
+                </div>
+            </section>
         </Fragment>
     )
 }
