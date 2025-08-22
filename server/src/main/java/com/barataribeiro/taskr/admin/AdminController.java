@@ -7,9 +7,11 @@ import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
+import com.barataribeiro.taskr.user.dtos.UserUpdateRequestDTO;
 import com.barataribeiro.taskr.user.enums.Roles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -74,6 +76,19 @@ public class AdminController {
         String message = String.format("You have successfully %s the user", status);
 
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(), message, user));
+    }
+
+    @PatchMapping("/users/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update user by username",
+               description = "Updates user account details by username. Admins can update any user except themselves.")
+    public ResponseEntity<RestResponse<UserProfileDTO>> updateUserByUsername(@PathVariable String username,
+                                                                             Authentication authentication,
+                                                                             @RequestBody @Valid
+                                                                             UserUpdateRequestDTO body) {
+        UserProfileDTO updatedUser = adminService.updateUserByUsername(username, authentication, body);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "User updated successfully", updatedUser));
     }
 
     @DeleteMapping("/users/{username}")
