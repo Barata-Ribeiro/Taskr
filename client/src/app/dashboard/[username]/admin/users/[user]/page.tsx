@@ -1,4 +1,7 @@
 import adminGetUserByUsername from "@/actions/admin/admin-get-user-by-username"
+import AdminToggleBanButton from "@/components/admin/buttons/AdminToggleBanButton"
+import AdminToggleVerificationButton from "@/components/admin/buttons/AdminToggleVerificationButton"
+import AdminUpdateProfileForm from "@/components/forms/admin/AdminUpdateProfileForm"
 import UserUpdateProfileFormSkeleton from "@/components/ui/skeletons/UserUpdateProfileFormSkeleton"
 import { auth } from "auth"
 import { MoveLeftIcon } from "lucide-react"
@@ -30,7 +33,6 @@ export default async function UserPage({ params }: Readonly<UserPageProps>) {
     }
     if (session.user.role !== "ADMIN") return redirect(`/dashboard/${session.user.username}`)
 
-    // TODO: Pass promise to a suspense boundary in the form
     const userPromise = adminGetUserByUsername(user)
 
     const baseUrl = `/dashboard/${session.user.username}`
@@ -64,12 +66,12 @@ export default async function UserPage({ params }: Readonly<UserPageProps>) {
                         <div>
                             <h2 className="text-base/7 font-semibold">Personal Information</h2>
                             <p className="mt-1 text-sm/6 text-gray-500 dark:text-gray-400">
-                                Use a permanent address where you can receive mail.
+                                Update the user&#39;s personal details such as name, username, display name and avatar.
                             </p>
                         </div>
 
                         <Suspense fallback={<UserUpdateProfileFormSkeleton />}>
-                            {/*TODO: Add AdminUpdateProfileForm with account data*/}
+                            <AdminUpdateProfileForm profilePromise={userPromise} />
                         </Suspense>
                     </div>
 
@@ -81,7 +83,21 @@ export default async function UserPage({ params }: Readonly<UserPageProps>) {
                             </p>
                         </div>
 
-                        {/*TODO: Add admin related action components (e.g., AdminToggleUserVerification, AdminBanUser etc.)*/}
+                        <div className="flex w-full flex-col gap-y-4 md:col-span-2">
+                            <div className="inline-flex items-center gap-x-4">
+                                Verification Status:{" "}
+                                <span className="text-green-600! dark:text-green-400!">
+                                    <AdminToggleVerificationButton username={user} session={session} />
+                                </span>
+                            </div>
+
+                            <div className="inline-flex items-center gap-x-4">
+                                Account Status:{" "}
+                                <span className="text-red-600! dark:text-red-400!">
+                                    <AdminToggleBanButton username={user} session={session} />
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-4 sm:px-6 md:grid-cols-3 lg:px-8">
