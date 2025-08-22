@@ -15,7 +15,6 @@ import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
-import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
 import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
 import com.barataribeiro.taskr.user.enums.Roles;
@@ -53,10 +52,10 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
-    public UserAccountDTO getUserByUsername(String username) {
+    public UserProfileDTO getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
-        return userBuilder.toUserAccountDTO(user);
+        return userBuilder.toUserProfileDTO(user);
     }
 
     @Caching(evict = {

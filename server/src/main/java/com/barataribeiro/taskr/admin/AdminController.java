@@ -5,7 +5,6 @@ import com.barataribeiro.taskr.helpers.PageQueryParamsDTO;
 import com.barataribeiro.taskr.helpers.RestResponse;
 import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
-import com.barataribeiro.taskr.user.dtos.UserAccountDTO;
 import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
 import com.barataribeiro.taskr.user.enums.Roles;
@@ -43,8 +42,8 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get user by username",
                description = "Retrieves detailed information about a user by their username.")
-    public ResponseEntity<RestResponse<UserAccountDTO>> getUserByUsername(@PathVariable String username) {
-        UserAccountDTO user = adminService.getUserByUsername(username);
+    public ResponseEntity<RestResponse<UserProfileDTO>> getUserByUsername(@PathVariable String username) {
+        UserProfileDTO user = adminService.getUserByUsername(username);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "User retrieved successfully", user));
     }

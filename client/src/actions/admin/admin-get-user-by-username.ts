@@ -1,7 +1,7 @@
 "use server"
 
 import { ProblemDetails, RestResponse } from "@/@types/application"
-import { Account } from "@/@types/user"
+import { UserProfile } from "@/@types/user"
 import ResponseError from "@/actions/application/response-error"
 import { unauthenticated } from "@/actions/application/to-problem-details"
 import { adminUserByUsernameUrl } from "@/helpers/backend-routes"
@@ -30,7 +30,7 @@ export default async function adminGetUserByUsername(username: string) {
             return ResponseError(problemDetails)
         }
 
-        return { ok: true, error: null, response: json as RestResponse<Account> }
+        return { ok: true, error: null, response: json as RestResponse<UserProfile> }
     } catch (e: unknown) {
         return ResponseError(e)
     }
