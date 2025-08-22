@@ -55,11 +55,11 @@ export default function UserUpdateProfileForm({ profilePromise }: Readonly<UserU
                 return
             }
 
-            setInitialProfile({ ...initialProfile, ...updatedProfile })
-            setBodyContent(updatedProfile.bio ?? "")
+            setInitialProfile(prev => ({ ...prev, ...updatedProfile }))
+            setBodyContent(prev => updatedProfile.bio ?? prev)
             toast.success("Profile updated successfully!")
         }
-    }, [formState.ok, formState.response?.data, initialProfile, router])
+    }, [formState.ok, formState.response?.data, initialProfile.email, initialProfile.username, router])
 
     if (!profileState?.response?.data) {
         const isProblemDetails = (profileState.error as ProblemDetails)?.type !== undefined

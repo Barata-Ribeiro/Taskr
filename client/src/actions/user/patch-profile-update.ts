@@ -7,6 +7,7 @@ import { invalidFormData, unauthenticated } from "@/actions/application/to-probl
 import { updateUserAccountUrl } from "@/helpers/backend-routes"
 import { profileUpdateSchema } from "@/helpers/validation/user-schemas"
 import { auth } from "auth"
+import { revalidateTag } from "next/cache"
 
 export default async function patchProfileUpdate(state: State<unknown>, formData: unknown) {
     const session = await auth()
@@ -39,7 +40,18 @@ export default async function patchProfileUpdate(state: State<unknown>, formData
             return ResponseError(problemDetails)
         }
 
-        return { ok: true, error: null, response: json as RestResponse<UserProfile> }
+        const updateResponse = json as RestResponse<UserProfile>
+
+        const tags = [
+            "global-stats",
+            "user-stats-global",
+            "admin-users",
+            `profile-${updateResponse.data?.username}`,
+            `user-account-${updateResponse.data?.username}`,
+        ]
+        tags.forEach(tag => revalidateTag(tag))
+
+        return { ok: true, error: null, response: updateResponse }
     } catch (e: unknown) {
         return ResponseError(e)
     }
