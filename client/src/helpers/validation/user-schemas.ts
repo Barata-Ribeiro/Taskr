@@ -45,7 +45,6 @@ const profileUpdateSchema = z
         username: z
             .string("Invalid Username format")
             .trim()
-            .min(3, "Username must be at least 3 characters")
             .max(50, "Username must be at most 50 characters")
             .regex(/^[a-z]*$/, "Username must contain only lowercase letters")
             .nullish(),
