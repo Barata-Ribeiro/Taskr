@@ -62,6 +62,10 @@ export function adminToggleUserBanUrl(username: string): string {
     return `${API_URL}/admin/users/${username}/toggle-ban`
 }
 
+export function adminUpdateUserByUsernameUrl(username: string): string {
+    return `${API_URL}/admin/users/${username}`
+}
+
 export function adminDeleteUserByUsernameUrl(username: string): string {
     return `${API_URL}/admin/users/${username}`
 }
