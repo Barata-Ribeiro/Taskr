@@ -1,4 +1,5 @@
 import adminGetUserByUsername from "@/actions/admin/admin-get-user-by-username"
+import AdminDeleteUserModal from "@/components/admin/buttons/AdminDeleteUserModal"
 import AdminToggleBanButton from "@/components/admin/buttons/AdminToggleBanButton"
 import AdminToggleVerificationButton from "@/components/admin/buttons/AdminToggleVerificationButton"
 import AdminUpdateProfileForm from "@/components/forms/admin/AdminUpdateProfileForm"
@@ -113,7 +114,7 @@ export default async function UserPage({ params }: Readonly<UserPageProps>) {
                             </p>
                         </div>
 
-                        {/*TODO: Add AdminDeleteAccountModal with account data*/}
+                        <AdminDeleteUserModal username={user} session={session} />
                     </div>
                 </div>
             </section>
