@@ -15,7 +15,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -39,8 +42,14 @@ public class NotificationService {
         TotalNotifications totalNotifications = notificationRepository.
                 getNotificationCountsByRecipient_Username(authentication.getName());
 
-        List<Notification> latestNotifications = notificationRepository
-                .findTop5ByRecipient_UsernameOrderByCreatedAtDesc(authentication.getName());
+        Pageable latestFivePageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Long> latestNotificationIdsPage = notificationRepository
+                .findAllIdsByRecipient_Username(authentication.getName(), latestFivePageable);
+        List<Long> latestNotificationIds = latestNotificationIdsPage.getContent();
+
+        Specification<Notification> spec = (root, _, _) ->
+                root.get("id").in(latestNotificationIds);
+        List<Notification> latestNotifications = notificationRepository.findAll(spec);
 
         LatestNotificationsDTO latestNotificationsDTO = new LatestNotificationsDTO();
         latestNotificationsDTO.setLatestNotifications(notificationBuilder.toNotificationDTOList(latestNotifications));
@@ -58,8 +67,20 @@ public class NotificationService {
         final PageRequest pageable = getPageRequest(pageQueryParams.getPage(), pageQueryParams.getPerPage(),
                                                     pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
 
-        return notificationRepository.findAllByRecipient_Username(authentication.getName(), pageable)
-                                     .map(notificationBuilder::toNotificationDTO);
+        Page<Long> notificationIdsPage = notificationRepository
+                .findAllIdsByRecipient_Username(authentication.getName(), pageable);
+
+        List<Long> notificationIds = notificationIdsPage.getContent();
+        if (notificationIds.isEmpty()) return Page.empty(pageable);
+
+        Specification<Notification> spec = (root, _, _) ->
+                root.get("id").in(notificationIds);
+        List<Notification> notifications = notificationRepository.findAll(spec);
+
+        return PageableExecutionUtils.getPage(
+                notificationBuilder.toNotificationDTOList(notifications),
+                pageable,
+                notificationIdsPage::getTotalElements);
     }
 
     @Cacheable(value = "notification", key = "#notifId + '_' + #authentication.name")

@@ -1,11 +1,13 @@
 package com.barataribeiro.taskr.notification;
 
+import com.barataribeiro.taskr.config.specification.RepositorySpecificationExecutor;
 import com.barataribeiro.taskr.notification.dtos.TotalNotifications;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,23 +17,23 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long>,
-        JpaSpecificationExecutor<Notification> {
+        RepositorySpecificationExecutor<Notification, Long> {
     @EntityGraph(attributePaths = {"recipient"})
     long countByRecipient_Id(@Param("recipientId") UUID recipientId);
+
+    @Query("SELECT n.id FROM Notification n JOIN n.recipient WHERE n.recipient.username = :username")
+    Page<Long> findAllIdsByRecipient_Username(@Param("username") String username, Pageable pageable);
+
+    @Override
+    @EntityGraph(attributePaths = {"recipient"})
+    @NotNull List<Notification> findAll(Specification<Notification> spec);
 
     @EntityGraph(attributePaths = {"recipient"})
     Optional<Notification> findByIdAndRecipient_Username(@Param("id") Long id, @Param("username") String username);
 
     @EntityGraph(attributePaths = {"recipient"})
-    List<Notification> findTop5ByRecipient_UsernameOrderByCreatedAtDesc(@Param("username") String username);
-
-    @EntityGraph(attributePaths = {"recipient"})
     List<Notification> findDistinctByIdInAndRecipient_Username(@Param("ids") Collection<Long> ids,
                                                                @Param("username") String username);
-
-
-    @EntityGraph(attributePaths = {"recipient"})
-    Page<Notification> findAllByRecipient_Username(@Param("username") String username, Pageable pageable);
 
     @Query("""
            SELECT new com.barataribeiro.taskr.notification.dtos.TotalNotifications(
@@ -48,5 +50,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     long deleteByIdAndRecipient_Username(@Param("id") Long id, @Param("username") String username);
 
     @EntityGraph(attributePaths = {"recipient"})
-    long deleteByIdInAndRecipient_Username(Collection<Long> ids, String username);
+    long deleteByIdInAndRecipient_Username(@Param("ids") Collection<Long> ids, @Param("username") String username);
 }
