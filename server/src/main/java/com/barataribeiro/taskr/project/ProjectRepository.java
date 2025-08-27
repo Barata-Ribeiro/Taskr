@@ -1,18 +1,27 @@
 package com.barataribeiro.taskr.project;
 
+import com.barataribeiro.taskr.config.specification.RepositorySpecificationExecutor;
 import com.barataribeiro.taskr.stats.dtos.ProjectStatsDTO;
 import com.barataribeiro.taskr.stats.dtos.counts.ProjectsCountDTO;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
-    @EntityGraph(attributePaths = {"owner"})
-    Page<Project> findAllByOwner_Username(@Param("ownerUsername") String ownerUsername, Pageable pageable);
+import java.util.List;
+
+public interface ProjectRepository extends JpaRepository<Project, Long>,
+        RepositorySpecificationExecutor<Project, Long> {
+    @Query("select p.id from Project p join p.owner where p.owner.username = :ownerUsername")
+    Page<Long> findAllIdsByOwner_Username(@Param("ownerUsername") String ownerUsername, Pageable pageable);
+
+    @Override
+    @EntityGraph(attributePaths = {"owner", "memberships", "tasks"})
+    @NotNull List<Project> findAll(Specification<Project> specification);
 
     @Query(value = """
                    select
