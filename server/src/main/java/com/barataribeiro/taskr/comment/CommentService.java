@@ -20,7 +20,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.util.Streamable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +46,15 @@ public class CommentService {
             throw new EntityNotFoundException(Task.class.getSimpleName());
         }
 
-        Streamable<Comment> comments = commentRepository.findByTask_IdOrderByCreatedAtDesc(taskId);
-        List<CommentDTO> commentDTOS = commentBuilder.toCommentDTOList(comments.toList());
+        Page<Long> commentIds = commentRepository.findAllIdsByTask_Id(taskId, PageRequest.of(0, 1000));
+
+        List<Long> ids = commentIds.getContent();
+        if (ids.isEmpty()) return List.of();
+
+        Specification<Comment> specification = (root, _, _) -> root.get("id").in(ids);
+        List<Comment> comments = commentRepository.findAll(specification);
+
+        List<CommentDTO> commentDTOS = commentBuilder.toCommentDTOList(comments);
 
         Map<Long, CommentDTO> dtoById = new LinkedHashMap<>();
         commentDTOS.parallelStream().forEachOrdered(dto -> {

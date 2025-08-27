@@ -36,6 +36,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,8 +65,16 @@ public class ProjectService {
                                           @NotNull Authentication authentication) {
         final PageRequest pageable = getPageRequest(pageQueryParams.getPage(), pageQueryParams.getPerPage(),
                                                     pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
-        Page<Project> projects = projectRepository.findAllByOwner_Username(authentication.getName(), pageable);
-        return projects.map(projectBuilder::toProjectDTO);
+        Page<Long> projectIdsPage = projectRepository.findAllIdsByOwner_Username(authentication.getName(), pageable);
+
+        List<Long> projectIds = projectIdsPage.getContent();
+        if (!projectIds.isEmpty()) return Page.empty(pageable);
+
+        Specification<Project> specification = (root, _, _) -> root.get("id").in(projectIds);
+        List<ProjectDTO> projects = projectRepository.findAll(specification).parallelStream()
+                                                     .map(projectBuilder::toProjectDTO).toList();
+
+        return PageableExecutionUtils.getPage(projects, pageable, projectIdsPage::getTotalElements);
     }
 
     @Cacheable(value = "project", key = "#projectId + '_' + #authentication.name")
@@ -90,8 +100,18 @@ public class ProjectService {
         }
         final PageRequest pageable = getPageRequest(pageQueryParams.getPage(), pageQueryParams.getPerPage(),
                                                     pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
-        Page<Activity> activities = activityRepository.findAllByProject_Id(projectId, pageable);
-        return activities.map(activityBuilder::toActivityDTO);
+
+        Page<Long> activityIdsPage = activityRepository.findAllIdsByProject_Id(projectId, pageable);
+
+        List<Long> activityIds = activityIdsPage.getContent();
+        if (activityIds.isEmpty()) return Page.empty(pageable);
+
+        Specification<Activity> specification = (root, _, _) -> root.get("id")
+                                                                    .in(activityIds);
+        List<ActivityDTO> activities = activityRepository.findAll(specification).parallelStream()
+                                                         .map(activityBuilder::toActivityDTO).toList();
+
+        return PageableExecutionUtils.getPage(activities, pageable, activityIdsPage::getTotalElements);
     }
 
     @Caching(evict = {
