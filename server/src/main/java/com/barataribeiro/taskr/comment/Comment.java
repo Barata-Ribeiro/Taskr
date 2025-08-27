@@ -3,11 +3,13 @@ package com.barataribeiro.taskr.comment;
 import com.barataribeiro.taskr.task.Task;
 import com.barataribeiro.taskr.user.User;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -66,7 +68,9 @@ public class Comment implements Serializable {
 
     @Builder.Default
     @ToString.Exclude
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
+    @BatchSize(size = 100)
     private Set<Comment> children = new LinkedHashSet<>();
 
     // Timestamps

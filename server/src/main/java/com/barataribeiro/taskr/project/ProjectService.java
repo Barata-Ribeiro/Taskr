@@ -59,7 +59,9 @@ public class ProjectService {
     private final ActivityRepository activityRepository;
     private final ActivityBuilder activityBuilder;
 
-    @Cacheable(value = "projects")
+    @Cacheable(value = "projects",
+               key = "#authentication.name + '_' + #pageQueryParams.page + '_' + #pageQueryParams.perPage + '_' + " +
+                       "#pageQueryParams.direction + '_' + #pageQueryParams.orderBy")
     @Transactional(readOnly = true)
     public Page<ProjectDTO> getMyProjects(@NotNull PageQueryParamsDTO pageQueryParams,
                                           @NotNull Authentication authentication) {
@@ -68,7 +70,7 @@ public class ProjectService {
         Page<Long> projectIdsPage = projectRepository.findAllIdsByOwner_Username(authentication.getName(), pageable);
 
         List<Long> projectIds = projectIdsPage.getContent();
-        if (!projectIds.isEmpty()) return Page.empty(pageable);
+        if (projectIds.isEmpty()) return Page.empty(pageable);
 
         Specification<Project> specification = (root, _, _) -> root.get("id").in(projectIds);
         List<ProjectDTO> projects = projectRepository.findAll(specification).parallelStream()
@@ -92,7 +94,9 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "projectActivities", key = "#projectId + '_' + #authentication.name")
+    @Cacheable(value = "projectActivities",
+               key = "#projectId + '_' + #authentication.name + '_' + #pageQueryParams.page + '_' + #pageQueryParams" +
+                       ".perPage + '_' + #pageQueryParams.direction + '_' + #pageQueryParams.orderBy")
     public Page<ActivityDTO> getProjectActivities(Long projectId, PageQueryParamsDTO pageQueryParams,
                                                   @NotNull Authentication authentication) {
         if (!membershipRepository.existsByUser_UsernameAndProject_Id(authentication.getName(), projectId)) {

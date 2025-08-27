@@ -1,6 +1,5 @@
 package com.barataribeiro.taskr.task;
 
-import com.barataribeiro.taskr.activity.ActivityEventListener;
 import com.barataribeiro.taskr.activity.events.task.*;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
@@ -52,7 +51,6 @@ public class TaskService {
     private final ApplicationEventPublisher eventPublisher;
 
     private final @Lazy TaskService self = this;
-    private final ActivityEventListener activityEventListener;
 
 
     @Cacheable(value = "tasksByProject")

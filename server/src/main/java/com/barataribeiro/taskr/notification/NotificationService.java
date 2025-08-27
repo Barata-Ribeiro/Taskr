@@ -60,7 +60,9 @@ public class NotificationService {
         return latestNotificationsDTO;
     }
 
-    @Cacheable(value = "notifications", key = "#authentication.name")
+    @Cacheable(value = "notifications",
+               key = "#authentication.name + '_' + #pageQueryParams.page + '_' + #pageQueryParams.perPage + '_' + " +
+                       "#pageQueryParams.direction + '_' + #pageQueryParams.orderBy")
     @Transactional(readOnly = true)
     public Page<NotificationDTO> getAllNotifications(@NotNull PageQueryParamsDTO pageQueryParams,
                                                      @NotNull Authentication authentication) {

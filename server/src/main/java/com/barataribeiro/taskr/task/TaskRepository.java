@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificationExecutor<Task> {
-    @EntityGraph(attributePaths = {"assignees"})
+    @EntityGraph(attributePaths = {"project", "assignees"})
     Optional<Task> findByIdAndProject_Id(@Param("taskId") Long taskId, @Param("projectId") Long projectId);
 
     @EntityGraph(attributePaths = {"assignees"})
