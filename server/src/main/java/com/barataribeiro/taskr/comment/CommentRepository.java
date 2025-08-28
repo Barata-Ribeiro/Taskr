@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>,
         RepositorySpecificationExecutor<Comment, Long> {
-    @EntityGraph(attributePaths = {"author", "task", "parent", "children"})
+    @EntityGraph(attributePaths = {"author", "task", "parent.author", "children.author"})
     Optional<Comment> findByIdAndAuthor_UsernameAndTask_Id(@Param("id") Long id, @Param("username") String username,
                                                            @Param("taskId") Long taskId);
 
