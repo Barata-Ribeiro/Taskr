@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -77,7 +78,9 @@ public class NotificationService {
 
         Specification<Notification> spec = (root, _, _) ->
                 root.get("id").in(notificationIds);
-        List<Notification> notifications = notificationRepository.findAll(spec);
+        List<Notification> notifications = notificationRepository
+                .findAll(spec).parallelStream()
+                .sorted(Comparator.comparing(Notification::getCreatedAt).reversed()).toList();
 
         return PageableExecutionUtils.getPage(
                 notificationBuilder.toNotificationDTOList(notifications),

@@ -25,8 +25,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Streamable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -86,9 +88,13 @@ public class TaskService {
         }
 
         Pageable pageable = PageRequest.of(0, 5);
-        List<Long> taskIds = taskRepository.findTop5TaskIdsByProjectIdOrderByCreatedAtDesc(projectId, pageable);
+        Page<Long> taskIdsPage = taskRepository.findAllIdsByProject_Id(projectId, pageable);
 
-        List<Task> tasks = taskRepository.findTasksWithAssigneesByIdIn(taskIds).parallelStream()
+        List<Long> taskIds = taskIdsPage.getContent();
+        if (taskIds.isEmpty()) return new ArrayList<>();
+
+        Specification<Task> specification = (root, _, _) -> root.get("id").in(taskIds);
+        List<Task> tasks = taskRepository.findAll(specification).parallelStream()
                                          .sorted(Comparator.comparing(Task::getCreatedAt).reversed())
                                          .toList();
 
