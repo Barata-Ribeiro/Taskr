@@ -3,6 +3,7 @@ import getGlobalStats from "@/actions/stats/get-global-stats"
 import DashboardErrorMessage from "@/components/shared/feedback/DashboardErrorMessage"
 import OtherStatistics from "@/components/stats/OtherStatistics"
 import ProjectsByStatus from "@/components/stats/ProjectsByStatus"
+import ProjectsWrittenCount from "@/components/stats/ProjectsWrittenCount"
 import UsersByRoleChart from "@/components/stats/UsersByRoleChart"
 import UsersByVerificationChart from "@/components/stats/UsersByVerificationChart"
 import UsersWrittenCount from "@/components/stats/UsersWrittenCount"
@@ -81,7 +82,7 @@ export default async function GlobalStats() {
                 className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:mt-6 md:grid-cols-3 md:gap-6"
                 aria-label="Project statistics">
                 <ProjectsByStatus data={projectsCount} />
-                {/*TODO: Add a list of written statistics for projects*/}
+                <ProjectsWrittenCount data={projectsCount} />
             </div>
 
             <OtherStatistics data={globalStats} />
