@@ -10,6 +10,7 @@ import { ChartPieIcon } from "lucide-react"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { Fragment, Suspense } from "react"
+import UserStatsPanel from "@/components/stats/UserStatsPanel"
 
 interface StatsPageProps {
     params: Promise<{ username: string }>
@@ -45,7 +46,7 @@ export default async function StatsPage({ params }: Readonly<StatsPageProps>) {
 
             <DividerIconOnly icon={ChartPieIcon} />
 
-            <Suspense fallback={<div>Loading...</div>}>{/*TODO: Add user-specific stats component here*/}</Suspense>
+            <UserStatsPanel />
         </Fragment>
     )
 }
