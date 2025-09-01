@@ -50,6 +50,11 @@ export function adminAllUsersUrl(queryParams: QueryParams): string {
     return `${API_URL}/admin/users${queryString}`
 }
 
+export function adminAllUsernamesUrl(term: string): string {
+    const queryString = buildQueryParams({ term })
+    return `${API_URL}/admin/users/search${queryString}`
+}
+
 export function adminUserByUsernameUrl(username: string): string {
     return `${API_URL}/admin/users/${username}`
 }
