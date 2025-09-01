@@ -6,6 +6,7 @@ import com.barataribeiro.taskr.helpers.RestResponse;
 import com.barataribeiro.taskr.project.dtos.ProjectCompleteDTO;
 import com.barataribeiro.taskr.project.dtos.ProjectDTO;
 import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
+import com.barataribeiro.taskr.user.dtos.UserSearchDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
 import com.barataribeiro.taskr.user.dtos.UserUpdateRequestDTO;
 import com.barataribeiro.taskr.user.enums.Roles;
@@ -20,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -36,6 +39,16 @@ public class AdminController {
     public ResponseEntity<RestResponse<Page<UserSecurityDTO>>> getAllUsers(
             @ModelAttribute PageQueryParamsDTO pageQueryParams) {
         Page<UserSecurityDTO> users = adminService.getAllUsers(pageQueryParams);
+        return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
+                                                    "Users retrieved successfully", users));
+    }
+
+    @GetMapping("/users/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Search users by term",
+               description = "Searches for users by a search term in username, email, display name, or full name.")
+    public ResponseEntity<RestResponse<Set<UserSearchDTO>>> searchUsersByTerm(@RequestParam String term) {
+        Set<UserSearchDTO> users = adminService.searchUsersByTerm(term);
         return ResponseEntity.ok(new RestResponse<>(HttpStatus.OK, HttpStatus.OK.value(),
                                                     "Users retrieved successfully", users));
     }

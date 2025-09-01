@@ -17,6 +17,7 @@ import com.barataribeiro.taskr.user.User;
 import com.barataribeiro.taskr.user.UserBuilder;
 import com.barataribeiro.taskr.user.UserRepository;
 import com.barataribeiro.taskr.user.dtos.UserProfileDTO;
+import com.barataribeiro.taskr.user.dtos.UserSearchDTO;
 import com.barataribeiro.taskr.user.dtos.UserSecurityDTO;
 import com.barataribeiro.taskr.user.dtos.UserUpdateRequestDTO;
 import com.barataribeiro.taskr.user.enums.Roles;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -55,6 +57,11 @@ public class AdminService {
                                                     pageQueryParams.getDirection(), pageQueryParams.getOrderBy());
         Page<User> users = userRepository.findAll(pageable);
         return users.map(userBuilder::toUserSecurityDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public Set<UserSearchDTO> searchUsersByTerm(String term) {
+        return userRepository.searchAllUsernamesByTerm(term);
     }
 
     @Transactional(readOnly = true)

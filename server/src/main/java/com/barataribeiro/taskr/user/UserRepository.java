@@ -1,17 +1,30 @@
 package com.barataribeiro.taskr.user;
 
+import com.barataribeiro.taskr.config.specification.RepositorySpecificationExecutor;
 import com.barataribeiro.taskr.stats.dtos.UserStatsDTO;
 import com.barataribeiro.taskr.stats.dtos.counts.UserCountDTO;
+import com.barataribeiro.taskr.user.dtos.UserSearchDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
-    Optional<User> findByUsername(String username);
+public interface UserRepository extends JpaRepository<User, UUID>, RepositorySpecificationExecutor<User, UUID> {
+
+    @Query("""
+           select new com.barataribeiro.taskr.user.dtos.UserSearchDTO(u.id, u.username, u.createdAt) from User u
+               where lower(u.username) ilike concat('%', lower(:term), '%')
+               or lower(u.email) ilike concat('%', lower(:term), '%')
+               or lower(u.displayName) ilike concat('%', lower(:term), '%')
+               or lower(u.fullName) ilike concat('%', lower(:term), '%')
+           order by u.username asc
+           """)
+    Set<UserSearchDTO> searchAllUsernamesByTerm(@Param("term") String term);
+
+    Optional<User> findByUsername(@Param("username") String username);
 
     @Query("""
            select u from User u
@@ -19,9 +32,9 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
            """)
     Optional<User> findUserByUsernameOrEmailAllIgnoreCase(@Param("term") String term);
 
-    boolean existsByUsernameOrEmailAllIgnoreCase(String username, String email);
+    boolean existsByUsernameOrEmailAllIgnoreCase(@Param("username") String username, @Param("email") String email);
 
-    long countByUsername(String username);
+    long countByUsername(@Param("username") String username);
 
     @Query("""
            select new com.barataribeiro.taskr.stats.dtos.UserStatsDTO(
@@ -36,7 +49,7 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
            left join u.memberships m
            where u.id = :userId
            """)
-    UserStatsDTO getUserStats(UUID userId);
+    UserStatsDTO getUserStats(@Param("userId") UUID userId);
 
     @Query(value = """
                    select
@@ -53,5 +66,5 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
                    """, nativeQuery = true)
     UserCountDTO getUserCount();
 
-    long deleteByUsername(String username);
+    long deleteByUsername(@Param("username") String username);
 }
