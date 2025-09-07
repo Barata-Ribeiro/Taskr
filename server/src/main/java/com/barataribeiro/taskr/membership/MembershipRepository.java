@@ -9,10 +9,8 @@ import org.springframework.data.util.Streamable;
 import java.util.Optional;
 
 public interface MembershipRepository extends JpaRepository<Membership, Long>, JpaSpecificationExecutor<Membership> {
-    @EntityGraph(attributePaths = {"project", "user"})
     boolean existsByUser_UsernameAndProject_Id(@Param("username") String username, @Param("projectId") Long projectId);
 
-    @EntityGraph(attributePaths = {"project.tasks", "user"})
     boolean existsByUser_UsernameAndProject_Tasks_Id(@Param("username") String username, @Param("taskId") Long taskId);
 
     @EntityGraph(attributePaths = {"project", "user"})

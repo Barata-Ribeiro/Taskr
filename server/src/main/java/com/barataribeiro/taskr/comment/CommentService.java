@@ -20,14 +20,12 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -46,32 +44,9 @@ public class CommentService {
             throw new EntityNotFoundException(Task.class.getSimpleName());
         }
 
-        Page<Long> commentIds = commentRepository.findAllIdsByTask_Id(taskId, PageRequest.of(0, 1000));
+        List<Object[]> rows = commentRepository.findCommentTreeRaw(taskId);
 
-        List<Long> ids = commentIds.getContent();
-        if (ids.isEmpty()) return List.of();
-
-        Specification<Comment> specification = (root, _, _) -> root.get("id").in(ids);
-        List<Comment> comments = commentRepository.findAll(specification);
-
-        List<CommentDTO> commentDTOS = commentBuilder.toCommentDTOList(comments);
-
-        Map<Long, CommentDTO> dtoById = new LinkedHashMap<>();
-        commentDTOS.parallelStream().forEachOrdered(dto -> {
-            dto.setChildren(new ArrayList<>());
-            dtoById.put(dto.getId(), dto);
-        });
-
-        List<CommentDTO> roots = new ArrayList<>();
-        commentDTOS.parallelStream().forEachOrdered(dto -> {
-            if (dto.getParentId() == null) roots.add(dto);
-            else {
-                CommentDTO parentDTO = dtoById.get(dto.getParentId());
-                if (parentDTO != null) parentDTO.getChildren().add(dto);
-            }
-        });
-
-        return roots;
+        return commentBuilder.fromRawRows(rows);
     }
 
     @Caching(evict = {@CacheEvict(value = "userAccount", key = "#authentication.name"),
