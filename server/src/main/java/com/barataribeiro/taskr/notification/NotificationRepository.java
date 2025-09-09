@@ -18,7 +18,6 @@ import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long>,
         RepositorySpecificationExecutor<Notification, Long> {
-    @EntityGraph(attributePaths = {"recipient"})
     long countByRecipient_Id(@Param("recipientId") UUID recipientId);
 
     @Query("SELECT n.id FROM Notification n JOIN n.recipient WHERE n.recipient.username = :username")
@@ -46,9 +45,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
            """)
     TotalNotifications getNotificationCountsByRecipient_Username(@Param("username") String username);
 
-    @EntityGraph(attributePaths = {"recipient"})
     long deleteByIdAndRecipient_Username(@Param("id") Long id, @Param("username") String username);
 
-    @EntityGraph(attributePaths = {"recipient"})
     long deleteByIdInAndRecipient_Username(@Param("ids") Collection<Long> ids, @Param("username") String username);
 }

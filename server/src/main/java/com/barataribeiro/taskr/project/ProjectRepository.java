@@ -54,6 +54,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
            """)
     ProjectStatsDTO getProjectCount(@Param("projectId") Long projectId);
 
-    @EntityGraph(attributePaths = {"owner"})
     long deleteByIdAndOwner_Username(@Param("id") Long id, @Param("username") String username);
 }
