@@ -7,13 +7,18 @@ import com.barataribeiro.taskr.user.enums.Roles;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Component
@@ -45,7 +50,7 @@ public class CommentBuilder {
         return modelMapper.map(comment, CommentDTO.class);
     }
 
-    public CommentDTO fromRawRow(@NotNull Object[] row) {
+    public CommentDTO fromRawRow(@NotNull Object @NotNull [] row) {
         Long commentId = ((Number) row[0]).longValue();
         CommentDTO dto = new CommentDTO();
         dto.setId(commentId);
@@ -55,14 +60,14 @@ public class CommentBuilder {
         dto.setTaskId(((Number) row[5]).longValue());
         dto.setParentId(row[6] instanceof Number number ? number.longValue() : null);
 
-        Instant createdAt = row[7] instanceof Instant instant ? instant : ((Timestamp) row[7]).toInstant();
+        Instant createdAt = toInstant(row[7]);
         dto.setCreatedAt(createdAt);
 
-        Instant updatedAt = row[8] instanceof Instant instant ? instant : ((Timestamp) row[8]).toInstant();
+        Instant updatedAt = toInstant(row[8]);
         dto.setUpdatedAt(updatedAt);
 
         User author = User.builder()
-                          .id(UUID.fromString(row[9].toString()))
+                          .id(toUUID(row[9]))
                           .username(row[10].toString())
                           .role(Roles.valueOf(row[11].toString()))
                           .displayName(row[12].toString())
@@ -81,20 +86,48 @@ public class CommentBuilder {
     public List<CommentDTO> fromRawRows(@NotNull List<Object[]> rows) {
         Map<Long, CommentDTO> map = new LinkedHashMap<>();
 
-        rows.forEach(row -> {
+        rows.parallelStream().forEachOrdered(row -> {
             Long commentId = ((Number) row[0]).longValue();
             map.computeIfAbsent(commentId, _ -> fromRawRow(row));
         });
 
         List<CommentDTO> roots = new ArrayList<>();
-        for (CommentDTO dto : map.values()) {
+        map.values().parallelStream().forEachOrdered(dto -> {
             if (dto.getParentId() == null) roots.add(dto);
             else {
                 CommentDTO parent = map.get(dto.getParentId());
                 if (parent != null) parent.getChildren().add(dto);
             }
-        }
+        });
 
         return roots;
+    }
+
+    private @Nullable Instant toInstant(Object value) {
+        return switch (value) {
+            case null -> null;
+            case Instant instant -> instant;
+            case OffsetDateTime offsetDateTime -> offsetDateTime.toInstant();
+            case Timestamp timestamp -> timestamp.toInstant();
+            case LocalDateTime localDateTime -> localDateTime
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant();
+            case Date date -> Instant.ofEpochMilli((date.getTime()));
+            default -> Instant.parse(value.toString());
+        };
+    }
+
+    private @Nullable UUID toUUID(Object value) {
+        return switch (value) {
+            case null -> null;
+            case UUID uuid -> uuid;
+            case byte[] bytes -> {
+                ByteBuffer bb = ByteBuffer.wrap(bytes);
+                long high = bb.getLong();
+                long low = bb.getLong();
+                yield new UUID(high, low);
+            }
+            default -> UUID.fromString(value.toString());
+        };
     }
 }
