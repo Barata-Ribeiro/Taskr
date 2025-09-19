@@ -1,9 +1,7 @@
-package com.barataribeiro.taskr.user;
+package com.barataribeiro.taskr.features.user;
 
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.exceptions.throwables.InvalidCredentialsException;
-import com.barataribeiro.taskr.features.user.UserBuilder;
-import com.barataribeiro.taskr.features.user.UserRepository;
 import com.barataribeiro.taskr.features.user.dtos.UserUpdateRequestDTO;
 import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.jayway.jsonpath.JsonPath;

@@ -1,6 +1,5 @@
-package com.barataribeiro.taskr.membership;
+package com.barataribeiro.taskr.features.membership;
 
-import com.barataribeiro.taskr.features.membership.Membership;
 import com.barataribeiro.taskr.features.project.Project;
 import com.barataribeiro.taskr.features.project.enums.ProjectRole;
 import com.barataribeiro.taskr.features.user.User;

@@ -1,4 +1,4 @@
-package com.barataribeiro.taskr.authentication;
+package com.barataribeiro.taskr.features.authentication;
 
 import com.barataribeiro.taskr.features.authentication.dto.LoginRequestDTO;
 import com.barataribeiro.taskr.features.authentication.dto.RegistrationRequestDTO;

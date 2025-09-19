@@ -1,6 +1,5 @@
-package com.barataribeiro.taskr.user;
+package com.barataribeiro.taskr.features.user;
 
-import com.barataribeiro.taskr.features.user.User;
 import com.barataribeiro.taskr.features.user.enums.Roles;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

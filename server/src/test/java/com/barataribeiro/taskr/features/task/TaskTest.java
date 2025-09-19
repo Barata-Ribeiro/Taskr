@@ -1,7 +1,6 @@
-package com.barataribeiro.taskr.task;
+package com.barataribeiro.taskr.features.task;
 
 import com.barataribeiro.taskr.features.project.Project;
-import com.barataribeiro.taskr.features.task.Task;
 import com.barataribeiro.taskr.features.task.enums.TaskPriority;
 import com.barataribeiro.taskr.features.task.enums.TaskStatus;
 import com.barataribeiro.taskr.features.user.User;

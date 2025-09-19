@@ -1,4 +1,4 @@
-package com.barataribeiro.taskr.project;
+package com.barataribeiro.taskr.features.project;
 
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.features.activity.ActivityRepository;

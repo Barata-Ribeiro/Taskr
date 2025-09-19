@@ -1,4 +1,4 @@
-package com.barataribeiro.taskr.stats;
+package com.barataribeiro.taskr.features.stats;
 
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.ForbiddenRequestException;

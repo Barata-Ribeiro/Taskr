@@ -1,6 +1,5 @@
-package com.barataribeiro.taskr.comment;
+package com.barataribeiro.taskr.features.comment;
 
-import com.barataribeiro.taskr.features.comment.CommentRepository;
 import com.barataribeiro.taskr.features.comment.dtos.CommentDTO;
 import com.barataribeiro.taskr.features.comment.dtos.CommentRequestDTO;
 import com.barataribeiro.taskr.features.project.dtos.ProjectDTO;

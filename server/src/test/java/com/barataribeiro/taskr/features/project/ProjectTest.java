@@ -1,6 +1,5 @@
-package com.barataribeiro.taskr.project;
+package com.barataribeiro.taskr.features.project;
 
-import com.barataribeiro.taskr.features.project.Project;
 import com.barataribeiro.taskr.features.project.enums.ProjectStatus;
 import com.barataribeiro.taskr.features.user.User;
 import org.junit.jupiter.api.DisplayName;

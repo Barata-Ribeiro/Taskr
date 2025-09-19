@@ -1,6 +1,5 @@
-package com.barataribeiro.taskr.notification;
+package com.barataribeiro.taskr.features.notification;
 
-import com.barataribeiro.taskr.features.notification.Notification;
 import com.barataribeiro.taskr.features.notification.enums.NotificationType;
 import com.barataribeiro.taskr.features.user.User;
 import org.junit.jupiter.api.DisplayName;

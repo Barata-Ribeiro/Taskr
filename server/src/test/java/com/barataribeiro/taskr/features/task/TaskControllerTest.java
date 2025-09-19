@@ -1,12 +1,10 @@
-package com.barataribeiro.taskr.task;
+package com.barataribeiro.taskr.features.task;
 
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
 import com.barataribeiro.taskr.features.activity.ActivityRepository;
 import com.barataribeiro.taskr.features.notification.NotificationRepository;
 import com.barataribeiro.taskr.features.project.dtos.ProjectDTO;
-import com.barataribeiro.taskr.features.task.Task;
-import com.barataribeiro.taskr.features.task.TaskRepository;
 import com.barataribeiro.taskr.features.task.dtos.*;
 import com.barataribeiro.taskr.features.task.enums.TaskStatus;
 import com.barataribeiro.taskr.features.user.UserBuilder;

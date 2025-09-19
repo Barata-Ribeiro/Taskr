@@ -1,8 +1,6 @@
-package com.barataribeiro.taskr.notification;
+package com.barataribeiro.taskr.features.notification;
 
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
-import com.barataribeiro.taskr.features.notification.Notification;
-import com.barataribeiro.taskr.features.notification.NotificationRepository;
 import com.barataribeiro.taskr.features.notification.enums.NotificationType;
 import com.barataribeiro.taskr.features.user.User;
 import com.barataribeiro.taskr.features.user.UserBuilder;

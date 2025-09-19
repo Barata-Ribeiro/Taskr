@@ -1,6 +1,5 @@
-package com.barataribeiro.taskr.comment;
+package com.barataribeiro.taskr.features.comment;
 
-import com.barataribeiro.taskr.features.comment.Comment;
 import com.barataribeiro.taskr.features.task.Task;
 import com.barataribeiro.taskr.features.user.User;
 import org.junit.jupiter.api.DisplayName;
