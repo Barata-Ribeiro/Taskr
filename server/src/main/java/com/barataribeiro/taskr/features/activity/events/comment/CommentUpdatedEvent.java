@@ -1,0 +1,21 @@
+package com.barataribeiro.taskr.features.activity.events.comment;
+
+import com.barataribeiro.taskr.features.project.Project;
+import com.barataribeiro.taskr.features.comment.Comment;
+import lombok.Getter;
+import org.springframework.context.ApplicationEvent;
+
+@Getter
+public class CommentUpdatedEvent extends ApplicationEvent {
+    private final Project project;
+    private final Comment comment;
+    private final String username;
+
+    public CommentUpdatedEvent(Object source, Project project, Comment comment, String username) {
+        super(source);
+        this.project = project;
+        this.comment = comment;
+        this.username = username;
+    }
+}
+

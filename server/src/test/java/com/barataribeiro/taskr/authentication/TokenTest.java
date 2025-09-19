@@ -1,5 +1,6 @@
 package com.barataribeiro.taskr.authentication;
 
+import com.barataribeiro.taskr.features.authentication.Token;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,8 +1,8 @@
 package com.barataribeiro.taskr.authentication;
 
-import com.barataribeiro.taskr.authentication.dto.LoginRequestDTO;
-import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
-import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.features.authentication.dto.LoginRequestDTO;
+import com.barataribeiro.taskr.features.authentication.dto.RegistrationRequestDTO;
+import com.barataribeiro.taskr.features.user.UserRepository;
 import com.barataribeiro.taskr.utils.ConcurrencyTestUtil;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;

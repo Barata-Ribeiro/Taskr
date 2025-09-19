@@ -1,10 +1,12 @@
 package com.barataribeiro.taskr.notification;
 
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
-import com.barataribeiro.taskr.notification.enums.NotificationType;
-import com.barataribeiro.taskr.user.User;
-import com.barataribeiro.taskr.user.UserBuilder;
-import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.features.notification.Notification;
+import com.barataribeiro.taskr.features.notification.NotificationRepository;
+import com.barataribeiro.taskr.features.notification.enums.NotificationType;
+import com.barataribeiro.taskr.features.user.User;
+import com.barataribeiro.taskr.features.user.UserBuilder;
+import com.barataribeiro.taskr.features.user.UserRepository;
 import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
 import com.jayway.jsonpath.JsonPath;

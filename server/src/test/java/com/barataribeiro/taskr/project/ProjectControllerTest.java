@@ -1,12 +1,12 @@
 package com.barataribeiro.taskr.project;
 
-import com.barataribeiro.taskr.activity.ActivityRepository;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
-import com.barataribeiro.taskr.project.dtos.ProjectDTO;
-import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
-import com.barataribeiro.taskr.project.dtos.ProjectUpdateRequestDTO;
-import com.barataribeiro.taskr.user.UserBuilder;
-import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.features.activity.ActivityRepository;
+import com.barataribeiro.taskr.features.project.dtos.ProjectDTO;
+import com.barataribeiro.taskr.features.project.dtos.ProjectRequestDTO;
+import com.barataribeiro.taskr.features.project.dtos.ProjectUpdateRequestDTO;
+import com.barataribeiro.taskr.features.user.UserBuilder;
+import com.barataribeiro.taskr.features.user.UserRepository;
 import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;

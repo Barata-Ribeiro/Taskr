@@ -1,14 +1,14 @@
 package com.barataribeiro.taskr.utils;
 
-import com.barataribeiro.taskr.authentication.dto.LoginRequestDTO;
-import com.barataribeiro.taskr.authentication.dto.RegistrationRequestDTO;
-import com.barataribeiro.taskr.project.dtos.ProjectDTO;
-import com.barataribeiro.taskr.project.dtos.ProjectRequestDTO;
-import com.barataribeiro.taskr.project.dtos.ProjectUpdateRequestDTO;
-import com.barataribeiro.taskr.task.dtos.TaskDTO;
-import com.barataribeiro.taskr.task.dtos.TaskRequestDTO;
-import com.barataribeiro.taskr.user.UserBuilder;
-import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.features.authentication.dto.LoginRequestDTO;
+import com.barataribeiro.taskr.features.authentication.dto.RegistrationRequestDTO;
+import com.barataribeiro.taskr.features.project.dtos.ProjectDTO;
+import com.barataribeiro.taskr.features.project.dtos.ProjectRequestDTO;
+import com.barataribeiro.taskr.features.project.dtos.ProjectUpdateRequestDTO;
+import com.barataribeiro.taskr.features.task.dtos.TaskDTO;
+import com.barataribeiro.taskr.features.task.dtos.TaskRequestDTO;
+import com.barataribeiro.taskr.features.user.UserBuilder;
+import com.barataribeiro.taskr.features.user.UserRepository;
 import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;

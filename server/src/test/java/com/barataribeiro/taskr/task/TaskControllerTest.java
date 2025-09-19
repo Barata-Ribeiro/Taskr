@@ -1,14 +1,16 @@
 package com.barataribeiro.taskr.task;
 
-import com.barataribeiro.taskr.activity.ActivityRepository;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.IllegalRequestException;
-import com.barataribeiro.taskr.notification.NotificationRepository;
-import com.barataribeiro.taskr.project.dtos.ProjectDTO;
-import com.barataribeiro.taskr.task.dtos.*;
-import com.barataribeiro.taskr.task.enums.TaskStatus;
-import com.barataribeiro.taskr.user.UserBuilder;
-import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.features.activity.ActivityRepository;
+import com.barataribeiro.taskr.features.notification.NotificationRepository;
+import com.barataribeiro.taskr.features.project.dtos.ProjectDTO;
+import com.barataribeiro.taskr.features.task.Task;
+import com.barataribeiro.taskr.features.task.TaskRepository;
+import com.barataribeiro.taskr.features.task.dtos.*;
+import com.barataribeiro.taskr.features.task.enums.TaskStatus;
+import com.barataribeiro.taskr.features.user.UserBuilder;
+import com.barataribeiro.taskr.features.user.UserRepository;
 import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;

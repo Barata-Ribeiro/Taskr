@@ -1,6 +1,6 @@
 package com.barataribeiro.taskr.config.security;
 
-import com.barataribeiro.taskr.authentication.services.SecurityFilter;
+import com.barataribeiro.taskr.features.authentication.services.SecurityFilter;
 import com.barataribeiro.taskr.config.ApplicationConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

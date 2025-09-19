@@ -1,6 +1,6 @@
 package com.barataribeiro.taskr.config.websocket;
 
-import com.barataribeiro.taskr.authentication.services.TokenService;
+import com.barataribeiro.taskr.features.authentication.services.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;

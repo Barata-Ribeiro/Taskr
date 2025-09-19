@@ -1,13 +1,13 @@
 package com.barataribeiro.taskr.stats;
 
-import com.barataribeiro.taskr.authentication.dto.LoginRequestDTO;
 import com.barataribeiro.taskr.exceptions.throwables.EntityNotFoundException;
 import com.barataribeiro.taskr.exceptions.throwables.ForbiddenRequestException;
-import com.barataribeiro.taskr.membership.MembershipRepository;
-import com.barataribeiro.taskr.project.dtos.ProjectDTO;
-import com.barataribeiro.taskr.user.UserBuilder;
-import com.barataribeiro.taskr.user.UserRepository;
-import com.barataribeiro.taskr.user.enums.Roles;
+import com.barataribeiro.taskr.features.authentication.dto.LoginRequestDTO;
+import com.barataribeiro.taskr.features.membership.MembershipRepository;
+import com.barataribeiro.taskr.features.project.dtos.ProjectDTO;
+import com.barataribeiro.taskr.features.user.UserBuilder;
+import com.barataribeiro.taskr.features.user.UserRepository;
+import com.barataribeiro.taskr.features.user.enums.Roles;
 import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
 import com.jayway.jsonpath.JsonPath;

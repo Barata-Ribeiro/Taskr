@@ -1,11 +1,12 @@
 package com.barataribeiro.taskr.comment;
 
-import com.barataribeiro.taskr.comment.dtos.CommentDTO;
-import com.barataribeiro.taskr.comment.dtos.CommentRequestDTO;
-import com.barataribeiro.taskr.project.dtos.ProjectDTO;
-import com.barataribeiro.taskr.task.dtos.TaskDTO;
-import com.barataribeiro.taskr.user.UserBuilder;
-import com.barataribeiro.taskr.user.UserRepository;
+import com.barataribeiro.taskr.features.comment.CommentRepository;
+import com.barataribeiro.taskr.features.comment.dtos.CommentDTO;
+import com.barataribeiro.taskr.features.comment.dtos.CommentRequestDTO;
+import com.barataribeiro.taskr.features.project.dtos.ProjectDTO;
+import com.barataribeiro.taskr.features.task.dtos.TaskDTO;
+import com.barataribeiro.taskr.features.user.UserBuilder;
+import com.barataribeiro.taskr.features.user.UserRepository;
 import com.barataribeiro.taskr.utils.TestSetupUtil;
 import com.barataribeiro.taskr.utils.dtos.LoginReturnDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;

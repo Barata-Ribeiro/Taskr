@@ -1,15 +1,15 @@
 package com.barataribeiro.taskr;
 
-import com.barataribeiro.taskr.authentication.AuthenticationController;
-import com.barataribeiro.taskr.authentication.services.AuthenticationService;
-import com.barataribeiro.taskr.authentication.services.TokenService;
-import com.barataribeiro.taskr.notification.NotificationService;
-import com.barataribeiro.taskr.project.ProjectController;
-import com.barataribeiro.taskr.project.ProjectService;
-import com.barataribeiro.taskr.task.TaskController;
-import com.barataribeiro.taskr.task.TaskService;
-import com.barataribeiro.taskr.user.UserController;
-import com.barataribeiro.taskr.user.UserService;
+import com.barataribeiro.taskr.features.authentication.AuthenticationController;
+import com.barataribeiro.taskr.features.authentication.services.AuthenticationService;
+import com.barataribeiro.taskr.features.authentication.services.TokenService;
+import com.barataribeiro.taskr.features.notification.NotificationService;
+import com.barataribeiro.taskr.features.project.ProjectController;
+import com.barataribeiro.taskr.features.project.ProjectService;
+import com.barataribeiro.taskr.features.task.TaskController;
+import com.barataribeiro.taskr.features.task.TaskService;
+import com.barataribeiro.taskr.features.user.UserController;
+import com.barataribeiro.taskr.features.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

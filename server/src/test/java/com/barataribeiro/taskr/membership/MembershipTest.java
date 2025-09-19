@@ -1,8 +1,9 @@
 package com.barataribeiro.taskr.membership;
 
-import com.barataribeiro.taskr.project.Project;
-import com.barataribeiro.taskr.project.enums.ProjectRole;
-import com.barataribeiro.taskr.user.User;
+import com.barataribeiro.taskr.features.membership.Membership;
+import com.barataribeiro.taskr.features.project.Project;
+import com.barataribeiro.taskr.features.project.enums.ProjectRole;
+import com.barataribeiro.taskr.features.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

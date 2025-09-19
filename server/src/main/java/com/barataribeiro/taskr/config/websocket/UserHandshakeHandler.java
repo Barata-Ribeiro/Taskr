@@ -1,6 +1,6 @@
 package com.barataribeiro.taskr.config.websocket;
 
-import com.barataribeiro.taskr.authentication.services.TokenService;
+import com.barataribeiro.taskr.features.authentication.services.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
