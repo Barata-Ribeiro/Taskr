@@ -139,6 +139,10 @@ public class TaskService {
             throw new IllegalRequestException("Due date cannot be in the past.");
         }
 
+        if (taskRepository.existsByTitleIgnoreCase(body.getTitle())) {
+            throw new IllegalRequestException("This task title is already in use.");
+        }
+
         User user = userRepository.findByUsername(authentication.getName())
                                   .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName()));
 

@@ -33,6 +33,8 @@ public interface TaskRepository extends JpaRepository<Task, Long>, RepositorySpe
     List<Task> findAllByProject_IdAndStatusOrderByPositionAsc(@Param("projectId") Long projectId,
                                                               @Param("status") TaskStatus status);
 
+    boolean existsByTitleIgnoreCase(String title);
+
     long countByProject_IdAndStatus(@Param("id") Long id, @Param("status") TaskStatus status);
 
     long deleteByIdAndProject_IdAndProject_Owner_Username(@Param("taskId") Long taskId,
