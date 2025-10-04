@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@headlessui/react": "^2.2.8",
+    "@headlessui/react": "^2.2.9",
     "@hello-pangea/dnd": "^18.0.1",
     "@stomp/stompjs": "^7.2.0",
     "@uiw/react-md-editor": "^4.0.8",
@@ -27,17 +27,17 @@
     "sockjs-client": "^1.6.1",
     "tailwind-merge": "^3.3.1",
     "victory": "^37.3.6",
-    "zod": "^4.1.9"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.35.0",
     "@next/eslint-plugin-next": "^15.5.3",
     "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/postcss": "^4.1.13",
-    "@tailwindcss/typography": "^0.5.17",
-    "@types/jsdom": "^21.1.7",
-    "@types/node": "^24.5.2",
+    "@tailwindcss/postcss": "^4.1.14",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/jsdom": "^27.0.0",
+    "@types/node": "^24.6.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@types/sanitize-html": "^2.16.0",
@@ -51,7 +51,7 @@
     "prettier-plugin-tailwindcss": "^0.6.14",
     "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.1",
-    "tailwindcss": "^4.1.13",
-    "typescript": "^5.9.2"
+    "tailwindcss": "^4.1.14",
+    "typescript": "^5.9.3"
   }
 }
